@@ -68,11 +68,6 @@ common:
     type: Terms of Service
 created: 2023/11/13
 modified: '2024-11-15'
-overlays:
-  - url: overlays/apis-io-search.yml
-    type: APIs.io Search
-  - url: overlays/apis-io-search.yml
-    type: API Evangelist Ratings
 description: >-
   As global mobility becomes increasingly connected, electrified and automated,
   HERE Technologies is leading the way to a safer, greener future. Our location
