@@ -11,10 +11,6 @@ apis:
         url: http://example.com
         email: info@example.com
     humanURL: https://developer.here.com/
-    overlays:
-      - url: >-
-          overlays/https://fleet.ls.hereapi.com/v3/api-docs?apiKey=YOUR_API_KEY-openapi-search.yml
-        type: APIs.io Search
     properties:
       - url: https://developer.here.com/develop/rest-apis
         type: Documentation
