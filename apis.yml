@@ -3,7 +3,21 @@ url: https://raw.githubusercontent.com/apis-json/artisanal/main/apis/here.json
 apis:
   - aid: here:here-apis
     name: HERE APIs
-    tags: []
+    tags:
+      - Maps
+      - Map  Attributes  V8
+      - Segments
+      - Path
+      - Match
+      - Route  Matching  V8
+      - Uploads
+      - Modify
+      - Geofences
+      - Findsequence2
+      - Layers
+      - Doc
+      - Indexes
+      - Index
     image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
     baseURL: https://api.example.com
     contact:
@@ -11,12 +25,17 @@ apis:
         url: http://example.com
         email: info@example.com
     humanURL: https://developer.here.com/
+    overlays:
+      - url: >-
+
+          overlays/https://fleet.ls.hereapi.com/v3/api-docs?apiKey=YOUR_API_KEY-openapi-search.yml
+        type: APIs.io Search
     properties:
       - url: https://developer.here.com/develop/rest-apis
         type: Documentation
-      - url: https://fleet.ls.hereapi.com/v3/api-docs?apiKey=YOUR_API_KEY
+      - url: properties/here-apis-openapi.yml
         type: OpenAPI
-    description: >-
+    description: |-
       RESTful web services that serve different purposes - from search, to
       geocoding, to routing. Whether you're providing truck routing for fleets
       or navigating users through the city with different transport modes, HERE
@@ -56,6 +75,7 @@ common:
   - url: https://status.here.com/status
     type: Status
   - url: >-
+
       https://join.slack.com/t/heredev/shared_invite/zt-1tog8frbk-Y8KUaHhbYGtpFPgsmXl5Fw
     type: Slack
   - url: https://legal.here.com/privacy/policy
@@ -64,7 +84,8 @@ common:
     type: Terms of Service
 created: 2023/11/13
 modified: '2024-11-15'
-description: >-
+description: |-
+
   As global mobility becomes increasingly connected, electrified and automated,
   HERE Technologies is leading the way to a safer, greener future. Our location
   platform is integrated into more than 160 million vehicles across the planet,
