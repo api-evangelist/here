@@ -4,22 +4,21 @@ apis:
   - aid: here:here-apis
     name: HERE APIs
     tags:
-      - Maps
-      - Map  Attributes  V8
-      - Segments
-      - Path
-      - Match
-      - Route  Matching  V8
-      - Uploads
-      - Modify
-      - Geofences
-      - Findsequence2
-      - Layers
       - Doc
-      - Indexes
+      - Findsequence2
+      - Geofences
       - Index
-    image: 
-      https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+      - Indexes
+      - Layers
+      - Map  Attributes  V8
+      - Maps
+      - Match
+      - Modify
+      - Path
+      - Route  Matching  V8
+      - Segments
+      - Uploads
+    image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
     baseURL: https://api.example.com
     contact:
       - FN: Name
@@ -44,12 +43,11 @@ apis:
       weather information, batch geocoding, comprehensive routing and more.
 name: HERE
 tags:
+  - Location
   - Mapping
   - Maps
   - Spatial
-  - Location
-image: 
-  https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 common:
   - url: https://platform.here.com/sign-up
     type: SignUp
