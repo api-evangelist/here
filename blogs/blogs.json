@@ -1,0 +1,13 @@
+{
+  "repo": "here",
+  "feeds": [
+    {
+      "source": "https://www.here.com/company/blog?type=developer",
+      "feed_url": "https://www.here.com/learn/blog/rss.xml",
+      "saved": 10,
+      "title": "HERE360 News"
+    }
+  ],
+  "post_count": 10,
+  "fetched": "2026-05-03T23:29:32Z"
+}
