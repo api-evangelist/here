@@ -3,11 +3,12 @@
   "feeds": [
     {
       "source": "https://www.here.com/company/blog?type=developer",
-      "feed_url": "https://www.here.com/learn/blog/rss.xml",
-      "saved": 10,
-      "title": "HERE360 News"
+      "feed_url": "",
+      "title": "",
+      "saved": 0,
+      "error": "no_feed"
     }
   ],
   "post_count": 10,
-  "fetched": "2026-05-03T23:29:32Z"
+  "fetched": "2026-05-09T20:17:51Z"
 }
