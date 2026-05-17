@@ -64,21 +64,21 @@ common:
   - url: https://www.here.com/company/blog?type=developer
     type: Blog
   - url: https://developer.here.com/documentation/changelog/index.html
-    type: Change Log
+    type: ChangeLog
   - url: https://developer.here.com/newsletter
     type: Newsletter
   - url: https://knowledge.here.com/csm_kb
     type: Knowledge
   - url: https://status.here.com/status
-    type: Status
+    type: StatusPage
   - url: >2-
 
       https://join.slack.com/t/heredev/shared_invite/zt-1tog8frbk-Y8KUaHhbYGtpFPgsmXl5Fw
     type: Slack
   - url: https://legal.here.com/privacy/policy
-    type: Privacy Policy
+    type: PrivacyPolicy
   - url: https://legal.here.com/terms/serviceterms
-    type: Terms of Service
+    type: TermsOfService
 created: 2023/11/13
 modified: '2026-04-28'
 description: >-
