@@ -49,6 +49,10 @@ tags:
   - Spatial
 image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 common:
+  - type: GitHubOrganization
+    url: https://github.com/heremaps
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/here
   - url: https://platform.here.com/sign-up
     type: SignUp
   - url: https://platform.here.com/portal/
