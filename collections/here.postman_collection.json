@@ -1,0 +1,975 @@
+{
+  "item": [
+    {
+      "id": "fb182d72-84c0-49dd-8e0a-1229d47103bd",
+      "name": "Geocode",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d595b035-d8a2-4147-885e-05934e197852",
+          "name": "Geocode an address (free-form or qualified)",
+          "request": {
+            "name": "Geocode an address (free-form or qualified)",
+            "description": {},
+            "url": {
+              "path": [
+                "geocode"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "Free-form text containing address elements"
+                },
+                {
+                  "disabled": false,
+                  "key": "qq",
+                  "value": "<string>",
+                  "description": "Qualified query (e.g., city=Berlin;country=Germany)"
+                },
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>",
+                  "description": "Search center as lat,lng"
+                },
+                {
+                  "disabled": false,
+                  "key": "in",
+                  "value": "<string>",
+                  "description": "Search context (countryCode:XXX,...)"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "2c243f27-8ef0-4b78-a265-7261300e0b4e",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "geocode"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "qq",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "in",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 1334.8382468045372,\n        \"lng\": 85.75277790810354\n      },\n      \"scoring\": {\n        \"queryScore\": 5335.182873160259\n      }\n    },\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 8393.641055311471,\n        \"lng\": 1033.430564757365\n      },\n      \"scoring\": {\n        \"queryScore\": 4441.596335993883\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "f273d6bc-9390-4da4-978e-fa37e5dddd0d",
+      "name": "Reverse Geocode",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a8bd7977-5387-474a-aec2-dbe92bfda58b",
+          "name": "Reverse geocode coordinates",
+          "request": {
+            "name": "Reverse geocode coordinates",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "revgeocode"
+              ],
+              "host": [
+                "revgeocode",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>",
+                  "description": "(Required) Coordinates as lat,lng"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c8459164-4f31-4725-a169-0de0889f2903",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "revgeocode"
+                  ],
+                  "host": [
+                    "revgeocode",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "1"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 1334.8382468045372,\n        \"lng\": 85.75277790810354\n      },\n      \"scoring\": {\n        \"queryScore\": 5335.182873160259\n      }\n    },\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 8393.641055311471,\n        \"lng\": 1033.430564757365\n      },\n      \"scoring\": {\n        \"queryScore\": 4441.596335993883\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "fc936565-6080-474a-a224-4e492316d223",
+          "name": "Batch reverse geocode many coordinates",
+          "request": {
+            "name": "Batch reverse geocode many coordinates",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "multi-revgeocode"
+              ],
+              "host": [
+                "revgeocode",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"at\": \"<string>\"\n    },\n    {\n      \"at\": \"<string>\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7c345d4e-8f1b-4b9d-86c3-ff7b1281515e",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "multi-revgeocode"
+                  ],
+                  "host": [
+                    "revgeocode",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"at\": \"<string>\"\n    },\n    {\n      \"at\": \"<string>\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "eb629d00-601c-4fae-a890-ade368706392",
+      "name": "Discover",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "8b6ba767-3b08-4f87-93e8-4fdf0e7f3662",
+          "name": "Find places by free-text query",
+          "request": {
+            "name": "Find places by free-text query",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "discover"
+              ],
+              "host": [
+                "discover",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "in",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5cdef664-c37b-4f19-a17d-db05049703e9",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "discover"
+                  ],
+                  "host": [
+                    "discover",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "in",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 1334.8382468045372,\n        \"lng\": 85.75277790810354\n      },\n      \"scoring\": {\n        \"queryScore\": 5335.182873160259\n      }\n    },\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 8393.641055311471,\n        \"lng\": 1033.430564757365\n      },\n      \"scoring\": {\n        \"queryScore\": 4441.596335993883\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "a1f3e2d9-3828-42ab-b627-a8fc8c025473",
+      "name": "Autosuggest",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "e683f4aa-def0-46bf-af0e-efb1efb271c6",
+          "name": "Real-time suggestions for partial queries",
+          "request": {
+            "name": "Real-time suggestions for partial queries",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "autosuggest"
+              ],
+              "host": [
+                "autosuggest",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "in",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "3f0a048d-b7c9-4fd6-92b8-1bd139d82b78",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "autosuggest"
+                  ],
+                  "host": [
+                    "autosuggest",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "in",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "dc8ec8c8-65cb-4a1f-9ed6-f7e20688e2ff",
+      "name": "Autocomplete",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "7a90f82f-c14d-43db-8303-10a29db334d4",
+          "name": "Address autocompletion",
+          "request": {
+            "name": "Address autocompletion",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "autocomplete"
+              ],
+              "host": [
+                "autocomplete",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d7d1171d-3760-47a0-8ac3-b48221087407",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "autocomplete"
+                  ],
+                  "host": [
+                    "autocomplete",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "f6cbaf39-122c-4ac6-91e7-55503940351c",
+      "name": "Browse",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "76bb1388-fe66-4c2b-8f0c-5ce42de04690",
+          "name": "Browse places by category",
+          "request": {
+            "name": "Browse places by category",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "browse"
+              ],
+              "host": [
+                "browse",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "categories",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d4481ea5-73c4-4538-b78a-75c655559490",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "browse"
+                  ],
+                  "host": [
+                    "browse",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "categories",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "feca11d4-aa8e-482d-9d5f-960aa3ac4fb4",
+      "name": "Lookup",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a734c023-50c3-4c81-95ce-8a58ad504e4f",
+          "name": "Lookup a place by its ID",
+          "request": {
+            "name": "Lookup a place by its ID",
+            "description": {},
+            "url": {
+              "protocol": "https",
+              "path": [
+                "v1",
+                "lookup"
+              ],
+              "host": [
+                "lookup",
+                "search",
+                "hereapi",
+                "com"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "id",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ccd67924-52bc-4bcd-abf8-eabe8eac1c68",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "protocol": "https",
+                  "path": [
+                    "v1",
+                    "lookup"
+                  ],
+                  "host": [
+                    "lookup",
+                    "search",
+                    "hereapi",
+                    "com"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://geocode.search.hereapi.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "apiKey"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "query"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "ddd1d312-490c-4539-8913-ca44a2e306d0",
+    "name": "HERE Geocoding & Search API v7",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "HERE Geocoding & Search API v7 provides geocoding, reverse geocoding,\nautosuggest/autocomplete, browse, lookup, and discover endpoints.\nGenerated best-effort from public docs at https://docs.here.com/.\n\n\nContact Support:\n Name: HERE Technologies",
+      "type": "text/plain"
+    }
+  }
+}

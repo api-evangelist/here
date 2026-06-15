@@ -2,10 +2,14 @@
   "repo": "here",
   "feeds": [
     {
+      "source": "https://www.here.com/company/blog",
+      "error": "HTTPError"
+    },
+    {
       "source": "https://www.here.com/company/blog?type=developer",
       "error": "HTTPError"
     }
   ],
   "post_count": 10,
-  "fetched": "2026-06-01T23:35:02Z"
+  "fetched": "2026-06-14T20:42:17Z"
 }

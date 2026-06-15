@@ -1,0 +1,315 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "HERE Geocoding & Search API v7",
+    "version": "7.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "apiKey",
+      "value": "{{apiKey}}",
+      "placement": "query"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Geocode",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Geocode an address (free-form or qualified)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/geocode",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Free-form text containing address elements"
+              },
+              {
+                "name": "qq",
+                "value": "",
+                "type": "query",
+                "description": "Qualified query (e.g., city=Berlin;country=Germany)"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query",
+                "description": "Search center as lat,lng"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query",
+                "description": "Search context (countryCode:XXX,...)"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Geocode an address (free-form or qualified)"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Reverse Geocode",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Reverse geocode coordinates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/revgeocode",
+            "params": [
+              {
+                "name": "at",
+                "value": "",
+                "type": "query",
+                "description": "Coordinates as lat,lng"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Reverse geocode coordinates"
+        },
+        {
+          "info": {
+            "name": "Batch reverse geocode many coordinates",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://geocode.search.hereapi.com/v1/multi-revgeocode",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Batch reverse geocode many coordinates"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Discover",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Find places by free-text query",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/discover",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Find places by free-text query"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Autosuggest",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Real-time suggestions for partial queries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/autosuggest",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Real-time suggestions for partial queries"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Autocomplete",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Address autocompletion",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/autocomplete",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Address autocompletion"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Browse",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Browse places by category",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/browse",
+            "params": [
+              {
+                "name": "at",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "categories",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Browse places by category"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Lookup",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Lookup a place by its ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/lookup",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lookup a place by its ID"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
