@@ -54,9 +54,9 @@ common:
   - type: LinkedIn
     url: https://www.linkedin.com/company/here
   - url: https://platform.here.com/sign-up
-    type: SignUp
+    type: Signup
   - url: https://platform.here.com/portal/
-    type: SignIn
+    type: Login
   - url: https://www.here.com/get-started/pricing
     type: Plans
   - url: https://developer.here.com/help

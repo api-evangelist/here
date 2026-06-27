@@ -2,14 +2,13 @@
   "repo": "here",
   "feeds": [
     {
-      "source": "https://www.here.com/company/blog",
-      "error": "HTTPError"
-    },
-    {
       "source": "https://www.here.com/company/blog?type=developer",
-      "error": "HTTPError"
+      "feed_url": "",
+      "saved": 1,
+      "method": "agent-scrape"
     }
   ],
-  "post_count": 10,
-  "fetched": "2026-06-14T20:42:17Z"
+  "fetched": "2026-06-27T12:45:32Z",
+  "post_count": 12,
+  "agent_pulled": "2026-06-27"
 }
