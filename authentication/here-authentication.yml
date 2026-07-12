@@ -1,0 +1,24 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/here-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - query
+schemes:
+- name: apiKey
+  type: apiKey
+  in: query
+  parameter: apiKey
+  description: HERE API Key (apiKey query parameter)
+  sources:
+  - openapi/here-openapi.yml
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: HERE OAuth 2.0 token
+  sources:
+  - openapi/here-openapi.yml
