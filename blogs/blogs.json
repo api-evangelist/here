@@ -3,12 +3,13 @@
   "feeds": [
     {
       "source": "https://www.here.com/company/blog?type=developer",
-      "feed_url": "",
-      "saved": 1,
-      "method": "agent-scrape"
+      "feed_url": "https://www.here.com/company/blog?type=developer",
+      "title": "",
+      "saved": 0,
+      "method": "none"
     }
   ],
-  "fetched": "2026-06-27T12:45:32Z",
-  "post_count": 12,
+  "fetched": "2026-07-11T11:50:51Z",
+  "post_count": 13,
   "agent_pulled": "2026-06-27"
 }
