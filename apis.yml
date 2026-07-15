@@ -49,6 +49,8 @@ tags:
   - Spatial
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 common:
+  - type: AgenticAccess
+    url: agentic-access/here-agentic-access.yml
   - type: DomainSecurity
     url: security/here-domain-security.yml
   - type: Authentication
