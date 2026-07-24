@@ -1,0 +1,80 @@
+openapi: 3.1.0
+info:
+  title: HERE Geocoding & Search API v7 Autocomplete Autosuggest API
+  description: 'HERE Geocoding & Search API v7 provides geocoding, reverse geocoding,
+
+    autosuggest/autocomplete, browse, lookup, and discover endpoints.
+
+    Generated best-effort from public docs at https://docs.here.com/.
+
+    '
+  version: 7.0.0
+  contact:
+    name: HERE Technologies
+    url: https://www.here.com/developer
+servers:
+- url: https://geocode.search.hereapi.com/v1
+  description: Geocoding & Search
+- url: https://discover.search.hereapi.com/v1
+  description: Discover
+- url: https://autosuggest.search.hereapi.com/v1
+  description: Autosuggest
+- url: https://autocomplete.search.hereapi.com/v1
+  description: Autocomplete
+- url: https://browse.search.hereapi.com/v1
+  description: Browse
+- url: https://lookup.search.hereapi.com/v1
+  description: Lookup
+- url: https://revgeocode.search.hereapi.com/v1
+  description: Reverse Geocode
+security:
+- apiKey: []
+- bearerAuth: []
+tags:
+- name: Autosuggest
+paths:
+  /autosuggest:
+    get:
+      tags:
+      - Autosuggest
+      summary: Real-time suggestions for partial queries
+      servers:
+      - url: https://autosuggest.search.hereapi.com/v1
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: at
+        in: query
+        schema:
+          type: string
+      - name: in
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 5
+      - name: lang
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: HERE API Key (apiKey query parameter)
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: HERE OAuth 2.0 token
