@@ -1,53 +1,110 @@
 aid: here
 url: https://raw.githubusercontent.com/apis-json/artisanal/main/apis/here.json
 apis:
-  - aid: here:here-apis
-    name: HERE APIs
-    tags:
-      - Doc
-      - Findsequence2
-      - Geofences
-      - Index
-      - Indexes
-      - Layers
-      - Map  Attributes  V8
-      - Maps
-      - Match
-      - Modify
-      - Path
-      - Route  Matching  V8
-      - Segments
-      - Uploads
-    image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
-    baseURL: https://api.example.com
-    contact:
-      - FN: Name
-        url: http://example.com
-        email: info@example.com
-    humanURL: https://developer.here.com/
-    overlays:
-      - url: >2-
-
-          overlays/https://fleet.ls.hereapi.com/v3/api-docs?apiKey=YOUR_API_KEY-openapi-search.yml
-        type: APIs.io Search
-    properties:
-      - url: https://developer.here.com/develop/rest-apis
-        type: Documentation
-      - url: properties/here-apis-openapi.yml
-        type: OpenAPI
-    description: >-
-      RESTful web services that serve different purposes - from search, to geocoding,
-      to routing. Whether you're providing truck routing for fleets or navigating
-      users through the city with different transport modes, HERE REST APIs provide
-      you with everything you need to put location at the heart of your app: maps,
-      weather information, batch geocoding, comprehensive routing and more.
+- aid: here:here-autocomplete-api
+  name: HERE Autocomplete API
+  description: The Autocomplete API from HERE — 1 operation(s) for autocomplete.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Autocomplete
+  properties:
+  - type: OpenAPI
+    url: openapi/here-autocomplete-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-autosuggest-api
+  name: HERE Autosuggest API
+  description: The Autosuggest API from HERE — 1 operation(s) for autosuggest.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Autosuggest
+  properties:
+  - type: OpenAPI
+    url: openapi/here-autosuggest-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-browse-api
+  name: HERE Browse API
+  description: The Browse API from HERE — 1 operation(s) for browse.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Browse
+  properties:
+  - type: OpenAPI
+    url: openapi/here-browse-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-discover-api
+  name: HERE Discover API
+  description: The Discover API from HERE — 1 operation(s) for discover.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Discover
+  properties:
+  - type: OpenAPI
+    url: openapi/here-discover-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-geocode-api
+  name: HERE Geocode API
+  description: The Geocode API from HERE — 1 operation(s) for geocode.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Geocode
+  properties:
+  - type: OpenAPI
+    url: openapi/here-geocode-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-lookup-api
+  name: HERE Lookup API
+  description: The Lookup API from HERE — 1 operation(s) for lookup.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Lookup
+  properties:
+  - type: OpenAPI
+    url: openapi/here-lookup-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
+- aid: here:here-reverse-geocode-api
+  name: HERE Reverse Geocode API
+  description: The Reverse Geocode API from HERE — 2 operation(s) for reverse geocode.
+  humanURL: https://developer.here.com/
+  baseURL: https://api.example.com
+  tags:
+  - Reverse Geocode
+  properties:
+  - type: OpenAPI
+    url: openapi/here-reverse-geocode-api-openapi.yml
+  - type: Documentation
+    url: https://developer.here.com/develop/rest-apis
 name: HERE
 tags:
   - Location
   - Mapping
   - Maps
   - Spatial
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: freemium
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  label: Freemium · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
 common:
   - type: AgenticAccess
     url: agentic-access/here-agentic-access.yml
