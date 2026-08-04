@@ -1,0 +1,26 @@
+{
+  "provider": "here",
+  "sources": [
+    "here-autocomplete-api-openapi.yml",
+    "here-autosuggest-api-openapi.yml",
+    "here-browse-api-openapi.yml",
+    "here-discover-api-openapi.yml",
+    "here-geocode-api-openapi.yml",
+    "here-lookup-api-openapi.yml",
+    "here-reverse-geocode-api-openapi.yml"
+  ],
+  "outputs": [
+    "here-autocomplete-api-openapi.yml",
+    "here-autosuggest-api-openapi.yml",
+    "here-browse-api-openapi.yml",
+    "here-discover-api-openapi.yml",
+    "here-geocode-api-openapi.yml",
+    "here-lookup-api-openapi.yml",
+    "here-reverse-geocode-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

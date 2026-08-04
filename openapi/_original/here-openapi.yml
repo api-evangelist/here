@@ -1,0 +1,270 @@
+openapi: 3.1.0
+info:
+  title: HERE Geocoding & Search API v7
+  description: |
+    HERE Geocoding & Search API v7 provides geocoding, reverse geocoding,
+    autosuggest/autocomplete, browse, lookup, and discover endpoints.
+    Generated best-effort from public docs at https://docs.here.com/.
+  version: "7.0.0"
+  contact:
+    name: HERE Technologies
+    url: https://www.here.com/developer
+servers:
+  - url: https://geocode.search.hereapi.com/v1
+    description: Geocoding & Search
+  - url: https://discover.search.hereapi.com/v1
+    description: Discover
+  - url: https://autosuggest.search.hereapi.com/v1
+    description: Autosuggest
+  - url: https://autocomplete.search.hereapi.com/v1
+    description: Autocomplete
+  - url: https://browse.search.hereapi.com/v1
+    description: Browse
+  - url: https://lookup.search.hereapi.com/v1
+    description: Lookup
+  - url: https://revgeocode.search.hereapi.com/v1
+    description: Reverse Geocode
+security:
+  - apiKey: []
+  - bearerAuth: []
+tags:
+  - name: Geocode
+  - name: Reverse Geocode
+  - name: Discover
+  - name: Autosuggest
+  - name: Autocomplete
+  - name: Browse
+  - name: Lookup
+paths:
+  /geocode:
+    get:
+      tags: [Geocode]
+      summary: Geocode an address (free-form or qualified)
+      parameters:
+        - name: q
+          in: query
+          description: Free-form text containing address elements
+          schema: { type: string }
+        - name: qq
+          in: query
+          description: Qualified query (e.g., city=Berlin;country=Germany)
+          schema: { type: string }
+        - name: at
+          in: query
+          description: Search center as lat,lng
+          schema: { type: string }
+        - name: in
+          in: query
+          description: Search context (countryCode:XXX,...)
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SearchResponse" }
+  /revgeocode:
+    get:
+      tags: [Reverse Geocode]
+      summary: Reverse geocode coordinates
+      servers:
+        - url: https://revgeocode.search.hereapi.com/v1
+      parameters:
+        - name: at
+          in: query
+          required: true
+          description: Coordinates as lat,lng
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SearchResponse" }
+  /multi-revgeocode:
+    post:
+      tags: [Reverse Geocode]
+      summary: Batch reverse geocode many coordinates
+      servers:
+        - url: https://revgeocode.search.hereapi.com/v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      at: { type: string }
+      responses:
+        "200":
+          description: OK
+  /discover:
+    get:
+      tags: [Discover]
+      summary: Find places by free-text query
+      servers:
+        - url: https://discover.search.hereapi.com/v1
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: at
+          in: query
+          schema: { type: string }
+        - name: in
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SearchResponse" }
+  /autosuggest:
+    get:
+      tags: [Autosuggest]
+      summary: Real-time suggestions for partial queries
+      servers:
+        - url: https://autosuggest.search.hereapi.com/v1
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: at
+          in: query
+          schema: { type: string }
+        - name: in
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+  /autocomplete:
+    get:
+      tags: [Autocomplete]
+      summary: Address autocompletion
+      servers:
+        - url: https://autocomplete.search.hereapi.com/v1
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+  /browse:
+    get:
+      tags: [Browse]
+      summary: Browse places by category
+      servers:
+        - url: https://browse.search.hereapi.com/v1
+      parameters:
+        - name: at
+          in: query
+          required: true
+          schema: { type: string }
+        - name: categories
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: OK
+  /lookup:
+    get:
+      tags: [Lookup]
+      summary: Lookup a place by its ID
+      servers:
+        - url: https://lookup.search.hereapi.com/v1
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: HERE API Key (apiKey query parameter)
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: HERE OAuth 2.0 token
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Item" }
+    Item:
+      type: object
+      properties:
+        title: { type: string }
+        id: { type: string }
+        resultType: { type: string }
+        address:
+          type: object
+          properties:
+            label: { type: string }
+            countryCode: { type: string }
+            countryName: { type: string }
+            city: { type: string }
+            postalCode: { type: string }
+            street: { type: string }
+            houseNumber: { type: string }
+        position:
+          type: object
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+        scoring:
+          type: object
+          properties:
+            queryScore: { type: number }
