@@ -138,10 +138,6 @@ common:
     type: Knowledge
   - url: https://status.here.com/status
     type: StatusPage
-  - url: >2-
-
-      https://join.slack.com/t/heredev/shared_invite/zt-1tog8frbk-Y8KUaHhbYGtpFPgsmXl5Fw
-    type: Slack
   - url: https://legal.here.com/privacy/policy
     type: PrivacyPolicy
   - url: https://legal.here.com/terms/serviceterms
