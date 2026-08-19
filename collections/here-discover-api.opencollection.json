@@ -1,0 +1,59 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "HERE Geocoding & Search API v7 Autocomplete Discover API",
+    "version": "7.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "apiKey",
+      "value": "{{apiKey}}",
+      "placement": "query"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Discover",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Find places by free-text query",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/discover",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Find places by free-text query"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

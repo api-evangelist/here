@@ -1,0 +1,64 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "HERE Geocoding & Search API v7 Autocomplete Autosuggest API",
+    "version": "7.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "apiKey",
+      "value": "{{apiKey}}",
+      "placement": "query"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Autosuggest",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Real-time suggestions for partial queries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/autosuggest",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Real-time suggestions for partial queries"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

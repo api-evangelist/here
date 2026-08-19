@@ -1,0 +1,70 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "HERE Geocoding & Search API v7 Autocomplete Reverse Geocode API",
+    "version": "7.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "apiKey",
+      "value": "{{apiKey}}",
+      "placement": "query"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Reverse Geocode",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Reverse geocode coordinates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/revgeocode",
+            "params": [
+              {
+                "name": "at",
+                "value": "",
+                "type": "query",
+                "description": "Coordinates as lat,lng"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Reverse geocode coordinates"
+        },
+        {
+          "info": {
+            "name": "Batch reverse geocode many coordinates",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://geocode.search.hereapi.com/v1/multi-revgeocode",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Batch reverse geocode many coordinates"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

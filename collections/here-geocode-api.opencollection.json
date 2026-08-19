@@ -1,0 +1,73 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "HERE Geocoding & Search API v7 Autocomplete Geocode API",
+    "version": "7.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "apiKey",
+      "value": "{{apiKey}}",
+      "placement": "query"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Geocode",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Geocode an address (free-form or qualified)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://geocode.search.hereapi.com/v1/geocode",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Free-form text containing address elements"
+              },
+              {
+                "name": "qq",
+                "value": "",
+                "type": "query",
+                "description": "Qualified query (e.g., city=Berlin;country=Germany)"
+              },
+              {
+                "name": "at",
+                "value": "",
+                "type": "query",
+                "description": "Search center as lat,lng"
+              },
+              {
+                "name": "in",
+                "value": "",
+                "type": "query",
+                "description": "Search context (countryCode:XXX,...)"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "lang",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Geocode an address (free-form or qualified)"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

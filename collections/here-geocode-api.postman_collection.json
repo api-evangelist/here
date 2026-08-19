@@ -1,0 +1,180 @@
+{
+  "item": [
+    {
+      "id": "65613d58-2837-445d-a25d-c5db85ebf933",
+      "name": "Geocode",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "8d3c62a6-d440-4ae7-8b48-eb95deee971c",
+          "name": "Geocode an address (free-form or qualified)",
+          "request": {
+            "name": "Geocode an address (free-form or qualified)",
+            "description": {},
+            "url": {
+              "path": [
+                "geocode"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "Free-form text containing address elements"
+                },
+                {
+                  "disabled": false,
+                  "key": "qq",
+                  "value": "<string>",
+                  "description": "Qualified query (e.g., city=Berlin;country=Germany)"
+                },
+                {
+                  "disabled": false,
+                  "key": "at",
+                  "value": "<string>",
+                  "description": "Search center as lat,lng"
+                },
+                {
+                  "disabled": false,
+                  "key": "in",
+                  "value": "<string>",
+                  "description": "Search context (countryCode:XXX,...)"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "disabled": false,
+                  "key": "lang",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d452c160-1fd3-4a8c-938b-b7db41b39282",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "geocode"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "qq",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "at",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "in",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "lang",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "<API Key>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 7601.15787833575,\n        \"lng\": 3386.6334587870792\n      },\n      \"scoring\": {\n        \"queryScore\": 3394.6204853998806\n      }\n    },\n    {\n      \"title\": \"string\",\n      \"id\": \"string\",\n      \"resultType\": \"string\",\n      \"address\": {\n        \"label\": \"string\",\n        \"countryCode\": \"string\",\n        \"countryName\": \"string\",\n        \"city\": \"string\",\n        \"postalCode\": \"string\",\n        \"street\": \"string\",\n        \"houseNumber\": \"string\"\n      },\n      \"position\": {\n        \"lat\": 4905.019396271762,\n        \"lng\": 8163.699324805527\n      },\n      \"scoring\": {\n        \"queryScore\": 3489.3302290071515\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://geocode.search.hereapi.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "apiKey"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "query"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "e9cae3f5-9005-421a-8858-eef7385bef87",
+    "name": "HERE Geocoding & Search API v7 Autocomplete Geocode API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "HERE Geocoding & Search API v7 provides geocoding, reverse geocoding,\nautosuggest/autocomplete, browse, lookup, and discover endpoints.\nGenerated best-effort from public docs at https://docs.here.com/.\n\n\nContact Support:\n Name: HERE Technologies",
+      "type": "text/plain"
+    }
+  }
+}
