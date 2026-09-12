@@ -120,6 +120,8 @@ accessModel:
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
 common:
+  - type: Website
+    url: https://www.here.com/
   - type: AgenticAccess
     url: agentic-access/here-agentic-access.yml
   - type: DomainSecurity
