@@ -1,0 +1,33 @@
+generated: '2026-09-11'
+method: probed
+source: https://docs.here.com/mcp
+status: published
+server:
+  name: here
+  transport: http
+  url: https://docs.here.com/mcp
+deployment:
+  mode: remote
+  endpoint: https://docs.here.com/mcp
+  verified: probed
+  probe: live
+  checked: '2026-09-11'
+  source: docs-check 2026-09-11 (endpoint found in the provider's own documentation, then probed)
+tools_count: 7
+tools:
+- name: list-endpoints
+  description: ''
+- name: get-endpoint
+  description: ''
+- name: search-endpoints
+  description: ''
+- name: list-specs
+  description: ''
+- name: get-server-variables
+  description: ''
+- name: search
+  description: ''
+- name: fetch
+  description: ''
+tools_source: live tools/list via initialize handshake, 2026-09-11 (signals/audit_mcp_authorship.py --probe)
+authorship: provider
