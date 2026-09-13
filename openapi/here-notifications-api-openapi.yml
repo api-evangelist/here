@@ -1,0 +1,68 @@
+openapi: 3.2.0
+info:
+  title: HERE Geocoding & Search API v7 Batch Jobs Notifications API
+  description: 'HERE Geocoding & Search API v7 — including batch processing (Batch API v7).
+
+    Generated best-effort from public docs at
+
+    https://docs.here.com/geocoding-and-search/.
+
+    '
+  version: 7.0.0
+  contact:
+    name: HERE Technologies
+    url: https://www.here.com/developer
+servers:
+- url: https://geocode.search.hereapi.com/v1
+  description: Geocoding & Search (real-time)
+- url: https://batch.geocoder.ls.hereapi.com/6.2
+  description: Batch Geocoder (legacy)
+- url: https://batch.search.hereapi.com/v7
+  description: Batch API v7
+security:
+- apiKey: []
+- bearerAuth: []
+tags:
+- name: Notifications
+paths:
+  /notifications:
+    get:
+      tags:
+      - Notifications
+      summary: List notifications
+      servers:
+      - url: https://batch.search.hereapi.com/v7
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+      - Notifications
+      summary: Create a notification subscription
+      servers:
+      - url: https://batch.search.hereapi.com/v7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target:
+                  type: string
+                  format: uri
+                event:
+                  type: string
+      responses:
+        '201':
+          description: Created
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

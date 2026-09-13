@@ -1,0 +1,47 @@
+openapi: 3.2.0
+info:
+  title: HERE Geocoding & Search API v7 Batch Jobs Health API
+  description: 'HERE Geocoding & Search API v7 — including batch processing (Batch API v7).
+
+    Generated best-effort from public docs at
+
+    https://docs.here.com/geocoding-and-search/.
+
+    '
+  version: 7.0.0
+  contact:
+    name: HERE Technologies
+    url: https://www.here.com/developer
+servers:
+- url: https://geocode.search.hereapi.com/v1
+  description: Geocoding & Search (real-time)
+- url: https://batch.geocoder.ls.hereapi.com/6.2
+  description: Batch Geocoder (legacy)
+- url: https://batch.search.hereapi.com/v7
+  description: Batch API v7
+security:
+- apiKey: []
+- bearerAuth: []
+tags:
+- name: Health
+paths:
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Service health
+      servers:
+      - url: https://batch.search.hereapi.com/v7
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

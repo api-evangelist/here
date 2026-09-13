@@ -1,0 +1,34 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Fuel Prices API v2
+  version: 1.0.0
+extends: here-fuel-prices-v2-openapi.yml
+actions:
+- target: $.info
+  description: Add the provider contact HERE omits from this document.
+  update:
+    contact:
+      name: HERE Technologies
+      url: https://www.here.com/
+      email: support@here.com
+- target: $.info
+  description: Link the published terms of service.
+  update:
+    termsOfService: https://legal.here.com/terms/serviceterms
+- target: $.info
+  description: Link the documentation license HERE publishes for its specs.
+  update:
+    license:
+      name: HERE Documentation License
+      url: https://legal.here.com/en-gb/terms/documentation-license
+- target: $
+  description: Stamp API Evangelist harvest provenance.
+  update:
+    x-apievangelist:
+      harvested: '2026-09-13'
+      source: https://docs.here.com/fuel-prices/openapi/fuel-v2-openapi.yml
+      method: searched
+      archive: openapi/_original/here-fuel-prices-v2-openapi.yml
+      operations: 6
+      paths: 6
+      declared_version: 3.0.2

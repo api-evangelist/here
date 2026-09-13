@@ -1,0 +1,135 @@
+/*
+Copyright (C) 2023-2024 HERE Global B.V. and its affiliate(s).
+All rights reserved.
+This software and other materials contain proprietary information
+controlled by HERE and are protected by applicable copyright legislation.
+Any use and utilization of this software and other materials and
+disclosure to any third parties is conditional upon having a separate
+agreement with HERE for the access, use, utilization or disclosure of this
+software. In the absence of such agreement, the use of the software is not
+allowed.
+*/
+
+syntax = "proto3";
+
+package here.hdgnss.positioning;
+
+/*
+Response from the server to the client. The binary payload received
+from the server can be decoded as this type.
+Subscribable from MQTT topic (depending on which option was used for
+publishing the measurements/configuration):
+    - "v1/sub/app/<appId>/clients/<clientId>/positions/protobuf"
+    - "v1/sub/project/<projectHrn>/clients/<clientId>/positions/protobuf"
+
+Note: The project HRN (<projectHrn>) must be URL encoded.
+*/
+message ServerResponse {
+    /*
+    Response element.
+    */
+    message Response {
+        /*
+        A valid position.
+        */
+        message Position {
+            enum PositionTechnology {
+                TECH_UNSPECIFIED = 0;
+                TECH_PPP = 1; // Precise Point Positioning - utilizing carrier measurements and phaseranges
+                TECH_SPP = 2; // Single Point Positioning - utilizing code measurements and pseudoranges
+            }
+
+            uint64 timestamp = 1;           // milliseconds (Unix time)
+            double lat = 2;                 // latitude degrees (ITRF2014)
+            double lng = 3;                 // longitude degrees (ITRF2014)
+            float alt = 4;                  // altitude meters (ITRF2014)
+            float horizontalUnc = 5;        // horizontal uncertainty meters, 68% confidence
+            float verticalUnc = 6;          // altitude uncertainty meters, 68% confidence
+            optional float speed = 7;       // m/s
+            optional float speedUnc = 8;    // speed uncertainty m/s, 68% confidence
+            optional float bearing = 9;     // degrees
+            optional float bearingUnc = 10; // bearing uncertainty degrees, 68% confidence
+            optional uint32 numSvs = 11;    // number of satellites used
+            PositionTechnology positionTechnology = 12; // the technology used to determine the position
+        }
+
+        /*
+        No position available with the provided measurements.
+        */
+        message NoPosition {
+            enum Reason {
+                // Unspecified reason
+                UNSPECIFIED = 0;
+                // Valid measurements have been received but no position could be calculated
+                NO_POSITION = 1;
+                // The provided measurements message did not contain usable data
+                MEASUREMENTS_NOT_VALID = 2;
+                // The provided measurements were too old
+                MEASUREMENTS_TOO_OLD = 3;
+            }
+            Reason reason = 1;
+        }
+
+        /*
+        Informative response.
+        */
+        message Information {
+            enum InformationStatus {
+                // Unspecified
+                UNSPECIFIED = 0;
+                // Indicates that the configuration was successfully set/updated
+                CONFIGURATION_SET = 1;
+                // Indicates that the client configuration has been reset to the server default.
+                // If the client is using a non-default configuration, it should republish
+                // the configuration message. If the client hasn't set the config (is using the
+                // default), this can be ignored.
+                CONFIGURATION_RESET = 2;
+            }
+            InformationStatus status = 1;
+        }
+
+        /*
+        Error response.
+        */
+        message Error {
+            enum ErrorStatus {
+                // Unspecified error
+                UNSPECIFIED = 0;
+                // The provided configuration could not be used
+                CONFIGURATION_FAILED = 1;
+                // The provided data could not be decoded
+                INVALID_DATA = 2;
+                // The service is (temporarily) unavailable and the client's message was
+                // not processed. The client may choose to buffer measurement data and continue as
+                // usual with all buffered measurements. If this response is received
+                // repeatedly, it's recommended to start waiting with an exponential back-off
+                // delay before sending new measurements.
+                SERVICE_UNAVAILABLE = 3;
+                // The client is (no longer) authorized.
+                // If a token was used for the original authorization, the client must
+                // reconnect with a new token.
+                UNAUTHORIZED = 4;
+                // A server error prevented the data from being processed.
+                // The client may choose to buffer measurement data and continue as
+                // usual with all buffered measurements. If this response is received
+                // repeatedly, it's recommended to start waiting with an exponential back-off
+                // delay before sending new measurements.
+                SERVER_ERROR = 5;
+            }
+            ErrorStatus status = 1;
+            optional string errorMessage = 2;
+        }
+
+        oneof response {
+            Position position = 1;
+            NoPosition noPosition = 2;
+            Information information = 3;
+            Error error = 4;
+        }
+    }
+
+    /*
+    Response elements (at least one).
+    */
+    repeated Response responses = 1;
+}

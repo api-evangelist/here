@@ -1,150 +1,34 @@
-specification: API Commons Plans
-specificationVersion: '0.1'
-schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
-provider: HERE
-providerId: here
-created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
-tags:
-  - Location
-  - Mapping
-  - Maps
-  - Spatial
-description: Machine-readable plans and pricing scaffold for this API provider. Conforms to the API Commons
-  Plans schema. Tier limits and prices are scaffold defaults; replace with provider-published values.
-plans:
-  - id: here-free
-    name: Free
-    type: freemium
-    description: Free entry tier for the HERE API surface. Intended for evaluation, prototyping, and low-volume
-      integrations. Real limits and pricing must be reconciled with the provider's published plan documentation.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota across all included endpoints
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 1000
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the free tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 10
-        timeFrame: minute
-        geo: global
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-    elements:
-      - name: Public Documentation
-      - name: Community Support
-      - name: Sandbox Access
-      - name: HERE APIs
-  - id: here-pro
-    name: Professional
-    type: paid
-    description: Production tier for HERE. Provides higher quotas, priority support, and access to the
-      broader API portfolio. Pricing placeholder; align with the provider's pricing page.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 100000
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: TBD
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the professional tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 100
-        timeFrame: minute
-        geo: global
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Overage
-        description: Per-request price after monthly quota is exceeded
-        name: overage
-        type: metered
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.example.com
-        unit: 1000
-        price: TBD
-        userMultiplied: false
-    elements:
-      - name: All Production Endpoints
-      - name: Email Support
-      - name: SLA Targets
-      - name: Webhook Subscriptions
-      - name: HERE APIs
-  - id: here-enterprise
-    name: Enterprise
-    type: enterprise
-    description: Custom-negotiated tier for HERE. Includes dedicated capacity, contractual SLAs, security
-      review, data residency options, and named technical account management.
-    entries:
-      - label: API Requests
-        description: Negotiated request volume; -1 indicates uncapped subject to fair use
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: configurable
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: custom
-        userMultiplied: false
-      - label: Rate Limit
-        description: Negotiated burst and steady-state rate
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 1000
-        timeFrame: minute
-        geo: configurable
-        domains:
-          - https://api.example.com
-        unit: 1
-        price: custom
-        userMultiplied: false
-    elements:
-      - name: Unlimited / Negotiated Volume
-      - name: 24/7 Dedicated Support
-      - name: Contractual SLA
-      - name: Security & Compliance Review
-      - name: Dedicated Account Manager
-      - name: Custom Data Residency
-      - name: HERE APIs
-maintainers:
-  - FN: API Evangelist
-    url: http://apievangelist.com
-    email: info@apievangelist.com
+generated: '2026-09-13'
+method: searched
+source: https://www.here.com/get-started/pricing
+supersedes: The 2026-05-04 bulk-sweep scaffold, which invented three tiers (here-free / here-pro / here-enterprise)
+  with 1,000 and 100,000 request quotas, "TBD" prices and https://api.example.com domains. None of those figures
+  came from HERE and all of them are removed here.
+plan_count: 0
+pricing_model: usage-based, transaction-metered ("HERE Base Plan"), with a free tier for signup and negotiated enterprise
+  agreements
+note: HERE publishes a pricing page at https://www.here.com/get-started/pricing (HTTP 200, title "HERE Base Plan
+  | Location Services | Pricing"), but the tier table is rendered inside an embedded third-party pricing widget
+  (the HTML contains only a placeholder div, data-testid "html-embed-HTML Embed / en / Base Plan Pricing Widget
+  - PROD"). No per-tier price, quota or overage value is present in the served HTML, and there is no machine-readable
+  pricing or catalog endpoint. plan_count is 0 because no tier could be read without fabricating it — this is a
+  measurement of what is machine-readable, not a claim that HERE has no plans.
+what_is_readable:
+- fact: Self-serve signup and a free tier exist
+  evidence: https://platform.here.com/sign-up and the "Get started for free" call to action on the pricing page
+- fact: Billing is metered per transaction and usage is queryable
+  evidence: openapi/here-cost-management-usage-v2-openapi.yml — the Cost Management Usage API v2 retrieves billable
+    usage; "usage billing rates are dependent on your licensing terms"
+- fact: Requests can be tagged for cost allocation
+  evidence: Billing tags are a documented request parameter across HERE APIs (4-16 chars, up to 6 concatenated)
+- fact: Support is sold separately from usage
+  evidence: https://www.here.com/pricing/support-plans, referenced from the SLA
+plans: []
+evidence:
+- url: https://www.here.com/get-started/pricing
+  status: 200
+  finding: 200 with the tier table inside a JS-loaded embed; no plan values in the HTML
+- url: https://www.here.com/platform/pricing
+  status: 404
+- url: https://www.here.com/get-started/pricing/plans
+  status: 404

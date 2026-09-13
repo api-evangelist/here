@@ -1,0 +1,43 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Authentication API v1.1
+  version: 1.0.0
+extends: here-authentication-v1-1-openapi.yml
+actions:
+- target: $.info
+  description: Add the provider contact HERE omits from this document.
+  update:
+    contact:
+      name: HERE Technologies
+      url: https://www.here.com/
+      email: support@here.com
+- target: $.info
+  description: Link the published terms of service.
+  update:
+    termsOfService: https://legal.here.com/terms/serviceterms
+- target: $.info
+  description: Link the documentation license HERE publishes for its specs.
+  update:
+    license:
+      name: HERE Documentation License
+      url: https://legal.here.com/en-gb/terms/documentation-license
+- target: $
+  description: 'Record how a caller resolves the base URL: this HERE platform service does not publish a fixed host
+    — the client resolves it at runtime from a resource HRN through the HERE API Lookup Service. The original servers[]
+    placeholder is left untouched.'
+  update:
+    x-base-url-resolution:
+      mechanism: HERE API Lookup Service
+      lookup_api: https://api-lookup.data.api.platform.here.com/lookup/v1
+      spec: openapi/here-api-lookup-v1-openapi.yml
+- target: $
+  description: Stamp API Evangelist harvest provenance.
+  update:
+    x-apievangelist:
+      harvested: '2026-09-13'
+      source: https://docs.here.com/identity-and-access-management/openapi/authentication-v1.1-openapi.yml
+      method: searched
+      archive: openapi/_original/here-authentication-v1-1-openapi.yml
+      operations: 92
+      paths: 49
+      declared_version: 3.0.2

@@ -1,0 +1,211 @@
+generated: '2026-09-13'
+method: searched
+source: registry.npmjs.org, pypi.org, search.maven.org (all queried unauthenticated 2026-09-13), https://github.com/heremaps,
+  and https://js.api.here.com/v3/ for the CDN builds
+official_count: 19
+summary:
+  languages:
+  - JavaScript/TypeScript
+  - Java
+  - Scala
+  - Python
+  - Kotlin
+  - Swift
+  - Dart
+  finding: 'HERE ships first-party clients in every major ecosystem, but the registry dates split them sharply.
+    The Data SDK for TypeScript is current (six @here/olp-sdk-* packages all at 3.0.0, published 2026-08-20) and
+    the platform artifact resolvers are recent (2025). Everything aimed at the location-services APIs is stale:
+    the official Python client last shipped in 2021, the Flex Polyline decoder in 2024, harp.gl in 2022 and the
+    XYZ CLI in 2021 — while the APIs they wrap (Routing 8.162.0, Geocoding and Search 7.155) released this month.
+    The flagship JavaScript map API is not on npm at all; it is an unpinned CDN script.'
+packages:
+- name: '@here/olp-sdk-core'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-core
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+  covers: HERE Data SDK for TypeScript — core
+  note: Registry metadata read from registry.npmjs.org 2026-09-13.
+- name: '@here/olp-sdk-authentication'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-authentication
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+  covers: HERE Authentication and Authorization REST API
+- name: '@here/olp-sdk-dataservice-read'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-dataservice-read
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+  covers: HERE Data API — read
+- name: '@here/olp-sdk-dataservice-write'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-dataservice-write
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+  covers: HERE Data API — write
+- name: '@here/olp-sdk-dataservice-api'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-dataservice-api
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+  covers: Generated directly from the HERE Data API OpenAPI specification
+  note: HERE states this package is generated from the same OpenAPI documents harvested into openapi/_original/.
+- name: '@here/olp-sdk-fetch'
+  registry: npm
+  language: JavaScript/TypeScript
+  official: true
+  version: 3.0.0
+  published: '2026-08-20'
+  url: https://www.npmjs.com/package/@here/olp-sdk-fetch
+  repo: https://github.com/heremaps/here-data-sdk-typescript
+- name: '@here/flexpolyline'
+  registry: npm
+  language: JavaScript
+  official: true
+  version: 0.1.0
+  published: '2024-03-20'
+  url: https://www.npmjs.com/package/@here/flexpolyline
+  repo: https://github.com/heremaps/flexible-polyline
+  covers: Flexible Polyline encoding used by Routing v8 and Isoline Routing v8 responses
+  note: Last published 2024-03-20 — the encoding is stable, but the package trails the v8 APIs it decodes.
+- name: '@here/harp.gl'
+  registry: npm
+  language: TypeScript
+  official: true
+  version: 0.28.0
+  published: '2022-01-17'
+  url: https://www.npmjs.com/package/@here/harp.gl
+  repo: https://github.com/heremaps/harp.gl
+  status: unmaintained
+  note: 3D web map rendering engine. Last publish 2022-01-17 and the GitHub repo last pushed 2023-02-03 — abandonment
+    signal, superseded by the HERE Maps API for JavaScript and the HERE SDK.
+- name: '@here/cli'
+  registry: npm
+  language: JavaScript
+  official: true
+  version: 1.9.0
+  published: '2021-12-06'
+  url: https://www.npmjs.com/package/@here/cli
+  repo: https://github.com/heremaps/here-cli
+  status: unmaintained
+  note: CLI for HERE XYZ Platform. Last publish 2021-12-06, repo last pushed 2023-03-04. Superseded operationally
+    by the OLP CLI, which HERE distributes outside npm (see cli/here-cli.yml).
+- name: com.here.account:here-oauth-client
+  registry: maven
+  language: Java
+  official: true
+  version: 0.4.28
+  published: '2024-10-01'
+  url: https://central.sonatype.com/artifact/com.here.account/here-oauth-client
+  repo: https://github.com/heremaps/here-aaa-java-sdk
+  covers: HERE Authentication, Authorization and Accounting (OAuth 1.0a signing + OAuth 2.0 token exchange)
+- name: com.here.account:here-aaa-sdk
+  registry: maven
+  language: Java
+  official: true
+  version: 0.4.28
+  published: '2024-10-01'
+  url: https://central.sonatype.com/artifact/com.here.account/here-aaa-sdk
+  repo: https://github.com/heremaps/here-aaa-java-sdk
+- name: com.here.platform.artifact:artifact-wagon
+  registry: maven
+  language: Java
+  official: true
+  version: 2.0.25
+  published: '2025-01-08'
+  url: https://central.sonatype.com/artifact/com.here.platform.artifact/artifact-wagon
+  repo: https://github.com/heremaps/here-artifact-maven-wagon
+  covers: Maven access to HERE platform artifacts
+- name: com.here.platform.artifact:sbt-resolver
+  registry: maven
+  language: Scala
+  official: true
+  version: 2.0.35
+  published: '2025-01-08'
+  url: https://central.sonatype.com/artifact/com.here.platform.artifact/sbt-resolver
+  repo: https://github.com/heremaps/here-artifact-sbt-resolver
+- name: com.here.platform.artifact.gradle:gradle-resolver
+  registry: maven
+  language: Java/Gradle
+  official: true
+  version: 1.0.2
+  published: '2025-06-06'
+  url: https://central.sonatype.com/artifact/com.here.platform.artifact.gradle/gradle-resolver
+  repo: https://github.com/heremaps/here-artifact-gradle-resolver
+- name: here-location-services
+  registry: pypi
+  language: Python
+  official: true
+  version: 0.4.0
+  published: '2021-09-07'
+  url: https://pypi.org/project/here-location-services/
+  repo: https://github.com/heremaps/here-location-services-python
+  status: unmaintained
+  note: Official HERE Python client for the location services. Last release 2021-09-07 and the repo last pushed
+    2023-12-11 — it predates the v8 routing and v7 search surfaces it is meant to wrap. Strongest decay signal in
+    this profile.
+- name: here-map-widget-for-jupyter
+  registry: pypi
+  language: Python
+  official: true
+  version: 1.1.3
+  published: '2021-10-25'
+  url: https://pypi.org/project/here-map-widget-for-jupyter/
+  repo: https://github.com/heremaps/here-map-widget-for-jupyter
+  status: maintained-slowly
+  note: Repo last pushed 2025-07-03; last PyPI release 2021-10-25.
+- name: HERE Maps API for JavaScript v3.1
+  registry: cdn
+  language: JavaScript
+  official: true
+  version: 3.1.69.2
+  published: null
+  url: https://js.api.here.com/v3/3.1/mapsjs-core.js
+  note: CDN-distributed, not on npm — @here/maps-api-for-javascript does not exist on the npm registry. The URL
+    pins only the MAJOR.MINOR (v3/3.1); the served bundle self-identifies as build 3.1.69.2 in its HERE_NOTICE header,
+    so the patch level floats and a consumer cannot tell from the URL what they are getting. No registry metadata
+    endpoint exists, so `published` is null.
+- name: HERE Maps API for JavaScript v3.2
+  registry: cdn
+  language: JavaScript
+  official: true
+  version: 3.2.10.0
+  published: null
+  url: https://js.api.here.com/v3/3.2/mapsjs-core.js
+  note: Same unpinned MAJOR.MINOR distribution; served bundle self-identifies as build 3.2.10.0 on 2026-09-13.
+- name: HERE SDK for Android / iOS / Flutter (Explore & Navigate editions)
+  registry: vendor
+  language: Kotlin/Java, Swift/Objective-C, Dart
+  official: true
+  version: null
+  published: null
+  url: https://www.here.com/platform/here-sdk
+  note: Distributed from the HERE platform portal behind a signed-in account, not from Maven Central, CocoaPods
+    or pub.dev — no public registry metadata endpoint exists to read a version or date from, so both fields are
+    null. Example apps are public at https://github.com/heremaps/here-sdk-examples (last pushed 2026-09-04) and
+    a Flutter reference app at https://github.com/heremaps/here-sdk-ref-app-flutter (2026-08-28).
+- name: herepy
+  registry: pypi
+  language: Python
+  official: false
+  version: 3.6.5
+  published: null
+  url: https://pypi.org/project/herepy/
+  repo: https://github.com/abdullahselek/HerePy
+  note: Third-party community client, not published by HERE. Recorded for completeness; official:false.

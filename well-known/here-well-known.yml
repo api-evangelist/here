@@ -1,0 +1,266 @@
+generated: '2026-09-13'
+method: probed
+source: live GET of the named /.well-known/ paths on every host in apis.yml, every OpenAPI servers[] host, the docs
+  host and the auth-server host
+note: 'Three real documents were served. docs.here.com publishes an RFC 9727 api-catalog linkset (application/linkset+json)
+  enumerating 37 documentation projects, each with its own nested api-catalog and a service-doc reference page.
+  account.api.here.com and account.here.com serve OAuth/OIDC discovery. developer.here.com and account.here.com
+  answer HTTP 200 with an SPA shell for every /.well-known/ path, so those 200s are recorded as misses, not documents.
+  No security.txt and no agent card were served on any host. A fourth document was found by reading HERE''s own
+  OAuth 2.0 spec rather than by path guessing: https://account.api.here.com/.well-known/oauth-authorization-server/mcp
+  describes a dedicated MCP authorization server with dynamic client registration — HERE is building an authenticated
+  agent surface.'
+hosts:
+- host: here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: www.here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: developer.here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/openid-configuration
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/api-catalog
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/agent.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/aauth-resource.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+- host: docs.here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 200
+    file: here-docs-api-catalog.json
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/agent.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 200
+    note: HTTP 200 returned an HTML/SPA shell, not a document — treated as a miss.
+- host: platform.here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: account.here.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: here-account-here-com-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    note: HTTP 200 returned the site SPA shell, not a document — treated as a miss.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 200
+    note: HTTP 200 returned the site SPA shell, not a document — treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    note: HTTP 200 returned the site SPA shell, not a document — treated as a miss.
+- host: account.api.here.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: here-account-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: here-account-oauth-authorization-server.json
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/oauth-authorization-server/mcp
+    status: 200
+    file: here-account-mcp-oauth-authorization-server.json
+    note: 'A SECOND, MCP-specific OAuth authorization server: issuer https://account.here.com/mcp, authorization_code
+      + PKCE (S256), and RFC 7591 dynamic client registration at https://account.api.here.com/mcp/register. Discovered
+      from openapi/here-oauth2-token-v1-openapi.yml, which declares getMcpAuthServerMetadata and RegisterMcpClient
+      as first-class operations.'
+- host: geocode.search.hereapi.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: router.hereapi.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: tracking.hereapi.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: data.traffic.hereapi.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+summary:
+  hosts_probed: 11
+  documents_served: 4
+  served:
+  - https://docs.here.com/.well-known/api-catalog
+  - https://account.api.here.com/.well-known/openid-configuration
+  - https://account.api.here.com/.well-known/oauth-authorization-server
+  - https://account.here.com/.well-known/openid-configuration
+  - https://account.api.here.com/.well-known/oauth-authorization-server/mcp
+  security_txt: false
+  agent_card: false
+  ai_plugin: false
+  mcp_dynamic_client_registration: true

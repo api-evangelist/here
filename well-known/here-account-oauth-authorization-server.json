@@ -1,0 +1,1 @@
+{"issuer":"https://account.api.here.com","token_endpoint":"https://account.api.here.com/oauth2/token","token_endpoint_auth_methods_supported":["private_key_jwt"],"token_endpoint_auth_signing_alg_values_supported":["RS256"],"grant_types_supported":["client_credentials"],"response_types_supported":["token"]}

@@ -1,0 +1,106 @@
+generated: '2026-09-13'
+method: derived
+source: live MCP tools/list against https://docs.here.com/mcp on 2026-09-13, bound against the 48 documents in openapi/
+finding: HERE's MCP server is a DOCUMENTATION server, not an API server. All seven tools read the docs corpus and
+  the OpenAPI documents; none of them calls a HERE API. An agent can use it to discover that GET /routing/v8/routes
+  exists and what its parameters are — it cannot use it to calculate a route. Every one of HERE's 797 published
+  operations is therefore rest_only, and the crosswalk below binds each tool to the corpus it reads rather than
+  to a backing operationId.
+surfaces:
+  openapi:
+    documents: 48
+    operations: 797
+    location: openapi/ and openapi/_original/
+    gated: false
+  mcp:
+    url: https://docs.here.com/mcp
+    transport: streamable-http
+    tools: 7
+    gated: false
+    server_name: HERE Technologies Documentation | HERE Docs
+    protocol_version: '2024-11-05'
+  graphql: null
+crosswalk: []
+mcp_only:
+- tool: list-endpoints
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Lists all API paths and their HTTP methods with summaries, organized by path.
+- tool: get-endpoint
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Gets detailed information about a specific API endpoint, including security schemes and servers.
+- tool: search-endpoints
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Deep search through paths, operations and parameters to discover relevant API endpoints.
+- tool: list-specs
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Lists all available OpenAPI specs.
+- tool: get-server-variables
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Gets the server variables for each server within a specific OpenAPI spec.
+- tool: search
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Searches the documentation, returning results with ID, title and URL.
+- tool: fetch
+  category: documentation
+  reason: Documentation/specification navigation tool. It reads HERE's published OpenAPI corpus and docs pages;
+    there is no backing HERE API operation because the operation it performs is a search over documentation, not
+    a call to a location service.
+  description: Gets detailed content for a documentation page by ID returned from the search tool.
+rest_only:
+  count: 797
+  reason: No MCP tool invokes a HERE API. The entire callable surface — geocoding, routing, traffic, tiles, weather,
+    tracking, data catalogs, IAM — is reachable only over REST with an API key or bearer token.
+  largest_unbound_services:
+  - service: HERE Tracking
+    operations: 159
+    spec: openapi/here-tracking-v2-openapi.json
+  - service: IAM Authorization API v1.1
+    operations: 142
+    spec: openapi/here-authorization-v1-1-openapi.yml
+  - service: IAM Authentication API v1.1
+    operations: 92
+    spec: openapi/here-authentication-v1-1-openapi.yml
+  - service: Workspace Pipeline Management v2
+    operations: 38
+    spec: openapi/here-pipeline-management-v2-openapi.yml
+  - service: Data Config API v1
+    operations: 30
+    spec: openapi/here-data-config-v1-openapi.yml
+  - service: Map Attributes API
+    operations: 23
+    spec: openapi/here-map-attributes-v1-openapi.json
+  - service: Interactive Map API v1
+    operations: 23
+    spec: openapi/here-interactive-map-v1-openapi.yml
+  - service: Geocoding and Search v7
+    operations: 11
+    spec: openapi/here-geocoding-and-search-v7-openapi.json
+  - service: Routing v8
+    operations: 8
+    spec: openapi/here-routing-v8-openapi.yml
+coverage:
+  mcp_tools: 7
+  tools_bound_to_rest: 0
+  rest_operations: 797
+  rest_operations_bound_to_a_tool: 0
+  binding_rate: 0.0
+  interpretation: '0% binding is the correct measurement here, not a gap in this derivation: the two surfaces do
+    different jobs.'

@@ -1,0 +1,42 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/geocoding-and-search/docs/testing-an-app, https://platform.here.com/sign-up, and server
+  entries in openapi/
+self_serve_sandbox: false
+summary: HERE does not run a public sandbox with test keys and fixture data. Testing happens against production
+  with a real key from a free-tier account, flagged with a testing header; a dedicated test environment is a sales
+  conversation.
+mechanisms:
+- name: X-OLP-Testing header
+  type: request flag
+  verbatim: true
+  detail: Include the X-OLP-Testing header on requests that are not driven by a real user — for example automated
+    tests. HERE uses it to keep synthetic traffic out of the search relevance model.
+  source: https://docs.here.com/geocoding-and-search/docs/testing-an-app
+- name: Free tier on production credentials
+  type: account
+  detail: Self-serve signup at https://platform.here.com/sign-up issues a real API key against production with a
+    free transaction allowance.
+- name: Dedicated test environment
+  type: sales-gated
+  detail: HERE states application testing cannot be performed in production at load, and that a separate dedicated
+    test environment is available by arrangement. There is no self-serve path to it.
+  source: https://docs.here.com/geocoding-and-search/docs/testing-an-app
+- name: Notification test endpoint
+  type: validation endpoint
+  operation: testNotification — GET /batch/notifications/{notificationId}/test
+  spec: openapi/here-geocoding-batch-v7-openapi.yml
+  detail: Validates that a configured webhook URL is reachable and correct before a batch job fires at it. The closest
+    thing HERE ships to a dry run.
+- name: Internal CIT/SIT hosts visible in specs
+  type: non-public environment
+  hosts:
+  - https://fuel-v2.cit.cc.api.here.com
+  - https://indoor.router.sit.hereapi.com
+  - https://config.data.api.platform.sit.here.com
+  detail: Three harvested specs list a customer-integration-test or system-integration-test host alongside production.
+    These are not documented as open test environments — recorded as observed, not recommended.
+test_values: []
+test_values_note: HERE publishes no test keys, magic identifiers or fixture data. Nothing was invented to fill this
+  section.
+test_clock: false

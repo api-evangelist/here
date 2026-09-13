@@ -1,0 +1,136 @@
+/*
+Copyright (C) 2023-2024 HERE Global B.V. and its affiliate(s).
+All rights reserved.
+This software and other materials contain proprietary information
+controlled by HERE and are protected by applicable copyright legislation.
+Any use and utilization of this software and other materials and
+disclosure to any third parties is conditional upon having a separate
+agreement with HERE for the access, use, utilization or disclosure of this
+software. In the absence of such agreement, the use of the software is not
+allowed.
+*/
+
+syntax = "proto3";
+
+package here.hdgnss.positioning;
+
+/*
+Measurements container message. Publishable to MQTT topics:
+    - "v1/pub/app/<appId>/clients/<clientId>/measurements"
+    - "v1/pub/project/<projectHrn>/clients/<clientId>/measurements"
+The server will respond with a ServerResponse message (assuming the client has subscribed to responses).
+
+Note: The responses will be published to an output topic matching the publish topic prefix (based
+either on "user" or "project").
+
+Note: The project HRN (<projectHrn>) must be URL encoded.
+
+Note: If the client needs to match the server responses to specific measurements, the
+MQTTv5 correlationData property can be used for this.
+*/
+message Measurements {
+    /*
+    GNSS measurement container.
+    */
+    message GnssMeasurement {
+        /*
+        Android compatible GNSS measurements.
+        Android API level 31 or later is recommended for clients.
+        It is recommended to fill as many optional fields as possible
+        as doing so improves the position quality. If a field in this protocol
+        is mandatory but not available on Android, then the related observation
+        should be skipped.
+        */
+        message GnssAndroidMeasurements {
+            /*
+            Container for HD GNSS satellite data
+            */
+            message SatelliteData {
+                string codeType = 1;
+                int32 constellationType = 2;
+                int32 state = 3;
+                int32 svId = 4;
+                double cn0DbHz = 5;
+                optional double basebandCn0DbHz = 6;
+                float carrierFrequencyHz = 7;
+                optional double snrInDb = 8;
+                int32 multipathIndicator = 9;
+                double timeOffsetNanos = 10;
+                int64 receivedSvTimeNanos = 11;
+                int64 receivedSvTimeUncertaintyNanos = 12;
+                double pseudorangeRateMetersPerSecond = 13;
+                double pseudorangeRateMetersPerSecondUncertainty = 14;
+                int32 accumulatedDeltaRangeState = 15;
+                double accumulatedDeltaRangeMeters = 16;
+                double accumulatedDeltaRangeMetersUncertainty = 17;
+                optional double satelliteInterSignalBiasNanos = 18;
+                optional double satelliteInterSignalBiasUncertaintyNanos = 19;
+                optional double fullInterSignalBiasNanos = 20;
+                optional double fullInterSignalBiasUncertaintyNanos = 21;
+            }
+
+            int64 timeNanos = 1;
+            int32 hwClockDiscontinuityCount = 2;
+            optional double timeNanosUncertainty = 3;
+            optional int32 leapSecond = 4;
+            optional double biasNanos = 5;
+            optional double biasNanosUncertainty = 6;
+            optional int64 fullBiasNanos = 7;
+            optional double driftNanosPerSecond = 8;
+            optional double driftNanosPerSecondUncertainty = 9;
+            optional double referenceCarrierFrequencyHzForIsb = 10;
+            optional string referenceCodeTypeForIsb = 11;
+            optional int32 referenceConstellationTypeForIsb = 12;
+            optional bool isFullTracking = 13;
+
+            repeated SatelliteData data = 14;
+        }
+
+        /*
+        The Unix timestamp of the measurements in milliseconds
+        */
+        uint64 unixTimestampMs = 1;
+        /*
+        The client's system timestamp in milliseconds (continuous time, for example
+        milliseconds since boot). It should be as close as possible to the moment when
+        the measurements were made.
+        Reserved for future use.
+        */
+        optional uint64 systemTimestampMs = 2;
+        /*
+        The GNSS measurements, which can be provided in one of the supported formats
+        (but different formats should not be mixed by one client).
+        */
+        oneof gnssMeasurement {
+            /*
+            Android-compatible format
+            */
+            GnssAndroidMeasurements androidMeasurements = 3;
+            /*
+            Raw data for one RTCM3 frame (including preamble, frame header and CRC).
+            Allows devices that receive RTCM3 data to provide the measurements directly
+            with minimal internal processing. The frame must contain a supported RTCM
+            measurements message; unsupported message types will be ignored.
+            Supported RTCM message types are MSM4, MSM5, and MSM7:
+                GPS:        1074, 1075, 1077
+                Glonass:    1084, 1085, 1087
+                Galileo:    1094, 1095, 1097
+                Beidou:     1124, 1125, 1127
+            Note that if the receiver has been configured to produce MSM messages for
+            constellations other than these, they should all be sent to ensure that
+            the message indicating the end of epoch ("MSM Multiple message bit") is not
+            excluded.
+            */
+            bytes rtcmFrame = 4;
+        }
+    }
+
+    /*
+    GNSS measurements.
+    When sending RTCM3 frames, it is required that the frames for the full epoch are included
+    in the same message ("MSM Multiple message bit" is 0 for the last frame).
+    Note that a client should provide only one chosen type of measurements from a single receiver;
+    mixing different types or measurements from multiple receivers is not supported.
+    */
+    repeated GnssMeasurement gnssMeasurements = 1;
+}

@@ -1,0 +1,152 @@
+generated: '2026-09-13'
+method: searched
+source: openapi/ (48 harvested HERE OpenAPI documents, 797 operations), https://docs.here.com/policies/docs/limits-and-quotas,
+  https://docs.here.com/identity-and-access-management/docs/how-to-find-rate-limit-rules, https://docs.here.com/geocoding-and-search/docs/job-lifecycle,
+  https://docs.here.com/policies/docs/product-lifecycle-policy
+auth:
+  styles:
+  - apiKey (query parameter `apiKey`)
+  - apiKey (header `x-api-key` / `x-authorization-iam` on some services)
+  - http bearer (JWT access token)
+  - OAuth 2.0 client_credentials via https://account.api.here.com/oauth2/token
+  - OpenID Connect authorization code + PKCE via https://account.here.com
+  default: 'Two interchangeable schemes on nearly every service: `ApiKey` for browser/simple use and `Bearer`
+    for server-to-server.'
+  docs: https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys
+  see: authentication/here-authentication.yml
+idempotency:
+  coverage: none
+  mechanism: null
+  header: null
+  detail: No Idempotency-Key (or equivalent) request header is declared in any of the 48 harvested HERE OpenAPI
+    documents, and no replay-protection mechanism is documented. 316 of the 797 operations are mutating (POST/PUT/PATCH/DELETE)
+    and none of them offers a client-supplied idempotency key. The nearest safety property HERE does offer is
+    that most long-running work is modelled as an explicitly-identified job or resource (jobId, HRN, subscriptionHrn)
+    created by POST and then addressed by PUT/DELETE, so a retried PUT or DELETE on a known id is naturally idempotent
+    — but a retried create is not.
+  evidence: grep across openapi/ for `Idempotency` returns zero matches; 0 of 316 write operations declare a key
+    header.
+reversibility:
+  grade: documented
+  detail: Reversal paths exist across the platform — 64 of the 316 mutating operations are cancel/stop/delete/remove/restore-shaped
+    — but HERE states a time window for only one of them, so the overall grade is `documented` rather than `verified`.
+  surfaces:
+  - surface: HERE Batch API v7 (geocoding batch jobs)
+    write: postJob (POST /batch/jobs)
+    reversal: stopJob (PUT /batch/jobs/{jobId}/stop) and deleteJob (DELETE /batch/jobs/{jobId})
+    window: The server stores jobs for 30 days after creation, so a completed job stays re-retrievable for 30
+      days.
+    window_source: https://docs.here.com/geocoding-and-search/docs/job-lifecycle
+    grade: verified
+  - surface: HERE Data API catalogs
+    write: createCatalog (POST /catalogs)
+    reversal: changeCatalogState (PATCH /catalogs/{catalogHrn}/status) marks a catalog disabled and re-enables
+      it; deleteCatalog (DELETE /catalogs/{catalogHrn}) is terminal
+    window: null
+    window_source: null
+    grade: documented
+    note: The disable/re-enable pair is a true reversal; no window is stated, and deletion is not reversible.
+  - surface: IAM applications, API keys, access keys, groups, grants
+    write: createApplication / createAPIKey / createGroup / addGrant
+    reversal: deleteApplication, deleteAPIKey, deleteAccessKey, deleteGroup, removeGrant
+    window: null
+    window_source: null
+    grade: documented
+  - surface: HERE Data API blob multipart uploads
+    write: startMultipartUpload / uploadPart
+    reversal: cancelMultipartUpload (and cancelMultipartUploadByKey in v2)
+    window: null
+    window_source: null
+    grade: documented
+  - surface: Notifications / subscriptions (Data API, Batch API v7)
+    write: subscribe / postNotification / createSubscription
+    reversal: deleteSubscriptions, deleteNotification, deleteSubscription
+    window: null
+    window_source: null
+    grade: documented
+  - surface: Workspace pipelines
+    write: createPipeline / activatePipelineVersion
+    reversal: deactivate / cancel / delete pipeline version operations
+    window: null
+    window_source: null
+    grade: documented
+  read_only_surfaces:
+  - Geocoding and Search v7
+  - Routing v8
+  - Isoline Routing v8
+  - Matrix Routing v8
+  - Traffic v7
+  - Traffic tiles
+  - Map Image v3
+  - Raster Tile v3
+  - Weather v1/v3
+  - Fuel Prices v2/v3
+  - EV Charge Points v3
+  - Public Transit v8
+  - Intermodal Routing v8
+  - Map Attributes
+  - GNSS Data v2
+  note: 'The majority of HERE request volume is against read-only query APIs where reversibility is `na`: there
+    is nothing to take back. The write surface is concentrated in the platform (Data API, IAM, Workspace pipelines,
+    Tracking) and in asynchronous batch jobs.'
+dry_run_mode:
+  supported: false
+  detail: No dry-run / validation-only mode is declared in any harvested spec. The closest equivalent is the Batch
+    API v7 notification `GET /batch/notifications/{notificationId}/test` endpoint, which validates that a configured
+    webhook endpoint is reachable before a job uses it.
+pagination:
+  styles:
+  - token cursor
+  - limit/offset
+  params:
+    pageToken: 30
+    limit: 13
+    offset: 6
+    page: 2
+    size: 2
+    startIndex: 1
+  detail: The platform APIs (Data API config/metadata, IAM authorization) page with an opaque `pageToken`; query
+    APIs use `limit` (and `offset` where a full list is addressable). Geocoding and Search v7 caps `limit` at
+    100 with a default of 20.
+request_tracing:
+  supported: true
+  headers:
+  - X-Correlation-ID
+  - X-Request-ID
+  detail: 'This is HERE''s strongest cross-cutting convention: X-Correlation-ID appears on 553 responses and X-Request-ID
+    on 441 across the harvested specs (620 counting the mixed-case spellings). Both are accepted on the request
+    and echoed on the response, so a caller can supply its own correlation id and trace a call through HERE support.'
+  caveat: 'Spelling is inconsistent across services: X-Correlation-ID / X-Correlation-Id and X-Request-ID / X-Request-Id
+    both appear. HTTP header names are case-insensitive, so this is cosmetic, but it is visible in generated clients.'
+versioning:
+  style: major version in the path or host
+  detail: Two shapes coexist. Query APIs put the major version in the host+path (router.hereapi.com/v8, geocode.search.hereapi.com/v1,
+    weather.hereapi.com/v3). Platform APIs resolve their base URL at runtime through the API Lookup Service and
+    carry the version in the service name (blob/v2, stream/v2). Minor versions move underneath without a URL change
+    — the Routing v8 changelog shows 8.154 through 8.162 shipping inside the same /v8 path.
+  see: lifecycle/here-lifecycle.yml
+errors:
+  envelope: bespoke JSON (not RFC 9457)
+  detail: 1,011 of the 1,015 declared 4xx/5xx response bodies are application/json, but they resolve to at least
+    21 different error schemas across services — ErrorMessage (181), ErrorResponse (123), ErrorResponseDto (63),
+    AuthErrorResponse (31). There is no single platform-wide problem type.
+  see: errors/here-problem-types.yml
+rate_limit_signalling:
+  headers:
+  - Retry-After
+  - X-RateLimit-Limit
+  - X-RateLimit-Reset
+  - RateLimit-Usage
+  status: 429
+  detail: '429 is declared on 68 operations and Retry-After on 18 responses. Tour Planning v3 is the most explicit:
+    its 429 carries Retry-After (seconds), X-RateLimit-Limit and X-RateLimit-Reset. HERE additionally exposes
+    its enforced limits as an API — the IAM Rate Limit Rules API v1 lets a caller read the rules actually in force
+    for its own identity, which very few providers publish.'
+  see: rate-limits/here-rate-limits.yml
+metadata_and_expansion:
+  field_selection: true
+  detail: Geocoding and Search v7 supports a `show` parameter for opting into extra result sections; Data API
+    metadata supports partition-level field selection. There is no platform-wide sparse-fieldset or expand convention.
+content_negotiation:
+  detail: JSON everywhere on the query APIs; protobuf/MVT on the vector tile APIs; PNG/JPEG on Map Image and Raster
+    Tile; XML survives on three legacy responses only.

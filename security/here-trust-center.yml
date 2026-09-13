@@ -1,0 +1,41 @@
+generated: '2026-09-13'
+method: searched
+source: https://legal.here.com/en-gb/certifications-and-attestations
+trust_center:
+  published: true
+  url: https://legal.here.com/en-gb/certifications-and-attestations
+  security_practices_url: https://legal.here.com/en-gb/security
+  verification: Certificate status is verifiable through the Schellman certificate directory at https://www.schellman.com/certificate-directory
+certifications:
+- name: ISO/IEC 42001:2023
+  scope: Artificial Intelligence Management System (AIMS)
+  status: certified
+  auditor: Schellman
+- name: ISO/IEC 27001:2022
+  scope: Information Security Management System (ISMS)
+  status: certified
+  auditor: Schellman
+- name: ISO/IEC 27017:2015
+  scope: Cloud services information security controls
+  status: certified
+- name: ISO/IEC 27018:2019
+  scope: PII protection in public cloud
+  status: certified
+- name: ISO/IEC 27701:2019
+  scope: Privacy Information Management System (PIMS)
+  status: certified
+- name: SOC 2
+  scope: Service organization controls
+  status: attested
+- name: TISAX
+  scope: Automotive industry information security assessment exchange
+  status: assessed
+- name: HITRUST r2
+  scope: HITRUST CSF risk-based certification
+  status: certified
+- name: CSA STAR
+  scope: Cloud Security Alliance Security Trust Assurance and Risk registry
+  status: listed
+evidence:
+- url: https://legal.here.com/en-gb/certifications-and-attestations
+  status: 200

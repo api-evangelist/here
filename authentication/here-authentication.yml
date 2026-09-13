@@ -1,24 +1,133 @@
-generated: '2026-07-11'
+generated: '2026-09-13'
 method: derived
-source: openapi/here-openapi.yml
+source: openapi/here-account-v1-openapi.yml, openapi/here-api-lookup-v1-openapi.yml, openapi/here-authentication-v1-1-openapi.yml,
+  openapi/here-authorization-v1-1-openapi.yml, openapi/here-cost-management-usage-v2-openapi.yml,
+  openapi/here-data-blob-v1-openapi.yml, openapi/here-data-blob-v2-openapi.yml, openapi/here-data-config-v1-openapi.yml,
+  openapi/here-data-index-v1-openapi.yml, openapi/here-data-ingest-v1-openapi.yml, openapi/here-data-metadata-v1-openapi.yml,
+  openapi/here-data-notification-v1-openapi.yml ...
 summary:
   types:
   - apiKey
   - http
   api_key_in:
+  - header
   - query
 schemes:
-- name: apiKey
-  type: apiKey
-  in: query
-  parameter: apiKey
-  description: HERE API Key (apiKey query parameter)
-  sources:
-  - openapi/here-openapi.yml
-- name: bearerAuth
+- name: Bearer
   type: http
   scheme: bearer
   bearerFormat: JWT
-  description: HERE OAuth 2.0 token
+  description: Bearer Access Token issued to either the User or Application.
   sources:
-  - openapi/here-openapi.yml
+  - openapi/here-account-v1-openapi.yml
+  - openapi/here-authentication-v1-1-openapi.yml
+  - openapi/here-authorization-v1-1-openapi.yml
+  - openapi/here-cost-management-usage-v2-openapi.yml
+  - openapi/here-data-blob-v1-openapi.yml
+  - openapi/here-data-blob-v2-openapi.yml
+  - openapi/here-data-config-v1-openapi.yml
+  - openapi/here-data-index-v1-openapi.yml
+  - openapi/here-data-ingest-v1-openapi.yml
+  - openapi/here-data-metadata-v1-openapi.yml
+  - openapi/here-data-notification-v1-openapi.yml
+  - openapi/here-data-publish-v2-openapi.yml
+  - openapi/here-data-query-v1-openapi.yml
+  - openapi/here-data-stream-v2-openapi.yml
+  - openapi/here-data-volatile-blob-v1-openapi.yml
+  - openapi/here-destination-weather-v1-openapi.yml
+  - openapi/here-destination-weather-v3-openapi.yml
+  - openapi/here-ev-charge-points-v3-openapi.yml
+  - openapi/here-fuel-prices-v2-openapi.yml
+  - openapi/here-fuel-prices-v3-openapi.yml
+  - openapi/here-geocoding-and-search-v7-openapi.json
+  - openapi/here-geocoding-batch-v7-openapi.yml
+  - openapi/here-geofencing-v1-openapi.json
+  - openapi/here-gnss-data-v2-openapi.yml
+  - openapi/here-indoor-routing-v1-openapi.yml
+  - openapi/here-interactive-map-v1-openapi.yml
+  - openapi/here-intermodal-routing-v8-openapi.yml
+  - openapi/here-isoline-routing-v8-openapi.yml
+  - openapi/here-map-attributes-v1-openapi.json
+  - openapi/here-map-image-v3-openapi.yml
+  - openapi/here-matrix-routing-v8-openapi.yml
+  - openapi/here-network-positioning-v1-openapi.yml
+  - openapi/here-network-positioning-v2-openapi.yml
+  - openapi/here-oauth2-token-v1-openapi.yml
+  - openapi/here-pipeline-management-v2-openapi.yml
+  - openapi/here-public-transit-v8-openapi.yml
+  - openapi/here-raster-tile-v3-openapi.yml
+  - openapi/here-rate-limit-rules-v1-openapi.yml
+  - openapi/here-route-matching-v8-openapi.json
+  - openapi/here-routing-v8-openapi.yml
+  - openapi/here-tour-planning-v3-openapi.yml
+  - openapi/here-tracking-v2-openapi.json
+  - openapi/here-traffic-raster-tile-v3-openapi.yml
+  - openapi/here-traffic-v7-openapi.yml
+  - openapi/here-traffic-vector-tile-v2-openapi.yml
+  - openapi/here-waypoints-sequence-v1-openapi.json
+  - openapi/here-wego-user-service-v1-openapi.json
+- name: Bearer
+  type: apiKey
+  in: header
+  parameter: Authorization
+  description: |-
+    A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+    For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+  sources:
+  - openapi/here-api-lookup-v1-openapi.yml
+  - openapi/here-oauth2-token-v1-openapi.yml
+- name: ApiKey
+  type: apiKey
+  in: query
+  parameter: apiKey
+  description: A key generated specifically to authenticate API requests. For more information
+    on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+  sources:
+  - openapi/here-destination-weather-v3-openapi.yml
+  - openapi/here-ev-charge-points-v3-openapi.yml
+  - openapi/here-fuel-prices-v3-openapi.yml
+  - openapi/here-geocoding-and-search-v7-openapi.json
+  - openapi/here-geocoding-batch-v7-openapi.yml
+  - openapi/here-geofencing-v1-openapi.json
+  - openapi/here-gnss-data-v2-openapi.yml
+  - openapi/here-interactive-map-v1-openapi.yml
+  - openapi/here-intermodal-routing-v8-openapi.yml
+  - openapi/here-isoline-routing-v8-openapi.yml
+  - openapi/here-map-attributes-v1-openapi.json
+  - openapi/here-map-image-v3-openapi.yml
+  - openapi/here-matrix-routing-v8-openapi.yml
+  - openapi/here-network-positioning-v1-openapi.yml
+  - openapi/here-network-positioning-v2-openapi.yml
+  - openapi/here-public-transit-v8-openapi.yml
+  - openapi/here-raster-tile-v3-openapi.yml
+  - openapi/here-rate-limit-rules-v1-openapi.yml
+  - openapi/here-route-matching-v8-openapi.json
+  - openapi/here-routing-v8-openapi.yml
+  - openapi/here-tracking-v2-openapi.json
+  - openapi/here-traffic-raster-tile-v3-openapi.yml
+  - openapi/here-traffic-v7-openapi.yml
+  - openapi/here-traffic-vector-tile-v2-openapi.yml
+  - openapi/here-waypoints-sequence-v1-openapi.json
+  - openapi/here-wego-user-service-v1-openapi.json
+- name: ApiKey
+  type: apiKey
+  in: query
+  parameter: apikey
+  description: "The API authentication key. For more information on how to get an API key, \n\
+    see [Identity and Access Management - Developer Guide](https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys)."
+  sources:
+  - openapi/here-tour-planning-v3-openapi.yml
+- name: signedRequest
+  type: http
+  scheme: oauth
+  description: |-
+    HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.
+
+    > **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.
+
+    **Create the Signature Base String**
+
+    The first step in cr
+  sources:
+  - openapi/here-tracking-v2-openapi.json

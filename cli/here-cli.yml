@@ -1,0 +1,42 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/workspace/docs/olp-cli-topics-ratelimit-rule-ratelimit-identity-commands, https://github.com/heremaps/homebrew-olp-cli,
+  https://github.com/heremaps/homebrew-map-making-cli, https://www.npmjs.com/package/@here/cli
+clis:
+- name: OLP CLI (HERE platform command line interface)
+  status: current
+  official: true
+  install: brew tap heremaps/olp-cli && brew install olp-cli
+  install_repo: https://github.com/heremaps/homebrew-olp-cli
+  docs: https://docs.here.com/workspace/docs/olp-cli-getting-started
+  purpose: Access HERE platform services (catalogs, layers, pipelines, IAM, rate-limit rules) from a shell or script.
+  command_groups:
+  - group: catalog
+    detail: create, list, show, update, delete catalogs and layers
+  - group: pipeline
+    detail: create, activate, deactivate, delete pipelines and pipeline versions
+  - group: iam
+    detail: apps, groups, roles, grants, access filters
+  - group: ratelimit rule
+    detail: list active rate-limit rules for identities in the organization; show one rule by identity type and
+      endpointId
+  - group: ratelimit endpoint
+    detail: list rate-limit endpoints for a service; show one by endpointId
+  - group: artifact
+    detail: publish and resolve platform artifacts
+  note: The rate-limit command groups are the CLI face of the IAM Rate Limit Rules API v1 captured in openapi/here-rate-limit-rules-v1-openapi.yml.
+- name: Map Making CLI
+  status: current
+  official: true
+  install: brew tap heremaps/map-making-cli
+  install_repo: https://github.com/heremaps/homebrew-map-making-cli
+- name: HERE CLI (XYZ)
+  status: unmaintained
+  official: true
+  install: npm install -g @here/cli
+  package: https://www.npmjs.com/package/@here/cli
+  repo: https://github.com/heremaps/here-cli
+  version: 1.9.0
+  published: '2021-12-06'
+  purpose: Work with HERE XYZ Hub spaces and some HERE REST APIs.
+  note: Last npm publish 2021-12-06; repo last pushed 2023-03-04. Superseded by the OLP CLI for platform work.

@@ -1,0 +1,78 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/positioning/docs/here-gnss-data-api-v1-appendices-protobuf-message.md and https://docs.here.com/positioning/docs/here-hd-gnss-positioning-api-appendices-protobuf-messages.md
+  — HERE publishes these .proto files verbatim in its own documentation code blocks and instructs readers to copy
+  them.
+note: 'These are wire-format message definitions, not gRPC service definitions: the GNSS assistance protocol runs
+  over a WebSocket and the HD GNSS positioning protocol over MQTT. No `service` block and no gRPC endpoint exists,
+  so this is Protobuf-as-contract rather than gRPC. Nothing here was authored by API Evangelist — each file is the
+  provider''s own text, copied verbatim including its copyright header.'
+transport:
+  here.gnss: WebSocket
+  here.hdgnss.positioning: MQTT
+apis:
+- HERE GNSS Data API v2 (openapi/here-gnss-data-v2-openapi.yml)
+- HERE HD GNSS Positioning API
+files:
+- file: here-gnss.proto
+  package: here.gnss
+  syntax: proto3
+  source: https://docs.here.com/positioning/docs/here-gnss-data-api-v1-appendices-protobuf-message.md
+  messages: 6
+  enums: 0
+  services: 0
+  message_names:
+  - Message
+  - Request
+  - Unsubscribe
+  - Data
+  - Metadata
+  - Error
+  bytes: 6488
+- file: here-gnss-data-types.proto
+  package: here.gnss
+  syntax: proto3
+  source: https://docs.here.com/positioning/docs/here-gnss-data-api-v1-appendices-protobuf-message.md
+  messages: 0
+  enums: 3
+  services: 0
+  message_names: []
+  bytes: 14181
+- file: here-hdgnss-positioning-configuration.proto
+  package: here.hdgnss.positioning
+  syntax: proto3
+  source: https://docs.here.com/positioning/docs/here-hd-gnss-positioning-api-appendices-protobuf-messages.md
+  messages: 1
+  enums: 2
+  services: 0
+  message_names:
+  - Configuration
+  bytes: 3087
+- file: here-hdgnss-positioning-measurements.proto
+  package: here.hdgnss.positioning
+  syntax: proto3
+  source: https://docs.here.com/positioning/docs/here-hd-gnss-positioning-api-appendices-protobuf-messages.md
+  messages: 4
+  enums: 0
+  services: 0
+  message_names:
+  - Measurements
+  - GnssMeasurement
+  - GnssAndroidMeasurements
+  - SatelliteData
+  bytes: 5878
+- file: here-hdgnss-positioning-server-response.proto
+  package: here.hdgnss.positioning
+  syntax: proto3
+  source: https://docs.here.com/positioning/docs/here-hd-gnss-positioning-api-appendices-protobuf-messages.md
+  messages: 6
+  enums: 4
+  services: 0
+  message_names:
+  - ServerResponse
+  - Response
+  - Position
+  - NoPosition
+  - Information
+  - Error
+  bytes: 5661

@@ -1,0 +1,102 @@
+generated: '2026-09-13'
+method: searched
+source: https://legal.here.com/en-gb/certifications-and-attestations, https://account.api.here.com/.well-known/openid-configuration,
+  https://account.api.here.com/.well-known/oauth-authorization-server, openapi/_original/ (48 harvested HERE OpenAPI
+  documents)
+conformance:
+- id: oauth2
+  conforms: true
+  evidence: https://account.api.here.com/.well-known/oauth-authorization-server declares issuer, token_endpoint
+    https://account.api.here.com/oauth2/token, grant_types_supported [client_credentials], token_endpoint_auth_methods_supported
+    [private_key_jwt].
+- id: oidc
+  conforms: true
+  evidence: https://account.here.com/.well-known/openid-configuration declares issuer, authorization/token/userinfo
+    endpoints, jwks_uri, scopes_supported [openid, profile, email, phone, readwrite:ha], id_token_signing_alg_values_supported
+    [RS256].
+- id: oauth2-pkce
+  conforms: true
+  evidence: 'code_challenge_methods_supported: ["S256"] in https://account.here.com/.well-known/openid-configuration.'
+- id: oauth1a-hmac-sha256
+  conforms: true
+  evidence: Bearer tokens are obtained with an OAuth 1.0a HMAC-SHA256 signed request — stated in the securitySchemes
+    description of openapi/_original/here-geocoding-and-search-v7-openapi.json.
+- id: rfc9727-api-catalog
+  conforms: true
+  evidence: https://docs.here.com/.well-known/api-catalog returns application/linkset+json with 37 anchors, each
+    carrying service-desc and service-doc links.
+- id: rfc8288-linkset
+  conforms: true
+  evidence: The api-catalog above is an RFC 9264 / RFC 8288 linkset document.
+- id: rfc9457
+  conforms: false
+  evidence: No application/problem+json response media type appears in any of the 48 harvested HERE OpenAPI documents;
+    errors use bespoke JSON envelopes (see errors/here-problem-types.yml).
+- id: iso-27001
+  conforms: true
+  evidence: ISO/IEC 27001:2022 certification listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: iso-27701
+  conforms: true
+  evidence: ISO/IEC 27701:2019 PIMS certification listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: iso-42001
+  conforms: true
+  evidence: ISO/IEC 42001:2023 AI Management System certification listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: soc2
+  conforms: true
+  evidence: SOC 2 attestation listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: tisax
+  conforms: true
+  evidence: TISAX (automotive information-security assessment exchange) listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: hitrust-r2
+  conforms: true
+  evidence: HITRUST r2 certification listed at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: csa-star
+  conforms: true
+  evidence: CSA STAR registry listing referenced at https://legal.here.com/en-gb/certifications-and-attestations.
+- id: gdpr
+  conforms: true
+  evidence: https://legal.here.com/privacy/policy and the ISO/IEC 27701 PIMS certification; HERE is headquartered
+    in the EU (Eindhoven, NL).
+- id: pagination
+  conforms: true
+  evidence: Cursor/offset pagination parameters are declared in the harvested specs (e.g. limit/offset in here-authorization-v1-1,
+    pageToken in here-data-config-v1).
+- id: idempotency
+  conforms: false
+  evidence: No Idempotency-Key header is declared in any of the 48 harvested OpenAPI documents and none is documented;
+    see conventions/here-conventions.yml.
+- id: fhir
+  conforms: false
+  evidence: Not applicable — HERE is a location-platform provider, not a healthcare provider.
+domain_standards:
+- id: tisax
+  market: automotive
+  conforms: true
+  evidence: TISAX assessment listed at https://legal.here.com/en-gb/certifications-and-attestations — the automotive
+    sector information-security standard. HERE location data ships in more than 160 million vehicles.
+  signal: organisational certification, not a contract signature
+- id: gtfs
+  market: public transit
+  conforms: false
+  evidence: The Public Transit API v8 (openapi/here-public-transit-v8-openapi.yml) exposes a HERE-proprietary
+    JSON model for stations, departures and routes; it neither serves nor declares GTFS / GTFS-Realtime resources.
+    Recorded as an honest miss, not a penalty.
+- id: ogc-api
+  market: geospatial
+  conforms: false
+  evidence: 'Probed for an OGC surface: no conformsTo[] / opengis.net class URIs and no *_Capabilities XML document
+    appear in any harvested HERE contract or on any HERE API host. HERE publishes proprietary REST map, tile and
+    attribute APIs instead.'
+- id: mvt-mapbox-vector-tile
+  market: map rendering
+  conforms: true
+  evidence: openapi/here-traffic-vector-tile-v2-openapi.yml and the HERE Vector Tile API serve Mapbox Vector Tile
+    (MVT / application/vnd.mapbox-vector-tile) encoded tiles.
+- id: quantized-mesh
+  market: 3D terrain
+  conforms: true
+  evidence: HERE publishes a quantized-mesh decoder and viewer for its terrain tiles at https://github.com/heremaps/quantized-mesh-decoder
+    and https://github.com/heremaps/quantized-mesh-viewer.
+note: 'REWARD-ONLY: the false entries above are recorded so a reader can see what was checked, not to penalise
+  HERE. The location-platform market has no single mandatory contract standard; HERE carries the automotive one
+  (TISAX) and the tile-encoding ones (MVT, quantized mesh).'

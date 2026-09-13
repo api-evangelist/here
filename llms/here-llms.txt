@@ -1,0 +1,589 @@
+# HERE Technologies Documentation | HERE Docs Documentation
+
+> Official HERE developer documentation for building location-aware applications with HERE APIs and SDKs. Access guides, tutorials, code samples, API references, and data schemas for maps, routing, search, geocoding, and location intelligence.
+
+Append .md to any documentation page URL to get its markdown version.
+
+Each project below either links to its own llms.txt, which contains a full index of that project's documentation, or inlines the index its authors wrote by hand. Where links are listed, the section and category ones narrow to that part of the docs.
+
+## Anonymizer
+
+- [Anonymizer](https://docs.here.com/anonymizer/llms.txt): Official developer documentation for HERE Anonymizer Self-Hosted and HERE Anonymizer Preprocessor, providing user guides, configuration guide, and changelogs. Learn about deployment, Docker setup, anonymization algorithms, data formats, connectors, and integration for processing location-based probe data.
+
+### Guides
+
+- [Guides index](https://docs.here.com/anonymizer/docs/llms.txt): full section index
+- [HERE Anonymizer Self-Hosted User Guide](https://docs.here.com/anonymizer/docs/here-anonymizer-self-hosted-user-guide/llms.txt)
+- [HERE Anonymizer Preprocessor User Guide](https://docs.here.com/anonymizer/docs/here-anonymizer-preprocessor-user-guide/llms.txt)
+- [Changelog](https://docs.here.com/anonymizer/docs/changelog/llms.txt)
+
+
+## Coverage
+
+- [Coverage](https://docs.here.com/coverage/llms.txt): Official coverage documentation for HERE APIs and SDKs, providing coverage information for routing, traffic, transit, geocoding, search, map rendering, and tour planning products. Use this documentation to verify geographic coverage before integrating HERE services.
+
+### Guides
+
+- [Guides index](https://docs.here.com/coverage/docs/llms.txt): full section index
+- [HERE coverage information](https://docs.here.com/coverage/docs/here-coverage-information/llms.txt)
+
+
+## Data API
+
+- [Data API](https://docs.here.com/data-api/llms.txt): Official developer documentation for the HERE Data API, providing API references, authentication guidance, integration tutorials, code samples, and troubleshooting resources for building and managing catalog workflows on the HERE platform.
+
+### Guides
+
+- [Guides index](https://docs.here.com/data-api/docs/llms.txt): full section index
+- [Data API Developer Guide](https://docs.here.com/data-api/docs/data-api-developer-guide/llms.txt)
+- [API Lookup Developer Guide](https://docs.here.com/data-api/docs/api-lookup-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/data-api/reference/llms.txt): full section index
+- [Query API v1](https://docs.here.com/data-api/reference/query-api-v1/llms.txt)
+- [Stream API v2](https://docs.here.com/data-api/reference/stream-api-v2/llms.txt)
+- [Publish API v2](https://docs.here.com/data-api/reference/publish-api-v2/llms.txt)
+- [Notification API](https://docs.here.com/data-api/reference/notification-api/llms.txt)
+- [Metadata API v1](https://docs.here.com/data-api/reference/metadata-api-v1/llms.txt)
+- [Interactive Map API v1](https://docs.here.com/data-api/reference/interactive-map-api-v1/llms.txt)
+- [Ingest API v1](https://docs.here.com/data-api/reference/ingest-api-v1/llms.txt)
+- [Volatile Blob API v1](https://docs.here.com/data-api/reference/volatile-blob-api-v1/llms.txt)
+- [Index API v1](https://docs.here.com/data-api/reference/index-api-v1/llms.txt)
+- [Blob API v2](https://docs.here.com/data-api/reference/blob-api-v2/llms.txt)
+- [Blob API v1](https://docs.here.com/data-api/reference/blob-api-v1/llms.txt)
+- [Config API v1](https://docs.here.com/data-api/reference/config-api-v1/llms.txt)
+- [API Lookup Service v1](https://docs.here.com/data-api/reference/api-lookup-service-v1/llms.txt)
+
+
+## Data SDK
+
+- [Data SDK](https://docs.here.com/data-sdk/llms.txt): Official developer documentation for the HERE Data SDK for Python and Data SDK for TypeScript, providing API references, authentication guidance, integration tutorials, code samples, changelogs, and troubleshooting resources for building and managing applications.
+
+### Guides
+
+- [Guides index](https://docs.here.com/data-sdk/docs/llms.txt): full section index
+- [Data SDK Python V2](https://docs.here.com/data-sdk/docs/data-sdk-python-v2/llms.txt)
+- [Data SDK for TypeScript Developer Guide](https://docs.here.com/data-sdk/docs/data-sdk-for-typescript-developer-guide/llms.txt)
+
+### Changelog
+
+- [Changelog index](https://docs.here.com/data-sdk/changelog/llms.txt): full section index
+
+
+## Embedded Editor
+
+- [Embedded Editor](https://docs.here.com/embedded-editor/llms.txt): Official documentation for the HERE Embedded Editor, providing API references, authentication guidance, integration tutorials, and code samples. Learn how to embed the editor in iframes, Android WebView, iOS WKWebView, and mobile browser workflows so users can submit map feedback to HERE.
+
+### Guides
+
+- [Guides index](https://docs.here.com/embedded-editor/docs/llms.txt): full section index
+- [Embedded Editor](https://docs.here.com/embedded-editor/docs/embedded-editor/llms.txt)
+
+
+## GIS Data Suite
+
+- [GIS Data Suite](https://docs.here.com/gis-data-suite/llms.txt): Official documentation for HERE GIS Data Suite, providing a user guide and data specifications. Learn about pre-symbolized maps and layers, file geodatabases, vector tile packages, network datasets, locator files, addresses and places, cellular signals, road infrastructure, traffic rules, regulations, and traffic data for GIS workflows.
+
+### Guides
+
+- [Guides index](https://docs.here.com/gis-data-suite/docs/llms.txt): full section index
+- [HERE GIS Data Suite User Guide](https://docs.here.com/gis-data-suite/docs/here-gis-data-suite-user-guide/llms.txt)
+- [HERE GIS Data Suite Addresses and Places](https://docs.here.com/gis-data-suite/docs/here-gis-data-suite-addresses-and-places/llms.txt)
+- [HERE GIS Data Suite Cellular Signals](https://docs.here.com/gis-data-suite/docs/here-gis-data-suite-cellular-signals/llms.txt)
+- [HERE GIS Data Suite Road Infrastructure, Rules, Regulations, and Traffic](https://docs.here.com/gis-data-suite/docs/here-gis-data-suite-road-infrastructure-rules-regulations-and-traffic/llms.txt)
+
+
+## HERE Destination Weather
+
+- [HERE Destination Weather](https://docs.here.com/destination-weather/llms.txt): Official developer documentation for the HERE Destination Weather API, providing API references, authentication guidance, integration tutorials, and code samples. Learn how to use this API to get weather reports, radar, precipitation maps, and severe weather alerts.
+
+### Guides
+
+- [Guides index](https://docs.here.com/destination-weather/docs/llms.txt): full section index
+- [HERE Destination Weather API v3 Developer Guide](https://docs.here.com/destination-weather/docs/here-destination-weather-api-v3-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/destination-weather/reference/llms.txt): full section index
+- [Weather API v3](https://docs.here.com/destination-weather/reference/weather-api-v3/llms.txt)
+- [Weather API v1](https://docs.here.com/destination-weather/reference/weather-api-v1/llms.txt)
+
+
+## HERE EV Products
+
+- [HERE EV Products](https://docs.here.com/ev-products/llms.txt): Official developer documentation for the HERE EV Charge Points API, providing API references, authentication guidance, integration tutorials, changelogs, and code samples. Learn how to use this API to search for charge points and get charging station data, real-time charger availability. Learn how to perform availability prediction, charge-aware routing, and range optimization.
+
+### Guides
+
+- [Guides index](https://docs.here.com/ev-products/docs/llms.txt): full section index
+- [Introduction to HERE EV Products](https://docs.here.com/ev-products/docs/introduction-to-here-ev-products/llms.txt)
+- [HERE EV Charge Points API v3](https://docs.here.com/ev-products/docs/here-ev-charge-points-api-v3/llms.txt)
+- [HERE EV Charge Points API v2 Developer Guide](https://docs.here.com/ev-products/docs/here-ev-charge-points-api-v2-developer-guide/llms.txt)
+- [HERE EV Migration Guide](https://docs.here.com/ev-products/docs/here-ev-migration-guide/llms.txt)
+- [HERE EV Charge Points API v2 Release Notes](https://docs.here.com/ev-products/docs/here-ev-charge-points-api-v2-release-notes/llms.txt)
+- [HERE EV Charge Points API v3 Changelog](https://docs.here.com/ev-products/docs/here-ev-charge-points-api-v3-changelog/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/ev-products/reference/llms.txt): full section index
+- [HERE EV Charge Points API v3](https://docs.here.com/ev-products/reference/here-ev-charge-points-api-v3/llms.txt)
+
+
+## HERE Fuel Prices
+
+- [HERE Fuel Prices](https://docs.here.com/fuel-prices/llms.txt): Official developer documentation for the HERE Fuel Prices API, providing API references, authentication guidance, integration tutorials, and code samples. Learn how to use this API to retrieve fuel price information.
+
+### Guides
+
+- [Guides index](https://docs.here.com/fuel-prices/docs/llms.txt): full section index
+- [HERE Fuel Prices API](https://docs.here.com/fuel-prices/docs/here-fuel-prices-api/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/fuel-prices/reference/llms.txt): full section index
+- [Fuel Prices API v3](https://docs.here.com/fuel-prices/reference/fuel-prices-api-v3/llms.txt)
+- [Fuel Prices API v2](https://docs.here.com/fuel-prices/reference/fuel-prices-api-v2/llms.txt)
+
+
+## HERE Geocoding & Search
+
+- [HERE Geocoding & Search](https://docs.here.com/geocoding-and-search/llms.txt): Official developer documentation for the HERE Geocoding and Search API, providing API references, authentication guidance, integration tutorials, changelogs, and code samples. Learn how to use this API for forward and reverse geocoding, POI search, address discovery, autocomplete suggestions, and Batch API workflows.
+
+### Guides
+
+- [Guides index](https://docs.here.com/geocoding-and-search/docs/llms.txt): full section index
+- [HERE Geocoding and Search API v7 Developer Guide](https://docs.here.com/geocoding-and-search/docs/here-geocoding-and-search-api-v7-developer-guide/llms.txt)
+- [HERE Geocoding and Search API v7 Release Notes](https://docs.here.com/geocoding-and-search/docs/here-geocoding-and-search-api-v7-release-notes/llms.txt)
+- [Batch API v7 Developer Guide](https://docs.here.com/geocoding-and-search/docs/batch-api-v7-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/geocoding-and-search/reference/llms.txt): full section index
+- [Geocoding and Search API v7](https://docs.here.com/geocoding-and-search/reference/geocoding-and-search-api-v7/llms.txt)
+- [HERE Batch API v7](https://docs.here.com/geocoding-and-search/reference/here-batch-api-v7/llms.txt)
+
+### Changelog
+
+- [Changelog index](https://docs.here.com/geocoding-and-search/changelog/llms.txt): full section index
+
+
+## HERE Knowledge Base
+
+- [HERE Knowledge Base](https://docs.here.com/here-kb/llms.txt): Official knowledge base for developer-focused answers, troubleshooting guides, and how-to articles for HERE platform services, APIs, and SDKs.
+
+### Guides
+
+- [Guides index](https://docs.here.com/here-kb/docs/llms.txt): full section index
+- [Documentation](https://docs.here.com/here-kb/docs/documentation/llms.txt)
+
+
+## HERE Map Rendering
+
+- [HERE Map Rendering](https://docs.here.com/map-rendering/llms.txt): Official developer documentation for Vector Tile API, Raster Tile API, and Map Image API. Provides API references, authentication guidance, integration tutorials, changelogs, and code samples. Learn how to build, style, and render web and mobile maps with HERE location data.
+
+### Guides
+
+- [Guides index](https://docs.here.com/map-rendering/docs/llms.txt): full section index
+- [Vector Tile API Dev Guide](https://docs.here.com/map-rendering/docs/vector-tile-api-dev-guide/llms.txt)
+- [Vector Tile API Changelog](https://docs.here.com/map-rendering/docs/vector-tile-api-changelog/llms.txt)
+- [Raster Tile API v3 Dev Guide](https://docs.here.com/map-rendering/docs/raster-tile-api-v3-dev-guide/llms.txt)
+- [Raster Tile API v3 Migration Guide](https://docs.here.com/map-rendering/docs/raster-tile-api-v3-migration-guide/llms.txt)
+- [Raster Tile API v3 Changelog](https://docs.here.com/map-rendering/docs/raster-tile-api-v3-changelog/llms.txt)
+- [Map Image API v3 Dev Guide](https://docs.here.com/map-rendering/docs/map-image-api-v3-dev-guide/llms.txt)
+- [Map Image API v3 Migration Guide](https://docs.here.com/map-rendering/docs/map-image-api-v3-migration-guide/llms.txt)
+- [Map Image API v3 Changelog](https://docs.here.com/map-rendering/docs/map-image-api-v3-changelog/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/map-rendering/reference/llms.txt): full section index
+- [HERE Raster Tile API v3](https://docs.here.com/map-rendering/reference/here-raster-tile-api-v3/llms.txt)
+- [HERE Map Image API v3](https://docs.here.com/map-rendering/reference/here-map-image-api-v3/llms.txt)
+- [Vector Tile API v2](https://docs.here.com/map-rendering/reference/vector-tile-api-v2/llms.txt)
+
+### Changelog
+
+- [Changelog index](https://docs.here.com/map-rendering/changelog/llms.txt): full section index
+
+
+## HERE Parking
+
+- [HERE Parking](https://docs.here.com/parking/llms.txt): Official developer documentation for the Off-Street Parking API and On-Street Parking API, providing API references, authentication guidance, integration tutorials, and code samples. Learn how to use these APIs to get parking facility details, pricing, restrictions, and availability.
+
+### Guides
+
+- [Guides index](https://docs.here.com/parking/docs/llms.txt): full section index
+- [HERE Off-Street Parking API Developer Guide](https://docs.here.com/parking/docs/here-off-street-parking-api-developer-guide/llms.txt)
+- [HERE On-Street Parking API Developer Guide](https://docs.here.com/parking/docs/here-on-street-parking-api-developer-guide/llms.txt)
+
+
+## HERE Positioning
+
+- [HERE Positioning](https://docs.here.com/positioning/llms.txt): Official developer documentation for the HERE HD GNSS Positioning API, HD GNSS and A-GNSS Data API, and HERE Network Positioning API. Provides API references, authentication guidances, integration tutorials, code samples, and migration guides. Learn how to calculate high-accuracy PPP GNSS positions from raw GNSS measurements, use Android GNSS and RTCM3 MSM data, integrate MQTT-based cloud positioning workflows, meet device requirements, and build location-aware applications with HERE positioning services.
+
+### Guides
+
+- [Guides index](https://docs.here.com/positioning/docs/llms.txt): full section index
+- [HERE Network Positioning API v2 Developer Guide](https://docs.here.com/positioning/docs/here-network-positioning-api-v2-developer-guide/llms.txt)
+- [HERE Network Positioning API v2 Migration Guide](https://docs.here.com/positioning/docs/here-network-positioning-api-v2-migration-guide/llms.txt)
+- [Network Positioning API v1](https://docs.here.com/positioning/docs/network-positioning-api-v1/llms.txt)
+- [GNSS Data API v2 Developer Guide](https://docs.here.com/positioning/docs/gnss-data-api-v2-developer-guide/llms.txt)
+- [GNSS Data API v1 Developer Guide](https://docs.here.com/positioning/docs/gnss-data-api-v1-developer-guide/llms.txt)
+- [HD GNSS Positioning API Developer Guide](https://docs.here.com/positioning/docs/hd-gnss-positioning-api-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/positioning/reference/llms.txt): full section index
+- [HERE Network Positioning API v2](https://docs.here.com/positioning/reference/here-network-positioning-api-v2/llms.txt)
+- [HERE Network Positioning API v1](https://docs.here.com/positioning/reference/here-network-positioning-api-v1/llms.txt)
+- [HERE GNSS Data API v2](https://docs.here.com/positioning/reference/here-gnss-data-api-v2/llms.txt)
+- [HERE GNSS Data API v1](https://docs.here.com/positioning/reference/here-gnss-data-api-v1/llms.txt)
+
+
+## HERE Routing
+
+- [HERE Routing](https://docs.here.com/routing/llms.txt): Official developer documentation for the HERE Routing API, Isoline Routing API, Matrix Routing API, Waypoints Sequence API, Route Matching API, and Geofencing API, providing API references, authentication guidance, integration tutorials, changelogs, and code samples. Learn how to use these APIs for route calculation, turn-by-turn guidance, truck routing, traffic-aware navigation, fleet tracking, and route optimization.
+
+### Guides
+
+- [Guides index](https://docs.here.com/routing/docs/llms.txt): full section index
+- [HERE Routing API v8 Developer Guide](https://docs.here.com/routing/docs/here-routing-api-v8-developer-guide/llms.txt)
+- [HERE Isoline Routing API v8 Developer Guide](https://docs.here.com/routing/docs/here-isoline-routing-api-v8-developer-guide/llms.txt)
+- [HERE Matrix Routing API v8 Developer Guide](https://docs.here.com/routing/docs/here-matrix-routing-api-v8-developer-guide/llms.txt)
+- [HERE Waypoints Sequence API v8 Developer Guide](https://docs.here.com/routing/docs/here-waypoints-sequence-api-v8-developer-guide/llms.txt)
+- [HERE Route Matching API v8 Developer Guide](https://docs.here.com/routing/docs/here-route-matching-api-v8-developer-guide/llms.txt)
+- [HERE Geofencing API v8 Developer Guide](https://docs.here.com/routing/docs/here-geofencing-api-v8-developer-guide/llms.txt)
+- [Changelogs](https://docs.here.com/routing/docs/changelogs/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/routing/reference/llms.txt): full section index
+- [Routing API v8](https://docs.here.com/routing/reference/routing-api-v8/llms.txt)
+- [Isoline Routing API v8](https://docs.here.com/routing/reference/isoline-routing-api-v8/llms.txt)
+- [Matrix Routing API v8](https://docs.here.com/routing/reference/matrix-routing-api-v8/llms.txt)
+- [Waypoints Sequence API](https://docs.here.com/routing/reference/waypoints-sequence-api/llms.txt)
+- [HERE Route Matching V8 API](https://docs.here.com/routing/reference/here-route-matching-v8-api/llms.txt)
+- [Geofencing API](https://docs.here.com/routing/reference/geofencing-api/llms.txt)
+
+
+## HERE Safety Cameras
+
+- [HERE Safety Cameras](https://docs.here.com/safety-cameras/llms.txt): Official developer documentation for the HERE Safety Cameras API, providing API references, authentication guidance, integration tutorials, and code samples. Learn how to use this API to find fixed and mobile safety camera locations, enforcement points, and traps by country, camera type, proximity, bounding box, and corridor.
+
+### Guides
+
+- [Guides index](https://docs.here.com/safety-cameras/docs/llms.txt): full section index
+- [HERE Safety Cameras API](https://docs.here.com/safety-cameras/docs/here-safety-cameras-api/llms.txt)
+
+
+## HERE SDK
+
+- [HERE SDK](https://docs.here.com/here-sdk/llms.txt): Official developer documentation for the HERE SDK, including Android, iOS, and Flutter. Provides API references, authentication guidance, integration tutorials, code samples, changelogs, and troubleshooting guidance. Learn how to build location-aware apps with maps, routing, geocoding, search, custom map styles, and turn-by-turn navigation.
+
+### Guides
+
+- [Guides index](https://docs.here.com/here-sdk/docs/llms.txt): full section index
+- [HERE SDK for Android Developer Guide](https://docs.here.com/here-sdk/docs/here-sdk-for-android-developer-guide/llms.txt)
+- [HERE SDK for Flutter Developer Guide](https://docs.here.com/here-sdk/docs/here-sdk-for-flutter-developer-guide/llms.txt)
+- [HERE SDK for iOS Developer Guide](https://docs.here.com/here-sdk/docs/here-sdk-for-ios-developer-guide/llms.txt)
+- [Changelogs](https://docs.here.com/here-sdk/docs/changelogs/llms.txt)
+
+
+## HERE Style Editor
+
+- [HERE Style Editor](https://docs.here.com/style-editor/llms.txt): Official documentation for HERE Style Editor providing a user guide and tutorials. This documentation covers map style editing, base map templates, layer styling, overlays, modifiers, zoom-level controls, compatibility with HERE SDK, HERE Maps API for JavaScript, and HERE Navigation. Learn how to customize HERE map styles for web, mobile, and embedded navigation applications.
+
+### Guides
+
+- [Guides index](https://docs.here.com/style-editor/docs/llms.txt): full section index
+- [HERE Style Editor](https://docs.here.com/style-editor/docs/here-style-editor/llms.txt)
+- [HERE default map styles](https://docs.here.com/style-editor/docs/here-default-map-styles/llms.txt)
+
+
+## HERE Tour Planning
+
+- [HERE Tour Planning](https://docs.here.com/tour-planning/llms.txt): Official developer documentation for the HERE Tour Planning API, providing API references, authentication guidance, integration tutorials, code samples, changelogs, and an FAQ. Learn how to optimize multi-vehicle routes considering delivery time windows, capacity constraints, multi-depot planning, pickup and delivery workflows, territories, and reloads.
+
+### Guides
+
+- [Guides index](https://docs.here.com/tour-planning/docs/llms.txt): full section index
+- [Tour Planning API Developer Guide](https://docs.here.com/tour-planning/docs/tour-planning-api-developer-guide/llms.txt)
+- [Tour Planning API Release Notes](https://docs.here.com/tour-planning/docs/tour-planning-api-release-notes/llms.txt)
+- [Fleet Optimization Package Developer Guide](https://docs.here.com/tour-planning/docs/fleet-optimization-package-developer-guide/llms.txt)
+- [Tour Planning API Changelog](https://docs.here.com/tour-planning/docs/tour-planning-api-changelog/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/tour-planning/reference/llms.txt): full section index
+- [Tour Planning API v3](https://docs.here.com/tour-planning/reference/tour-planning-api-v3/llms.txt)
+
+
+## HERE Tracking API
+
+- [HERE Tracking API](https://docs.here.com/tracking/llms.txt): Official developer documentation for the HERE Tracking API, providing an API reference, authentication guidance, integration tutorials, changelogs, and code samples. Learn how to use the API for IoT device tracking, geofencing, traces, events, positioning, and shipments.
+
+### Guides
+
+- [Guides index](https://docs.here.com/tracking/docs/llms.txt): full section index
+- [HERE Tracking API Dev Guide](https://docs.here.com/tracking/docs/here-tracking-api-dev-guide/llms.txt)
+- [HERE Tracking API Release Notes](https://docs.here.com/tracking/docs/here-tracking-api-release-notes/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/tracking/reference/llms.txt): full section index
+- [HERE Tracking](https://docs.here.com/tracking/reference/here-tracking/llms.txt)
+
+
+## HERE Traffic Analytics Speed Data
+
+- [HERE Traffic Analytics Speed Data](https://docs.here.com/traffic-analytics/llms.txt): Official developer documentation for HERE Traffic Analytics, providing a user guide, tutorials, and changelog. Learn how to get historical traffic data for speed observations, probe-count volume, and five-year historical coverage.
+
+### Guides
+
+- [Guides index](https://docs.here.com/traffic-analytics/docs/llms.txt): full section index
+- [Traffic Analytics](https://docs.here.com/traffic-analytics/docs/traffic-analytics/llms.txt)
+
+
+## HERE Traffic API
+
+- [HERE Traffic API](https://docs.here.com/traffic-api/llms.txt): Official developer documentation for HERE Traffic API, Traffic Vector Tile API, and Traffic Raster Tile API, providing API references, authentication guidance, integration tutorials, changelog, and code samples. Learn how to access real-time traffic flow, incident, speed, jam factor, road geometry, vector tile, and raster tile data.
+
+### Guides
+
+- [Guides index](https://docs.here.com/traffic-api/docs/llms.txt): full section index
+- [HERE Traffic API v7 Developer Guide](https://docs.here.com/traffic-api/docs/here-traffic-api-v7-developer-guide/llms.txt)
+- [HERE Traffic Vector Tile API - Developer Guide](https://docs.here.com/traffic-api/docs/here-traffic-vector-tile-api-developer-guide/llms.txt)
+- [HERE Traffic Raster Tile Developer Guide](https://docs.here.com/traffic-api/docs/here-traffic-raster-tile-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/traffic-api/reference/llms.txt): full section index
+- [Traffic API v7](https://docs.here.com/traffic-api/reference/traffic-api-v7/llms.txt)
+- [Traffic Vector Tile API v2](https://docs.here.com/traffic-api/reference/traffic-vector-tile-api-v2/llms.txt)
+- [HERE Traffic Raster Tile API v3](https://docs.here.com/traffic-api/reference/here-traffic-raster-tile-api-v3/llms.txt)
+
+
+## HERE Transit
+
+- [HERE Transit](https://docs.here.com/transit/llms.txt): Official developer documentation for HERE Public Transit API and Intermodal Routing API, providing API references, authentication guidance, integration tutorials, changelog, and code samples. Learn how to discover transit options, calculate public transit routes, find nearby stations, retrieve departure times, and integrate HERE public transit data into applications.
+
+### Guides
+
+- [Guides index](https://docs.here.com/transit/docs/llms.txt): full section index
+- [Intermodal Routing API Migration Guide](https://docs.here.com/transit/docs/intermodal-routing-api-migration-guide/llms.txt)
+- [Public Transit API Migration Guide](https://docs.here.com/transit/docs/public-transit-api-migration-guide/llms.txt)
+- [Public Transit API v8 Developer Guide](https://docs.here.com/transit/docs/public-transit-api-v8-developer-guide/llms.txt)
+- [Intermodal Routing API Developer Guide v8](https://docs.here.com/transit/docs/intermodal-routing-api-developer-guide-v8/llms.txt)
+- [Public Transit API Release Notes](https://docs.here.com/transit/docs/public-transit-api-release-notes/llms.txt)
+- [Intermodal Routing API Release Notes](https://docs.here.com/transit/docs/intermodal-routing-api-release-notes/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/transit/reference/llms.txt): full section index
+- [Public Transit API v8](https://docs.here.com/transit/reference/public-transit-api-v8/llms.txt)
+- [Intermodal Routing API v8](https://docs.here.com/transit/reference/intermodal-routing-api-v8/llms.txt)
+
+
+## HERE WeGo Pro
+
+- [HERE WeGo Pro](https://docs.here.com/wego-pro/llms.txt): Official developer and user documentation for HERE WeGo Pro and the Deeplinking API, providing release notes, developer and user guides, changelog, and an API reference. Learn how to build, configure, and troubleshoot HERE WeGo Pro features for navigation, routing, deep links, and real-time location tracking.
+
+### Guides
+
+- [Guides index](https://docs.here.com/wego-pro/docs/llms.txt): full section index
+- [HERE WeGo Pro Developer Guide](https://docs.here.com/wego-pro/docs/here-wego-pro-developer-guide/llms.txt)
+- [HERE WeGo Pro User Guide](https://docs.here.com/wego-pro/docs/here-wego-pro-user-guide/llms.txt)
+- [HERE Deeplinking API Developer Guide](https://docs.here.com/wego-pro/docs/here-deeplinking-api-developer-guide/llms.txt)
+- [HERE WeGo Pro Live Tracking Developer Guide](https://docs.here.com/wego-pro/docs/here-wego-pro-live-tracking-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/wego-pro/reference/llms.txt): full section index
+- [HERE WeGo User Service](https://docs.here.com/wego-pro/reference/here-wego-user-service/llms.txt)
+
+
+## Identity and Access Management
+
+- [Identity and Access Management](https://docs.here.com/identity-and-access-management/llms.txt): Official developer documentation for HERE Identity and Access Management (IAM), including API references, authentication guidance, integration tutorials, and an FAQ. Learn how to authenticate identities, create credentials, manage users, groups, projects, and apps, and configure fine-grained access controls for HERE services and resources.
+
+### Guides
+
+- [Guides index](https://docs.here.com/identity-and-access-management/docs/llms.txt): full section index
+- [HERE Identity and Access Management](https://docs.here.com/identity-and-access-management/docs/here-identity-and-access-management/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/identity-and-access-management/reference/llms.txt): full section index
+- [Here Account v1 APIs](https://docs.here.com/identity-and-access-management/reference/here-account-v1-apis/llms.txt)
+- [OAuth 2.0 Access Token](https://docs.here.com/identity-and-access-management/reference/oauth-20-access-token/llms.txt)
+- [Rate Limit Rules API v1](https://docs.here.com/identity-and-access-management/reference/rate-limit-rules-api-v1/llms.txt)
+- [Authorization API v1.1](https://docs.here.com/identity-and-access-management/reference/authorization-api-v11/llms.txt)
+- [Authentication API v1.1](https://docs.here.com/identity-and-access-management/reference/authentication-api-v11/llms.txt)
+
+
+## Indoor Map
+
+- [Indoor Map](https://docs.here.com/indoor-map/llms.txt): Official documentation for HERE Indoor Map, providing API references, tutorials, and instructions on how to order, manage, and use indoor maps.
+
+### Guides
+
+- [Guides index](https://docs.here.com/indoor-map/docs/llms.txt): full section index
+- [Indoor Map](https://docs.here.com/indoor-map/docs/indoor-map/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/indoor-map/reference/llms.txt): full section index
+- [Indoor Routing API v1](https://docs.here.com/indoor-map/reference/indoor-routing-api-v1/llms.txt)
+
+
+## Introduction to Mapping Concepts
+
+- [Introduction to Mapping Concepts](https://docs.here.com/intro-to-mapping-concepts/llms.txt): Official developer documentation for HERE mapping concepts, including digital map terminology, geolocation, GNSS, navigation data standards, positioning protocols, correction data, and map rendering concepts used across HERE maps and location services.
+
+### Guides
+
+- [Guides index](https://docs.here.com/intro-to-mapping-concepts/docs/llms.txt): full section index
+- [Introduction to Mapping Concepts User Guide](https://docs.here.com/intro-to-mapping-concepts/docs/introduction-to-mapping-concepts-user-guide/llms.txt)
+
+
+## Location Reasoning
+
+- [Location Reasoning](https://docs.here.com/location-reasoning/llms.txt): Official developer documentation for HERE Location Reasoning, providing information on authentication and example usage. Learn how to use the Location Reasoning MCP to access HERE APIs for tasks such as geocoding, routing, traffic analysis, place search, and map rendering.
+
+### Guides
+
+- [Guides index](https://docs.here.com/location-reasoning/docs/llms.txt): full section index
+- [HERE Location Reasoning Docs](https://docs.here.com/location-reasoning/docs/here-location-reasoning-docs/llms.txt)
+
+
+## Map Attributes API
+
+- [Map Attributes API](https://docs.here.com/map-attributes/llms.txt): Official developer documentation for HERE Map Attributes API, providing an API reference, authentication guidance, integration tutorials, changelog, and code samples. Learn how to access HERE map data and private map data through tiled thematic layers, and geographic and attribute filtering.
+
+### Guides
+
+- [Guides index](https://docs.here.com/map-attributes/docs/llms.txt): full section index
+- [HERE Map Attributes API v8 Developer Guide](https://docs.here.com/map-attributes/docs/here-map-attributes-api-v8-developer-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/map-attributes/reference/llms.txt): full section index
+- [Map Attributes API](https://docs.here.com/map-attributes/reference/map-attributes-api/llms.txt)
+
+
+## Map Feedback API
+
+- [Map Feedback API](https://docs.here.com/map-feedback/llms.txt): Official developer documentation for the HERE Map Feedback API, including an API reference, authentication guidance, integration tutorials, changelog, and code samples. Learn how to submit feedback about missing or incorrect imagery, roads, places, and addresses to HERE, and check the status of submitted map feedback.
+
+### Guides
+
+- [Guides index](https://docs.here.com/map-feedback/docs/llms.txt): full section index
+- [HERE Map Feedback API](https://docs.here.com/map-feedback/docs/here-map-feedback-api/llms.txt)
+- [HERE Map Feedback API Release Notes](https://docs.here.com/map-feedback/docs/here-map-feedback-api-release-notes/llms.txt)
+
+
+## Maps API for JavaScript
+
+- [Maps API for JavaScript](https://docs.here.com/maps-api-for-js/llms.txt): Official developer documentation for the HERE Maps API for JavaScript, providing API references, authentication guidance, integration tutorials, code samples, changelog, and best practices. Learn how to build interactive web maps.
+
+### Guides
+
+- [Guides index](https://docs.here.com/maps-api-for-js/docs/llms.txt): full section index
+- [Developer Guide](https://docs.here.com/maps-api-for-js/docs/developer-guide/llms.txt)
+- [Release Notes](https://docs.here.com/maps-api-for-js/docs/release-notes/llms.txt)
+- [Migration Guide](https://docs.here.com/maps-api-for-js/docs/migration-guide/llms.txt)
+- [Examples](https://docs.here.com/maps-api-for-js/docs/examples/llms.txt)
+
+
+## Phonetic Training Data
+
+- [Phonetic Training Data](https://docs.here.com/voice-phonetic-transcriptions/llms.txt): Official developer documentation for HERE Phonetic Training Data attributes, providing NT-SAMPA charts and phonetic transcription guidance for understanding and using HERE’s SAMPA-based pronunciation training data.
+
+### Guides
+
+- [Guides index](https://docs.here.com/voice-phonetic-transcriptions/docs/llms.txt): full section index
+- [HERE Phonetic Training Data](https://docs.here.com/voice-phonetic-transcriptions/docs/here-phonetic-training-data/llms.txt)
+
+
+## Platform Status API
+
+- [Platform Status API](https://docs.here.com/system-status/llms.txt): Official developer documentation for the HERE Platform Status API, providing an API reference, integration tutorials, and code samples. Learn how to query current and historical status, availability, and performance information for HERE platform services.
+
+### Guides
+
+- [Guides index](https://docs.here.com/system-status/docs/llms.txt): full section index
+- [Platform Status API Dev Guide](https://docs.here.com/system-status/docs/platform-status-api-dev-guide/llms.txt)
+
+
+## Policies
+
+- [Policies](https://docs.here.com/policies/llms.txt): Official HERE product policy documentation, including incident management, service availability, SLAs, limits and quotas, and lifecycle policies.
+
+### Guides
+
+- [Guides index](https://docs.here.com/policies/docs/llms.txt): full section index
+- [Incident Management](https://docs.here.com/policies/docs/incident-management/llms.txt)
+- [Limits And Quotas](https://docs.here.com/policies/docs/limits-and-quotas/llms.txt)
+- [Product Lifecycle Policy](https://docs.here.com/policies/docs/product-lifecycle-policy/llms.txt)
+- [Service Level Agreement](https://docs.here.com/policies/docs/service-level-agreement/llms.txt)
+- [Essential Data Processing](https://docs.here.com/policies/docs/essential-data-processing/llms.txt)
+
+
+## Usage API
+
+- [Usage API](https://docs.here.com/usage/llms.txt): Official developer documentation for HERE Cost Management Usage API, providing API references, authentication guidance, implementation tutorials, changelog, and code samples. Learn how to monitor billable usage and costs, retrieve usage reports, and filter by organization, appId, featureId, project HRN, and billing tag.
+
+### Guides
+
+- [Guides index](https://docs.here.com/usage/docs/llms.txt): full section index
+- [Cost Management Dev Guide](https://docs.here.com/usage/docs/cost-management-dev-guide/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/usage/reference/llms.txt): full section index
+- [Cost Management Usage API v2](https://docs.here.com/usage/reference/cost-management-usage-api-v2/llms.txt)
+
+
+## what3words
+
+- [what3words](https://docs.here.com/what3words/llms.txt): Official developer documentation for the HERE-hosted what3words API, providing API references, authentication guidance, implementation tutorials, and code samples. Learn how to convert three-word addresses to GPS coordinates, convert reverse geocoding coordinates to what3words addresses, use AutoSuggest, and request grid sections as GeoJSON.
+
+### Guides
+
+- [Guides index](https://docs.here.com/what3words/docs/llms.txt): full section index
+- [What3Words](https://docs.here.com/what3words/docs/what3words/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/what3words/reference/llms.txt): full section index
+- [what3words API](https://docs.here.com/what3words/reference/what3words-api/llms.txt)
+
+
+## Workspace
+
+- [Workspace](https://docs.here.com/workspace/llms.txt): Official developer documentation for HERE Workspace, providing API references, authentication guidance, implementation tutorials, changelog, and code samples. Learn how to build geospatial data pipelines and manage catalogs using REST APIs, CLI tools, and the HERE Data SDK for Java and Scala.
+
+### Guides
+
+- [Guides index](https://docs.here.com/workspace/docs/llms.txt): full section index
+- [Workspace Get Started](https://docs.here.com/workspace/docs/workspace-get-started/llms.txt)
+- [Pipeline API Dev Guide](https://docs.here.com/workspace/docs/pipeline-api-dev-guide/llms.txt)
+- [Command Line Interface](https://docs.here.com/workspace/docs/command-line-interface/llms.txt)
+- [Location Library](https://docs.here.com/workspace/docs/location-library/llms.txt)
+- [Data Processing Library](https://docs.here.com/workspace/docs/data-processing-library/llms.txt)
+- [Data Client Base Library](https://docs.here.com/workspace/docs/data-client-base-library/llms.txt)
+- [Data Inspector Library](https://docs.here.com/workspace/docs/data-inspector-library/llms.txt)
+- [Index Compaction Library](https://docs.here.com/workspace/docs/index-compaction-library/llms.txt)
+- [Data Archiving Library](https://docs.here.com/workspace/docs/data-archiving-library/llms.txt)
+- [Monitoring And Logging User Guide](https://docs.here.com/workspace/docs/monitoring-and-logging-user-guide/llms.txt)
+- [Data SDK for Java and Scala](https://docs.here.com/workspace/docs/data-sdk-for-java-and-scala/llms.txt)
+- [Data Client Library](https://docs.here.com/workspace/docs/data-client-library/llms.txt)
+
+### API Reference
+
+- [API Reference index](https://docs.here.com/workspace/reference/llms.txt): full section index
+- [Pipeline Management API v2](https://docs.here.com/workspace/reference/pipeline-management-api-v2/llms.txt)
+
+### Changelog
+
+- [Changelog index](https://docs.here.com/workspace/changelog/llms.txt): full section index

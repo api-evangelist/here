@@ -1,0 +1,968 @@
+generated: '2026-09-13'
+method: derived
+source: openapi/ — $ref links and id-reference fields across the 48 harvested HERE OpenAPI documents
+scale:
+  documents: 48
+  schemas: 1725
+  entities_with_properties: 40
+  ref_edges_extracted: 590
+identifier_conventions:
+- id: HRN
+  shape: hrn:here:<service>:<realm>:<resource>
+  used_by: Every HERE platform resource — catalogs, layers, subscriptions, roles, groups, access filters, realms,
+    pipelines
+  detail: The HERE Resource Name is the platform-wide identifier. It is also the key the API Lookup Service resolves
+    into a base URL, which is why most platform specs carry a placeholder server.
+- id: apiKey / appId
+  shape: opaque string
+  used_by: IAM Authentication — applications and their API keys
+- id: jobId
+  shape: UUID
+  used_by: Batch API v7, Tour Planning v3 (asynchronous problems)
+  note: Valid for 24 hours in Tour Planning; batch jobs are retained 30 days.
+- id: trackingId
+  shape: opaque string
+  used_by: HERE Tracking — the most-referenced foreign key in the portfolio (14 schemas)
+- id: segmentId / extSegmentId
+  shape: HERE map topology segment reference
+  used_by: Traffic v7, Route Matching v8, Map Attributes
+- id: partitionId
+  shape: string
+  used_by: Data API versioned, volatile, index and stream layers
+- id: cpoId
+  shape: string
+  used_by: EV Charge Points v3 — charge point operator
+- id: geofenceId
+  shape: string
+  used_by: Geofencing API
+- id: pipelineVersionId
+  shape: UUID
+  used_by: Workspace Pipeline Management v2
+- id: correlationId
+  shape: UUID
+  used_by: Cross-cutting request tracing; echoed as X-Correlation-ID
+core_domains:
+- domain: Place / address
+  root: Item
+  spec: openapi/here-geocoding-and-search-v7-openapi.json
+  detail: SearchResponse has_many Item; Item has_one Address, Position, MapView, Scoring, and has_many Category,
+    FoodType, Contact, TimeZone, AccessPoint. `id` on an Item is the HERE location id consumed by /lookup.
+- domain: Route
+  root: Route
+  spec: openapi/here-routing-v8-openapi.yml
+  detail: Route has_many Section; Section has_one Departure/Arrival Place, Transport, Summary, Polyline (Flexible
+    Polyline encoded), and has_many Action, Notice, TollSystem.
+- domain: Catalog
+  root: Catalog
+  spec: openapi/here-data-config-v1-openapi.yml
+  detail: Catalog (addressed by HRN) has_many Layer; Layer has_one Schema, Partitioning, ContentType, Volume; Subscription
+    belongs_to Catalog.
+- domain: Identity and access
+  root: Realm
+  spec: openapi/here-authorization-v1-1-openapi.yml
+  detail: Realm has_many Group, Role, Application, User; Grant binds an entity (user/app/group) to an action on
+    a resource HRN; AccessFilter constrains a grant.
+- domain: Tracked asset
+  root: Device
+  spec: openapi/here-tracking-v2-openapi.json
+  detail: Device belongs_to a tracking account, has_many Geofence associations and position/telemetry ingest records
+    keyed on trackingId.
+- domain: Fleet tour
+  root: Problem
+  spec: openapi/here-tour-planning-v3-openapi.yml
+  detail: Problem has_many Fleet Vehicle Type, Job and Relation; Solution has_many Tour; Tour has_many Stop; Stop
+    has_many Activity.
+- domain: Pipeline
+  root: Pipeline
+  spec: openapi/here-pipeline-management-v2-openapi.yml
+  detail: Pipeline has_many PipelineVersion; PipelineVersion has_one PipelineTemplate and a JobConfiguration; a
+    Job belongs_to a PipelineVersion.
+relationships_by_spec:
+  here-data-config-v1-openapi.yml:
+  - from: CatalogsList
+    to: Catalog
+    kind: has_many
+    via: items
+    spec: here-data-config-v1-openapi.yml
+  - from: CatalogsSummaryList
+    to: CatalogSummary
+    kind: has_many
+    via: items
+    spec: here-data-config-v1-openapi.yml
+  - from: CreateCatalog
+    to: AreaScheme
+    kind: has_one
+    via: areaScheme
+    spec: here-data-config-v1-openapi.yml
+  - from: CreateCatalog
+    to: SubsetRestrictions
+    kind: has_one
+    via: subsetRestrictions
+    spec: here-data-config-v1-openapi.yml
+  - from: CreateCatalog
+    to: Notifications
+    kind: has_one
+    via: notifications
+    spec: here-data-config-v1-openapi.yml
+  - from: CreateCatalog
+    to: Replication
+    kind: has_one
+    via: replication
+    spec: here-data-config-v1-openapi.yml
+  - from: CreateCatalog
+    to: AutomaticVersionDeletion
+    kind: has_one
+    via: automaticVersionDeletion
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchCatalog
+    to: AreaScheme
+    kind: has_one
+    via: areaScheme
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchCatalog
+    to: SubsetRestrictions
+    kind: has_one
+    via: subsetRestrictions
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchCatalog
+    to: Notifications
+    kind: has_one
+    via: notifications
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchCatalog
+    to: Replication
+    kind: has_one
+    via: replication
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchCatalog
+    to: AutomaticVersionDeletion
+    kind: has_one
+    via: automaticVersionDeletion
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: Coverage
+    kind: has_one
+    via: coverage
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: Schema
+    kind: has_one
+    via: schema
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: Partitioning
+    kind: has_one
+    via: partitioning
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: PatchIndexProperties
+    kind: has_one
+    via: indexProperties
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: PatchObjectStoreProperties
+    kind: has_one
+    via: objectStoreProperties
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: PatchStreamProperties
+    kind: has_one
+    via: streamProperties
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: InteractiveMapProperties
+    kind: has_one
+    via: interactiveMapProperties
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: SecureHandles
+    kind: has_one
+    via: secureHandles
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: SubsetRestrictions
+    kind: has_one
+    via: subsetRestrictions
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: CRC
+    kind: has_one
+    via: crc
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: Digest
+    kind: has_one
+    via: digest
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: Ttl
+    kind: has_one
+    via: ttl
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: ContentType
+    kind: has_one
+    via: contentType
+    spec: here-data-config-v1-openapi.yml
+  - from: PatchLayer
+    to: ContentEncoding
+    kind: has_one
+    via: contentEncoding
+    spec: here-data-config-v1-openapi.yml
+  - from: Partitioning
+    to: PartitioningScheme
+    kind: has_one
+    via: scheme
+    spec: here-data-config-v1-openapi.yml
+  - from: IndexProperties
+    to: IndexDefinition
+    kind: has_many
+    via: indexDefinitions
+    spec: here-data-config-v1-openapi.yml
+  - from: ObjectStoreProperties
+    to: EncryptionType
+    kind: has_one
+    via: encryptionType
+    spec: here-data-config-v1-openapi.yml
+  - from: VersionedLayerPropertiesInPost
+    to: ExtendsWithVersion
+    kind: has_one
+    via: extends
+    spec: here-data-config-v1-openapi.yml
+  - from: VersionedLayerPropertiesInPost
+    to: EncryptionType
+    kind: has_one
+    via: encryptionType
+    spec: here-data-config-v1-openapi.yml
+  - from: VersionedLayerPropertiesInGet
+    to: Extends
+    kind: has_one
+    via: extends
+    spec: here-data-config-v1-openapi.yml
+  - from: VersionedLayerPropertiesInGet
+    to: EncryptionType
+    kind: has_one
+    via: encryptionType
+    spec: here-data-config-v1-openapi.yml
+  - from: InteractiveMapProperties
+    to: Extends
+    kind: has_one
+    via: extends
+    spec: here-data-config-v1-openapi.yml
+  - from: CatalogSuccessStatus
+    to: StatusLink
+    kind: has_one
+    via: item
+    spec: here-data-config-v1-openapi.yml
+  - from: CatalogOperationSuccessStatus
+    to: CatalogLink
+    kind: has_one
+    via: item
+    spec: here-data-config-v1-openapi.yml
+  - from: Catalog
+    to: Coverage
+    kind: has_one
+    via: coverage
+    spec: here-data-config-v1-openapi.yml
+  - from: Catalog
+    to: Owner
+    kind: has_one
+    via: owner
+    spec: here-data-config-v1-openapi.yml
+  - from: Catalog
+    to: Replication
+    kind: has_one
+    via: replication
+    spec: here-data-config-v1-openapi.yml
+  - from: Catalog
+    to: AutomaticVersionDeletion
+    kind: has_one
+    via: automaticVersionDeletion
+    spec: here-data-config-v1-openapi.yml
+  here-authorization-v1-1-openapi.yml:
+  - from: UserInfo
+    to: CompactRealmInfo
+    kind: has_one
+    via: realmInfo
+    spec: here-authorization-v1-1-openapi.yml
+  - from: VehicleInfo
+    to: CompactRealmInfo
+    kind: has_one
+    via: realmInfo
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrant
+    to: EntityId
+    kind: has_one
+    via: entityId
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrant
+    to: UserInfo
+    kind: has_one
+    via: user
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrant
+    to: AppInfo
+    kind: has_one
+    via: app
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrant
+    to: GroupInfo
+    kind: has_one
+    via: group
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrant
+    to: ActivePermission
+    kind: has_many
+    via: permissions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrantCrossRealm
+    to: EntityId
+    kind: has_one
+    via: entityId
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrantCrossRealm
+    to: ActivePermission
+    kind: has_many
+    via: permissions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrants
+    to: EntityGrant
+    kind: has_many
+    via: data
+    spec: here-authorization-v1-1-openapi.yml
+  - from: EntityGrantsCrossRealm
+    to: EntityGrantCrossRealm
+    kind: has_many
+    via: data
+    spec: here-authorization-v1-1-openapi.yml
+  - from: RealmMember
+    to: RealmMemberInfo
+    kind: has_one
+    via: info
+    spec: here-authorization-v1-1-openapi.yml
+  - from: GroupMember
+    to: GroupMemberInfo
+    kind: has_one
+    via: info
+    spec: here-authorization-v1-1-openapi.yml
+  - from: RoleEntity
+    to: RoleEntityInfo
+    kind: has_one
+    via: info
+    spec: here-authorization-v1-1-openapi.yml
+  - from: RealmAuthInviteResponse
+    to: RoleShort
+    kind: has_many
+    via: roles
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ListInviteResponse
+    to: RoleShort
+    kind: has_many
+    via: roles
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceHome
+    to: Type
+    kind: has_one
+    via: type
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceResponseDetailed
+    to: Type
+    kind: has_one
+    via: type
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceResponseDetailed
+    to: Relation
+    kind: has_one
+    via: relation
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceResponseDetailed
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceResponseDetailed
+    to: linkOptions
+    kind: has_one
+    via: linkOptions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkOption
+    to: externalId
+    kind: has_one
+    via: externalId
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkOption
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkOption
+    to: subresources
+    kind: has_one
+    via: subresources
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkedOption
+    to: externalId
+    kind: has_one
+    via: externalId
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkedOption
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: linkedOption
+    to: subresources
+    kind: has_one
+    via: subresources
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceResponse
+    to: Type
+    kind: has_one
+    via: type
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourcePolicyResource
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourcePolicyResource
+    to: subresources
+    kind: has_one
+    via: subresources
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourcePolicyResourcesPayload
+    to: ResourcePolicyResource
+    kind: has_many
+    via: items
+    spec: here-authorization-v1-1-openapi.yml
+  - from: LinkableResource
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceInProjectResponse
+    to: Type
+    kind: has_one
+    via: type
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceInProjectResponse
+    to: Relation
+    kind: has_one
+    via: relation
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceInProjectResponse
+    to: allowedActions
+    kind: has_one
+    via: allowedActions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceInProjectResponse
+    to: InactiveReason
+    kind: has_one
+    via: inactiveReason
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceInProjectResponse
+    to: linkedOptions
+    kind: has_one
+    via: linkedOptions
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceRelationResponse
+    to: externalId
+    kind: has_one
+    via: externalId
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceRelationResponse
+    to: Type
+    kind: has_one
+    via: type
+    spec: here-authorization-v1-1-openapi.yml
+  - from: ResourceRelationResponse
+    to: ResourceRelation
+    kind: has_one
+    via: relation
+    spec: here-authorization-v1-1-openapi.yml
+  here-routing-v8-openapi.yml:
+  - from: Avoid
+    to: Areas
+    kind: has_one
+    via: areas
+    spec: here-routing-v8-openapi.yml
+  - from: BaseSummary
+    to: Duration
+    kind: has_one
+    via: duration
+    spec: here-routing-v8-openapi.yml
+  - from: BaseSummary
+    to: Distance
+    kind: has_one
+    via: length
+    spec: here-routing-v8-openapi.yml
+  - from: CorridorArea
+    to: Coordinate
+    kind: has_many
+    via: polyline
+    spec: here-routing-v8-openapi.yml
+  - from: Exclude
+    to: Areas
+    kind: has_one
+    via: areas
+    spec: here-routing-v8-openapi.yml
+  - from: ExitInfo
+    to: LocalizedString
+    kind: has_many
+    via: number
+    spec: here-routing-v8-openapi.yml
+  - from: FarePass
+    to: FarePassValidityPeriod
+    kind: has_one
+    via: validityPeriod
+    spec: here-routing-v8-openapi.yml
+  - from: LicensePlateRestriction
+    to: LicensePlateRestrictionType
+    kind: has_one
+    via: type
+    spec: here-routing-v8-openapi.yml
+  - from: Notice
+    to: NoticeSeverity
+    kind: has_one
+    via: severity
+    spec: here-routing-v8-openapi.yml
+  - from: Notice
+    to: BaseNoticeDetail
+    kind: has_many
+    via: details
+    spec: here-routing-v8-openapi.yml
+  - from: PolygonArea
+    to: Coordinate
+    kind: has_many
+    via: outer
+    spec: here-routing-v8-openapi.yml
+  - from: Rerouting
+    to: ReroutingMode
+    kind: has_one
+    via: mode
+    spec: here-routing-v8-openapi.yml
+  - from: RouteLabel
+    to: LocalizedString
+    kind: has_one
+    via: name
+    spec: here-routing-v8-openapi.yml
+  - from: RoutingZone
+    to: RoutingZoneReference
+    kind: has_one
+    via: ref
+    spec: here-routing-v8-openapi.yml
+  - from: SignpostLabelText
+    to: LocalizedString
+    kind: has_one
+    via: name
+    spec: here-routing-v8-openapi.yml
+  - from: TollCollectionLocation
+    to: Location
+    kind: has_one
+    via: location
+    spec: here-routing-v8-openapi.yml
+  - from: TrafficIncident
+    to: TrafficIncidentType
+    kind: has_one
+    via: type
+    spec: here-routing-v8-openapi.yml
+  - from: TrafficIncident
+    to: TrafficIncidentCriticality
+    kind: has_one
+    via: criticality
+    spec: here-routing-v8-openapi.yml
+  - from: TrafficIncident
+    to: Time
+    kind: has_one
+    via: validFrom
+    spec: here-routing-v8-openapi.yml
+  - from: TrafficIncident
+    to: Time
+    kind: has_one
+    via: validUntil
+    spec: here-routing-v8-openapi.yml
+  - from: TransitIncident
+    to: TransitIncidentType
+    kind: has_one
+    via: type
+    spec: here-routing-v8-openapi.yml
+  - from: TransitIncident
+    to: TransitIncidentEffect
+    kind: has_one
+    via: effect
+    spec: here-routing-v8-openapi.yml
+  - from: TransitIncident
+    to: Time
+    kind: has_one
+    via: validFrom
+    spec: here-routing-v8-openapi.yml
+  - from: TransitIncident
+    to: Time
+    kind: has_one
+    via: validUntil
+    spec: here-routing-v8-openapi.yml
+  - from: VersionResponse
+    to: DataVersion
+    kind: has_many
+    via: dataVersions
+    spec: here-routing-v8-openapi.yml
+  - from: WebLink
+    to: Uri
+    kind: has_one
+    via: href
+    spec: here-routing-v8-openapi.yml
+  - from: Attribution
+    to: Uri
+    kind: has_one
+    via: href
+    spec: here-routing-v8-openapi.yml
+  - from: Attribution
+    to: AttributionLinkType
+    kind: has_one
+    via: type
+    spec: here-routing-v8-openapi.yml
+  - from: ChargingStationPlace
+    to: ChargingConnectorAttributes
+    kind: has_one
+    via: attributes
+    spec: here-routing-v8-openapi.yml
+  - from: ChargingStationPlace
+    to: ChargingStationBrand
+    kind: has_one
+    via: brand
+    spec: here-routing-v8-openapi.yml
+  - from: ChargingStationPlace
+    to: ChargePointOperator
+    kind: has_one
+    via: chargePointOperator
+    spec: here-routing-v8-openapi.yml
+  - from: ChargingStationPlace
+    to: EMobilityServiceProvider
+    kind: has_many
+    via: matchingEMobilityServiceProviders
+    spec: here-routing-v8-openapi.yml
+  - from: MatchTrace
+    to: MatchTracePoint
+    kind: has_many
+    via: trace
+    spec: here-routing-v8-openapi.yml
+  - from: MatchTrace
+    to: MatchTraceVia
+    kind: has_many
+    via: via
+    spec: here-routing-v8-openapi.yml
+  - from: NetworkRestrictedTruckPost
+    to: PermittedNetworksPost
+    kind: has_one
+    via: permittedNetworks
+    spec: here-routing-v8-openapi.yml
+  - from: PedestrianNotice
+    to: NoticeSeverity
+    kind: has_one
+    via: severity
+    spec: here-routing-v8-openapi.yml
+  - from: PedestrianNotice
+    to: BaseNoticeDetail
+    kind: has_many
+    via: details
+    spec: here-routing-v8-openapi.yml
+  - from: PedestrianSummary
+    to: Duration
+    kind: has_one
+    via: duration
+    spec: here-routing-v8-openapi.yml
+  - from: PedestrianSummary
+    to: Distance
+    kind: has_one
+    via: length
+    spec: here-routing-v8-openapi.yml
+  - from: PedestrianTransport
+    to: PedestrianMode
+    kind: has_one
+    via: mode
+    spec: here-routing-v8-openapi.yml
+  here-tour-planning-v3-openapi.yml:
+  - from: Activity
+    to: Location
+    kind: has_one
+    via: location
+    spec: here-tour-planning-v3-openapi.yml
+  - from: Activity
+    to: Notice
+    kind: has_many
+    via: notices
+    spec: here-tour-planning-v3-openapi.yml
+  - from: Activity
+    to: Interval
+    kind: has_one
+    via: time
+    spec: here-tour-planning-v3-openapi.yml
+  - from: Activity
+    to: ActivityType
+    kind: has_one
+    via: type
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AsyncProblemCancellationStatus
+    to: ProblemId
+    kind: has_one
+    via: id
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AvoidRoutes
+    to: AvoidArea
+    kind: has_many
+    via: areas
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AvoidRoutes
+    to: AvoidFeatures
+    kind: has_many
+    via: features
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AvoidRoutes
+    to: AvoidSegment
+    kind: has_many
+    via: segments
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AvoidRoutes
+    to: AvoidTruckRoadType
+    kind: has_many
+    via: truckRoadTypes
+    spec: here-tour-planning-v3-openapi.yml
+  - from: AvoidRoutes
+    to: AvoidZone
+    kind: has_many
+    via: zoneIdentifiers
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BalanceActivities
+    to: BalanceOptions
+    kind: has_one
+    via: options
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BalanceDistance
+    to: BalanceOptions
+    kind: has_one
+    via: options
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BalanceDuration
+    to: BalanceOptions
+    kind: has_one
+    via: options
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BalanceMaxLoad
+    to: BalanceOptions
+    kind: has_one
+    via: options
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: AvoidRoutes
+    kind: has_one
+    via: avoid
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: DateAndTime
+    kind: has_one
+    via: departureTime
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: Exclude
+    kind: has_one
+    via: exclude
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: IgnoreRouteViolations
+    kind: has_one
+    via: ignoreRouteViolations
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: Matrix
+    kind: has_one
+    via: matrix
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: MatrixId
+    kind: has_one
+    via: matrixId
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: ProfileName
+    kind: has_one
+    via: name
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: Traffic
+    kind: has_one
+    via: traffic
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BicycleProfile
+    to: ViolationMapping
+    kind: has_one
+    via: violationMapping
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusOptions
+    to: ShippedHazardousGoods
+    kind: has_many
+    via: shippedHazardousGoods
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusOptions
+    to: SpeedCap
+    kind: has_one
+    via: speedCap
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusOptions
+    to: TunnelCategory
+    kind: has_one
+    via: tunnelCategory
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusOptions
+    to: WeightPerAxleGroup
+    kind: has_one
+    via: weightPerAxleGroup
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: AvoidRoutes
+    kind: has_one
+    via: avoid
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: DateAndTime
+    kind: has_one
+    via: departureTime
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: Exclude
+    kind: has_one
+    via: exclude
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: IgnoreRouteViolations
+    kind: has_one
+    via: ignoreRouteViolations
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: Matrix
+    kind: has_one
+    via: matrix
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: MatrixId
+    kind: has_one
+    via: matrixId
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: ProfileName
+    kind: has_one
+    via: name
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: BusOptions
+    kind: has_one
+    via: options
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: Traffic
+    kind: has_one
+    via: traffic
+    spec: here-tour-planning-v3-openapi.yml
+  - from: BusProfile
+    to: ViolationMapping
+    kind: has_one
+    via: violationMapping
+    spec: here-tour-planning-v3-openapi.yml
+  - from: CarOptions
+    to: SpeedCap
+    kind: has_one
+    via: speedCap
+    spec: here-tour-planning-v3-openapi.yml
+  - from: CarProfile
+    to: AvoidRoutes
+    kind: has_one
+    via: avoid
+    spec: here-tour-planning-v3-openapi.yml
+  - from: CarProfile
+    to: DateAndTime
+    kind: has_one
+    via: departureTime
+    spec: here-tour-planning-v3-openapi.yml
+  here-pipeline-management-v2-openapi.yml:
+  - from: ErrorMessage
+    to: ValidationErrorMessage
+    kind: has_many
+    via: errors
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: Job
+    to: JobCatalogVersions
+    kind: has_one
+    via: catalogVersions
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: Loggers
+    to: Logger
+    kind: has_many
+    via: logger
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: Loggers
+    to: RootLogger
+    kind: has_one
+    via: root
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: LoggingConfiguration
+    to: LoggingConfigurationWrapper
+    kind: has_one
+    via: configuration
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: LoggingConfigurationWrapper
+    to: Loggers
+    kind: has_one
+    via: loggers
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: Operation
+    to: OperationOptions
+    kind: has_one
+    via: options
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: PipelineTemplate
+    to: ClusterConfiguration
+    kind: has_one
+    via: defaultClusterConfiguration
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: PipelineVersion
+    to: SchedulerConfiguration
+    kind: has_one
+    via: schedulerConfiguration
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: PipelineVersion
+    to: ClusterConfiguration
+    kind: has_one
+    via: clusterConfiguration
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: PipelineVersion
+    to: Operation
+    kind: has_one
+    via: latestOperation
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: PipelineVersion
+    to: Job
+    kind: has_one
+    via: latestJob
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: ResourceProfiles
+    to: ResourceProfile
+    kind: has_many
+    via: availableResourceProfiles
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: RuntimeEnvironment
+    to: GcProfileDefinition
+    kind: has_many
+    via: availableGcProfiles
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: RuntimeEnvironments
+    to: RuntimeEnvironment
+    kind: has_many
+    via: availableRuntimes
+    spec: here-pipeline-management-v2-openapi.yml
+  - from: ValidationErrorMessage
+    to: ValidationErrorMessage
+    kind: has_many
+    via: errors
+    spec: here-pipeline-management-v2-openapi.yml
+note: 'The entity graph is per-service, not platform-wide: HERE does not publish one shared object model across
+  the 48 contracts. The HRN is the only identifier that crosses service boundaries, and the API Lookup Service is
+  the only contract that resolves one.'

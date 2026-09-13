@@ -1,0 +1,50 @@
+generated: '2026-09-13'
+method: searched
+source: https://js.api.here.com/v3/, https://docs.here.com/maps-api-for-js/docs, https://github.com/heremaps
+note: Client-side rendering and UI surfaces, distinct from the server SDKs in packages/here-packages.yml.
+families:
+- family: HERE Maps API for JavaScript
+  type: browser map library
+  official: true
+  loader:
+  - https://js.api.here.com/v3/3.1/mapsjs-core.js
+  - https://js.api.here.com/v3/3.1/mapsjs-service.js
+  - https://js.api.here.com/v3/3.1/mapsjs-ui.js
+  - https://js.api.here.com/v3/3.1/mapsjs-mapevents.js
+  - https://js.api.here.com/v3/3.1/mapsjs-clustering.js
+  current_line: 3.2 (https://js.api.here.com/v3/3.2/)
+  docs: https://docs.here.com/maps-api-for-js/docs
+  examples: https://github.com/heremaps/maps-api-for-javascript-examples
+  detail: 'Modular script bundles: core, service, ui, mapevents, clustering, data. Distributed only from the HERE
+    CDN; there is no npm package.'
+- family: HERE Design System (HDS)
+  type: CSS/web components
+  official: true
+  loader:
+  - https://platform.here.com/hds/hds-styles.css
+  - https://platform.here.com/hds/hds-iconlibrary-8px.css
+  detail: The design system stylesheet and icon library that HERE loads on platform.here.com and docs.here.com;
+    versioned with a versionOverride query parameter (2026.2.0 observed 2026-09-13).
+  icons: https://github.com/heremaps/here-icons
+- family: XYZ Maps
+  type: map editor / display library
+  official: true
+  repo: https://github.com/heremaps/xyz-maps
+  detail: Open-source TypeScript map editor and display engine.
+- family: HERE Map Widget for Jupyter
+  type: notebook widget
+  official: true
+  package: https://pypi.org/project/here-map-widget-for-jupyter/
+  repo: https://github.com/heremaps/here-map-widget-for-jupyter
+  detail: ipywidget wrapping the HERE Maps API for JavaScript inside Jupyter.
+- family: harp.gl
+  type: 3D web map rendering engine
+  official: true
+  status: unmaintained
+  repo: https://github.com/heremaps/harp.gl
+  detail: Last published 2022-01-17; repo last pushed 2023-02-03.
+- family: HERE QGIS Plugin
+  type: desktop GIS plugin
+  official: true
+  repo: https://github.com/heremaps/here-qgis-python
+  detail: Connects QGIS to the HERE platform Interactive Map Layer.

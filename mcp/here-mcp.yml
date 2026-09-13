@@ -1,33 +1,88 @@
-generated: '2026-09-11'
+generated: '2026-09-13'
 method: probed
 source: https://docs.here.com/mcp
 status: published
 server:
-  name: here
-  transport: http
+  name: HERE Technologies Documentation | HERE Docs
+  version: 1.0.0
+  transport: streamable-http
   url: https://docs.here.com/mcp
+  protocol_version: '2024-11-05'
+  capabilities:
+    tools:
+      listChanged: false
 deployment:
   mode: remote
   endpoint: https://docs.here.com/mcp
+  auth: none
   verified: probed
   probe: live
-  checked: '2026-09-11'
-  source: docs-check 2026-09-11 (endpoint found in the provider's own documentation, then probed)
+  checked: '2026-09-13'
+  source: initialize + tools/list handshake completed anonymously against https://docs.here.com/mcp on 2026-09-13
+scope:
+  kind: documentation
+  detail: This server reads HERE documentation and HERE OpenAPI documents. It does not call any HERE API. See mcp/here-tool-crosswalk.yml
+    — 0 of 797 published operations are reachable through it.
 tools_count: 7
+tools_source: live tools/list via initialize handshake, 2026-09-13 (anonymous, no auth challenge)
+authorship: provider
 tools:
 - name: list-endpoints
-  description: ''
+  title: List API Endpoints
+  description: Lists all API paths and their HTTP methods with summaries, organized by path. Results can be passed
+    directly into 'get-endpoint'.
+  input_schema:
+    title: string (required) — title of the OpenAPI spec
 - name: get-endpoint
-  description: ''
+  title: Get Endpoint Details
+  description: Gets detailed information about a specific API endpoint, including security schemes and servers.
+  input_schema:
+    path: string (required)
+    method: string (required)
+    title: string (required)
 - name: search-endpoints
-  description: ''
+  title: Search API Endpoints
+  description: Deep search through paths, operations and parameters to discover relevant API endpoints.
+  input_schema:
+    pattern: string (required) — case-insensitive search pattern
 - name: list-specs
-  description: ''
+  title: List OpenAPI Specs
+  description: Lists all available OpenAPI specs. Use the title to select a spec.
+  input_schema: {}
 - name: get-server-variables
-  description: ''
+  title: Get Server Variables
+  description: Gets the server variables for each server within a specific OpenAPI spec.
+  input_schema:
+    title: string (required)
 - name: search
-  description: ''
+  title: Search Documentation
+  description: Searches through documentation with the given search query, returning a list of results with ID,
+    title and URL.
+  input_schema:
+    query: string (required)
 - name: fetch
-  description: ''
-tools_source: live tools/list via initialize handshake, 2026-09-11 (signals/audit_mcp_authorship.py --probe)
-authorship: provider
+  title: Fetch Documentation Page
+  description: Gets detailed content for documentation by ID returned from the search tool. Recipe IDs are prefixed
+    with recipe:, reference page IDs with ref:.
+  input_schema:
+    id: string (required)
+discovered_via_tools:
+  openapi_corpus: list-specs returned 74 spec entries across 21 documentation projects; the underlying files are
+    downloadable at https://docs.here.com/<project>/openapi/<file> and 48 canonical documents are now archived in
+    openapi/_original/.
+  note: The MCP server is how the real HERE OpenAPI corpus was located — the previous round had only a best-effort
+    scaffold.
+authenticated_mcp_surface:
+  exists: true
+  authorization_server: https://account.here.com/mcp
+  metadata: https://account.api.here.com/.well-known/oauth-authorization-server/mcp
+  registration_endpoint: https://account.api.here.com/mcp/register
+  grant_types:
+  - authorization_code
+  pkce: S256
+  dynamic_client_registration: true
+  declared_in: openapi/here-oauth2-token-v1-openapi.yml (operations getMcpAuthServerMetadata, RegisterMcpClient)
+  detail: HERE operates a dedicated MCP OAuth authorization server with RFC 7591 dynamic client registration, separate
+    from its main OIDC issuer. https://docs.here.com/mcp itself is anonymous, so this auth server is provisioned
+    for an MCP surface that is not the docs server — evidence of an authenticated agent surface in progress. No
+    such endpoint was found live on 2026-09-13.

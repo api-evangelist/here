@@ -1,0 +1,218 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/identity-and-access-management/docs/error-messages, https://docs.here.com/geocoding-and-search/docs/error-messages,
+  the HERE WeGo User Service spec info.description, and derived from 4xx/5xx responses across the 48 documents in
+  openapi/
+format: bespoke-json
+rfc9457: false
+note: HERE does NOT publish a single platform-wide problem type. 1,011 of the 1,015 declared 4xx/5xx response bodies
+  are application/json, but they resolve to at least 21 distinct error schemas. The three registries below are the
+  ones HERE documents in prose; everything else is spec-derived.
+envelopes:
+- schema: ErrorMessage
+  occurrences: 181
+  used_by: Geocoding and Search v7, Routing v8, and most query APIs
+- schema: ErrorResponse
+  occurrences: 123
+  used_by: HERE Data API services
+- schema: ErrorResponseDto
+  occurrences: 63
+  used_by: HERE WeGo User Service and newer platform services
+- schema: AuthErrorResponse
+  occurrences: 31
+  used_by: IAM Authentication / Authorization v1.1
+- schema: Rfc6749ErrorMessage
+  occurrences: 1
+  used_by: OAuth 2.0 token endpoint — the one standards-based envelope in the portfolio (RFC 6749 §5.2)
+status_code_coverage:
+  '200': 606
+  '401': 594
+  '403': 567
+  '404': 495
+  '400': 408
+  '500': 205
+  '204': 135
+  '503': 86
+  default: 76
+  '429': 68
+  '409': 53
+  '201': 50
+  '504': 48
+  '502': 41
+  '202': 30
+  '413': 30
+  '422': 15
+  '513': 14
+  '405': 13
+  '415': 11
+  '412': 10
+  '414': 9
+  '307': 8
+  '304': 6
+  '416': 5
+registries:
+- name: HERE platform IAM error codes
+  scope: Authentication, Authorization, OAuth token endpoint
+  field: errorResponse.errorCode (with detail in errorFields)
+  docs: https://docs.here.com/identity-and-access-management/docs/error-messages
+  codes:
+  - http: 400
+    code: '400002'
+    meaning: Invalid JSON
+  - http: 400
+    code: '400003'
+    meaning: Content-Type header missing
+  - http: 400
+    code: '400004'
+    meaning: Content-Type header something else than 'application/json'
+  - http: 400
+    code: '400200'
+    meaning: Received invalid data; errorFields provides further information
+  - http: 400
+    code: '400201'
+    meaning: Missing required field; errorFields.name describes which field was missing
+  - http: 400
+    code: '400202'
+    meaning: Value can't be empty; errorFields.name describes which field was empty
+  - http: 400
+    code: '400203'
+    meaning: Invalid value; errorFields.name describes which field had illegal characters
+  - http: 400
+    code: '400217'
+    meaning: Not a valid string value
+  - http: 400
+    code: '401300'
+    meaning: Invalid client credentials
+  - http: 401
+    code: '401200'
+    meaning: Authorization header missing
+  - http: 401
+    code: '401202'
+    meaning: Malformed OAuth 1.0 header
+  - http: 401
+    code: '401204'
+    meaning: Time stamp is outside the valid period
+  - http: 401
+    code: '401205'
+    meaning: Unsupported value for signature method
+  - http: 401
+    code: '401206'
+    meaning: Unsupported value for oauth_version parameter (should be 1.0)
+  - http: 401
+    code: '401207'
+    meaning: Nonce already consumed
+  - http: 401
+    code: '401302'
+    meaning: Client doesn't have access to the endpoint
+  - http: 401
+    code: '401310'
+    meaning: Invalid signature — attempt to use client ID instead of access key identifier for consumer key
+  - http: 401
+    code: '400601'
+    meaning: Unsupported token format
+  - http: 403
+    code: '403403'
+    meaning: These credentials don't authorize access for this operation
+  - http: 429
+    code: '429002'
+    meaning: Request blocked because too many requests made. Wait before making a new request
+- name: HERE WeGo User Service error codes
+  scope: WeGo user entitlements and RBAC
+  field: code
+  docs: https://docs.here.com/wego-pro/docs/http-error-codes
+  codes:
+  - http: 400
+    code: E400100
+    meaning: Validation error (Jakarta ConstraintViolationException)
+  - http: 400
+    code: E400101
+    meaning: Database constraint violation
+  - http: 400
+    code: E400102
+    meaning: Method-argument validation error
+  - http: 400
+    code: E400103
+    meaning: Required request header missing
+  - http: 400
+    code: E400104
+    meaning: Argument type mismatch
+  - http: 400
+    code: E400105
+    meaning: Endpoint requires a payload but none was provided
+  - http: 400
+    code: E400106
+    meaning: Invalid update operation — data does not meet the required conditions
+  - http: 400
+    code: E400300
+    meaning: Deserialization error — mismatched input
+  - http: 400
+    code: E400301
+    meaning: Deserialization error — invalid format
+  - http: 400
+    code: E400303
+    meaning: Unsupported media type passed as request body
+  - http: 401
+    code: E401100
+    meaning: x-authorization-iam token authorization failure
+  - http: 403
+    code: E403100
+    meaning: Access to a resource or operation is denied
+  - http: 404
+    code: E404100
+    meaning: Expected entity or result is absent
+  - http: 409
+    code: E409100
+    meaning: Conflicting organization in feature groups
+  - http: 410
+    code: E410100
+    meaning: Subscription has expired and cannot be used
+  - http: 500
+    code: E500100
+    meaning: PostgreSQL database operation error
+  - http: 500
+    code: E500103
+    meaning: Organization not onboarded
+- name: HERE Batch API v7 error messages
+  scope: Batch geocoding jobs
+  field: error text (human-readable, no numeric code)
+  docs: https://docs.here.com/geocoding-and-search/docs/error-messages
+  note: '26 documented message/cause/action triples, alphabetical by message text. Notable entries:'
+  codes:
+  - http: 413
+    code: Input exceeds maximum size limit
+    meaning: Input over 500 MB uncompressed
+    action: Trim the input or split the job into smaller jobs
+  - http: 413
+    code: Input exceeds maximum record count limit
+    meaning: Over 1,000,000 records per job
+    action: Trim the input or split the job
+  - http: 429
+    code: Too many concurrent Jobs running
+    meaning: Startable-job queue of 500 exceeded
+    action: Stop or wait for existing jobs to complete
+  - http: 400
+    code: Job has already been completed
+    meaning: A completed job cannot be restarted or stopped
+    action: Create and start a new job
+  - http: 400
+    code: Job has been deleted
+    meaning: A deleted job cannot be started or stopped
+    action: Create and start a new job
+  - http: 404
+    code: Job not found
+    meaning: No job with that ID is visible to the calling user
+    action: Verify the job ID and the user access
+  - http: 403
+    code: User not authorized to access Job
+    meaning: Caller lacks access to the job
+    action: Verify the user has access
+  - http: 400
+    code: Invalid billing tags
+    meaning: Billing tags must be 4-16 chars, [A-Za-z0-9-_.], up to 6 joined by + or , (not mixed)
+    action: Provide valid billing tags
+retry_guidance:
+  status: 429
+  header: Retry-After
+  detail: A 429 carries Retry-After (seconds). Tour Planning v3 additionally returns X-RateLimit-Limit and X-RateLimit-Reset.
+    HERE notes that a sudden traffic surge can produce 429/503 for up to about 10 minutes even inside quota.
+  source: https://docs.here.com/policies/docs/limits-and-quotas

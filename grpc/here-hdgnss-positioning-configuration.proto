@@ -1,0 +1,78 @@
+/*
+Copyright (C) 2023-2024 HERE Global B.V. and its affiliate(s).
+All rights reserved.
+This software and other materials contain proprietary information
+controlled by HERE and are protected by applicable copyright legislation.
+Any use and utilization of this software and other materials and
+disclosure to any third parties is conditional upon having a separate
+agreement with HERE for the access, use, utilization or disclosure of this
+software. In the absence of such agreement, the use of the software is not
+allowed.
+*/
+
+syntax = "proto3";
+
+package here.hdgnss.positioning;
+
+/*
+Configuration message. Publishable to MQTT topics:
+    - "v1/pub/app/<appId>/clients/<clientId>/configuration"
+    - "v1/pub/project/<projectHrn>/clients/<clientId>/configuration"
+The server will respond with a ServerResponse message containing either an Error or Information
+with the status set to CONFIGURATION_SET.
+
+Note: The responses will be published to an output topic matching the publish topic prefix (based
+either on "user" or "project").
+
+Note: The project HRN (<projectHrn>) must be URL encoded.
+
+Note: The configuration will expire for idle clients. Therefore, it is recommended for the client to
+publish the desired configuration as the first message every time it (re)connects to the service via
+MQTT or when InformationStatus::CONFIGURATION_RESET has been included in the response. The positioning
+session will reset if a configuration with a changed receiverType or beidouSignals is sent at any point.
+
+Note: It is recommended to set (and check) the MQTTv5 correlationData property so that the client can
+match the response to the published message.
+*/
+message Configuration {
+    enum ReceiverType {
+        // Use server default
+        RECEIVER_TYPE_DEFAULT = 0;
+        // Consumer-grade receiver (such as a phone)
+        RECEIVER_TYPE_CONSUMER = 1;
+        // Automotive-grade receiver
+        RECEIVER_TYPE_AUTOMOTIVE = 2;
+        // High-quality geodetic receiver
+        RECEIVER_TYPE_GEODETIC = 3;
+    }
+
+    /*
+    The service supports a maximum of three different frequencies/signals at a time. Choose the configuration
+    that best matches the Beidou signals of the GNSS receiver (the chosen value is not expected to
+    change during the positioning session). If the client does not publish a
+    configuration, the server default setting will be used.
+    */
+    enum BeidouSignals {
+        // Use server default
+        BEIDOU_SIGNALS_DEFAULT = 0;
+        // Use Beidou signals B1I, B1C, B2a
+        BEIDOU_SIGNALS_SET_1 = 1;
+        // Use Beidou signals B1I, B2I, B3I
+        BEIDOU_SIGNALS_SET_2 = 2;
+    }
+
+    /*
+    Set to true to force a positioning session reset when the configuration message is sent.
+    If false, the reset will only happen if necessary for the requested configuration
+    changes or if the positioning session has remained idle for a certain period.
+    */
+    bool forceSessionReset = 1;
+    /*
+    Client receiver type
+    */
+    ReceiverType receiverType = 2;
+    /*
+    Beidou signals to use
+    */
+    BeidouSignals beidouSignals = 3;
+}

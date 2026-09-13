@@ -1,92 +1,99 @@
-specification: API Commons Rate Limits
-specificationVersion: '0.1'
-schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
-provider: HERE
-providerId: here
-created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
-tags:
-  - Location
-  - Mapping
-  - Maps
-  - Spatial
-  - Rate Limiting
-  - Quotas
-  - Throttling
-description: Machine-readable rate limit definitions for the HERE API surface. Captures per-tier quotas,
-  burst behavior, response signaling, and recovery semantics. Defaults are scaffold values to be replaced
-  with published provider limits.
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/policies/docs/limits-and-quotas, https://docs.here.com/geocoding-and-search/docs/limits-and-performance,
+  https://docs.here.com/identity-and-access-management/docs/how-to-find-rate-limit-rules, https://docs.here.com/policies/docs/rps-capacity-planning,
+  and 429 response definitions across the 48 documents in openapi/
+supersedes: The 2026-05-04 bulk-sweep scaffold that invented free/professional/enterprise tiers with 10/100/1000
+  rpm and X-RateLimit-* headers. None of those numbers came from HERE.
+limit_count: 6
 headers:
+  retry_after: Retry-After
   limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
   reset: X-RateLimit-Reset
-  retryAfter: Retry-After
-  policy: RateLimit-Policy
-responseCodes:
+  usage: RateLimit-Usage
+  remaining: null
+  note: Retry-After is declared on 18 responses across the portfolio. X-RateLimit-Limit and X-RateLimit-Reset are
+    declared on Tour Planning v3 only; most HERE services return a bare 429 with Retry-After. There is no portfolio-wide
+    RateLimit-* header policy.
+response_codes:
   throttled: 429
-  quotaExceeded: 429
-  serviceUnavailable: 503
+  surge_shedding: 503
+  payload_too_large: 413
+runtime_introspection:
+  supported: true
+  api: HERE IAM Rate Limit Rules API v1
+  spec: openapi/here-rate-limit-rules-v1-openapi.yml
+  docs: https://docs.here.com/identity-and-access-management/docs/how-to-find-rate-limit-rules
+  detail: 'HERE publishes the enforced limits as a callable API rather than only as a documentation table. A caller
+    can read the rules actually in force for its own identity (`me`), for a generic identity in its organization
+    (`default`), or for a named identityHrn, and can look up rules per endpointId, pathPrefix or URL. This is the
+    strongest rate-limit signal in the profile and is unusual: limits are machine-readable at runtime, per caller.'
+  operations:
+  - getRateLimitRulesMe
+  - getRateLimitRulesDefault
+  - getRateLimitRulesIdentity
+  - getRateLimitRuleCaller
+  - getRateLimitRuleDefault
+  - getRateLimitRuleIdentity
+  - getEndpoints
+  - getEndpoint
 limits:
-  - tier: free
-    name: Free Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 10
-    burst: 20
-    timeFrame: minute
-    applies:
-      - HERE APIs
-  - tier: free
-    name: Free Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 1000
-    timeFrame: month
-    applies:
-      - HERE APIs
-  - tier: professional
-    name: Professional Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 100
-    burst: 200
-    timeFrame: minute
-    applies:
-      - HERE APIs
-  - tier: professional
-    name: Professional Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 100000
-    timeFrame: month
-    applies:
-      - HERE APIs
-  - tier: enterprise
-    name: Enterprise Negotiated Limit
-    scope: contract
-    metric: requests_per_minute
-    limit: 1000
-    burst: 5000
-    timeFrame: minute
-    applies:
-      - HERE APIs
-policies:
-  - name: Backoff Strategy
-    description: Clients should implement exponential backoff with jitter, honoring the Retry-After header
-      when present.
-  - name: Burst Handling
-    description: Short bursts above the steady-state limit are tolerated up to the documented burst ceiling
-      before throttling engages.
-  - name: Quota Reset
-    description: Monthly quotas reset at the start of each calendar month in UTC. Per-minute and per-second
-      windows reset on a sliding-window basis.
-  - name: Fair Use
-    description: Even on uncapped enterprise tiers, sustained usage that materially impacts shared infrastructure
-      may be subject to fair-use throttling.
-maintainers:
-  - FN: API Evangelist
-    url: http://apievangelist.com
-    email: info@apievangelist.com
+- name: Per-endpoint rate limits
+  scope: per-identity (app, user or organization) per endpoint
+  window: not disclosed
+  limit: null
+  burst: null
+  status_on_exhaustion: 429
+  detail: All API endpoints are subject to rate limits. HERE states these limits "are subject to adjustments and
+    are not disclosed in detail"; the enforced value is readable per identity through the Rate Limit Rules API.
+  source: https://docs.here.com/geocoding-and-search/docs/limits-and-performance
+- name: Surge shedding
+  scope: global
+  window: up to ~10 minutes
+  limit: null
+  status_on_exhaustion: 429
+  detail: On a sudden demand surge (for example a doubling of traffic in a short period) HERE may return 429/503
+    and throttle callers for up to about 10 minutes even when their quota was not reached, to protect SLA commitments.
+  source: https://docs.here.com/policies/docs/limits-and-quotas
+- name: RPS capacity planning threshold
+  scope: per contract
+  window: 5-minute average
+  limit: null
+  detail: Maximum RPS is measured as a 5-minute average. Customers must notify HERE 60 days before a >25% increase
+    over the previous 60-day maximum; exceeding by 40% voids availability penalties.
+  source: https://docs.here.com/policies/docs/rps-capacity-planning
+- name: Batch API v7 — records per job
+  scope: per job
+  limit: 1000000
+  unit: records
+  status_on_exhaustion: 413
+  source: https://docs.here.com/geocoding-and-search/docs/limits-and-performance
+- name: Batch API v7 — input size
+  scope: per job
+  limit: 500
+  unit: MB uncompressed
+  status_on_exhaustion: 413
+  source: https://docs.here.com/geocoding-and-search/docs/limits-and-performance
+- name: Batch API v7 — startable job queue
+  scope: per user
+  limit: 500
+  unit: jobs in QUEUED/SUBMITTED/FAILURE
+  status_on_exhaustion: 429
+  source: https://docs.here.com/geocoding-and-search/docs/limits-and-performance
+other_limits:
+- name: Batch API v7 — recId length
+  limit: 512
+  unit: UTF-8 characters
+  effect: entry in the job error log
+- name: Batch API v7 — record length
+  limit: 4096
+  unit: UTF-8 characters
+  effect: entry in the job error log
+- name: Geocoding and Search v7 — results per request
+  limit: 100
+  unit: items
+  default: 20
+  source: openapi/here-geocoding-and-search-v7-openapi.json (`limit` parameter maximum)
+guidance:
+  backoff: Honour Retry-After; exponential backoff with jitter on 429/503.
+  quota_docs: https://docs.here.com/policies/docs/limits-and-quotas

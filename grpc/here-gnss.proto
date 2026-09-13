@@ -1,0 +1,166 @@
+/*
+Copyright (C) 2019-2022 HERE Global B.V. and its affiliate(s).
+All rights reserved.
+This software and other materials contain proprietary information
+controlled by HERE and are protected by applicable copyright legislation.
+Any use and utilization of this software and other materials and
+disclosure to any third parties is conditional upon having a separate
+agreement with HERE for the access, use, utilization or disclosure of this
+software. In the absence of such agreement, the use of the software is not
+allowed.
+*/
+
+/*
+HERE GNSS Assistance protocol
+
+This protocol enables the communicating parties to request data from each
+other, and to deliver the requested data. To be more specific, a client can
+request a server to send certain type of assistance data; as an immediate
+single time response, or as subscription-type repeated data responses.
+
+The protocol is content type agnostic. The client and server need to agree
+on the 'data type' constants, and what they mean regarding the data content,
+format etc. The data types have been defined in enum DataType in 'data_types.proto'.
+
+The protocol is primarily targeted to be used over a WebSocket connection,
+but it could be used with other transport protocols as well; there's nothing
+WebSocket specific in the protocol.
+*/
+
+syntax = "proto3";
+
+package here.gnss;
+
+import "data_types.proto";
+
+/*
+ * Message is the top-level protobuf message type being sent from client to
+ * server and from server to client. It comprises sub-messages of different
+ * types, which enable client to request data from server, and server to
+ * deliver data to client.
+ *
+ * If a Request is somehow invalid, the response is an Error message.
+ */
+message Message {
+
+  /*
+   * Request is used by client to request data from the server. (At least in
+   * principle the other direction is possible as well.) Message type 'Request'
+   * can be used both for:
+   *  a) single-shot requests, for which the client expects a single (and
+   *     immediate) response Data message from the server
+   *  b) subscription requests, for which the client expects repeated flow of
+   *     response Data messages from the server, whenever server has new data
+   *     available (until client unsubscribes)
+   *
+   * - If the server receives an invalid Request (for example with unsupported
+   *   data type), it will reject the Request.
+   * - The server may limit the number of concurrent active subscriptions per
+   *   client connection, and reject excessive subscriptions.
+   */
+  message Request {
+    // The type of the data requested, required. See DataType in 'data_types.proto'.
+    DataType data_type = 1;
+
+    // Optional identifier for the request, selected by the client. The server
+    // will include the same value in the response Data messages, which enables
+    // the client to associate the response Data messages with a request. This
+    // might be usefull if the client has made multiple requests for the same
+    // data_type (with different request parameters). Value 0 means
+    // 'unspecified', and must not be used by the client if it chooses to
+    // specify this value explicitly.
+    uint32 request_id = 2;
+
+    // Additional request parameters, optional.
+    // Arbitrary data given as key-value pairs, where the key is an integer,
+    // and the value is a sequence of bytes. The meaning of each key and the
+    // further interpretation of the value bytes depends on the assistance
+    // data type. See Params* in 'data_types.proto'.
+    map<uint32, bytes> params = 3;
+  }
+
+  /*
+   * Unsubscribe is used for cancelling subscription Request(s). Subscriptions
+   * with matching data type and request id will be cancelled. If no data_type
+   * is specified (=0), the unsubsciption is based on the request_id alone.
+   * Correspondingly, if no request_id is specified, the unsubscription is done
+   * according to the data_type alone. If neither of them is given, all
+   * subscriptions will be cancelled.
+   */
+  message Unsubscribe {
+    // The type of the data request(s) to unsubscribe, optional.
+    // 0 = unspecified.
+    DataType data_type = 1;
+
+    // The ids of the requests(s) to unsubscribe, optional. 0 = unspecified.
+    uint32 request_id = 2;
+  }
+
+  /*
+   * Data-message is used for the actual data delivery (as a response to a
+   * subscription or a single-shot request.)
+   */
+  message Data {
+    /*
+     * Metadata-message is used to attach metadata about the payload data
+     * into the Data-message, optional.
+     */
+     message Metadata {
+      // Unix timestamp when payload data was created, optional.
+      uint32 creation_timestamp = 1;
+    }
+
+    // The type of the data delivered, always present
+    DataType data_type = 1;
+
+    // The id of the request, present only if provided by the client
+    uint32 request_id = 2;
+
+    // The payload data
+    bytes payload = 3;
+
+    // The metadata
+    Metadata metadata = 4;
+  }
+
+  /*
+   * Error-message is used to indicate that a Request is somehow invalid,
+   * for example that a requested data type is not available.
+   */
+  message Error {
+    // The id of the request, present only if provided by the client
+    uint32 request_id = 1;
+
+    // Human readable error description, e.g. "Data type not available"
+    string title = 2;
+
+    // HTTP status code. We use non-HTTP protocol but we still map errors
+    // to well known, standard HTTP status codes.
+    // Clients use this code for automated / programmable handling of the errors.
+    uint32 status = 3;
+
+    // Required OLP API error code. All GNSS Assistance Data Service API
+    // errors have format E619XXX
+    // This code is used in the central repository of all OLP error messages.
+    string code = 4;
+
+    // E.g. "You cannot subscribe data type DATATYPE_NAV_MODEL_PREDICTIONS_GAL"
+    string cause = 5;
+
+    // Actionable instructions for the user,
+    // e.g. "Contact hd.gnss.positioning@here.com to buy access."
+    string action = 6;
+
+    // Copied from X-Correlation-ID header generated by GNSS assistance server
+    string correlation_id = 7;
+  }
+
+  // The Message comprises of repeated sub-messages of different types. There
+  // can be zero, one, or multiple messages of each of the following types:
+
+  repeated Request requests = 1;  // single-shot requests
+  repeated Request subscriptions = 2; // subscription requests
+  repeated Unsubscribe unsubscriptions = 3; // unsubscription requests
+  repeated Data data = 4; // data deliveries
+  repeated Error errors = 5; // errors
+}

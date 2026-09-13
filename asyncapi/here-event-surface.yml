@@ -1,0 +1,85 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/geocoding-and-search/docs/notifications, https://docs.here.com/data-api/docs/notification-catalog,
+  openapi/here-data-notification-v1-openapi.yml, openapi/here-data-stream-v2-openapi.yml, openapi/here-geocoding-batch-v7-openapi.yml
+asyncapi_published: false
+asyncapi_note: HERE publishes no AsyncAPI document. Searched the 37-project docs corpus, the 37-anchor api-catalog
+  linkset, /asyncapi.yaml on the docs and API hosts, and the heremaps GitHub organisation — nothing. The event surface
+  below is real and documented; it is simply described with REST contracts and prose rather than with AsyncAPI.
+  Nothing was generated.
+webhooks:
+- name: Batch job completion notification
+  status: beta
+  type: WEB_HOOKS
+  transport: HTTP GET to a caller-supplied URL
+  delivery: fire-on-job-completion, no retry policy documented
+  docs: https://docs.here.com/geocoding-and-search/docs/notifications
+  management_operations:
+  - postNotification
+  - getNotifications
+  - getNotification
+  - putNotification
+  - deleteNotification
+  - testNotification
+  spec: openapi/here-geocoding-batch-v7-openapi.yml
+  detail: A notification is registered by id and attached to a batch job configuration. On completion HERE calls
+    the configured URL, substituting job properties into the query string. A /test endpoint validates the endpoint
+    before use.
+  payload_variables:
+  - JOB_ID
+  - JOB_NAME
+  - JOB_STATUS
+  - JOB_OUTPUT_TYPE
+  - JOB_RECORDS_SUCCEEDED
+  - JOB_RECORDS_FAILED
+  - JOB_RECORDS_TOTAL
+  - JOB_RECORDS_VALID
+  - JOB_RECORDS_INVALID
+  signature_verification: null
+  signature_note: No webhook signing secret or signature header is documented — the receiver cannot verify the caller.
+- name: Data API catalog change notification
+  status: general availability
+  transport: subscription delivered onto a HERE stream layer
+  docs: https://docs.here.com/data-api/docs/notification-catalog
+  management_operations:
+  - subscribe
+  - getSubscriptions
+  - deleteSubscriptions
+  spec: openapi/here-data-notification-v1-openapi.yml
+  detail: Subscribe to change notifications for a catalog; notifications land on a target notification stream layer
+    rather than being pushed to a customer URL.
+  related_docs:
+  - https://docs.here.com/data-api/docs/notification-versioned-layer
+  - https://docs.here.com/data-api/docs/notification-interactive-map-layer
+streaming:
+- name: HERE Data API Stream API v2
+  style: Kafka-style consumer group over HTTP
+  spec: openapi/here-data-stream-v2-openapi.yml
+  operations:
+  - subscribe
+  - consumeData
+  - commitOffsets
+  - seekToOffset
+  - endpoint
+  - endpointByConsumer
+  - deleteSubscription
+  detail: 'A real event-consumption contract: subscribe to a stream layer, poll partitions, commit offsets and seek.
+    Offsets and consumer groups make it the closest thing in the portfolio to an AsyncAPI-describable channel.'
+  base: resolved at runtime through the API Lookup Service
+- name: HERE Data API Ingest API v1
+  style: producer
+  spec: openapi/here-data-ingest-v1-openapi.yml
+  detail: Writes messages into a stream layer; the producing half of the same channel.
+- name: HERE Tracking
+  style: device telemetry ingest + geofence triggers
+  spec: openapi/here-tracking-v2-openapi.json
+  detail: 159 operations covering device position ingest, geofence association and trigger delivery.
+- name: Server-Sent Events tooling
+  style: SSE client library
+  repo: https://github.com/heremaps/oksse
+  detail: HERE publishes an OkHttp SSE extension, evidence of event consumption in its own clients. Last pushed
+    2019-01-24.
+coverage:
+  webhook_surfaces: 2
+  streaming_surfaces: 4
+  asyncapi_documents: 0

@@ -1,0 +1,133 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/routing/docs/routing-v8-changelog (and the 25 sibling per-product changelogs indexed
+  below)
+scheme: per-product dated changelog; semantic-ish MAJOR.MINOR.PATCH where MAJOR is the URL path version
+note: HERE does not publish one platform changelog. Each API has its own dated table with the feature-lifecycle
+  change types defined in https://docs.here.com/policies/docs/product-lifecycle-policy (Added / Changed / Deprecated
+  / Documentation / Fixed / Known issue / Other / Performance / Removed / Security). Monthly platform highlights
+  are published separately on the developer blog.
+platform_release_notes: https://www.here.com/learn/blog?type=developer&category=release-notes
+recent:
+  product: HERE Routing API v8
+  url: https://docs.here.com/routing/docs/routing-v8-changelog
+  current_version: 8.162.0
+  last_updated: '2026-09-07'
+  window: 2026-05-12 to 2026-09-07
+  breaking: 0
+  deprecations: 1
+  additions: 5
+  entries:
+  - version: 8.162.0
+    date: '2026-09-07'
+    type: Changed
+    highlight: Improved ETA on Functional Class 5 roads.
+  - version: 8.162.0
+    date: '2026-08-27'
+    type: Changed
+    highlight: ETA calculation and speed for trucks now takes slope into account.
+  - version: 8.162.0
+    date: '2026-08-26'
+    type: Fixed
+    highlight: Fixed a case of failed waypoint matching when the waypoint is close to roads that are only open for
+      emergency vehicles.
+  - version: 8.162.0
+    date: '2026-08-18'
+    type: Added
+    highlight: Error E605502 with 400 HTTP status is returned for a route import request too complex to calculate
+      within the request time limits.
+  - version: 8.161.0
+    date: '2026-08-11'
+    type: Added
+    highlight: Added ev[maxDrivingTimeBeforeCharge] and ev[minTimeAtFirstChargingStation] parameters.
+  - version: 8.160.0
+    date: '2026-07-16'
+    type: Fixed
+    highlight: Highway exit-and-reentry maneuvers caused by transport mode access restrictions are no longer penalized.
+  - version: 8.160.0
+    date: '2026-07-16'
+    type: Fixed
+    highlight: Fixed avoid[features]=uTurns producing tighter u-turns when a u-turn could not be avoided.
+  - version: 8.159.0
+    date: '2026-07-10'
+    type: Deprecated
+    highlight: Deprecated mlDuration. return=mlDuration is still accepted but no longer returns a value.
+  - version: 8.159.0
+    date: '2026-07-10'
+    type: Changed
+    highlight: Bicycle routes may now pass a traffic closure in pedestrian mode where the road is open to pedestrians.
+  - version: 8.158.0
+    date: '2026-07-09'
+    type: Changed
+    highlight: Combining arrivalTime with any ev parameter now correctly returns an error.
+  - version: 8.157.0
+    date: '2026-07-01'
+    type: Changed
+    highlight: Increased u-turn penalties for bus mode to match truck.
+  - version: 8.157.0
+    date: '2026-06-29'
+    type: Added
+    highlight: Added vehicle[trailerLength] parameter.
+  - version: 8.156.0
+    date: '2026-06-08'
+    type: Added
+    highlight: Added currencyUnsupported notice code.
+  - version: 8.155.0
+    date: '2026-05-18'
+    type: Added
+    highlight: Added ev[auxiliaryPowerCurve] support for the empirical consumption model.
+  - version: 8.154.2
+    date: '2026-05-12'
+    type: Added
+    highlight: Added toll support for South Korea (beta).
+changelogs:
+- product: HERE Routing API v8
+  url: https://docs.here.com/routing/docs/routing-v8-changelog
+- product: Isoline Routing API v8
+  url: https://docs.here.com/routing/docs/isoline-v8-changelog
+- product: Matrix Routing API v8
+  url: https://docs.here.com/routing/docs/matrix-v8-changelog
+- product: Geofencing API
+  url: https://docs.here.com/routing/docs/changelog-geofencing
+- product: Route Matching API
+  url: https://docs.here.com/routing/docs/changelog-route-matching
+- product: Waypoints Sequence API
+  url: https://docs.here.com/routing/docs/changelog-waypoints-sequence
+- product: Traffic API v7
+  url: https://docs.here.com/traffic-api/docs/traffic-api-changelog
+- product: Traffic Raster Tile API v3
+  url: https://docs.here.com/traffic-api/docs/traffic-raster-tile-changelog
+- product: Traffic Vector Tile API v2
+  url: https://docs.here.com/traffic-api/docs/traffic-vector-tile-changelog
+- product: Map Image API v3
+  url: https://docs.here.com/map-rendering/docs/map-image-api-v3-changelog
+- product: Raster Tile API v3
+  url: https://docs.here.com/map-rendering/docs/raster-tile-api-v3-changelog
+- product: Vector Tile API v2
+  url: https://docs.here.com/map-rendering/docs/vector-tile-api-changelog
+- product: HERE EV Charge Points API v3
+  url: https://docs.here.com/ev-products/docs/changelog-evcpv3
+- product: HERE GNSS Data API v2
+  url: https://docs.here.com/positioning/docs/here-gnss-data-api-v2-changelog
+- product: Network Positioning API
+  url: https://docs.here.com/positioning/docs/changelog-network-positioning
+- product: Map Attributes API
+  url: https://docs.here.com/map-attributes/docs/changelog-map-attributes-api
+- product: Safety Cameras
+  url: https://docs.here.com/safety-cameras/docs/changelog
+- product: HERE Anonymizer
+  url: https://docs.here.com/anonymizer/docs/anonymizer-changelog
+- product: HERE SDK for Android (Explore)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-android-explore-changelog
+- product: HERE SDK for Android (Navigate)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-android-navigate-changelog
+- product: HERE SDK for iOS (Explore)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-ios-explore-changelog
+- product: HERE SDK for iOS (Navigate)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-ios-navigate-changelog
+- product: HERE SDK for Flutter (Explore)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-flutter-explore-changelog
+- product: HERE SDK for Flutter (Navigate)
+  url: https://docs.here.com/here-sdk/docs/here-sdk-for-flutter-navigate-changelog
+- product: EV Products
+  url: https://docs.here.com/ev-products/docs/changelog

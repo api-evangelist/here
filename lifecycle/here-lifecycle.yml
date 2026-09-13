@@ -1,0 +1,273 @@
+generated: '2026-09-13'
+method: searched
+source: https://docs.here.com/policies/docs/product-lifecycle-policy, https://docs.here.com/policies/docs/here-service-level-agreement,
+  https://docs.here.com/geocoding-and-search/docs/deprecation-and-change-notice, https://status.here.com/status,
+  and openapi/ deprecated operations
+stages:
+- stage: Beta
+  definition: Nearly commercial-ready; not covered by SLAs; access generally by invitation only.
+- stage: Active
+  definition: Commercially available. SLAs cover Active products where applicable.
+- stage: In maintenance
+  definition: Still sold and still map-updated, but only critical fixes. Migration to a successor is likely within
+    12 months.
+- stage: Deprecated
+  definition: No longer sold to new customers; support limited to contractual obligations.
+- stage: Discontinued
+  definition: No longer available; documentation is removed.
+feature_lifecycle:
+- Added
+- Changed
+- Deprecated
+- Documentation
+- Fixed
+- Known issue
+- Other
+- Performance
+- Removed
+- Security
+deprecation_policy:
+  published: true
+  url: https://docs.here.com/policies/docs/product-lifecycle-policy
+  product_notice_window: At least 6 months before a product is Discontinued.
+  sdk_support_window: Deprecated SDKs are supported for 6 months after deprecation.
+  feature_window: A deprecated feature stops working 6-12 months after customers are first notified.
+  api_notice_window: Geocoding and Search v7 states its breaking changes take effect no earlier than 180 days after
+    the notice is published.
+  api_notice_url: https://docs.here.com/geocoding-and-search/docs/deprecation-and-change-notice
+  sunset_headers: false
+  sunset_note: No RFC 8594 Sunset or Deprecation response header is declared in any of the 48 harvested OpenAPI
+    documents; the policy is published in prose and in per-product changelogs.
+deprecated_operations:
+  count: 45
+  source: 'openapi/ — operations carrying `deprecated: true`'
+  operations:
+  - file: here-authentication-v1-1-openapi.yml
+    path: /apps/{app}/appCode
+    method: GET
+    operationId: getAppCode
+  - file: here-authorization-v1-1-openapi.yml
+    path: /realms/{realm}/permissions
+    method: GET
+    operationId: getRealmPermissions
+  - file: here-data-config-v1-openapi.yml
+    path: /catalogs/{catalogHrn}/subsets
+    method: GET
+    operationId: Config API v1 getSubsets
+  - file: here-data-config-v1-openapi.yml
+    path: /catalogs/{catalogHrn}/subsets/{subsetId}
+    method: GET
+    operationId: Config API v1 getSubset
+  - file: here-data-config-v1-openapi.yml
+    path: /catalogs/{catalogHrn}/subsetsFingerprint
+    method: GET
+    operationId: Config API v1 getSubsetsFingerprint
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/health
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/version
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}/{type}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}/{type}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/trackingId
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}/{type}/{externalId}
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}/{type}/{externalId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /aliases/v2/{trackingId}/batch
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/health
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/version
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/devices/{trackingId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/devices/{trackingId}
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/devices/{trackingId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/devices/batch
+    method: POST
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/geofences/{geofenceId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/geofences/{geofenceId}
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/geofences/{geofenceId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/geofences/batch
+    method: POST
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/sensorRules/{sensorRuleId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/sensorRules/{sensorRuleId}
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/sensorRules/{sensorRuleId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /metadata/v2/sensorRules/batch
+    method: POST
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/health
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/version
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/keys
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/keys/{key}/values
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}/{key}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}/{key}/{value}
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}/{key}/{value}
+    method: DELETE
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /labels/v4/{resourceType}/{resourceId}/batch
+    method: PUT
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /associations/v3/sensors/{sensorRuleId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /associations/v3/geofences/{geofenceId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /associations/v3/rules/{ruleId}
+    method: GET
+    operationId: null
+  - file: here-tracking-v2-openapi.json
+    path: /shipments/v4
+    method: GET
+    operationId: null
+live_deprecation_notices:
+- product: Geocoding and Search v7
+  change: Alternative property keys removed in two stages
+  stage_1: Effective January 2026, release 7.34.0 (implemented)
+  stage_2: Effective October 2026
+  url: https://docs.here.com/geocoding-and-search/docs/deprecation-and-change-notice
+- product: Routing v8
+  change: '`mlDuration` deprecated — `return=mlDuration` is still accepted but no longer returns a value'
+  dated: 2026-07-10 (release 8.159.0)
+  url: https://docs.here.com/routing/docs/routing-v8-changelog
+- product: Map Attributes
+  change: BYOD (bring your own data) deprecated
+  url: https://docs.here.com/map-attributes/docs/byod-deprecated
+sla:
+  published: true
+  url: https://docs.here.com/policies/docs/here-service-level-agreement
+  covers:
+  - service availability targets
+  - service response times
+  enterprise_only:
+  - service credits
+  - reporting
+  - incident management
+  - maintenance windows
+  support_plans: https://www.here.com/pricing/support-plans
+  capacity_clause: Customers must notify HERE 60 days in advance of a maximum-RPS increase greater than 25% of the
+    previous 60-day maximum. Exceeding the estimate by 40% releases HERE from availability penalties. RPS is measured
+    as a 5-minute average.
+  capacity_url: https://docs.here.com/policies/docs/rps-capacity-planning
+status_page:
+  published: true
+  url: https://status.here.com/status
+  platform: ServiceNow-hosted status portal
+  machine_readable: false
+  probe: https://status.here.com/api/v2/summary.json returned 404 on 2026-09-13 — there is no Statuspage-style JSON
+    feed; the page is HTML only.
+incident_management:
+  url: https://docs.here.com/policies/docs/incident-management
+  pages:
+  - incident-lifecycle
+  - incident-priority
+  - incident-response-time
+  - root-cause-analysis
+  - service-credits
+  - maintenance
+changelogs:
+  per_product: true
+  count: 26
+  detail: HERE publishes a separate dated changelog per product; see changelog/here-changelog.yml.

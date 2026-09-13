@@ -1,0 +1,410 @@
+/*
+Copyright (C) 2019-2024 HERE Global B.V. and its affiliate(s).
+All rights reserved.
+This software and other materials contain proprietary information
+controlled by HERE and are protected by applicable copyright legislation.
+Any use and utilization of this software and other materials and
+disclosure to any third parties is conditional upon having a separate
+agreement with HERE for the access, use, utilization or disclosure of this
+software. In the absence of such agreement, the use of the software is not
+allowed.
+*/
+
+/*
+HERE GNSS Assistance protocol - Data types
+
+Each data type value is an agreement about the details of the data, including:
+ - format (e.g. LPP)
+ - data contents (e.g. GPS ephemerides)
+ - parameters for requesting the data (e.g. client location)
+Once the details for some data type constant has been agreed on, the agreement
+cannot be changed (unless absolutely sure that no-one is relying on the old
+agreement). New data type constant has to be allocated for a new revised
+(non-backward-compatible) version of the agreement.
+*/
+
+syntax = "proto3";
+
+package here.gnss;
+
+enum DataType {
+
+  /* default value = no DataType value specified */
+  DATATYPE_UNSPECIFIED = 0;
+
+  /*
+   * Assistance data for GPS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-ReferenceTime, gnss-IonosphericModel,
+   * gnss-TimeModels, gnss-NavigationModel, gnss-RealTimeIntegrity,
+   * gnss-Almanac, gnss-UTC-Model, gnss-AuxiliaryInformation
+   */
+  DATATYPE_LPP_AGNSS_GPS = 1100;
+
+  /*
+   * Assistance data for QZSS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-ReferenceTime, gnss-IonosphericModel,
+   * gnss-TimeModels, gnss-NavigationModel, gnss-RealTimeIntegrity,
+   * gnss-Almanac, gnss-UTC-Model
+   */
+  DATATYPE_LPP_AGNSS_QZS = 1120;
+
+  /*
+   * Assistance data for Galileo constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-ReferenceTime, gnss-IonosphericModel,
+   * gnss-TimeModels, gnss-NavigationModel, gnss-RealTimeIntegrity,
+   * gnss-Almanac, gnss-UTC-Model
+   */
+  DATATYPE_LPP_AGNSS_GAL = 1130;
+
+  /*
+   * Assistance data for GLONASS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-ReferenceTime, gnss-NavigationModel,
+   * gnss-RealTimeIntegrity, gnss-Almanac, gnss-UTC-Model,
+   * gnss-AuxiliaryInformation
+   */
+  DATATYPE_LPP_AGNSS_GLO = 1140;
+
+  /*
+   * Assistance data for Beidou constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-ReferenceTime, gnss-IonosphericModel,
+   * gnss-TimeModels, gnss-NavigationModel, gnss-RealTimeIntegrity,
+   * gnss-Almanac, gnss-UTC-Model
+   */
+  DATATYPE_LPP_AGNSS_BEI = 1150;
+
+  /*
+   * Code Bias data for GPS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-CodeBias-r15
+   */
+  DATATYPE_LPP_CODE_BIAS_GPS = 1400;
+
+  /*
+   * Code Bias data for Galileo constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-CodeBias-r15
+   */
+  DATATYPE_LPP_CODE_BIAS_GAL = 1430;
+
+  /*
+   * Code Bias data for GLONASS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-CodeBias-r15
+   */
+  DATATYPE_LPP_CODE_BIAS_GLO = 1440;
+
+  /*
+   * Code Bias data for Beidou constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-CodeBias-r15
+   */
+  DATATYPE_LPP_CODE_BIAS_BEI = 1450;
+
+  /*
+   * Ionospheric corrections for GPS constellation.
+   *
+   * The request may include parameter ParamsIonoCorrections,
+   * see the definition of it for further details.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: Either GNSS-SSR-CorrectionPoints
+   * (referred to as "grid" in this specification) or
+   * GNSS-SSR-STEC-Correction and GNSS-SSR-GriddedCorrection elements
+   * (referred to as "corrections" in this specification).
+   */
+  DATATYPE_LPP_IONO_GPS = 1500;
+
+  /*
+   * Ionospheric corrections for Galileo constellation.
+   *
+   * The request may include parameter ParamsIonoCorrections,
+   * see the definition of it for further details.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: Either GNSS-SSR-CorrectionPoints
+   * (referred to as "grid" in this specification) or
+   * GNSS-SSR-STEC-Correction and GNSS-SSR-GriddedCorrection elements
+   * (referred to as "corrections" in this specification).
+   */
+  DATATYPE_LPP_IONO_GAL = 1530;
+
+  /*
+   * Ionospheric corrections for GLONASS constellation.
+   *
+   * The request may include parameter ParamsIonoCorrections,
+   * see the definition of it for further details.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: Either GNSS-SSR-CorrectionPoints
+   * (referred to as "grid" in this specification) or
+   * GNSS-SSR-STEC-Correction and GNSS-SSR-GriddedCorrection elements
+   * (referred to as "corrections" in this specification).
+   */
+  DATATYPE_LPP_IONO_GLO = 1540;
+
+  /*
+   * Ionospheric corrections for Beidou constellation.
+   *
+   * The request may include parameter ParamsIonoCorrections,
+   * see the definition of it for further details.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: Either GNSS-SSR-CorrectionPoints
+   * (referred to as "grid" in this specification) or
+   * GNSS-SSR-STEC-Correction and GNSS-SSR-GriddedCorrection elements
+   * (referred to as "corrections" in this specification).
+   */
+  DATATYPE_LPP_IONO_BEI = 1550;
+
+  /*
+   * Predicted navigation models for GPS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * The prediction period is 14 days.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Each element provides predicted navigation models for same Toe (Time of
+   * Ephemeris) for all valid GPS satellites. The validity of the navigation
+   * models starts 2 hours before the Toe and ends 2 hours after the Toe.
+   *
+   * The interval between A-GNSS-ProvideAssistanceData elements is 2 hours.
+   * Therefore, 12 elements are needed to provide predictions for one day.
+   */
+  DATATYPE_LPP_NAV_MODEL_PREDICTIONS_GPS = 1600;
+
+  /*
+   * Predicted navigation models for Galileo constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * The prediction period is 7 days.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Each element provides predicted navigation models for same Toe (Time of
+   * Ephemeris) for all valid Galileo satellites. The validity of the navigation
+   * models starts 2 hours before the Toe and ends 2 hours after the Toe.
+   *
+   * The interval between A-GNSS-ProvideAssistanceData elements is 1 hour.
+   * Therefore, 24 elements are needed to provide predictions for one day.
+   */
+  DATATYPE_LPP_NAV_MODEL_PREDICTIONS_GAL = 1630;
+
+  /*
+   * Predicted navigation models for GLONASS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * The prediction period is 14 days.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Each element provides predicted navigation models for same time for all
+   * valid GLONASS satellites. Each navigation model contains tb value that is
+   * the index of a 0.5 hour time interval within current day. The validity of
+   * the navigation models starts at the beginning of the specified time
+   * interval and ends when the time interval ends.
+   *
+   * The interval between A-GNSS-ProvideAssistanceData elements is 0.5 hours.
+   * Therefore, 48 elements are needed to provide predictions for one day.
+   */
+  DATATYPE_LPP_NAV_MODEL_PREDICTIONS_GLO = 1640;
+
+  /*
+   * Predicted navigation models for Beidou constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * The prediction period is 7 days.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Each element provides predicted navigation models for same Toe (Time of
+   * Ephemeris) for all valid Beidou satellites. The validity of the navigation
+   * models starts 2 hours before the Toe and ends 2 hours after the Toe.
+   *
+   * The interval between A-GNSS-ProvideAssistanceData elements is 2 hour.
+   * Therefore, 12 elements are needed to provide predictions for one day.
+   */
+  DATATYPE_LPP_NAV_MODEL_PREDICTIONS_BEI = 1650;
+
+  /*
+   * Combined clock and orbit corrections for GPS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-ClockCorrections-r15,
+   * gnss-SSR-OrbitCorrections-r15
+   */
+  DATATYPE_LPP_CLOCK_AND_ORBIT_GPS = 3000;
+
+  /*
+   * Combined clock and orbit corrections for Galileo constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-ClockCorrections-r15,
+   * gnss-SSR-OrbitCorrections-r15
+   */
+  DATATYPE_LPP_CLOCK_AND_ORBIT_GAL = 3030;
+
+  /*
+   * Combined clock and orbit corrections for GLONASS constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-ClockCorrections-r15,
+   * gnss-SSR-OrbitCorrections-r15
+   */
+  DATATYPE_LPP_CLOCK_AND_ORBIT_GLO = 3040;
+
+  /*
+   * Combined clock and orbit corrections for Beidou constellation.
+   *
+   * There are no request parameters for this data.
+   *
+   * Format: UPER encoded LPP 18.3.0, root element LPP-Message
+   *
+   * Essential elements: gnss-SSR-ClockCorrections-r15,
+   * gnss-SSR-OrbitCorrections-r15
+   */
+  DATATYPE_LPP_CLOCK_AND_ORBIT_BEI = 3050;
+
+  /*
+   * Number of milliseconds since the Unix Epoch.
+   * This can be used for example for service monitoring and testing purposes.
+   *
+   * Note: the standard Unix Time is in seconds. In order to get that,
+   * divide the value by 1000, and round down to the nearest integer value.
+   * Otherwise this is the same as the Unix time, just with higher resolution
+   * (milliseconds vs. seconds), and without Year 2038 Problem. Leap second
+   * handling is similar to that in standard Unix Time.
+   *
+   * By default server sends this data once per second. Less frequent updates
+   * can be requested by specifying the interval in `Request.params` of
+   * the subscription request. See PARAMS_UNIX_TIMESTAMP_INTERVAL in
+   * ParamsUnixTimestamp for details.
+   *
+   * Format: A 64bit unsigned integer value; 8 bytes in little-endian order.
+   *
+   * Example:
+   * d9 7e 1b 0d 6b 01 00 00 = 1559293034201 = 2019-05-31T08:57:14.201Z
+   */
+  DATATYPE_UNIX_TIMESTAMP = 20000;
+}
+
+// DATATYPE_UNIX_TIMESTAMP request parameters
+enum ParamsUnixTimestamp {
+  /* default unspecified value, not valid for use */
+  PARAMS_UNIX_TIMESTAMP_UNSPECIFIED = 0;
+
+  /*
+   * Data sending interval in seconds. Has an effect only with subscription
+   * requests. Optional. If not specified, server will send data once per
+   * second.
+   *
+   * Format: 16bit unsigned integer value (1 - 65535), which corresponds
+   * time interval from 1 seconds to about 18 hours. (Value 0 results in
+   * the default 1 second interval.)
+   */
+  PARAMS_UNIX_TIMESTAMP_INTERVAL = 1;
+}
+
+/* The parameter ParamsIonoCorrections can be used to customize requests related
+ * to the ionospheric correction data types in the following way:
+ *
+ * For the single-shot ionospheric correction requests:
+ *
+ *   - Without this parameter: All the current "grid" definitions are sent
+ *     to the client.
+ *
+ *   - With this parameter containing IDs of one or more "grids":
+ *     The current "grid" definitions and "corrections" for the requested
+ *     "grids" are sent to the client.
+ *
+ * For the ionospheric correction subscription requests:
+ *
+ *   - Without this parameter: All the current "grid" definitions are sent
+ *     to the client. Additionally, updates to the "grid" definitions will
+ *     be sent to the client when they do occur.
+ *
+ *   - With this parameter containing IDs of one or more "grids": Once
+ *     new "grid" definitions and/or "correction" data becomes available,
+ *     the current "grid" definitions and "corrections" for the subscribed
+ *     "grids" will be sent to the client. Additionally, updates to the
+ *     subscribed "grid" definitions and/or "correction" data will be sent
+ *     to the client when they do occur.
+ *
+ * Note that "grid" and "correction" data may be sent as one or several
+ * protobuf Messages (it is allowed to have multiple Data elements in a Message).
+ */
+enum ParamsIonoCorrections {
+  /* default unspecified value, not valid for use */
+  PARAMS_IONO_CORRECTIONS_UNSPECIFIED = 0;
+
+  /*
+   * IDs of the "correctionpoints" for which "corrections" are requested. Specified
+   * as a string of comma-separated integer values (0 - 16383), e.g. "14,15,16"
+   * or "25".
+   *
+   * Format: utf-8 string containing only digit characters, and comma characters if
+   * needed. When specifying multiple grid IDs a single comma character shall be
+   * used to separate successive IDs from each other (see the example above).
+   * No whitespace is allowed anywhere in the string and the string shall not start
+   * or end with a comma.
+   */
+  PARAMS_IONO_CORRECTIONS_GRID_IDS = 1;
+}

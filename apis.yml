@@ -1,96 +1,1180 @@
 aid: here
 url: https://raw.githubusercontent.com/apis-json/artisanal/main/apis/here.json
 apis:
-- aid: here:here-autocomplete-api
-  name: HERE Autocomplete API
-  description: The Autocomplete API from HERE — 1 operation(s) for autocomplete.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+- aid: here:here-account-v1
+  name: Here Account v1 APIs
+  description: Here Account v1 APIs — 8 operation(s) across 8 path(s), OpenAPI 3.0.2 version 1.1.x, harvested verbatim from the HERE developer documentation. This specification describes the Here Account v1 APIs Published by HERE Technologies as part of the HERE Location Platform API portfolio.
+  humanURL: https://docs.here.com/identity-and-access-management/reference
   tags:
-  - Autocomplete
+  - Identity
+  - Accounts
+  - IAM
   properties:
   - type: OpenAPI
-    url: openapi/here-autocomplete-api-openapi.yml
+    url: openapi/here-account-v1-openapi.yml
   - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-autosuggest-api
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Overlay
+    url: overlays/here-account-v1-overlay.yaml
+  baseURL: https://account.api.here.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-api-lookup-v1
+  name: HERE API Lookup Service v1
+  description: 'HERE API Lookup Service v1 — 4 operation(s) across 4 path(s), OpenAPI 3.0.1 version 1.0.4, harvested verbatim from the HERE developer documentation. The API Lookup Service is a platform service with following goals: - Redirect users to REST APIs related to a resource identified by an HRN - Given an HRN, provide parameters to be used in REST APIs calls. - Discovery of other platform APIs.'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Discovery
+  - Platform
+  properties:
+  - type: OpenAPI
+    url: openapi/here-api-lookup-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-api-lookup-v1-overlay.yaml
+  baseURL: https://api-lookup.data.api.platform.here.com/lookup/v1
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-authentication-v1-1
+  name: HERE Authentication API v1.1
+  description: 'HERE Authentication API v1.1 — 92 operation(s) across 49 path(s), OpenAPI 3.0.2 version 1.1.x, harvested verbatim from the HERE developer documentation. This specification describes the Authentication v1.1 APIs. NOTE: Swagger UI automatically URL encodes parameters when required. If/when the APIs are called elsewhere make sure to URL encode the parameters when required. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/identity-and-access-management/reference
+  tags:
+  - Identity
+  - Authentication
+  - IAM
+  properties:
+  - type: OpenAPI
+    url: openapi/here-authentication-v1-1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Overlay
+    url: overlays/here-authentication-v1-1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-authorization-v1-1
+  name: HERE Authorization API v1.1
+  description: 'HERE Authorization API v1.1 — 142 operation(s) across 93 path(s), OpenAPI 3.0.0 version 1.1.0, harvested verbatim from the HERE developer documentation. This specification is intended to describe the Authorization v1.1 APIs Roles OrgAdmin - An entity which has administrative authority over an organization. + Administrative rights include authority to: + Promote realm members to the OrgAdmin role + Promote realm members to the OrgInviter role + Promote realm members to the GroupAdmin role within all groups + Promote project members to the ProjectAdmin role + Promote realm members to the CrossRealmTrustManager role + All rights associated with the OrgInviter role + All rights associated with the CrossRealmTrustManager role + Create groups + Delete groups + Modify groups + Add/remove group members for all groups + Add/remove project members for all projects + Read/List project members for a Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/identity-and-access-management/reference
+  tags:
+  - Identity
+  - Authorization
+  - IAM
+  properties:
+  - type: OpenAPI
+    url: openapi/here-authorization-v1-1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Overlay
+    url: overlays/here-authorization-v1-1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-cost-management-usage-v2
+  name: HERE Cost Management Usage API v2
+  description: HERE Cost Management Usage API v2 — 8 operation(s) across 7 path(s), OpenAPI 3.0.2 version 2.2.0, harvested verbatim from the HERE developer documentation. Provides API reference details for Usage API v2 which you can use to retrieve billable usage information. Usage billing rates are dependent on your licensing terms.
+  humanURL: https://docs.here.com/usage/reference
+  tags:
+  - Billing
+  - Usage
+  - Cost Management
+  properties:
+  - type: OpenAPI
+    url: openapi/here-cost-management-usage-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/usage/docs
+  - type: APIReference
+    url: https://docs.here.com/usage/reference
+  - type: Overlay
+    url: overlays/here-cost-management-usage-v2-overlay.yaml
+  baseURL: https://usage.bam.api.here.com/v2
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-blob-v1
+  name: HERE Blob API v1
+  description: 'HERE Blob API v1 — 9 operation(s) across 4 path(s), OpenAPI 3.0.2 version 1.0.8, harvested verbatim from the HERE developer documentation. The blob service supports the upload and retrieval of large volumes of data from the storage of a catalog. Each discrete chunk of data is stored as a blob (Binary Large Object). Each blob has its own unique ID (data handle). The data handles can be stored in services like metadata , index or stream . To get data, use your preferred service to retrieve the data handle of the relevant blobs. Then use the data handle to pull the data using the blob service. Currently, the blob service supports REST API versions v1 and v2. Version v1 should be used to access versioned, index and stream (if the stream payload is larger than 1MB) layers. Version v2 should be used to access the object store layer. Always pick the proper API version from API Lookup to ensure  Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Storage
+  - Blob
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-blob-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-blob-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-blob-v2
+  name: HERE Blob API v2
+  description: 'HERE Blob API v2 — 10 operation(s) across 4 path(s), OpenAPI 3.0.2 version 2.0.2, harvested verbatim from the HERE developer documentation. The blob service supports the upload and retrieval of large volumes of data from the storage of a catalog. Each discrete chunk of data is stored as a blob (Binary Large Object). Each blob has its own key. You can use keys to store, retrieve, delete and copy blobs. Keys can also be listed. Currently, the blob service supports REST API versions v1 and v2. Version v1 should be used to access versioned, index and stream (if the stream payload is larger than 1MB) layers. Version v2 should be used to access the object store layer. Always pick the proper API version from API Lookup to ensure you get back the correct API version response. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Storage
+  - Blob
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-blob-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-blob-v2-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-config-v1
+  name: HERE Config API v1
+  description: 'HERE Config API v1 — 30 operation(s) across 18 path(s), OpenAPI 3.0.1 version 1.3.4, harvested verbatim from the HERE developer documentation. The config service provides basic catalog management operations. It manages all platform resources needed for different kinds of catalogs and operations on them. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Catalogs
+  - Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-config-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-config-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-index-v1
+  name: HERE Index API v1
+  description: 'HERE Index API v1 — 6 operation(s) across 3 path(s), OpenAPI 3.0.1 version 1.1.2, harvested verbatim from the HERE developer documentation. Use the index service to get the data handles of the partitions that match a query. Then, use the data handles with the blob service to get the data from the partitions. For more information, see Get Data from an Index Layer. You can also use the index service to publish data to an index layer. For more information, see Publish to an Index Layer. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Index
+  - Layers
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-index-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-index-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-ingest-v1
+  name: HERE Ingest API v1
+  description: 'HERE Ingest API v1 — 6 operation(s) across 3 path(s), OpenAPI 3.0.1 version 1.1.3, harvested verbatim from the HERE developer documentation. The ingestion service provides the way to submit data to stream layers using REST API. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Ingestion
+  - Streaming
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-ingest-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-ingest-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-metadata-v1
+  name: HERE Metadata API v1
+  description: 'HERE Metadata API v1 — 10 operation(s) across 9 path(s), OpenAPI 3.0.2 version 1.2.0, harvested verbatim from the HERE developer documentation. The metadata service provides a way to get information (metadata) about layers and partitions stored in a catalog. This service exposes the metadata for all the partitions or all the changed partitions. For a catalog with versioned layers, the metadata can be retrieved for a particular version or version range of the catalog. The following operations can be performed for a catalog with versioned layers: - List versions of the catalog - Get latest and minimum version of the catalog - Get metadata of the specific layers For a volatile layer, the metadata can be fetched for all or a subset of partitions of the layer. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Metadata
+  - Catalogs
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-metadata-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-metadata-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-notification-v1
+  name: HERE Notification API
+  description: 'HERE Notification API — 3 operation(s) across 2 path(s), OpenAPI 3.0.1 version 2.0.1, harvested verbatim from the HERE developer documentation. This covers all APIs for Data Service Notification Published by HERE Technologies as part of the HERE Location Platform API portfolio. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Notifications
+  - Events
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-notification-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-notification-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-publish-v2
+  name: HERE Publish API v2
+  description: 'HERE Publish API v2 — 5 operation(s) across 3 path(s), OpenAPI 3.0.1 version 2.0.3, harvested verbatim from the HERE developer documentation. HERE Publish API v2 from HERE Technologies. Published by HERE Technologies as part of the HERE Location Platform API portfolio. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Publishing
+  - Catalogs
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-publish-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-publish-v2-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-query-v1
+  name: HERE Query API v1
+  description: 'HERE Query API v1 — 4 operation(s) across 4 path(s), OpenAPI 3.0.1 version 1.0.4, harvested verbatim from the HERE developer documentation. The query service provides a way to get information (metadata) about layers and partitions stored in a catalog. This service exposes the metadata for single partitions that users can query one by one or by specifying a parent tile. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Query
+  - Partitions
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-query-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-query-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-stream-v2
+  name: HERE Stream API v2
+  description: 'HERE Stream API v2 — 7 operation(s) across 6 path(s), OpenAPI 3.0.1 version 2.1.2, harvested verbatim from the HERE developer documentation. The stream service provides the ability to consume data from a stream layer. With this service you can subscribe to a stream layer and consume messages. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Streaming
+  - Messaging
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-stream-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-stream-v2-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-data-volatile-blob-v1
+  name: HERE Volatile Blob API v1
+  description: 'HERE Volatile Blob API v1 — 5 operation(s) across 1 path(s), OpenAPI 3.0.1 version 1.0.3, harvested verbatim from the HERE developer documentation. The volatile-blob service supports the upload and retrieval of volatile data from the storage of a catalog. Each discrete chunk of data is stored as a blob (Binary Large Object). Each blob has its own unique id (data handle) which is stored as partition metadata. To get a partition''s data, you first use metadata service to retrieve the partition''s metadata (data handle) with the addresses of the relevant blobs. You then use those addresses to pull the data using the volatile-blob service. Unlike the blob service, data handles can be overwritten. Hence the volatile aspect. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Storage
+  - Volatile
+  properties:
+  - type: OpenAPI
+    url: openapi/here-data-volatile-blob-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-data-volatile-blob-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-destination-weather-v1
+  name: HERE Weather API v1
+  description: 'HERE Weather API v1 — 6 operation(s) across 5 path(s), OpenAPI 3.0.2 version 1.0.0, harvested verbatim from the HERE developer documentation. The HERE Weather API is a RESTful API that: - provides weather forecasts and reports on current weather conditions. - provides information on severe weather alerts along a specified route or a single car location. - provides weather radar images in an area. Examples of information that may be available in weather reports include: - Descriptions of the overall weather, temperature, precipitation, and wind in supported languages. - Numerical data on temperature, humidity, dew point, precipitation, wind and visibility. - Forecast alerts, severe warnings and watches for supported NWS alert types and for supported global alert types. - Icon name and link for the report. A weather report typically contains at least the temperature, comfort level, wind sp'
+  humanURL: https://docs.here.com/destination-weather/reference
+  tags:
+  - Weather
+  - Forecast
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-destination-weather-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/destination-weather/docs
+  - type: APIReference
+    url: https://docs.here.com/destination-weather/reference
+  - type: Overlay
+    url: overlays/here-destination-weather-v1-overlay.yaml
+  baseURL: https://weather.cc.api.here.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-destination-weather-v3
+  name: HERE Weather API v3
+  description: 'HERE Weather API v3 — 6 operation(s) across 6 path(s), OpenAPI 3.0.2 version 3.0.0, harvested verbatim from the HERE developer documentation. NOTE: Accessing Weather Radar and Weather Alerts requires Weather Premium product permissions. The HERE Weather API is a RESTful API that: - provides weather forecasts and reports on current weather conditions. - provides information on severe weather alerts along a specified route or a single car location. - provides weather radar images in an area. Examples of information that may be available in weather reports include: - Descriptions of the overall weather, temperature, precipitation, and wind in supported languages. - Numerical data on temperature, humidity, dew point, precipitation, wind and visibility. - Forecast alerts, severe warnings and watches for supported NWS alert types and for supported global alert types. - Icon name and link for t'
+  humanURL: https://docs.here.com/destination-weather/reference
+  tags:
+  - Weather
+  - Forecast
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-destination-weather-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/destination-weather/docs
+  - type: APIReference
+    url: https://docs.here.com/destination-weather/reference
+  - type: Overlay
+    url: overlays/here-destination-weather-v3-overlay.yaml
+  baseURL: https://weather.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-ev-charge-points-v3
+  name: HERE EV Charge Points API v3
+  description: HERE EV Charge Points API v3 — 6 operation(s) across 6 path(s), OpenAPI 3.0.2 version 3.20.1, harvested verbatim from the HERE developer documentation. Use this API to get detailed information about charging locations. It builds on data retrieved from the HERE Geocoding and Search API v7 or HERE Map Content . Tariff information is provided by Charge Point Operators. HERE Technologies works to keep this data accurate and up to date, but can't guarantee its completeness. Actual tariffs at charging locations may differ from the data returned by the API. Some fields and parameters are in ALPHA status. These may change without notice. Fields and parameters marked with the RESTRICTED privilege qualifier are available only to customers with a specific contract with HERE.
+  humanURL: https://docs.here.com/ev-products/reference
+  tags:
+  - EV
+  - Charging
+  - Mobility
+  properties:
+  - type: OpenAPI
+    url: openapi/here-ev-charge-points-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/ev-products/docs
+  - type: APIReference
+    url: https://docs.here.com/ev-products/reference
+  - type: Overlay
+    url: overlays/here-ev-charge-points-v3-overlay.yaml
+  baseURL: https://evcp.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-fuel-prices-v2
+  name: HERE Fuel Prices API v2
+  description: 'HERE Fuel Prices API v2 — 6 operation(s) across 6 path(s), OpenAPI 3.0.2 version 2.1.0, harvested verbatim from the HERE developer documentation. What is the Fuel Prices API? The HERE Fuel Prices API is a RESTful API that: - provides dynamic data on the price of fuel at fuel stations within a specified area and filtered by desired fuel type - provides lists of fuel stations within a specified area, including data on fuel types available, prices and location - provides data such as fuel prices and location information for individual fuel stations - provides a price index for a specified geometry that ranks the fuel stations using current prices and statistically-modelled prices where the price data is unavailable Why use the Fuel Prices API? The Fuel Prices API provides solutions for the following high level use cases. - Show lists of fuel stations with information on location and prices '
+  humanURL: https://docs.here.com/fuel-prices/reference
+  tags:
+  - Fuel
+  - Prices
+  - Mobility
+  properties:
+  - type: OpenAPI
+    url: openapi/here-fuel-prices-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/fuel-prices/docs
+  - type: APIReference
+    url: https://docs.here.com/fuel-prices/reference
+  - type: Overlay
+    url: overlays/here-fuel-prices-v2-overlay.yaml
+  baseURL: https://fuel-v2.cc.api.here.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-fuel-prices-v3
+  name: HERE Fuel Prices API v3
+  description: 'HERE Fuel Prices API v3 — 10 operation(s) across 9 path(s), OpenAPI 3.0.2 version 3.1.0, harvested verbatim from the HERE developer documentation. What is the Fuel Prices API? The HERE Fuel Prices API is a RESTful API that: - provides dynamic data on the price of fuel at fuel stations within a specified area and filtered by desired fuel type - provides lists of fuel stations within a specified area, including data on fuel types available, prices and location - provides data such as fuel prices and location information for individual fuel stations - provides a price index for a specified geometry that ranks the fuel stations using current prices and statistically-modelled prices where the price data is unavailable Why use the Fuel Prices API? The Fuel Prices API provides solutions for the following high level use cases. - Show lists of fuel stations with information on location and prices'
+  humanURL: https://docs.here.com/fuel-prices/reference
+  tags:
+  - Fuel
+  - Prices
+  - Mobility
+  properties:
+  - type: OpenAPI
+    url: openapi/here-fuel-prices-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/fuel-prices/docs
+  - type: APIReference
+    url: https://docs.here.com/fuel-prices/reference
+  - type: Overlay
+    url: overlays/here-fuel-prices-v3-overlay.yaml
+  baseURL: https://fuel.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-geocoding-and-search-v7
+  name: HERE Geocoding and Search API v7
+  description: 'HERE Geocoding and Search API v7 — 11 operation(s) across 9 path(s), OpenAPI 3.0.0 version 7.155, harvested verbatim from the HERE developer documentation. This document describes the Geocoding and Search API. "ALPHA" & "BETA" tags - API requests parameters and response fields can be tagged with one of the following maturity qualifiers: alpha, beta - "ALPHA" tagged features are in mid-stage development. They can change or in rare cases be removed. No backward compatibility is guaranteed nor bug service level agreement (SLA) do apply. Customers using ALPHA features are advised not use them in production. - "BETA" tagged features are in end-stage development. They are backward compatible and can not be removed. They have no major bug, but coverage, quality, performance, or test coverage is not considered final. customers can safely use BETA features in their applications if they accept tho Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/geocoding-and-search/reference
+  tags:
+  - Geocoding
+  - Search
+  - Places
+  - Autocomplete
+  - Reverse Geocoding
+  properties:
+  - type: OpenAPI
+    url: openapi/here-geocoding-and-search-v7-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/geocoding-and-search/docs
+  - type: APIReference
+    url: https://docs.here.com/geocoding-and-search/reference
+  - type: Overlay
+    url: overlays/here-geocoding-and-search-v7-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-geocoding-batch-v7
+  name: HERE Batch API v7
+  description: 'HERE Batch API v7 — 18 operation(s) across 12 path(s), OpenAPI 3.1.0 version 7.40.0, harvested verbatim from the HERE developer documentation. API for processing large numbers of Geocode, Reverse Geocoding, and Lookup by ID requests. "ALPHA" & "BETA" tags API requests parameters and response fields can be tagged with one of the following maturity qualifiers: alpha, beta - "ALPHA" tagged features are in mid-stage development. They can change or in rare cases be removed. No backward compatibility is guaranteed nor bug service level agreement (SLA) do apply. Customers using ALPHA features are advised not use them in production. - "BETA" tagged features are in end-stage development. They are backward compatible and can not be removed. They have no major bug, but coverage, quality, performance, or test coverage is not considered final. Customers can safely use BETA features in their applicati'
+  humanURL: https://docs.here.com/geocoding-and-search/reference
+  tags:
+  - Geocoding
+  - Batch
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/here-geocoding-batch-v7-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/geocoding-and-search/docs
+  - type: APIReference
+    url: https://docs.here.com/geocoding-and-search/reference
+  - type: Overlay
+    url: overlays/here-geocoding-batch-v7-overlay.yaml
+  baseURL: https://batch.search.hereapi.com/v7
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-geofencing-v1
+  name: HERE Geofencing API
+  description: HERE Geofencing API — 6 operation(s) across 5 path(s), OpenAPI 3.0.2 version 8.3.3, harvested verbatim from the HERE developer documentation. Geofence asset positions against HERE Map objects or custom fence objects
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Geofencing
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-geofencing-v1-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-geofencing-v1-overlay.yaml
+  baseURL: https://geofencing.hereapi.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-gnss-data-v2
+  name: HERE GNSS Data API v2
+  description: HERE GNSS Data API v2 — 5 operation(s) across 5 path(s), OpenAPI 3.0.2 version 2.2.1, harvested verbatim from the HERE developer documentation. GNSS Data API v2 is a service for accessing GNSS data. It provides Assisted GNSS (A-GNSS) data and navigation model predictions for GPS, GLONASS, Galileo, BeiDou and QZSS satellite systems to improve the performance of GNSS receivers. This API returns responses in the LPP ASN.1 format, encoded using Encoding Rules as specified by the 3GPP and ETSI standards.
+  humanURL: https://docs.here.com/positioning/reference
+  tags:
+  - Positioning
+  - GNSS
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-gnss-data-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Overlay
+    url: overlays/here-gnss-data-v2-overlay.yaml
+  baseURL: https://gnss.hereapi.com/v2
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-indoor-routing-v1
+  name: HERE Indoor Routing API v1
+  description: HERE Indoor Routing API v1 — 4 operation(s) across 4 path(s), OpenAPI 3.0.2 version 1.0.11, harvested verbatim from the HERE developer documentation. HERE Indoor Routing Service enables customizable route calculation within Indoor maps, supporting both pedestrian and vehicle transport modes.
+  humanURL: https://docs.here.com/indoor-map/reference
+  tags:
+  - Routing
+  - Indoor
+  - Venues
+  properties:
+  - type: OpenAPI
+    url: openapi/here-indoor-routing-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/indoor-map/docs
+  - type: APIReference
+    url: https://docs.here.com/indoor-map/reference
+  - type: Overlay
+    url: overlays/here-indoor-routing-v1-overlay.yaml
+  baseURL: https://indoor.router.sit.hereapi.com/v1
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-interactive-map-v1
+  name: HERE Interactive Map API v1
+  description: 'HERE Interactive Map API v1 — 23 operation(s) across 12 path(s), OpenAPI 3.0.2 version 1.22.2, harvested verbatim from the HERE developer documentation. Interactive Map API v1 is a REST API for simple access to geo data. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/data-api/reference
+  tags:
+  - Data
+  - Geospatial
+  - Interactive Map
+  properties:
+  - type: OpenAPI
+    url: openapi/here-interactive-map-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Overlay
+    url: overlays/here-interactive-map-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-intermodal-routing-v8
+  name: HERE Intermodal Routing API v8
+  description: HERE Intermodal Routing API v8 — 4 operation(s) across 4 path(s), OpenAPI 3.0.2 version 8.0.1, harvested verbatim from the HERE developer documentation. Intermodal Routing is a REST API that offers an innovative and smart routing experience in urban areas to navigate between a given pair of locations. This is possible when the consolidated public transit offer is intertwined with external mobility services dynamically scattered in urban areas.
+  humanURL: https://docs.here.com/transit/reference
+  tags:
+  - Transit
+  - Intermodal
+  - Routing
+  properties:
+  - type: OpenAPI
+    url: openapi/here-intermodal-routing-v8-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/transit/docs
+  - type: APIReference
+    url: https://docs.here.com/transit/reference
+  - type: Overlay
+    url: overlays/here-intermodal-routing-v8-overlay.yaml
+  baseURL: https://intermodal.router.hereapi.com/v8
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-isoline-routing-v8
+  name: HERE Isoline Routing API v8
+  description: HERE Isoline Routing API v8 — 5 operation(s) across 4 path(s), OpenAPI 3.0.2 version 8.47.1, harvested verbatim from the HERE developer documentation. Isoline Routing is a service that offers to answer the question, "What area is within the approximate reachable range of a given location?", where range can be defined either in time, distance or consumption.
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Isoline
+  - Reachability
+  properties:
+  - type: OpenAPI
+    url: openapi/here-isoline-routing-v8-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-isoline-routing-v8-overlay.yaml
+  baseURL: https://isoline.router.hereapi.com/v8
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-map-attributes-v1
+  name: HERE Map Attributes API
+  description: 'HERE Map Attributes API — 23 operation(s) across 20 path(s), OpenAPI 3.0.2 version 8.3.3, harvested verbatim from the HERE developer documentation. Simple and fast access to the rich HERE Map content Note: Support for custom map data and custom routing is deprecated.'
+  humanURL: https://docs.here.com/map-attributes/reference
+  tags:
+  - Maps
+  - Attributes
+  - Geospatial
+  properties:
+  - type: OpenAPI
+    url: openapi/here-map-attributes-v1-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/map-attributes/docs
+  - type: APIReference
+    url: https://docs.here.com/map-attributes/reference
+  - type: Overlay
+    url: overlays/here-map-attributes-v1-overlay.yaml
+  baseURL: https://smap.hereapi.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-map-image-v3
+  name: HERE Map Image API v3
+  description: HERE Map Image API v3 — 11 operation(s) across 10 path(s), OpenAPI 3.0.2 version 3.0.4, harvested verbatim from the HERE developer documentation. Map Image API is a REST API that enables rendering personalized static map images, with access to a variety of styles and the ability to overlay custom data.
+  humanURL: https://docs.here.com/map-rendering/reference
+  tags:
+  - Maps
+  - Imagery
+  - Rendering
+  properties:
+  - type: OpenAPI
+    url: openapi/here-map-image-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/map-rendering/docs
+  - type: APIReference
+    url: https://docs.here.com/map-rendering/reference
+  - type: Overlay
+    url: overlays/here-map-image-v3-overlay.yaml
+  baseURL: https://image.maps.hereapi.com/mia/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-matrix-routing-v8
+  name: HERE Matrix Routing API v8
+  description: HERE Matrix Routing API v8 — 8 operation(s) across 8 path(s), OpenAPI 3.0.2 version 8.49.0, harvested verbatim from the HERE developer documentation. HERE Matrix Routing service calculates the travel duration, distances, and consumptions among multiple origins and destinations through both synchronous and asynchronous API calls.
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Matrix
+  - Optimization
+  properties:
+  - type: OpenAPI
+    url: openapi/here-matrix-routing-v8-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-matrix-routing-v8-overlay.yaml
+  baseURL: https://matrix.router.hereapi.com/v8
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-network-positioning-v1
+  name: HERE Network Positioning API v1
+  description: 'HERE Network Positioning API v1 — 1 operation(s) across 1 path(s), OpenAPI 3.0.0 version 1.8.4, harvested verbatim from the HERE developer documentation. Positioning API for making location requests. Note: HERE Network Positioning API v1 is in maintenance and is not actively developed. Use HERE Network Positioning API v2 to get the latest features and updates. To learn more, see the HERE Network Positioning API v2 API Reference.'
+  humanURL: https://docs.here.com/positioning/reference
+  tags:
+  - Positioning
+  - Network
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-network-positioning-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Overlay
+    url: overlays/here-network-positioning-v1-overlay.yaml
+  baseURL: https://pos.api.here.com/positioning/v1
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-network-positioning-v2
+  name: HERE Network Positioning API v2
+  description: 'HERE Network Positioning API v2 — 4 operation(s) across 4 path(s), OpenAPI 3.0.2 version 2.9.0, harvested verbatim from the HERE developer documentation. Positioning API accepts requests with radio network measurements and replies with corresponding location estimate. For more details and examples, see Developer''s Guide. Cellular measurements are given in terms defined in 3GPP and 3GGP2 specifications, see the corresponding documentation at http://www.3gpp.org. Breaking changes from v1: - JSON fields altaccuracy , baselat , baselng , cellparams , pilotpower , pnoffset , powrx , rxlevel , have been deprecated and replaced with altAccuracy , baseLat , baseLng , cellParams , pilotPower , pnOffset , rss , rxLevel respectively. - Dependent parameters combined as a subobject. - CDMA, GSM, WCDMA, TD-SCDMA and LTE local identification parameters for serving cell moved under localId property. - G'
+  humanURL: https://docs.here.com/positioning/reference
+  tags:
+  - Positioning
+  - Network
+  - Location
+  properties:
+  - type: OpenAPI
+    url: openapi/here-network-positioning-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Overlay
+    url: overlays/here-network-positioning-v2-overlay.yaml
+  baseURL: https://positioning.hereapi.com/v2
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-oauth2-token-v1
+  name: HERE OAuth 2.0 Access Token
+  description: HERE OAuth 2.0 Access Token — 5 operation(s) across 5 path(s), OpenAPI 3.0.2 version 1.2.0, harvested verbatim from the HERE developer documentation. Request an OAuth 2.0 access token that identifies your identity The term "realm" is now known as "organization" or "org".
+  humanURL: https://docs.here.com/identity-and-access-management/reference
+  tags:
+  - Identity
+  - OAuth
+  - Tokens
+  properties:
+  - type: OpenAPI
+    url: openapi/here-oauth2-token-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Overlay
+    url: overlays/here-oauth2-token-v1-overlay.yaml
+  baseURL: https://account.api.here.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-pipeline-management-v2
+  name: HERE Pipeline Management API v2
+  description: 'HERE Pipeline Management API v2 — 38 operation(s) across 27 path(s), OpenAPI 3.0.2 version 2.17.10, harvested verbatim from the HERE developer documentation. The Pipelines API enables programmatic access and control over data processing pipelines. Pipelines can be used to process and enrich data in the HERE Workspace at scale. The Workspace supports the following types of pipelines: Stream Pipeline: A continuously-running pipeline that processes unbounded data as it arrives. Batch Pipeline: An intermittently-running pipeline that processes bounded data when an input Data Catalog changes. Using this API, these pipelines can be managed from a Continuous Integration/Continuous Delivery platform. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/workspace/reference
+  tags:
+  - Workspace
+  - Pipelines
+  - Data Processing
+  properties:
+  - type: OpenAPI
+    url: openapi/here-pipeline-management-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/workspace/docs
+  - type: APIReference
+    url: https://docs.here.com/workspace/reference
+  - type: Overlay
+    url: overlays/here-pipeline-management-v2-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-public-transit-v8
+  name: HERE Public Transit API v8
+  description: HERE Public Transit API v8 — 6 operation(s) across 6 path(s), OpenAPI 3.0.2 version 8.0.1, harvested verbatim from the HERE developer documentation. Public Transit is a set of three REST APIs that provides public transit routing information and public transit stations information available within an area or for a given station.
+  humanURL: https://docs.here.com/transit/reference
+  tags:
+  - Transit
+  - Public Transport
+  - Routing
+  properties:
+  - type: OpenAPI
+    url: openapi/here-public-transit-v8-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/transit/docs
+  - type: APIReference
+    url: https://docs.here.com/transit/reference
+  - type: Overlay
+    url: overlays/here-public-transit-v8-overlay.yaml
+  baseURL: https://transit.hereapi.com/v8
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-raster-tile-v3
+  name: HERE Raster Tile API v3
+  description: HERE Raster Tile API v3 — 9 operation(s) across 9 path(s), OpenAPI 3.0.2 version 3.0.4, harvested verbatim from the HERE developer documentation. The HERE Raster Tile API v3 is a REST API that allows you to request map tile images for all regions in the world. These map tiles, when combined in a grid, form a complete map of the world.
+  humanURL: https://docs.here.com/map-rendering/reference
+  tags:
+  - Maps
+  - Tiles
+  - Rendering
+  properties:
+  - type: OpenAPI
+    url: openapi/here-raster-tile-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/map-rendering/docs
+  - type: APIReference
+    url: https://docs.here.com/map-rendering/reference
+  - type: Overlay
+    url: overlays/here-raster-tile-v3-overlay.yaml
+  baseURL: https://maps.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-rate-limit-rules-v1
+  name: HERE Rate Limit Rules API v1
+  description: 'HERE Rate Limit Rules API v1 — 11 operation(s) across 11 path(s), OpenAPI 3.0.2 version 1.0.0, harvested verbatim from the HERE developer documentation. The Rate Limit Rules API provides information about rate limit rules that are actively being enforced for your organization. Any request to a HERE Platform service may be subject to rate limit rules. Rate limit rules are applied to a request using the following criteria: Any rule whose requestMatchingCriteria matches the request is a candidate rule. Every candidate rule is applied as long as it is not __overwritten__ A rule ( rule1 ) is __overwritten__ if a there is a different candidate rule ( rule2 ) that meets the following conditions: The overwriteControl for BOTH rules is identical The requestMatchingCriteria for rule2 is a superset of the requestMatchingCriteria for rule1 When overwriteControl is equal to byMatchingCriteria , the g Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
+  humanURL: https://docs.here.com/identity-and-access-management/reference
+  tags:
+  - Identity
+  - Rate Limits
+  - IAM
+  properties:
+  - type: OpenAPI
+    url: openapi/here-rate-limit-rules-v1-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Overlay
+    url: overlays/here-rate-limit-rules-v1-overlay.yaml
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-route-matching-v8
+  name: HERE Route Matching V8 API
+  description: HERE Route Matching V8 API — 3 operation(s) across 2 path(s), OpenAPI 3.0.2 version 8.3.3, harvested verbatim from the HERE developer documentation. Match the GPS trace to get the most probable driven path. This path can be further enriched with HERE core map attributes and additional information which can be used for driver risk analysis.
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Map Matching
+  - Traces
+  properties:
+  - type: OpenAPI
+    url: openapi/here-route-matching-v8-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-route-matching-v8-overlay.yaml
+  baseURL: https://routematching.hereapi.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-routing-v8
+  name: HERE Routing API v8
+  description: HERE Routing API v8 — 8 operation(s) across 6 path(s), OpenAPI 3.0.2 version 8.162.0, harvested verbatim from the HERE developer documentation. A location service providing customizable route calculations for a variety of vehicle types as well as pedestrian modes.
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Directions
+  - Navigation
+  properties:
+  - type: OpenAPI
+    url: openapi/here-routing-v8-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-routing-v8-overlay.yaml
+  baseURL: https://router.hereapi.com/v8
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-tour-planning-v3
+  name: HERE Tour Planning API v3
+  description: 'HERE Tour Planning API v3 — 14 operation(s) across 8 path(s), OpenAPI 3.0.2 version 3.61.1, harvested verbatim from the HERE developer documentation. The HERE Tour Planning API enables you to dynamically optimize routes for multiple vehicles visiting a set of locations, considering real-life constraints such as limited vehicle capacity and delivery time windows. This provides the following benefits: Improving fleet utilization by finding an economical stop sequence to service your locations. Solving complex vehicle routing problems between multiple locations for an entire fleet of vehicles. Considering multiple constraints that can be defined when specifying the problem. The HERE Touring Planning API returns a cost-effective sequence to visit all stops in your daily plan, providing a practical solution for optimized route planning.'
+  humanURL: https://docs.here.com/tour-planning/reference
+  tags:
+  - Routing
+  - Tour Planning
+  - Fleet
+  properties:
+  - type: OpenAPI
+    url: openapi/here-tour-planning-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/tour-planning/docs
+  - type: APIReference
+    url: https://docs.here.com/tour-planning/reference
+  - type: Overlay
+    url: overlays/here-tour-planning-v3-overlay.yaml
+  baseURL: https://tourplanning.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-tracking-v2
+  name: HERE Tracking
+  description: HERE Tracking — 159 operation(s) across 115 path(s), OpenAPI 3.0.0 version 2.6.11, harvested verbatim from the HERE developer documentation. HERE Tracking is a cloud product designed to address location tracking problems for a wide range of Location IoT industry verticals. HERE Tracking also includes end-user mobile and web applications that can be used to demonstrate the product.
+  humanURL: https://docs.here.com/tracking/reference
+  tags:
+  - Tracking
+  - IoT
+  - Assets
+  properties:
+  - type: OpenAPI
+    url: openapi/here-tracking-v2-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/tracking/docs
+  - type: APIReference
+    url: https://docs.here.com/tracking/reference
+  - type: Overlay
+    url: overlays/here-tracking-v2-overlay.yaml
+  baseURL: https://tracking.hereapi.com/
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-traffic-raster-tile-v3
+  name: HERE Traffic Raster Tile API v3
+  description: HERE Traffic Raster Tile API v3 — 5 operation(s) across 5 path(s), OpenAPI 3.0.2 version 3.2.0, harvested verbatim from the HERE developer documentation. The HERE Traffic Raster Tile API v3 is a REST API that allows you to request map tile images with traffic information for all regions in the world where HERE provides traffic data.
+  humanURL: https://docs.here.com/traffic-api/reference
+  tags:
+  - Traffic
+  - Tiles
+  - Raster
+  properties:
+  - type: OpenAPI
+    url: openapi/here-traffic-raster-tile-v3-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Overlay
+    url: overlays/here-traffic-raster-tile-v3-overlay.yaml
+  baseURL: https://traffic.maps.hereapi.com/v3
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-traffic-v7
+  name: HERE Traffic API v7
+  description: HERE Traffic API v7 — 9 operation(s) across 6 path(s), OpenAPI 3.0.2 version 7.5.0, harvested verbatim from the HERE developer documentation. The HERE Traffic API is a REST API that provides traffic flow and incidents information.
+  humanURL: https://docs.here.com/traffic-api/reference
+  tags:
+  - Traffic
+  - Flow
+  - Incidents
+  properties:
+  - type: OpenAPI
+    url: openapi/here-traffic-v7-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Overlay
+    url: overlays/here-traffic-v7-overlay.yaml
+  baseURL: https://data.traffic.hereapi.com/v7
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-traffic-vector-tile-v2
+  name: HERE Traffic Vector Tile API v2
+  description: HERE Traffic Vector Tile API v2 — 4 operation(s) across 4 path(s), OpenAPI 3.0.2 version 2.3.0, harvested verbatim from the HERE developer documentation. The HERE Traffic Vector Tile API provides real-time traffic flow and incident information. This is the traffic layer of the HERE Vector Tile service. The service supports CORS.
+  humanURL: https://docs.here.com/traffic-api/reference
+  tags:
+  - Traffic
+  - Tiles
+  - Vector
+  properties:
+  - type: OpenAPI
+    url: openapi/here-traffic-vector-tile-v2-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Overlay
+    url: overlays/here-traffic-vector-tile-v2-overlay.yaml
+  baseURL: https://traffic.vector.hereapi.com/v2
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-waypoints-sequence-v1
+  name: HERE Waypoints Sequence API
+  description: HERE Waypoints Sequence API — 2 operation(s) across 1 path(s), OpenAPI 3.0.2 version 8.3.3, harvested verbatim from the HERE developer documentation. Compute the best Sequence for Waypoints (Travelling Salesman Problem)
+  humanURL: https://docs.here.com/routing/reference
+  tags:
+  - Routing
+  - Waypoints
+  - Optimization
+  properties:
+  - type: OpenAPI
+    url: openapi/here-waypoints-sequence-v1-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Overlay
+    url: overlays/here-waypoints-sequence-v1-overlay.yaml
+  baseURL: https://wps.hereapi.com
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here:here-wego-user-service-v1
+  name: HERE WeGo User Service
+  description: 'HERE WeGo User Service — 18 operation(s) across 13 path(s), OpenAPI 3.0.1 version 1.0.4, harvested verbatim from the HERE developer documentation. The HERE WeGo user service manages user entitlements and it provides role-based access control (RBAC) to those entitlements. Error Codes: The following common error codes apply to all endpoints. 400 Bad Request E400100: Validation errors using Jakarta''s ConstraintViolationException. E400101: Database constraint violations using Hibernate''s ConstraintViolationException. E400102: Validation errors for method arguments using Spring''s MethodArgumentNotValidException. E400103: Errors when a required request header is missing using Spring''s MissingRequestHeaderException. E400104: Errors when there is a mismatch between expected and actual argument types using Spring''s MethodArgumentTypeMismatchException. E400105: Returned when an endpoint requires a'
+  humanURL: https://docs.here.com/wego-pro/reference
+  tags:
+  - Identity
+  - Entitlements
+  - WeGo
+  properties:
+  - type: OpenAPI
+    url: openapi/here-wego-user-service-v1-openapi.json
+  - type: Documentation
+    url: https://docs.here.com/wego-pro/docs
+  - type: APIReference
+    url: https://docs.here.com/wego-pro/reference
+  - type: Overlay
+    url: overlays/here-wego-user-service-v1-overlay.yaml
+  baseURL: https://api.wego.hereapi.com/user-service
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
+- aid: here-technologies:geocoding-search
+  name: HERE Geocoding and Search API
+  description: Forward and reverse geocoding, address lookup, place discovery, browse, and details. Returns rich location data including addresses, places, categories, and geometry.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Geocoding
+  - Search
+  - Places
+  - REST API
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+- aid: here-technologies:autosuggest
   name: HERE Autosuggest API
-  description: The Autosuggest API from HERE — 1 operation(s) for autosuggest.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+  description: Type-ahead search returning place and address suggestions for partial queries, sharing the geocoding and search dataset.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://autosuggest.search.hereapi.com
   tags:
   - Autosuggest
+  - Search
+  - Typeahead
+  tags_raw:
+  - Autosuggest
+  - Search
+  - Type-ahead
   properties:
-  - type: OpenAPI
-    url: openapi/here-autosuggest-api-openapi.yml
   - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-browse-api
-  name: HERE Browse API
-  description: The Browse API from HERE — 1 operation(s) for browse.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+    url: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+- aid: here-technologies:tour-planning
+  name: HERE Tour Planning API
+  description: Vehicle routing problem (VRP) solver for fleets, with time windows, capacities, breaks, skills, multi-trip, and pickup-and-delivery constraints.
+  humanURL: https://www.here.com/docs/category/tour-planning
+  baseURL: https://tourplanning.hereapi.com
   tags:
-  - Browse
+  - VRP
+  - Fleet
+  - Optimization
   properties:
-  - type: OpenAPI
-    url: openapi/here-browse-api-openapi.yml
   - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-discover-api
-  name: HERE Discover API
-  description: The Discover API from HERE — 1 operation(s) for discover.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+    url: https://www.here.com/docs/category/tour-planning
+- aid: here-technologies:public-transit
+  name: HERE Public Transit API
+  description: Multi-modal public transit routing, station and stop lookup, departure boards, and next-departure data for transit-enabled apps.
+  humanURL: https://www.here.com/docs/category/public-transit
+  baseURL: https://transit.hereapi.com
   tags:
-  - Discover
+  - Transit
+  - Public Transport
+  - Routing
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/public-transit
+- aid: here-technologies:destination-weather
+  name: HERE Destination Weather API
+  description: Current conditions, forecasts, and severe weather alerts at a coordinate or destination, intended to enrich routing, ETAs, and travel planning.
+  humanURL: https://www.here.com/docs/category/destination-weather
+  baseURL: https://weather.hereapi.com
+  tags:
+  - Weather
+  - Forecast
+  - REST API
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/destination-weather
+- aid: here-technologies:map-tile
+  name: HERE Map Tile API
+  description: Raster, vector, satellite, and hybrid map tiles served via tile and style endpoints, including the HERE Vector Tile API for client-side rendering.
+  humanURL: https://www.here.com/docs/category/map-tile-api-v3
+  baseURL: https://maps.hereapi.com
+  tags:
+  - Tiles
+  - Rendering
+  - Maps
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/map-tile-api-v3
+- aid: here-technologies:map-image
+  name: HERE Map Image API
+  description: Renders static map images for a given location, route, or geometry as PNG/JPEG, with markers and overlays.
+  humanURL: https://www.here.com/docs/category/map-image-api
+  baseURL: https://image.maps.hereapi.com
+  tags:
+  - Static Map
+  - Image
+  - Rendering
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/map-image-api
+- aid: here-technologies:tracking
+  name: HERE Tracking API
+  description: 'Asset tracking platform: ingests positions and telemetry from devices, manages devices and projects, and exposes geofencing, history, and events through REST.'
+  humanURL: https://www.here.com/docs/category/tracking
+  baseURL: https://tracking.api.here.com
+  tags:
+  - Tracking
+  - IoT
+  - Telematics
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/tracking
+- aid: here-technologies:positioning
+  name: HERE Positioning API
+  description: High-precision indoor and outdoor positioning using Wi-Fi, cellular, and Bluetooth signals.
+  humanURL: https://www.here.com/docs/category/positioning
+  baseURL: https://positioning.hereapi.com
+  tags:
+  - Positioning
+  - Indoor
+  - Wi-Fi
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/positioning
+- aid: here-technologies:parking
+  name: HERE Parking API
+  description: On-street and off-street parking availability, pricing, restrictions, and locations.
+  humanURL: https://www.here.com/docs/category/parking
+  baseURL: https://parking.hereapi.com
+  tags:
+  - Parking
+  - Mobility
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/parking
+- aid: here-technologies:platform-data
+  name: HERE Platform Data API
+  description: Catalog, layer, and partition APIs for hosting and accessing location-centric data products on the HERE Platform / Workspace.
+  humanURL: https://www.here.com/docs/category/data-api
+  baseURL: https://platform.here.com
+  tags:
+  - Platform
+  - Data
+  - Workspace
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/data-api
+- aid: here-technologies:hd-live-map
+  name: HERE HD Live Map
+  description: High-definition map product for automated driving with road geometry, lanes, signs, hazards, and dynamic updates, distributed via the HERE Platform.
+  humanURL: https://www.here.com/platform/automotive-services/hd-live-map
+  baseURL: https://platform.here.com
+  tags:
+  - HD Map
+  - Autonomous Driving
+  - Automotive
+  properties:
+  - type: Documentation
+    url: https://www.here.com/platform/automotive-services/hd-live-map
+- aid: here-technologies:maps-api-javascript
+  name: HERE Maps API for JavaScript
+  description: Browser SDK for embedding interactive maps, routing, search, and traffic visualizations in web applications.
+  humanURL: https://www.here.com/docs/category/maps-api-for-javascript
+  baseURL: https://js.api.here.com
+  tags:
+  - JavaScript
+  - Web SDK
+  - Maps
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/maps-api-for-javascript
+- aid: here-technologies:sdk-ios
+  name: HERE SDK for iOS
+  description: Native iOS SDK with maps, routing, search, navigation, and offline capabilities for mobile applications.
+  humanURL: https://www.here.com/docs/category/here-sdk-for-ios
+  baseURL: https://www.here.com/docs/category/here-sdk-for-ios
+  tags:
+  - iOS
+  - SDK
+  - Mobile
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/here-sdk-for-ios
+- aid: here-technologies:sdk-android
+  name: HERE SDK for Android
+  description: Native Android SDK with maps, routing, search, navigation, and offline capabilities for mobile applications.
+  humanURL: https://www.here.com/docs/category/here-sdk-for-android
+  baseURL: https://www.here.com/docs/category/here-sdk-for-android
+  tags:
+  - Android
+  - SDK
+  - Mobile
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/here-sdk-for-android
+- aid: here-technologies:sdk-flutter
+  name: HERE SDK for Flutter
+  description: Flutter SDK wrapping HERE Mobile SDK capabilities for cross-platform mobile applications.
+  humanURL: https://www.here.com/docs/category/here-sdk-for-flutter
+  baseURL: https://www.here.com/docs/category/here-sdk-for-flutter
+  tags:
+  - Flutter
+  - SDK
+  - Mobile
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/here-sdk-for-flutter
+- aid: here-technologies:studio
+  name: HERE Studio
+  description: Web-based mapping studio for designing custom map styles, uploading and visualizing geospatial data, and publishing interactive map experiences on top of the HERE Platform.
+  humanURL: https://www.here.com/docs/category/studio
+  baseURL: https://studio.here.com
+  tags:
+  - Studio
+  - Cartography
+  - Visualization
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/studio
+- aid: here-technologies:here-technologies-batch-jobs-api
+  name: HERE Technologies Batch Jobs API
+  description: The Batch Jobs API from HERE Technologies — 6 operation(s) for batch jobs.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Batch Jobs
   properties:
   - type: OpenAPI
-    url: openapi/here-discover-api-openapi.yml
-  - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-geocode-api
-  name: HERE Geocode API
-  description: The Geocode API from HERE — 1 operation(s) for geocode.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+    url: openapi/here-batch-jobs-api-openapi.yml
+- aid: here-technologies:here-technologies-geocode-api
+  name: HERE Technologies Geocode API
+  description: The Geocode API from HERE Technologies — 1 operation(s) for geocode.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
   tags:
   - Geocode
   properties:
   - type: OpenAPI
     url: openapi/here-geocode-api-openapi.yml
-  - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-lookup-api
-  name: HERE Lookup API
-  description: The Lookup API from HERE — 1 operation(s) for lookup.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+- aid: here-technologies:here-technologies-health-api
+  name: HERE Technologies Health API
+  description: The Health API from HERE Technologies — 1 operation(s) for health.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
   tags:
-  - Lookup
+  - Health
   properties:
   - type: OpenAPI
-    url: openapi/here-lookup-api-openapi.yml
-  - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
-- aid: here:here-reverse-geocode-api
-  name: HERE Reverse Geocode API
-  description: The Reverse Geocode API from HERE — 2 operation(s) for reverse geocode.
-  humanURL: https://developer.here.com/
-  baseURL: https://api.example.com
+    url: openapi/here-health-api-openapi.yml
+- aid: here-technologies:here-technologies-notifications-api
+  name: HERE Technologies Notifications API
+  description: The Notifications API from HERE Technologies — 1 operation(s) for notifications.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Notification
+  tags_raw:
+  - Notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/here-notifications-api-openapi.yml
+- aid: here-technologies:here-technologies-reverse-geocode-api
+  name: HERE Technologies Reverse Geocode API
+  description: The Reverse Geocode API from HERE Technologies — 1 operation(s) for reverse geocode.
+  humanURL: https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
   tags:
   - Reverse Geocode
   properties:
   - type: OpenAPI
     url: openapi/here-reverse-geocode-api-openapi.yml
-  - type: Documentation
-    url: https://developer.here.com/develop/rest-apis
 name: HERE
 tags:
-  - Location
-  - Mapping
-  - Maps
-  - Spatial
+- Location
+- Mapping
+- Maps
+- Spatial
+- Geocoding
+- Routing
+- Traffic
+- Navigation
+- Geospatial
+- Transit
+- Weather
+- Positioning
+- Fleet Management
+- Automotive
+- Location Intelligence
 deliveryModel:
   model: saas
   open_source: false
@@ -101,74 +1185,134 @@ deliveryModel:
   source:
   - openapi
   - pricing
-  generated: '2026-08-28'
+  generated: '2026-09-13'
   method: derived
 accessModel:
-  pricing: freemium
-  onboarding: self-serve
+  pricing: paid
+  onboarding: unknown
   trial: false
   try_now: false
   public: false
-  label: Freemium · Self-serve signup
-  confidence: medium
-  try_now_blocked_by: example-domain
+  label: Paid
+  confidence: high
   source:
-  - plans
+  - finops
   - authentication
+  - rate-limits
   - security
-  generated: '2026-09-03'
+  - sandbox
+  generated: '2026-09-13'
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
 common:
-  - type: Website
-    url: https://www.here.com/
-  - type: AgenticAccess
-    url: agentic-access/here-agentic-access.yml
-  - type: DomainSecurity
-    url: security/here-domain-security.yml
-  - type: Authentication
-    url: authentication/here-authentication.yml
-  - type: GitHubOrganization
-    url: https://github.com/heremaps
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/here
-  - url: https://platform.here.com/sign-up
-    type: Signup
-  - url: https://platform.here.com/portal/
-    type: Login
-  - url: https://www.here.com/get-started/pricing
-    type: Plans
-  - url: https://developer.here.com/help
-    type: Support
-  - url: https://developer.here.com/tutorials
-    type: Tutorials
-  - url: https://developer.here.com/examples
-    type: Examples
-  - url: https://www.here.com/company/blog?type=developer
-    type: Blog
-  - url: https://developer.here.com/documentation/changelog/index.html
-    type: ChangeLog
-  - url: https://developer.here.com/newsletter
-    type: Newsletter
-  - url: https://knowledge.here.com/csm_kb
-    type: Knowledge
-  - url: https://status.here.com/status
-    type: StatusPage
-  - url: https://legal.here.com/privacy/policy
-    type: PrivacyPolicy
-  - url: https://legal.here.com/terms/serviceterms
-    type: TermsOfService
+- type: GitHub
+  url: https://github.com/heremaps
+- type: Integrations
+  url: https://www.here.com/platform
+- type: Website
+  url: https://www.here.com/
+- type: AgenticAccess
+  url: agentic-access/here-agentic-access.yml
+- type: DomainSecurity
+  url: security/here-domain-security.yml
+- type: Authentication
+  url: authentication/here-authentication.yml
+- type: GitHubOrganization
+  url: https://github.com/heremaps
+- type: LinkedIn
+  url: https://www.linkedin.com/company/here
+- type: SignUp
+  url: https://platform.here.com/sign-up
+- type: Login
+  url: https://platform.here.com/portal/
+- type: Blog
+  url: https://www.here.com/company/blog?type=developer
+- type: Knowledge
+  url: https://knowledge.here.com/csm_kb
+- type: StatusPage
+  url: https://status.here.com/status
+- type: PrivacyPolicy
+  url: https://legal.here.com/privacy/policy
+- type: TermsOfService
+  url: https://legal.here.com/terms/serviceterms
+- type: DeveloperPortal
+  url: https://developer.here.com/
+- type: Documentation
+  url: https://docs.here.com/
+- type: APIReference
+  url: https://docs.here.com/geocoding-and-search/reference
+- type: GettingStarted
+  url: https://www.here.com/get-started
+- type: Support
+  url: https://knowledge.here.com/csm_kb
+- type: Pricing
+  url: https://www.here.com/get-started/pricing
+- type: SDKs
+  url: packages/here-packages.yml
+- type: Packages
+  url: packages/here-packages.yml
+- type: CLI
+  url: cli/here-cli.yml
+- type: Components
+  url: components/here-components.yml
+- type: Console
+  url: https://platform.here.com/portal/
+- type: LLMsTxt
+  url: llms/here-llms.txt
+- type: WellKnown
+  url: well-known/here-well-known.yml
+- type: APICatalog
+  url: https://docs.here.com/.well-known/api-catalog
+- type: MCPServer
+  url: mcp/here-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/here-tool-crosswalk.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Conventions
+  url: conventions/here-conventions.yml
+- type: ErrorCatalog
+  url: errors/here-problem-types.yml
+- type: DataModel
+  url: data-model/here-data-model.yml
+- type: Lifecycle
+  url: lifecycle/here-lifecycle.yml
+- type: Deprecation
+  url: https://docs.here.com/policies/docs/product-lifecycle-policy
+- type: ChangeLog
+  url: changelog/here-changelog.yml
+- type: ReleaseNotes
+  url: https://www.here.com/learn/blog?type=developer&category=release-notes
+- type: Conformance
+  url: conformance/here-conformance.yml
+- type: Compliance
+  url: https://legal.here.com/en-gb/certifications-and-attestations
+- type: TrustCenter
+  url: security/here-trust-center.yml
+- type: VulnerabilityDisclosure
+  url: security/here-vulnerability-disclosure.yml
+- type: Security
+  url: https://legal.here.com/en-gb/security
+- type: Webhooks
+  url: asyncapi/here-event-surface.yml
+- type: Protobuf
+  url: grpc/_index.yml
+- type: RateLimits
+  url: rate-limits/here-rate-limits.yml
+- type: Plans
+  url: plans/here-plans-pricing.yml
+- type: SLA
+  url: https://docs.here.com/policies/docs/here-service-level-agreement
 created: 2023/11/13
-modified: '2026-04-28'
-description: >-
-  As global mobility becomes increasingly connected, electrified and automated, HERE
-  Technologies is leading the way to a safer, greener future. Our location platform
-  is integrated into more than 160 million vehicles across the planet, using fresh
-  and accurate data that we have been building for over 35 years - and continue to
-  refresh daily. Our experience in mapmaking has made HERE one of the leading innovators
-  in location technology and spatial intelligence.
+modified: '2026-09-13'
+description: As global mobility becomes increasingly connected, electrified and automated, HERE Technologies is leading the way to a safer, greener future. Our location platform is integrated into more than 160 million vehicles across the planet, using fresh and accurate data that we have been building for over 35 years - and continue to refresh daily. Our experience in mapmaking has made HERE one of the leading innovators in location technology and spatial intelligence.
 maintainers:
-  - FN: API Evangelist
-    url: http://apievangelist.com
-    email: info@apievangelist.com
+- FN: API Evangelist
+  url: http://apievangelist.com
+  email: info@apievangelist.com
 specificationVersion: '0.23'
+x-enrichment:
+  date: '2026-09-13'
+  status: enriched
+  artifacts_added: 177
+  pass: local-v3
