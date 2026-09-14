@@ -7,6 +7,10 @@ apis:
   humanURL: https://docs.here.com/identity-and-access-management/reference
   tags:
   - Identity
+  - Account
+  - IAM
+  tags_raw:
+  - Identity
   - Accounts
   - IAM
   properties:
@@ -207,6 +211,10 @@ apis:
   description: 'HERE Notification API — 3 operation(s) across 2 path(s), OpenAPI 3.0.1 version 2.0.1, harvested verbatim from the HERE developer documentation. This covers all APIs for Data Service Notification Published by HERE Technologies as part of the HERE Location Platform API portfolio. Base URL is not fixed: the spec directs clients to resolve it at runtime through the HERE API Lookup Service (https://api-lookup.data.api.platform.here.com/lookup/v1).'
   humanURL: https://docs.here.com/data-api/reference
   tags:
+  - Data
+  - Notification
+  - Event
+  tags_raw:
   - Data
   - Notifications
   - Events
@@ -640,6 +648,10 @@ apis:
   humanURL: https://docs.here.com/identity-and-access-management/reference
   tags:
   - Identity
+  - Authentication
+  - Tokens
+  tags_raw:
+  - Identity
   - OAuth
   - Tokens
   properties:
@@ -846,6 +858,10 @@ apis:
   description: HERE Traffic Vector Tile API v2 — 4 operation(s) across 4 path(s), OpenAPI 3.0.2 version 2.3.0, harvested verbatim from the HERE developer documentation. The HERE Traffic Vector Tile API provides real-time traffic flow and incident information. This is the traffic layer of the HERE Vector Tile service. The service supports CORS.
   humanURL: https://docs.here.com/traffic-api/reference
   tags:
+  - Traffic
+  - Tiles
+  - Vectors
+  tags_raw:
   - Traffic
   - Tiles
   - Vector
@@ -1158,6 +1174,18 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/here-reverse-geocode-api-openapi.yml
+- aid: here-technologies:waypoint-sequence
+  name: HERE Waypoint Sequence API
+  description: Optimizes the order of intermediate stops for a single vehicle route to minimize travel time or distance.
+  humanURL: https://www.here.com/docs/category/waypoint-sequence
+  baseURL: https://wps.hereapi.com
+  tags:
+  - Waypoints
+  - Optimization
+  - Routing
+  properties:
+  - type: Documentation
+    url: https://www.here.com/docs/category/waypoint-sequence
 name: HERE
 tags:
 - Location
@@ -1205,6 +1233,8 @@ accessModel:
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
 common:
+- type: FinOps
+  url: finops/here-finops.yml
 - type: GitHub
   url: https://github.com/heremaps
 - type: Integrations

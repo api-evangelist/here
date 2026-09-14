@@ -2,6 +2,13 @@
   "repo": "here",
   "feeds": [
     {
+      "source": "https://platform.here.com/portal/",
+      "feed_url": "https://platform.here.com/portal/",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    },
+    {
       "source": "https://www.here.com/company/blog?type=developer",
       "feed_url": "https://www.here.com/company/blog?type=developer",
       "title": "",
@@ -9,7 +16,7 @@
       "method": "none"
     }
   ],
-  "fetched": "2026-09-06T19:17:18Z",
+  "fetched": "2026-09-13T13:00:00Z",
   "post_count": 13,
   "agent_pulled": "2026-06-27",
   "feed_nature": "vendor-blog",
