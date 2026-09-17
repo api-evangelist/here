@@ -5750,170 +5750,6 @@ apis:
     url: https://docs.here.com/wego-pro/docs
   - type: APIReference
     url: https://docs.here.com/wego-pro/reference
-- aid: here:here-pipelinetemplates-api
-  name: HERE Pipeline Templates API
-  description: The PipelineTemplates API from HERE — 3 operation(s) for pipelinetemplates.
-  humanURL: https://docs.here.com/identity-and-access-management/reference
-  baseURL: https://account.api.here.com
-  tags:
-  - PipelineTemplates
-  properties:
-  - type: OpenAPI
-    url: openapi/here-pipelinetemplates-api-openapi.yml
-  - type: Documentation
-    url: https://docs.here.com/identity-and-access-management/docs
-  - type: APIReference
-    url: https://docs.here.com/identity-and-access-management/reference
-  - type: Documentation
-    url: https://docs.here.com/data-api/docs
-  - type: APIReference
-    url: https://docs.here.com/data-api/reference
-  - type: Documentation
-    url: https://docs.here.com/usage/docs
-  - type: APIReference
-    url: https://docs.here.com/usage/reference
-  - type: Documentation
-    url: https://docs.here.com/destination-weather/docs
-  - type: APIReference
-    url: https://docs.here.com/destination-weather/reference
-  - type: Documentation
-    url: https://docs.here.com/ev-products/docs
-  - type: APIReference
-    url: https://docs.here.com/ev-products/reference
-  - type: Documentation
-    url: https://docs.here.com/fuel-prices/docs
-  - type: APIReference
-    url: https://docs.here.com/fuel-prices/reference
-  - type: Documentation
-    url: https://docs.here.com/geocoding-and-search/docs
-  - type: APIReference
-    url: https://docs.here.com/geocoding-and-search/reference
-  - type: Documentation
-    url: https://docs.here.com/routing/docs
-  - type: APIReference
-    url: https://docs.here.com/routing/reference
-  - type: Documentation
-    url: https://docs.here.com/positioning/docs
-  - type: APIReference
-    url: https://docs.here.com/positioning/reference
-  - type: Documentation
-    url: https://docs.here.com/indoor-map/docs
-  - type: APIReference
-    url: https://docs.here.com/indoor-map/reference
-  - type: Documentation
-    url: https://docs.here.com/transit/docs
-  - type: APIReference
-    url: https://docs.here.com/transit/reference
-  - type: Documentation
-    url: https://docs.here.com/map-attributes/docs
-  - type: APIReference
-    url: https://docs.here.com/map-attributes/reference
-  - type: Documentation
-    url: https://docs.here.com/map-rendering/docs
-  - type: APIReference
-    url: https://docs.here.com/map-rendering/reference
-  - type: Documentation
-    url: https://docs.here.com/workspace/docs
-  - type: APIReference
-    url: https://docs.here.com/workspace/reference
-  - type: Documentation
-    url: https://docs.here.com/tour-planning/docs
-  - type: APIReference
-    url: https://docs.here.com/tour-planning/reference
-  - type: Documentation
-    url: https://docs.here.com/tracking/docs
-  - type: APIReference
-    url: https://docs.here.com/tracking/reference
-  - type: Documentation
-    url: https://docs.here.com/traffic-api/docs
-  - type: APIReference
-    url: https://docs.here.com/traffic-api/reference
-  - type: Documentation
-    url: https://docs.here.com/wego-pro/docs
-  - type: APIReference
-    url: https://docs.here.com/wego-pro/reference
-- aid: here:here-pipelineversions-api
-  name: HERE Pipeline Versions API
-  description: The PipelineVersions API from HERE — 13 operation(s) for pipelineversions.
-  humanURL: https://docs.here.com/identity-and-access-management/reference
-  baseURL: https://account.api.here.com
-  tags:
-  - PipelineVersions
-  properties:
-  - type: OpenAPI
-    url: openapi/here-pipelineversions-api-openapi.yml
-  - type: Documentation
-    url: https://docs.here.com/identity-and-access-management/docs
-  - type: APIReference
-    url: https://docs.here.com/identity-and-access-management/reference
-  - type: Documentation
-    url: https://docs.here.com/data-api/docs
-  - type: APIReference
-    url: https://docs.here.com/data-api/reference
-  - type: Documentation
-    url: https://docs.here.com/usage/docs
-  - type: APIReference
-    url: https://docs.here.com/usage/reference
-  - type: Documentation
-    url: https://docs.here.com/destination-weather/docs
-  - type: APIReference
-    url: https://docs.here.com/destination-weather/reference
-  - type: Documentation
-    url: https://docs.here.com/ev-products/docs
-  - type: APIReference
-    url: https://docs.here.com/ev-products/reference
-  - type: Documentation
-    url: https://docs.here.com/fuel-prices/docs
-  - type: APIReference
-    url: https://docs.here.com/fuel-prices/reference
-  - type: Documentation
-    url: https://docs.here.com/geocoding-and-search/docs
-  - type: APIReference
-    url: https://docs.here.com/geocoding-and-search/reference
-  - type: Documentation
-    url: https://docs.here.com/routing/docs
-  - type: APIReference
-    url: https://docs.here.com/routing/reference
-  - type: Documentation
-    url: https://docs.here.com/positioning/docs
-  - type: APIReference
-    url: https://docs.here.com/positioning/reference
-  - type: Documentation
-    url: https://docs.here.com/indoor-map/docs
-  - type: APIReference
-    url: https://docs.here.com/indoor-map/reference
-  - type: Documentation
-    url: https://docs.here.com/transit/docs
-  - type: APIReference
-    url: https://docs.here.com/transit/reference
-  - type: Documentation
-    url: https://docs.here.com/map-attributes/docs
-  - type: APIReference
-    url: https://docs.here.com/map-attributes/reference
-  - type: Documentation
-    url: https://docs.here.com/map-rendering/docs
-  - type: APIReference
-    url: https://docs.here.com/map-rendering/reference
-  - type: Documentation
-    url: https://docs.here.com/workspace/docs
-  - type: APIReference
-    url: https://docs.here.com/workspace/reference
-  - type: Documentation
-    url: https://docs.here.com/tour-planning/docs
-  - type: APIReference
-    url: https://docs.here.com/tour-planning/reference
-  - type: Documentation
-    url: https://docs.here.com/tracking/docs
-  - type: APIReference
-    url: https://docs.here.com/tracking/reference
-  - type: Documentation
-    url: https://docs.here.com/traffic-api/docs
-  - type: APIReference
-    url: https://docs.here.com/traffic-api/reference
-  - type: Documentation
-    url: https://docs.here.com/wego-pro/docs
-  - type: APIReference
-    url: https://docs.here.com/wego-pro/reference
 - aid: here:here-platform-api
   name: HERE Platform API
   description: Lookup of platform-wide, general APIs
@@ -7157,88 +6993,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/here-resource-policies-api-openapi.yml
-  - type: Documentation
-    url: https://docs.here.com/identity-and-access-management/docs
-  - type: APIReference
-    url: https://docs.here.com/identity-and-access-management/reference
-  - type: Documentation
-    url: https://docs.here.com/data-api/docs
-  - type: APIReference
-    url: https://docs.here.com/data-api/reference
-  - type: Documentation
-    url: https://docs.here.com/usage/docs
-  - type: APIReference
-    url: https://docs.here.com/usage/reference
-  - type: Documentation
-    url: https://docs.here.com/destination-weather/docs
-  - type: APIReference
-    url: https://docs.here.com/destination-weather/reference
-  - type: Documentation
-    url: https://docs.here.com/ev-products/docs
-  - type: APIReference
-    url: https://docs.here.com/ev-products/reference
-  - type: Documentation
-    url: https://docs.here.com/fuel-prices/docs
-  - type: APIReference
-    url: https://docs.here.com/fuel-prices/reference
-  - type: Documentation
-    url: https://docs.here.com/geocoding-and-search/docs
-  - type: APIReference
-    url: https://docs.here.com/geocoding-and-search/reference
-  - type: Documentation
-    url: https://docs.here.com/routing/docs
-  - type: APIReference
-    url: https://docs.here.com/routing/reference
-  - type: Documentation
-    url: https://docs.here.com/positioning/docs
-  - type: APIReference
-    url: https://docs.here.com/positioning/reference
-  - type: Documentation
-    url: https://docs.here.com/indoor-map/docs
-  - type: APIReference
-    url: https://docs.here.com/indoor-map/reference
-  - type: Documentation
-    url: https://docs.here.com/transit/docs
-  - type: APIReference
-    url: https://docs.here.com/transit/reference
-  - type: Documentation
-    url: https://docs.here.com/map-attributes/docs
-  - type: APIReference
-    url: https://docs.here.com/map-attributes/reference
-  - type: Documentation
-    url: https://docs.here.com/map-rendering/docs
-  - type: APIReference
-    url: https://docs.here.com/map-rendering/reference
-  - type: Documentation
-    url: https://docs.here.com/workspace/docs
-  - type: APIReference
-    url: https://docs.here.com/workspace/reference
-  - type: Documentation
-    url: https://docs.here.com/tour-planning/docs
-  - type: APIReference
-    url: https://docs.here.com/tour-planning/reference
-  - type: Documentation
-    url: https://docs.here.com/tracking/docs
-  - type: APIReference
-    url: https://docs.here.com/tracking/reference
-  - type: Documentation
-    url: https://docs.here.com/traffic-api/docs
-  - type: APIReference
-    url: https://docs.here.com/traffic-api/reference
-  - type: Documentation
-    url: https://docs.here.com/wego-pro/docs
-  - type: APIReference
-    url: https://docs.here.com/wego-pro/reference
-- aid: here:here-resourceprofiles-api
-  name: HERE Resource Profiles API
-  description: The ResourceProfiles API from HERE — 1 operation(s) for resourceprofiles.
-  humanURL: https://docs.here.com/identity-and-access-management/reference
-  baseURL: https://account.api.here.com
-  tags:
-  - ResourceProfiles
-  properties:
-  - type: OpenAPI
-    url: openapi/here-resourceprofiles-api-openapi.yml
   - type: Documentation
     url: https://docs.here.com/identity-and-access-management/docs
   - type: APIReference
@@ -10318,6 +10072,255 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/here-write-features-api-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Documentation
+    url: https://docs.here.com/usage/docs
+  - type: APIReference
+    url: https://docs.here.com/usage/reference
+  - type: Documentation
+    url: https://docs.here.com/destination-weather/docs
+  - type: APIReference
+    url: https://docs.here.com/destination-weather/reference
+  - type: Documentation
+    url: https://docs.here.com/ev-products/docs
+  - type: APIReference
+    url: https://docs.here.com/ev-products/reference
+  - type: Documentation
+    url: https://docs.here.com/fuel-prices/docs
+  - type: APIReference
+    url: https://docs.here.com/fuel-prices/reference
+  - type: Documentation
+    url: https://docs.here.com/geocoding-and-search/docs
+  - type: APIReference
+    url: https://docs.here.com/geocoding-and-search/reference
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Documentation
+    url: https://docs.here.com/indoor-map/docs
+  - type: APIReference
+    url: https://docs.here.com/indoor-map/reference
+  - type: Documentation
+    url: https://docs.here.com/transit/docs
+  - type: APIReference
+    url: https://docs.here.com/transit/reference
+  - type: Documentation
+    url: https://docs.here.com/map-attributes/docs
+  - type: APIReference
+    url: https://docs.here.com/map-attributes/reference
+  - type: Documentation
+    url: https://docs.here.com/map-rendering/docs
+  - type: APIReference
+    url: https://docs.here.com/map-rendering/reference
+  - type: Documentation
+    url: https://docs.here.com/workspace/docs
+  - type: APIReference
+    url: https://docs.here.com/workspace/reference
+  - type: Documentation
+    url: https://docs.here.com/tour-planning/docs
+  - type: APIReference
+    url: https://docs.here.com/tour-planning/reference
+  - type: Documentation
+    url: https://docs.here.com/tracking/docs
+  - type: APIReference
+    url: https://docs.here.com/tracking/reference
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Documentation
+    url: https://docs.here.com/wego-pro/docs
+  - type: APIReference
+    url: https://docs.here.com/wego-pro/reference
+- aid: here:here-pipeline-templates-api
+  name: HERE Pipeline Templates API
+  description: The Pipeline Templates API from HERE — 3 operation(s) for pipeline templates.
+  humanURL: >-
+    https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Pipeline Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/here-pipeline-templates-api-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Documentation
+    url: https://docs.here.com/usage/docs
+  - type: APIReference
+    url: https://docs.here.com/usage/reference
+  - type: Documentation
+    url: https://docs.here.com/destination-weather/docs
+  - type: APIReference
+    url: https://docs.here.com/destination-weather/reference
+  - type: Documentation
+    url: https://docs.here.com/ev-products/docs
+  - type: APIReference
+    url: https://docs.here.com/ev-products/reference
+  - type: Documentation
+    url: https://docs.here.com/fuel-prices/docs
+  - type: APIReference
+    url: https://docs.here.com/fuel-prices/reference
+  - type: Documentation
+    url: https://docs.here.com/geocoding-and-search/docs
+  - type: APIReference
+    url: https://docs.here.com/geocoding-and-search/reference
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Documentation
+    url: https://docs.here.com/indoor-map/docs
+  - type: APIReference
+    url: https://docs.here.com/indoor-map/reference
+  - type: Documentation
+    url: https://docs.here.com/transit/docs
+  - type: APIReference
+    url: https://docs.here.com/transit/reference
+  - type: Documentation
+    url: https://docs.here.com/map-attributes/docs
+  - type: APIReference
+    url: https://docs.here.com/map-attributes/reference
+  - type: Documentation
+    url: https://docs.here.com/map-rendering/docs
+  - type: APIReference
+    url: https://docs.here.com/map-rendering/reference
+  - type: Documentation
+    url: https://docs.here.com/workspace/docs
+  - type: APIReference
+    url: https://docs.here.com/workspace/reference
+  - type: Documentation
+    url: https://docs.here.com/tour-planning/docs
+  - type: APIReference
+    url: https://docs.here.com/tour-planning/reference
+  - type: Documentation
+    url: https://docs.here.com/tracking/docs
+  - type: APIReference
+    url: https://docs.here.com/tracking/reference
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Documentation
+    url: https://docs.here.com/wego-pro/docs
+  - type: APIReference
+    url: https://docs.here.com/wego-pro/reference
+- aid: here:here-pipeline-versions-api
+  name: HERE Pipeline Versions API
+  description: The Pipeline Versions API from HERE — 13 operation(s) for pipeline versions.
+  humanURL: >-
+    https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Pipeline Versions
+  properties:
+  - type: OpenAPI
+    url: openapi/here-pipeline-versions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.here.com/identity-and-access-management/docs
+  - type: APIReference
+    url: https://docs.here.com/identity-and-access-management/reference
+  - type: Documentation
+    url: https://docs.here.com/data-api/docs
+  - type: APIReference
+    url: https://docs.here.com/data-api/reference
+  - type: Documentation
+    url: https://docs.here.com/usage/docs
+  - type: APIReference
+    url: https://docs.here.com/usage/reference
+  - type: Documentation
+    url: https://docs.here.com/destination-weather/docs
+  - type: APIReference
+    url: https://docs.here.com/destination-weather/reference
+  - type: Documentation
+    url: https://docs.here.com/ev-products/docs
+  - type: APIReference
+    url: https://docs.here.com/ev-products/reference
+  - type: Documentation
+    url: https://docs.here.com/fuel-prices/docs
+  - type: APIReference
+    url: https://docs.here.com/fuel-prices/reference
+  - type: Documentation
+    url: https://docs.here.com/geocoding-and-search/docs
+  - type: APIReference
+    url: https://docs.here.com/geocoding-and-search/reference
+  - type: Documentation
+    url: https://docs.here.com/routing/docs
+  - type: APIReference
+    url: https://docs.here.com/routing/reference
+  - type: Documentation
+    url: https://docs.here.com/positioning/docs
+  - type: APIReference
+    url: https://docs.here.com/positioning/reference
+  - type: Documentation
+    url: https://docs.here.com/indoor-map/docs
+  - type: APIReference
+    url: https://docs.here.com/indoor-map/reference
+  - type: Documentation
+    url: https://docs.here.com/transit/docs
+  - type: APIReference
+    url: https://docs.here.com/transit/reference
+  - type: Documentation
+    url: https://docs.here.com/map-attributes/docs
+  - type: APIReference
+    url: https://docs.here.com/map-attributes/reference
+  - type: Documentation
+    url: https://docs.here.com/map-rendering/docs
+  - type: APIReference
+    url: https://docs.here.com/map-rendering/reference
+  - type: Documentation
+    url: https://docs.here.com/workspace/docs
+  - type: APIReference
+    url: https://docs.here.com/workspace/reference
+  - type: Documentation
+    url: https://docs.here.com/tour-planning/docs
+  - type: APIReference
+    url: https://docs.here.com/tour-planning/reference
+  - type: Documentation
+    url: https://docs.here.com/tracking/docs
+  - type: APIReference
+    url: https://docs.here.com/tracking/reference
+  - type: Documentation
+    url: https://docs.here.com/traffic-api/docs
+  - type: APIReference
+    url: https://docs.here.com/traffic-api/reference
+  - type: Documentation
+    url: https://docs.here.com/wego-pro/docs
+  - type: APIReference
+    url: https://docs.here.com/wego-pro/reference
+- aid: here:here-resource-profiles-api
+  name: HERE Resource Profiles API
+  description: The Resource Profiles API from HERE — 1 operation(s) for resource profiles.
+  humanURL: >-
+    https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
+  baseURL: https://geocode.search.hereapi.com
+  tags:
+  - Resource Profiles
+  properties:
+  - type: OpenAPI
+    url: openapi/here-resource-profiles-api-openapi.yml
   - type: Documentation
     url: https://docs.here.com/identity-and-access-management/docs
   - type: APIReference
