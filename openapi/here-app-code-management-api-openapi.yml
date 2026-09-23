@@ -1,0 +1,166 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 App Code Management API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: App Code Management
+  description: For deprecated Applications, App Codes are available to authorized identities to via read-only APIs. App Codes can be used to access limited HLS services that still support them.
+paths:
+  /apps/{app}/appCode:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      deprecated: true
+      tags:
+      - App Code Management
+      summary: Get App Code
+      operationId: getAppCode
+      description: 'Get the App Code configured for an application.
+
+        App Codes are deprecated and in a read-only state.
+
+        An App can either have 0 or 1 App Code, depending whether they have appCodeEnabled or not.
+
+        To retrieve the appCode via this endpoint the App needs to have appCodeEnabled=true and appCodeVisible=true.
+
+
+        An App Code can be used with certain classic HLS Services that still support app_id and app_code values
+
+        in the query string for authentication.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppCode'
+        '404':
+          description: '* E202404 - No app exists with the given id.
+
+            '
+        '409':
+          description: '* E202102 - The specified App does not support App Codes.
+
+            '
+        '429':
+          description: '* E202429 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    AppCode:
+      deprecated: true
+      type: object
+      properties:
+        appCode:
+          type: string
+          description: 'Plaintext query string argument used to authenticate requests to classic HERE Services that still support the app_code query string.
+
+            '
+          example: 2MZr9AInTFk45
+        appId:
+          type: string
+          description: 'App ID used to authenticate requests to classic HERE Services that still support the app_id query string.
+
+            '
+          example: lACE8kgYxsahjbXnvy8w
+        identity:
+          type: string
+          description: 'HRN identifying an identity to which this App Code is associated.
+
+            '
+          example: hrn:here:account::myrealm:app/lACE8kgYxsahjbXnvy8w
+        realm:
+          type: string
+          description: 'The HRN of the realm of the App Code.
+
+            '
+          example: hrn:here:account::myrealm:realm/myrealm
+        createdTime:
+          type: integer
+          format: int64
+          description: 'Timestamp (milliseconds since the Unix epoch) of when the App Code was created.
+
+            '
+          example: 1545041748000
+  parameters:
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

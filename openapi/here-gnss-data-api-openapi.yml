@@ -1,0 +1,1282 @@
+openapi: 3.2.0
+info:
+  title: HERE API v2 GNSS Data API
+  version: 2.2.1
+  description: 'GNSS Data API v2 is a service for accessing GNSS data.
+
+    It provides Assisted GNSS (A-GNSS) data and navigation model predictions
+
+    for GPS, GLONASS, Galileo, BeiDou and QZSS satellite systems
+
+    to improve the performance of GNSS receivers.
+
+
+    This API returns responses in the LPP ASN.1 format, encoded using Encoding
+
+    Rules as specified by the
+
+    3GPP and ETSI standards.'
+  contact: {}
+  termsOfService: https://legal.here.com/en-gb/terms/here-platform
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+    x-copyright: Copyright (C) 2026 HERE Europe B.V.
+servers:
+- url: https://gnss.hereapi.com/v2
+  description: Production Server
+security:
+- ApiKey: []
+- Bearer: []
+tags:
+- name: GNSS Data
+  description: Assisted GNSS (A-GNSS) data and predicted GNSS navigation models
+paths:
+  /assistance:
+    get:
+      description: 'Request real-time A-GNSS data for GPS, GLONASS, Galileo, BeiDou, or QZSS satellite systems.
+
+
+        This service provides following GNSS Assistance Data Elements,
+
+        see 3GPP TS 37.355 specification
+
+        for detailed information.
+
+
+        - GNSS-ReferenceTime
+
+        - GNSS-IonosphericModel
+
+        - GNSS-TimeModelList
+
+        - GNSS-NavigationModel
+
+        - GNSS-RealTimeIntegrity
+
+        - GNSS-Almanac
+
+        - GNSS-UTC-Model
+
+        - GNSS-AuxiliaryInformation
+
+
+        **Note**, these values are based on the current service configuration and may be changed in future.
+
+        Availability of the above data elements depend on the GNSS system.
+
+
+        GNSS assistance data is typically updated every 30 - 60 minutes depending on the GNSS system.'
+      summary: Real-time assistance data
+      operationId: HERE GNSS Data API v2 getAssistance
+      tags:
+      - GNSS Data
+      parameters:
+      - $ref: '#/components/parameters/GnssAssistance'
+      - $ref: '#/components/parameters/LppEncodingAssistance'
+      - $ref: '#/components/parameters/LppRoot'
+      - $ref: '#/components/parameters/BillingTag'
+      - $ref: '#/components/parameters/AcceptForEncoding'
+      - $ref: '#/components/parameters/AcceptEncodingForLppData'
+      - $ref: '#/components/parameters/RequestID'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessAssistance'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '429':
+          $ref: '#/components/responses/Error429'
+        default:
+          $ref: '#/components/responses/ErrorDefault'
+  /prediction:
+    get:
+      description: 'Request predicted GNSS navigation models for GPS, GLONASS, Galileo, or BeiDou satellite systems.
+
+
+        This service provides predicted navigation models for a certain amount of upcoming days in a
+
+        series of LPP messages, each of which covers a specific time interval, as shown in the table below:
+
+
+        | GNSS | Message validity | Total prediction |
+
+        | ------- | --------------- | ---------------- |
+
+        | GPS | 4 hours | up to 14 days |
+
+        | GLONASS | 30 minutes | up to 14 days |
+
+        | Galileo | 4 hours | up to 7 days |
+
+        | BeiDou | 4 hours | up to 7 days |
+
+
+        **Note**, these values are based on the current service configuration and may be changed
+
+        in future. The validity period of each LPP message is provided in the response, so clients
+
+        should rely on that information instead of the values in the table above.
+
+
+        The service returns prediction data for up to 48 hours per request.
+
+        Client specifies required GNSS system(s) and the start time for the prediction data
+
+        by query parameters ''gps'', ''glo'', ''gal'' and ''bds'' for GPS, GLONASS, Galileo and BeiDou
+
+        systems, respectively.
+
+
+        To get the first 48 hours of prediction data for a specific GNSS system,
+
+        the client can set the corresponding parameter to `now`, or to the current time as Unix time
+
+        or GNSS time in seconds. The first LPP message for the corresponding GNSS system
+
+        in the response will have a validity interval that covers this start time,
+
+        and the following LPP messages will have consecutive validity intervals that together
+
+        cover up to 48 hours of prediction data.
+
+
+        Each LPP message in the response contains predicted navigation models for just one GNSS system.
+
+        Each body part in multipart responses corresponds to a single LPP message for a specific
+
+        GNSS system and is described with following headers:
+
+        - `X-Constellation` indicating the GNSS system of the message,
+
+        with values `gps`, `glo`, `gal` or `bds` for GPS, GLONASS, Galileo and BeiDou systems,
+
+        respectively
+
+        - `X-Validity-Start` indicating the validity start time in seconds since Unix epoch
+
+        - `X-GNSS-Validity-Start` indicating the validity start time in seconds since
+
+        corresponding GNSS epoch
+
+        - `X-Validity-Duration` indicating the validity duration in seconds
+
+
+        JSON responses contain the same validity information in the `validity` field with each LPP message.
+
+
+        To get prediction data for next 48-hour intervals, send follow-up requests.
+
+        In order to avoid receiving duplicate LPP messages, set each time parameter
+
+        to the validity end time of the last received LPP message for the corresponding GNSS system.
+
+        The validity end time can be calculated as the sum of the validity start time and
+
+        the validity duration. For simplicity of client implementation, the service sends
+
+        the query string with properly set time parameters for the next request for prediction data
+
+        in the `X-Prediction-Next` response header.
+
+
+        For example, suppose the initial client''s request is `GET /v2/prediction?gps=now&glo=now`.
+
+        The response contains prediction data for GPS and GLONASS systems,
+
+        and the last LPP message for GPS has validity
+
+        start time 1772380800 and validity duration 14400, while the last LPP message
+
+        for GLONASS has validity start time 1772393400 and validity duration 1800.
+
+        The response also contains header `X-Prediction-Next: gps=1772395200&glo=1772395200`.
+
+        The client can calculate new time parameters for each constellation by adding the validity
+
+        start times and durations, or simply use the value of `X-Prediction-Next` header,
+
+        to build the next request URL: `GET /v2/prediction?gps=1772395200&glo=1772395200`.
+
+        (This example uses Unix times, but the same logic applies if the client uses GNSS times.
+
+        Both the initial and the next request URLs might need additional parameters,
+
+        such as `lpp` or `apiKey`.)
+
+
+        Repeating this process, the client can get prediction data for the full 14-day period
+
+        for GPS and GLONASS systems in 7 requests, and for the full 7-day period for
+
+        Galileo and BeiDou systems in 4 requests.'
+      summary: Predicted GNSS navigation models
+      operationId: HERE GNSS Data API v2 getPrediction
+      tags:
+      - GNSS Data
+      parameters:
+      - $ref: '#/components/parameters/GpsStart'
+      - $ref: '#/components/parameters/GlonassStart'
+      - $ref: '#/components/parameters/GalileoStart'
+      - $ref: '#/components/parameters/BeidouStart'
+      - $ref: '#/components/parameters/LppEncodingPrediction'
+      - $ref: '#/components/parameters/LppRoot'
+      - $ref: '#/components/parameters/BillingTag'
+      - $ref: '#/components/parameters/AcceptForEncoding'
+      - $ref: '#/components/parameters/AcceptEncodingForLppData'
+      - $ref: '#/components/parameters/RequestID'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessPrediction'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '406':
+          $ref: '#/components/responses/Error406'
+        '429':
+          $ref: '#/components/responses/Error429'
+        default:
+          $ref: '#/components/responses/ErrorDefault'
+components:
+  parameters:
+    LppEncodingPrediction:
+      name: encoding
+      description: "Specifies the encoding format for the LPP messages in the response.\nSupported values as per ASN.1 specification are:\n  - `jer`: JSON Encoding Rules (JER).\n    The response content type depends on `Accept` header and can be either of the following:\n       - `application/json-seq` (default) - JSON text sequences with each item containing a single LPP message in JER format.\n       - `application/json` - single JSON object, which contains one or more LPP messages in JER format.\n       - `application/x-ndjson` - newline-delimited JSON objects, each containing a single LPP message in JER format.\n  - `uper`: Unaligned Packed Encoding Rules (UPER).\n    The response content type is `multipart/mixed` and it consists of\n    one or more binary LPP messages in `application/octet-stream` format.\n\nPrediction navigation models can be large, so UPER encoding is recommended for this endpoint\nto reduce the response size. If client requests JER encoding for prediction data,\nthe server always compresses the response (by default with \"gzip\" content encoding).\nIf the client disables all supported compression methods via `Accept-Encoding` header,\nthe server will respond with status code 406 \"Not Acceptable\".\n"
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - uper
+        - jer
+        default: uper
+      example: jer
+    AcceptEncodingForLppData:
+      name: Accept-Encoding
+      in: header
+      description: 'Indicates preferred content encodings in the response. The server uses content negotiation (see RFC 9110) to select the best option and informs the choice in the `Content-Encoding` response header. Supported encodings are: "gzip", "deflate", "br" (and "identity"). If this header is missing, the response may or may not be compressed, client has to check the response headers for that information. If all supported encodings are disabled (e.g. "*;q=0"), the server will respond with status code 406 "Not Acceptable".
+
+        '
+      schema:
+        type: string
+      required: false
+      example: gzip;q=0.9, br;q=1
+    GnssAssistance:
+      name: gnss
+      description: "Specifies the GNSS system(s) for which real-time assistance data is requested.\nData for multiple GNSS systems can be requested by specifying several supported values\nseparated by comma.\n\nSupported values are:\n  - `gps`: Global Positioning System (GPS)\n  - `glo`: Global Navigation Satellite System (GLONASS)\n  - `gal`: Galileo Navigation Satellite System\n  - `bds`: BeiDou Navigation Satellite System\n  - `qzs`: Quasi-Zenith Satellite System (QZSS)\n\nIf this parameter is not provided, data for all supported GNSS systems is returned.\n"
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - gps
+          - glo
+          - gal
+          - bds
+          - qzs
+        uniqueItems: true
+      example:
+      - gps
+      - glo
+      - bds
+      style: form
+      explode: false
+    AcceptForEncoding:
+      name: Accept
+      description: 'Indicates preferred media types for the response. The server uses content negotiation (see RFC 9110) to select the best option and informs the choice in the `Content-Type` response header. Note that the response content type also depends on `encoding` query parameter value. For example, if `encoding=uper`, and this header requests JSON response, the server will respond with status code 406 "Not Acceptable".
+
+        '
+      in: header
+      required: false
+      schema:
+        type: string
+      examples:
+        json:
+          summary: Requesting JER-encoded LPP messages as single JSON object
+          value: application/json
+        jsonlines:
+          summary: Requesting JER-encoded LPP messages as JSON texts sequences
+          value: application/json-seq
+    GpsStart:
+      name: gps
+      description: 'Requests predicted navigation models for GPS system starting from the specified time, as Unix time or GPS time, in seconds. The validity interval of the first LPP message in the response covers this start time. Validity intervals of all LPP messages are consecutive and together they cover up to 48-hour time interval.
+
+
+        The service only provides data within the range from current time up to the total GPS prediction period in the future. If this parameter defines a time interval outside this range, then no GPS prediction messages are included in the response. Special value `now` is used to request predictions starting from the current time.
+
+
+        If this parameter is not provided, the response does not include GPS predictions.
+
+        '
+      in: query
+      required: false
+      schema:
+        oneOf:
+        - type: integer
+          minimum: 0
+        - type: string
+          enum:
+          - now
+      examples:
+        unixTimestamp:
+          summary: Request data using Unix time in seconds
+          value: 1772380800
+        gnssTimestamp:
+          summary: Request data using GPS time in seconds
+          value: 1456416018
+        now:
+          summary: Request data from current time
+          value: now
+    BillingTag:
+      name: billingTag
+      description: 'A list of up to six billing tags, separated by the + sign. This parameter provides a way to track your platform usage. For details, refer to the Cost Management Developer Guide section on [Billing Tags](https://www.here.com/docs/bundle/cost-management-developer-guide/page/topics/tutorial-billing-tags.html).
+
+        '
+      in: query
+      schema:
+        type: string
+        minLength: 4
+        maxLength: 101
+      example: ABCD+EFGH
+    BeidouStart:
+      name: bds
+      description: 'Requests predicted navigation models for BeiDou system starting from the specified time, as Unix time or BeiDou time, in seconds. The validity interval of the first LPP message in the response covers this start time. Validity intervals of all LPP messages are consecutive and together they cover up to 48-hour time interval.
+
+
+        The service only provides data within the range from current time up to the total BeiDou prediction period in the future. If this parameter defines a time interval outside this range, then no BeiDou prediction messages are included in the response. Special value `now` is used to request predictions starting from the current time.
+
+
+        If this parameter is not provided, the response does not include BeiDou predictions.
+
+        '
+      in: query
+      required: false
+      schema:
+        oneOf:
+        - type: integer
+          minimum: 0
+        - type: string
+          enum:
+          - now
+      examples:
+        unixTimestamp:
+          summary: Request data using Unix time in seconds
+          value: 1772380800
+        gnssTimestamp:
+          summary: Request data using BeiDou time in seconds
+          value: 636307204
+        now:
+          summary: Request data from current time
+          value: now
+    GlonassStart:
+      name: glo
+      description: 'Requests predicted navigation models for GLONASS system starting from the specified time, as Unix time or GLONASS time, in seconds. The validity interval of the first LPP message in the response covers this start time. Validity intervals of all LPP messages are consecutive and together they cover up to 48-hour time interval.
+
+
+        The service only provides data within the range from current time up to the total GLONASS prediction period in the future. If this parameter defines a time interval outside this range, then no GLONASS prediction messages are included in the response. Special value `now` is used to request predictions starting from the current time.
+
+
+        If this parameter is not provided, the response does not include GLONASS predictions.
+
+        '
+      in: query
+      required: false
+      schema:
+        oneOf:
+        - type: integer
+          minimum: 0
+        - type: string
+          enum:
+          - now
+      examples:
+        unixTimestamp:
+          summary: Request data using Unix time in seconds
+          value: 1772380800
+        gnssTimestamp:
+          summary: Request data using GLONASS time in seconds
+          value: 951937200
+        now:
+          summary: Request data from current time
+          value: now
+    LppEncodingAssistance:
+      name: encoding
+      description: "Specifies the encoding format for the LPP messages in the response.\nSupported values as per ASN.1 specification are:\n  - `jer`: JSON Encoding Rules (JER).\n    The response content type depends on `Accept` header and can be either of the following:\n       - `application/json-seq` (default) - JSON text sequences with each item containing a single LPP message in JER format.\n       - `application/json` - single JSON object, which contains one or more LPP messages in JER format.\n       - `application/x-ndjson` - newline-delimited JSON objects, each containing a single LPP message in JER format.\n  - `uper`: Unaligned Packed Encoding Rules (UPER).\n    The response content type is `multipart/mixed` and it consists of\n    one or more binary LPP messages in `application/octet-stream` format.\n"
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - uper
+        - jer
+        default: uper
+      example: jer
+    LppRoot:
+      name: lpp
+      description: "Specifies the LPP ASN.1 element to be used as the root element for the LPP messages in the response.\nSupported values are:\n  - `data`: The root element is the `A-GNSS-ProvideAssistanceData` sequence.\n  - `full`: The root element is the `LPP-Message` sequence.\n\nClients might be able to reduce the size of the code used to parse ASN.1 messages\nby requesting `data` as the root element, especially for binary encodings, such as UPER.\n"
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - data
+        - full
+        default: data
+      example: full
+    RequestID:
+      name: X-Request-ID
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service. Can be any string, but UUID is recommended. It will be echoed in the response.
+
+        '
+      in: header
+      required: false
+      schema:
+        type: string
+    GalileoStart:
+      name: gal
+      description: 'Requests predicted navigation models for Galileo system starting from the specified time, as Unix time or Galileo time, in seconds. The validity interval of the first LPP message in the response covers this start time. Validity intervals of all LPP messages are consecutive and together they cover up to 48-hour time interval.
+
+
+        The service only provides data within the range from current time up to the total Galileo prediction period in the future. If this parameter defines a time interval outside this range, then no Galileo prediction messages are included in the response. Special value `now` is used to request predictions starting from the current time.
+
+
+        If this parameter is not provided, the response does not include Galileo predictions.
+
+        '
+      in: query
+      required: false
+      schema:
+        oneOf:
+        - type: integer
+          minimum: 0
+        - type: string
+          enum:
+          - now
+      examples:
+        unixTimestamp:
+          summary: Request data using Unix time in seconds
+          value: 1772380800
+        gnssTimestamp:
+          summary: Request data using Galileo time in seconds
+          value: 837100818
+        now:
+          summary: Request data from current time
+          value: now
+  responses:
+    ErrorDefault:
+      description: Other possible errors
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            500 Internal Server Error:
+              value:
+                title: Internal Server Error
+                status: 500
+                code: E619500
+                cause: Something unexpected happened.
+                action: System administrators have been notified about the problem. Please try again later.
+                correlationId: 4199533b-6290-41db-8d79-e2bef401749a
+            503 Service Unavailable:
+              value:
+                title: Service Unavailable
+                status: 503
+                code: E619503
+                cause: The service is currently unavailable
+                action: Please try again later
+                correlationId: 4199533b-6290-41db-8d79-e2bef401749a
+    Error400:
+      description: 'Bad request. The request is malformed - the URL query parameters in the request are invalid. Check the message in the response for additional troubleshooting information.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Bad Request
+            status: 400
+            code: E619400
+            cause: Query parameter validation error
+            action: Please correct the request and retry
+            correlationId: 4199533b-6290-41db-8d79-e2bef401749a
+            details:
+            - title: 'Violated rule: supportedGnss'
+              message: GNSS should be one of 'gps, glo, gal, bds'
+    Error401:
+      description: Authentication failed.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: Token Validation Failure - invalid time in token
+    Error403:
+      description: Access denied.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access. Please contact your customer representative or submit a request here https://developer.here.com/contact-us to upgrade your account.
+    SuccessAssistance:
+      description: 'Request processed successfully and GNSS data included in the response. In case of If-Modified-Since header in the request, the response may contain only the parts of the data that have been modified since the specified date.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        multipart/mixed:
+          schema:
+            type: string
+            format: binary
+            description: "The response body is one or more MIME multipart body parts, each of which is a single LPP message in requested encoding as per `encoding` query parameter. There will be exactly one part per requested GNSS system.\nIf assistance data for only some of requested GNSS systems cannot be provided, the corresponding part body contains a LPP message, whose `A-GNSS-ProvideAssistanceData` section includes only the `gnss-Error` field with corresponding `locationServerErrorCauses.cause` value. For example, should the data be temporarily not available on the server the cause will be set to `undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer`.\nEach part is described with additional headers:\n  - `X-Constellation` (string) - GNSS system this LPP message contains data for.\n    Possible values are the same as for `gnss` query parameter.\n  - `X-GNSS-Error` (string, optional) - Included if assistance data for this GNSS\nsystem cannot be provided. Some of the values are (more may be added in future):\n      - \"currentlyNotAvailable\"\n"
+          examples:
+            success:
+              $ref: '#/components/examples/MultipartSuccess'
+            partialUnavailable:
+              $ref: '#/components/examples/MultipartPartiallyUnavailable'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AssistanceJsonBody'
+          examples:
+            success:
+              $ref: '#/components/examples/JsonSuccessShort'
+            failure:
+              $ref: '#/components/examples/JsonPartiallyUnavailable'
+            success-full:
+              $ref: '#/components/examples/JsonSuccessFull'
+        application/x-ndjson:
+          schema:
+            type: string
+            description: "The response body is one or more newline-delimited JSON objects, each of which is JSON object in one of sub-schemas of `JsonMessage` schema. There will be exactly one JSON object in `AssistanceJsonMessage` sub-schema (i.e. `JsonSchema` with `type:\"assistance\"` property) per requested GNSS system. There may be other JSON objects with different `type` property values in the response as well, and clients should ignore objects with unrecognized `type` values. For example:\n```\n  Content-Type: application/x-ndjson\n\n  {\"type\":\"...\", ...}\n  {\"type\":\"assistance\",\"gnss\":\"gps\",\"lpp\":{...}}\n  {\"type\":\"assistance\",\"gnss\":\"glo\",\"lpp\":{...}}\n```\n"
+            example: '{JSON 1}
+
+              {JSON 2}
+
+              ...'
+        application/json-seq:
+          schema:
+            type: string
+            description: "The response body is one or more JSON text sequences (as per RFC 7464), each of which is JSON object in one of sub-schemas of `JsonMessage` schema. There will be exactly one JSON object in `AssistanceJsonMessage` sub-schema (i.e. `JsonSchema` with `type:\"assistance\"` property) per requested GNSS system. There may be other JSON objects with different `type` property values in the response as well, and clients should ignore objects with unrecognized `type` values. For example:\n```\n  Content-Type: application/json-seq\n\n  \\x1E{\"type\":\"...\", ...}\n  \\x1E{\"type\":\"assistance\",\"gnss\":\"gps\",\"lpp\":{...}}\n  \\x1E{\"type\":\"assistance\",\"gnss\":\"glo\",\"lpp\":{...}}\n```\n"
+            example: '{JSON 1}
+
+              {JSON 2}
+
+              ...'
+    Error406:
+      description: Not Acceptable.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+        Accept-Encoding:
+          $ref: '#/components/headers/AcceptEncoding'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Not Acceptable
+            status: 406
+            code: E619406
+            cause: Content encoding not acceptable
+            action: Please check the Accept-Encoding header in the request and retry with supported encoding.
+            correlationId: 4199533b-6290-41db-8d79-e2bef401749a
+    Error429:
+      description: Too many requests in a given amount of time (rate limiting).
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Too Many Requests
+            error_description: Rate limit for this service has been reached
+    SuccessPrediction:
+      description: 'Request processed successfully and GNSS data included in the response. In case of If-Modified-Since header in the request, the response may contain only the parts of the data that have been modified since the specified date.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+        X-Prediction-Next:
+          description: 'Time parameters to request the next batch of prediction data. This string includes updated time parameters (`gps`, `glo`, `gal`, `bds`) for each GNSS system listed in the request that has more prediction data available. Time values are in seconds since same epoch as in the request (Unix time or corresponding GNSS time). This header is omitted if there is no more prediction data available for any of the listed GNSS systems.
+
+            '
+          schema:
+            type: string
+          example: gps=1772380800&glo=1772380800
+      content:
+        multipart/mixed:
+          schema:
+            type: string
+            description: "The response body is one or more MIME multipart body parts, each of which is a single LPP message in requested encoding as per `encoding` query parameter. There may be several parts per each requested GNSS system, depending on how many LPP messages are required to cover for the whole requested prediction period.\n\nIf prediction data for only some of requested GNSS systems cannot be provided, the corresponding part body contains a LPP message, whose `A-GNSS-ProvideAssistanceData` section includes only the `gnss-Error` field with corresponding `locationServerErrorCauses.cause` value. For example, should the data be temporarily not available on the server the cause will be set to `undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer`.\n\nEach part is described with additional headers:\n  - `X-Constellation` (string) - GNSS system this LPP message contains data for.\n    Possible values are `gps`, `glo`, `gal` and `bds` for GPS, GLONASS, Galileo\n    and BeiDou systems, respectively.\n  - `X-Validity-Start` (integer, optional) - Start time of the validity period\n    for this LPP message, in seconds since Unix epoch.\n    Omitted if prediction data for this GNSS system is not available.\n  - `X-Validity-Duration` (integer, optional) - Validity period duration\n    for this LPP message, in seconds.\n    Omitted if prediction data for this GNSS system is not available.\n  - `X-GNSS-Validity-Start` (integer, optional) - Start time of the validity period\n    for this LPP message, in seconds since corresponding GNSS epoch.\n    Note that the reference time value in the LPP message (`gnss-ReferenceTime` field)\n    corresponds to the middle of the validity period,\n    i.e. `X-GNSS-Validity-Start + (X-Validity-Duration / 2)`.\n    Omitted if prediction data for this GNSS system is not available.\n  - `X-GNSS-Error` (string, optional) - Included if prediction data for this GNSS\n      system cannot be provided. Some of the values are (more may be added in future):\n      - \"currentlyNotAvailable\"\n"
+          examples:
+            success:
+              $ref: '#/components/examples/MultipartSuccessWithValidity'
+            partialUnavailable:
+              $ref: '#/components/examples/MultipartPartiallyUnavailableWithValidity'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PredictionJsonBody'
+          examples:
+            success:
+              $ref: '#/components/examples/JsonSuccessShortWithValidity'
+            failure:
+              $ref: '#/components/examples/JsonPartiallyUnavailableWithValidity'
+        application/x-ndjson:
+          schema:
+            type: string
+            description: "The response body is one or more newline-delimited JSON objects, each of which is JSON object in one of sub-schemas of `JsonMessage` schema. There will be several JSON objects in `PredictionJsonMessage` sub-schema (i.e. `JsonSchema` with `type:\"prediction\"` property) per requested GNSS system, depending on how many LPP messages are required to cover for the whole requested prediction period. There may be other JSON objects with different `type` property values in the response as well, and clients should ignore objects with unrecognized `type` values. For example:\n```\n  Content-Type: application/x-ndjson\n\n  {\"type\":\"...\", ...}\n  {\"type\":\"prediction\",\"gnss\":\"gps\",\"validity\":{...},\"lpp\":{...}}\n  {\"type\":\"prediction\",\"gnss\":\"gps\",\"validity\":{...},\"lpp\":{...}}\n  {\"type\":\"prediction\",\"gnss\":\"gal\",\"validity\":{...},\"lpp\":{...}}\n```\n"
+            example: '{JSON 1}
+
+              {JSON 2}
+
+              ...'
+        application/json-seq:
+          schema:
+            type: string
+            description: "The response body is one or more JSON text sequences (as per RFC 7464), each of which is JSON object in one of sub-schemas of `JsonMessage` schema. There will be several JSON objects in `PredictionJsonMessage` sub-schema (i.e. `JsonSchema` with `type:\"prediction\"` property) per requested GNSS system, depending on how many LPP messages are required to cover for the whole requested prediction period. There may be other JSON objects with different `type` property values in the response as well, and clients should ignore objects with unrecognized `type` values. For example:\n```\n  Content-Type: application/json-seq\n\n  \\x1E{\"type\":\"...\", ...}\n  \\x1E{\"type\":\"prediction\",\"gnss\":\"gps\",\"validity\":{...},\"lpp\":{...}}\n  \\x1E{\"type\":\"prediction\",\"gnss\":\"gps\",\"validity\":{...},\"lpp\":{...}}\n  \\x1E{\"type\":\"prediction\",\"gnss\":\"gal\",\"validity\":{...},\"lpp\":{...}}\n```\n"
+            example: '{JSON 1}
+
+              {JSON 2}
+
+              ...'
+  schemas:
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
+    Lpp:
+      description: "Contains LPP data in JER format with root element as requested by `lpp` query parameter:\n  - `data` - the root element is `A-GNSS-ProvideAssistanceData` sequence.\n  - `full` - the root element is `LPP-Message` sequence.\n\nNote that per ASN.1 specification all properties are optional and other properties may be present.\n"
+      type: object
+    ErrorDetail:
+      description: Detail about an error
+      type: object
+      properties:
+        title:
+          description: Title for the detail
+          type: string
+          example: Invalid size value
+        source:
+          description: Source of the error, using JSONPath
+          type: string
+          example: $.data.attributes[0].size
+        message:
+          description: Localize message
+          type: string
+          example: Size must be between 3 and 64
+        messageTemplate:
+          description: Optional error template
+          type: string
+          example: validation.constraint.between
+        messagePlaceholders:
+          description: Optional placeholder for error details
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    PredictionJsonBody:
+      type: object
+      description: 'JSON response body for prediction data request, with one or more LPP messages in JER format containing predicted navigation models.
+
+        '
+      properties:
+        prediction:
+          type: object
+          description: 'Object containing LPP messages with predicted navigation models for one or more GNSS systems.
+
+            '
+          properties:
+            messages:
+              type: array
+              description: 'Array of LPP messages in JER format, which contain predicted navigation models.
+
+
+                Prediction navigation models can be large, so UPER encoding is recommended for this endpoint to reduce the response size. If client prefers JER encoding, it is recommended to use multi-line JSON response formats instead: `application/json-seq` or `application/x-ndjson`.
+
+                '
+              items:
+                $ref: '#/components/schemas/PredictionArrayItem'
+          required:
+          - messages
+      required:
+      - prediction
+    GnssPrediction:
+      type: string
+      description: 'GNSS system this LPP message contains data for. Possible values are `gps`, `glo`, `gal` and `bds` for GPS, GLONASS, Galileo and BeiDou systems, respectively.
+
+        '
+    AssistanceJsonBody:
+      type: object
+      description: 'JSON response body for assistance data request, with one or more LPP messages in JER format containing real-time assistance data.
+
+        '
+      properties:
+        assistance:
+          type: object
+          description: 'Object containing LPP messages with real-time assistance data for one or more GNSS systems.
+
+            '
+          properties:
+            messages:
+              type: array
+              description: 'Array of LPP messages in JER format, which contain real-time assistance data.
+
+                '
+              items:
+                $ref: '#/components/schemas/AssistanceArrayItem'
+          required:
+          - messages
+      required:
+      - assistance
+    PredictionValidity:
+      type: object
+      description: 'Validity period of the predicted navigation models contained in this LPP message. Omitted if the message does not contain predicted navigation models, for example, if it contains error information instead of valid data.
+
+        '
+      properties:
+        start:
+          type: integer
+          description: 'Start time of the validity period for this LPP message, in seconds since Unix epoch.
+
+            '
+        duration:
+          type: integer
+          description: 'Validity period duration for this LPP message, in seconds.
+
+            '
+        gnssStart:
+          type: integer
+          description: 'Start time of the validity period for this LPP message, in seconds since corresponding GNSS epoch. Note that the reference time value in the LPP message (`gnss-ReferenceTime` field) corresponds to the middle of the validity period, i.e. `gnssStart + (duration / 2)`.
+
+            '
+      required:
+      - start
+      - duration
+      - gnssStart
+    AssistanceArrayItem:
+      type: object
+      properties:
+        gnss:
+          $ref: '#/components/schemas/GnssAssistance'
+        lpp:
+          $ref: '#/components/schemas/Lpp'
+      required:
+      - gnss
+      - lpp
+    Error:
+      description: Object wrapper for the error response to a request.
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Localized error string
+          type: string
+          example: Input data failed validation
+        status:
+          description: Equals HTTP status code
+          type: integer
+          example: 400
+        code:
+          description: Error code
+          type: string
+          example: E619101
+        cause:
+          description: Reason for the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the user
+          type: string
+        correlationId:
+          description: Copy from X-Correlation-ID header for logging
+          type: string
+          format: uuid
+          example: 4199533b-6290-41db-8d79-e2bef401749a
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E619101
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user
+        correlationId: 4199533b-6290-41db-8d79-e2bef401749a
+        details:
+        - title: Invalid size value
+          source: $.data.attributes[0].size
+          message: Size must be between 3 and 64
+          messageTemplate: validation.constraint.between
+          messagePlaceholders:
+            field: size
+            min: 3
+            max: 64
+    GnssAssistance:
+      type: string
+      description: 'GNSS system this LPP message contains data for. Possible values are the same as for `gnss` query parameter.
+
+        '
+    PredictionArrayItem:
+      type: object
+      properties:
+        gnss:
+          $ref: '#/components/schemas/GnssPrediction'
+        validity:
+          $ref: '#/components/schemas/PredictionValidity'
+        lpp:
+          $ref: '#/components/schemas/Lpp'
+      required:
+      - gnss
+      - lpp
+  examples:
+    JsonPartiallyUnavailableWithValidity:
+      summary: Successful response with some of requested GNSS data unavailable
+      value:
+        prediction:
+          messages:
+          - gnss: bds
+            lpp:
+              gnss-CommonAssistData:
+                gnss-Error:
+                  locationServerErrorCauses:
+                    cause: undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: bds
+          - gnss: gps
+            validity:
+              start: 1772380800
+              duration: 14400
+              gnssStart: 1456401618
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: gps
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+    MultipartPartiallyUnavailableWithValidity:
+      summary: Successful response with some of requested GNSS data unavailable
+      value: 'Content-Type: multipart/mixed; boundary=boundary
+
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+        X-Validity-Start: 1772366400
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 1456401618
+
+
+        <binary LPP message 1 for GPS here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+        X-Validity-Start: 1772380800
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 1456416018
+
+
+        <binary LPP message 2 for GPS here>
+
+        --boundary
+
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gal
+
+        X-GNSS-Error: currentlyNotAvailable
+
+
+        <binary LPP message with `gnss-Error` for Galileo here>
+
+        --boundary--
+
+        '
+    JsonSuccessShort:
+      summary: Successful response with all requested GNSS data available
+      value:
+        assistance:
+          messages:
+          - gnss: gps
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: gps
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+          - gnss: bds
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: bds
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+    JsonSuccessFull:
+      summary: Successful response with "full" LPP messages (root element is `LPP-Message` sequence)
+      value:
+        assistance:
+          messages:
+          - gnss: gps
+            lpp:
+              endTransaction: true
+              lpp-MessageBody:
+                c1:
+                  provideAssistanceData:
+                    criticalExtensions:
+                      c1:
+                        provideAssistanceData-r9:
+                          a-gnss-ProvideAssistanceData:
+                            gnss-CommonAssistData:
+                              gnss-ReferenceTime: {}
+                              gnss-IonosphericModel: {}
+                            gnss-GenericAssistData:
+                            - gnss-ID:
+                                gnss-id: gps
+                              gnss-TimeModels: []
+                              gnss-NavigationModel: {}
+                              gnss-Almanac: {}
+                              gnss-UTC-Model: {}
+                              gnss-AuxiliaryInformation: {}
+    JsonSuccessShortWithValidity:
+      summary: Successful response with all requested GNSS data available
+      value:
+        prediction:
+          messages:
+          - gnss: gps
+            validity:
+              start: 1772380800
+              duration: 14400
+              gnssStart: 1456401618
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: gps
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+          - gnss: gds
+            validity:
+              start: 1772395200
+              duration: 14400
+              gnssStart: 1456416018
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: gps
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+    JsonPartiallyUnavailable:
+      summary: Successful response with some of requested GNSS data unavailable
+      value:
+        assistance:
+          messages:
+          - gnss: bds
+            lpp:
+              gnss-CommonAssistData:
+                gnss-Error:
+                  locationServerErrorCauses:
+                    cause: undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: bds
+          - gnss: gps
+            lpp:
+              gnss-CommonAssistData:
+                gnss-ReferenceTime: {}
+                gnss-IonosphericModel: {}
+              gnss-GenericAssistData:
+              - gnss-ID:
+                  gnss-id: gps
+                gnss-TimeModels: []
+                gnss-NavigationModel: {}
+                gnss-Almanac: {}
+                gnss-UTC-Model: {}
+                gnss-AuxiliaryInformation: {}
+    MultipartPartiallyUnavailable:
+      summary: Successful response with some of requested GNSS data unavailable
+      value: 'Content-Type: multipart/mixed; boundary=boundary
+
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+
+        <binary LPP message for GPS here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gal
+
+        X-GNSS-Error: currentlyNotAvailable
+
+
+        <binary LPP message with `gnss-Error` for Galileo here>
+
+        --boundary--
+
+        '
+    MultipartSuccessWithValidity:
+      summary: Successful response with all requested GNSS data available
+      value: 'Content-Type: multipart/mixed; boundary=boundary
+
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+        X-Validity-Start: 1772366400
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 1456401618
+
+
+        <binary LPP message 1 for GPS here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+        X-Validity-Start: 1772380800
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 1456416018
+
+
+        <binary LPP message 2 for GPS here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gal
+
+        X-Validity-Start: 1772366400
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 837086418
+
+
+        <binary LPP message 1 for Galileo here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gal
+
+        X-Validity-Start: 1772380800
+
+        X-Validity-Duration: 14400
+
+        X-GNSS-Validity-Start: 837100818
+
+
+        <binary LPP message 2 for Galileo here>
+
+        --boundary--
+
+        '
+    MultipartSuccess:
+      summary: Successful response with all requested GNSS data available
+      value: 'Content-Type: multipart/mixed; boundary=boundary
+
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gps
+
+
+        <binary LPP message for GPS here>
+
+        --boundary
+
+        Content-Type: application/octet-stream
+
+        X-Constellation: gal
+
+
+        <binary LPP message for Galileo here>
+
+        --boundary--
+
+        '
+  headers:
+    CorrelationID:
+      description: 'Auto-generated ID, which uniquely identifies the request.
+
+        When contacting support with an inquiry regarding a specific request,
+
+        provide the value of this header which will help troubleshooting the issue.
+
+        **Note:** its value is currently in UUID format, but this may be changed
+
+        in future and relying upon this specific format is deprecated!
+
+        '
+      schema:
+        type: string
+    RetryAfter:
+      description: Number of seconds to wait before making a new request.
+      schema:
+        type: integer
+    RequestID:
+      description: Value of X-Request-ID header parameter supplied in the request.
+      schema:
+        type: string
+    AcceptEncoding:
+      description: 'Indicates supported content encodings in responses. Supported codings are: "gzip", "deflate", "br".
+
+        '
+      schema:
+        type: string
+  securitySchemes:
+    ApiKey:
+      description: 'A key generated specifically to authenticate API requests.
+
+
+        For more information on how to get an API key, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+
+        [Contact us](https://www.here.com/contact?intref=dev_docum) to activate your API key.
+
+        '
+      in: query
+      name: apiKey
+      type: apiKey
+    Bearer:
+      description: 'A token obtained from a separate endpoint using client credentials and
+
+        an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+
+        [Contact us](https://www.here.com/contact?intref=dev_docum) to activate your token.
+
+        '
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

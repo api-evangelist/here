@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 List Apps for an Identity Provider…
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: List Apps for an Identity Provider
+  description: List the Apps that have the specified Identity Provider attached.
+paths:
+  /realms/{realm}/identityProviders/{identityProvider}/apps:
+    parameters:
+    - $ref: '#/components/parameters/Realm'
+    - $ref: '#/components/parameters/IdentityProvider'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/PageToken'
+    - $ref: '#/components/parameters/Limit'
+    get:
+      tags:
+      - List Apps for an Identity Provider
+      summary: List the Apps which have attached the specified Identity Provider
+      operationId: listAppsForProvider
+      description: 'List the Apps that have attached the specified Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have either **"read"** or **"readIdentityProviders"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - in: query
+        required: false
+        name: fields
+        schema:
+          type: string
+        description: "Comma-separated list of fields to return, for each App.  \nBy default, only the App \"hrn\" is returned for each App. \nAdditional supported fields also include \"id\" and \"name\".\n"
+        example: hrn,id,name
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppList'
+              example:
+                count: 1
+                total: 1
+                items:
+                - hrn: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+                  id: AfRcv675i2zYubYTe17D
+                  name: My IdP Federation Application
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "manageIdentityProviders" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  parameters:
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+  schemas:
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    AppList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of Apps in this page of the List.
+        total:
+          type: integer
+          description: The total number of Apps in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/App1'
+          description: List of Apps.
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
+    App1:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: HRN for the App
+          example: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+        id:
+          type: string
+          description: ID for the App
+          example: AfRcv675i2zYubYTe17D
+        name:
+          type: string
+          description: Human readable name of the client. This field is required unless a clientId is provided.
+          example: My IdP Federation Application
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

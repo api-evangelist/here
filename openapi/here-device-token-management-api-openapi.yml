@@ -1,0 +1,141 @@
+openapi: 3.2.0
+info:
+  title: OAuth 2.0 Access Token Device Token Management API
+  version: 1.2.0
+  description: 'Request an OAuth 2.0 access token that identifies your identity
+
+    The term "realm" is now known as "organization" or "org".'
+servers:
+- url: https://account.api.here.com
+tags:
+- name: Device Token Management
+paths:
+  /tokens:
+    delete:
+      tags:
+      - Device Token Management
+      summary: Revoke a HERE device access token that was obtained via token exchange
+      operationId: OAuth 2.0 Access Token deleteDeviceToken
+      description: 'Revoke the HERE device access token, provided in the Authorization: Bearer header for this request,
+
+        that was previously obtained via token exchange API.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Token does not support deletion.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+  securitySchemes:
+    OAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'OAuth [OAuth 1.0 Signing Process](http://oauth.net/core/1.0/#signing_process). Used for client_credentials grant when NOT using JWT assertion authentication.
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

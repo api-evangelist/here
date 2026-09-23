@@ -1,0 +1,256 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Packages API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Packages
+paths:
+  /v2/packages:
+    parameters:
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Packages
+      summary: Upload a new Package
+      description: A Package is the jar file that contains the Pipeline code that you want to run. This endpoint receives and stores the Package file and returns the information about the stored Package. The filename of the jar file has a 200 character limit and the Package file size has 500 MB limit.
+      operationId: createPackage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - jarPackage
+              properties:
+                jarPackage:
+                  type: string
+                  description: Jar file to upload. The filename of the jar file has a 200 character limit and the Package file size has a 500 MB limit.
+                  format: binary
+        required: true
+      responses:
+        '201':
+          description: Package is successfully uploaded and returned with an id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackage'
+        '400':
+          description: Package required fields or jar file not provided.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '413':
+          description: Package is too large. Package size limit is 500 MB.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '415':
+          description: Uploaded Package is not a valid Java Archive.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while storing the Package.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    ModelPackage:
+      required:
+      - fileName
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Package.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        fileName:
+          type: string
+          description: Name of the uploaded .jar file (200 character max length)
+          example: streaming_traffic_analyzer.jar
+        mainClass:
+          type: string
+          description: Main class found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to indicate a default main class, for example. To set this in the Manifest file, the conventional label of 'Main-Class' is expected.
+          readOnly: true
+          example: com.here.Pipeline
+        entryPoints:
+          type: array
+          description: 'Entry points Entry points found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to recommend possible main class choices, for example. To set this in the Manifest file, the label of ''Entry-Point'' (singular) is expected. Note: although the label ''Entry-Point'' is singular, this will provide a list of one or more fully-qualified classnames  (separated by spaces) in the Manifest file.'
+          readOnly: true
+          example: com.here.Pipeline1, com.here.Pipeline2
+          items:
+            type: string
+      description: A Package is JAR file that contains the implementation code of a Pipeline and is used in one or more PipelineTemplates.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+  parameters:
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

@@ -1,0 +1,914 @@
+openapi: 3.2.0
+info:
+  title: OAuth 2.0 Access Token Endpoint API
+  version: 1.2.0
+  description: 'Request an OAuth 2.0 access token that identifies your identity
+
+    The term "realm" is now known as "organization" or "org".'
+servers:
+- url: https://account.api.here.com
+tags:
+- name: OAuth 2.0 Access Token Endpoint
+paths:
+  /oauth2/token:
+    post:
+      tags:
+      - OAuth 2.0 Access Token Endpoint
+      summary: Request an OAuth 2.0 access token that identifies your identity
+      operationId: OAuth 2.0 Access Token getOAuth2AccessToken
+      description: 'Request an OAuth 2.0 access token that identifies your identity
+
+        ## **Grant Types:**
+
+
+        ### **Client Credentials Grant Type [client_credentials]**
+
+        * **Request a client token that identifies your application by providing your client credentials.**
+
+        - Use grant type - client_credentials
+
+        - An optional scope can be added to the request body to request a project scoped access token
+
+        - **Client Authentication Methods (one of the following):**
+
+        1. **OAuth 1.0 Signed Request :** The request must be signed with the provisioned client
+
+        access key secret (here.access.key.secret) as documented in Signing Requests
+
+        2. **JWT Assertion (private_key_jwt, recommended):** Provide `client_assertion_type` and `client_assertion`
+
+        parameters in the request body. When using JWT assertion authentication, OAuth 1.0 signature headers
+
+        are NOT required. The client authenticates by presenting a signed JWT containing:
+
+        - `iss`: client_id of the application
+
+        - `sub`: client_id of the application
+
+        - `aud`: token endpoint URL
+
+        - `exp`: expiration time
+
+        - `iat`: issued at time
+
+        - `jti`: unique assertion id (for replay protection)
+
+
+        The JWT must be signed with a private key whose corresponding public key has been registered
+
+        via the JWKs management API (`POST /apps/{app}/jwks`).
+
+        - Developers may wish to try out the sample Java code in
+
+        documentation demonstrating this API
+
+
+        ### **Token Exchange Grant Type [urn:ietf:params:oauth:grant-type:token-exchange]**
+
+        * **Create a new HERE access token via exchange of an existing trusted OpenID Connect Identity Provider
+
+        access token.**
+
+        - Use grant type - urn:ietf:params:oauth:grant-type:token-exchange
+
+        - Client authentication via the Authorization header is not required
+
+        - The subject_token identifies the access context in the third-party issuer''s identity namespace,
+
+        and the "sub" claim within that token uniquely identifies the security principal within that
+
+        identity provider''s namespace
+
+        - If used with a IdentityProvider that is configured for accountType=device, and a "sub" claim is present,
+
+        a DeviceAccount is created upon first token exchange and re-used for subsequent tokens with the same "sub"
+
+        claim value
+
+        - See also OAuth 2.0 Token Exchange
+
+
+        ### **External Issuer Grant Type [jwtIssNotHERE]**
+
+        * **Sign In with OpenID Connect compliant OEM token**
+
+        - Use grant type - jwtIssNotHERE
+
+        - The OEM access token is used in the authorization header'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequestJson'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignInRequestForm'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInResponse'
+              example:
+                accessToken: eyJhbGciOiJSUzUxMiIsImN0e...x1dEEtSlJ4eFBvOEREZzJyeVFHOU9pUkRvYVh6Z
+                tokenType: bearer
+                expiresIn: 3600
+                scope: hrn:here:authorization::myorg:project/myproject
+        '400':
+          description: "See https://tools.ietf.org/html/rfc6749#section-5.2 for allowed error response error parameter values. An error has occurred.\n* 400200 - Received invalid data. See 'errorFields' for more information.\n  * errorFields.errorCode 400208: Not a number.\n  * errorFields.errorCode 400209: Value too small\n  * errorFields.errorCode 400290: Illegal grant type.\n  * errorFields.errorCode 400907: Missing required 'openid' scope\n  * errorFields.errorCode 400909: Invalid character in scope field.\n  * errorFields.errorCode 400927: Scope is invalid.\n* 400981 -  Only one project scope allowed in token.\n"
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rfc6749ErrorMessage'
+        '401':
+          description: 'An error has occurred.
+
+            '
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * 403109 - Client is not a member of the project.
+
+            '
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '412':
+          description: Precondition failed, further user action required.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInPreconditionFailedResponse'
+          links:
+            acceptTermsLink:
+              $ref: '#/components/links/acceptTermsLink'
+      security:
+      - OAuth: []
+      - Bearer: []
+      - {}
+components:
+  schemas:
+    SignInRequestForm:
+      oneOf:
+      - $ref: '#/components/schemas/SignInWithClientCredentialsRequestForm'
+      - $ref: '#/components/schemas/OidcSignInRequestForm'
+      - $ref: '#/components/schemas/TokenExchangeRequestForm'
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    SignInResponse:
+      oneOf:
+      - $ref: '#/components/schemas/SignInResponseJson'
+      - $ref: '#/components/schemas/SignInResponseForm'
+    TokenExchangeRequestForm:
+      type: object
+      required:
+      - grant_type
+      - subject_token
+      - subject_token_type
+      example:
+        grant_type: urn:ietf:params:oauth:grant-type:token-exchange
+        subject_token: ey123.abc.xyz
+        subject_token_type: urn:ietf:params:oauth:token-type:access_token
+      properties:
+        grant_type:
+          type: string
+          description: "REQUIRED. The value urn:ietf:params:oauth:grant-type:token-exchange indicates that a token \nexchange is being performed.\n"
+          enum:
+          - urn:ietf:params:oauth:grant-type:token-exchange
+          default: urn:ietf:params:oauth:grant-type:token-exchange
+          example: urn:ietf:params:oauth:grant-type:token-exchange
+        requested_token_type:
+          type: string
+          description: "OPTIONAL. An identifier for the type of the requested security token. \nIf the requested type is unspecified, the issued token type is at the discretion of the authorization \nserver and may be dictated by knowledge of the requirements of the service or resource indicated by \nthe resource or audience parameter.\n"
+          example: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+        subject_token:
+          type: string
+          description: "REQUIRED. A security token that represents the identity of the party on behalf of whom the request \nis being made. Typically, the subject of this token will be the subject of the security token issued \nin response to the request.\n\nThe subject_token must be a JWT-formatted JWS whose payload contains the following claims:\n* iss: REQUIRED. Issuer Identifier for the Issuer of the response. The iss value is a case sensitive URL \n  using the https scheme that contains scheme, host, and optionally, port number and path components and \n  no query or fragment components.\n* sub: Optional. Subject Identifier. A locally unique and never reassigned identifier within the Issuer \n  for the End-User, which is intended to be consumed by the Client, e.g., 24400320 or \n  AItOawmwtWwcT0k51BayewNvutrJUqsvl6qs7A4. It MUST NOT exceed 255 ASCII characters in length. The sub \n  value is a case sensitive string.  \n  If \"sub\" is not specified, an unpersonalized HERE access token identifying the HERE App Id\n  as the security principal, will be returned.\n* exp: REQUIRED. Expiration time on or after which the ID Token MUST NOT be accepted for processing. The \n  processing of this parameter requires that the current date/time MUST be before the expiration date/time \n  listed in the value. Implementers MAY provide for some small leeway, usually no more than a few minutes, \n  to account for clock skew. Its value is a JSON number representing the number of seconds from \n  1970-01-01T0:0:0Z as measured in UTC until the date/time. See RFC 3339 [RFC3339] for details regarding \n  date/times in general and UTC in particular.\n* iat: REQUIRED. Time at which the JWT was issued. Its value is a JSON number representing the number of \n  seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time.\n* client_id: REQUIRED. The client_id claim carries the client identifier of the OAuth 2.0 [RFC6749] client \n  that requested the token.  This value must be the HERE App Id.  The \"id\" property of the HERE App acting \n  as the Relying Party in the token exchange. See also \n  (RFC 8693)[https://www.rfc-editor.org/rfc/rfc8693.html#section-4.3].\n"
+          example: ey123.abc.xyz
+        subject_token_type:
+          type: string
+          description: 'REQUIRED. An identifier that indicates the type of the security token in the subject_token parameter.
+
+            '
+          example: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+    SignInWithOidcResponseJson:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: The new client access token, identifying your service..
+          example: eyJhbGciOiJSUzUxMiIsImN0e...x1dEEtSlJ4eFBvOEREZzJyeVFHOU9pUkRvYVh6Z
+        tokenType:
+          type: string
+          description: Always "bearer" for this operation..
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Seconds until token expiration.
+          example: 3600
+        scope:
+          type: string
+          description: Optional. The scope assigned to the access token.
+          example: hrn:here:authorization::myrealm:project/myproject
+        deviceId:
+          type: string
+          description: 'Optional. Included only if the client has deviceTokenCreationEnabled flag enabled and the request contains the deviceId
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+    TokenExchangeRequestJson:
+      type: object
+      required:
+      - grantType
+      - subjectToken
+      - subjectTokenType
+      example:
+        grantType: urn:ietf:params:oauth:grant-type:token-exchange
+        subjectToken: ey123.abc.xyz
+        subjectTokenType: urn:ietf:params:oauth:token-type:access_token
+      properties:
+        grantType:
+          type: string
+          description: "REQUIRED. The value urn:ietf:params:oauth:grant-type:token-exchange indicates that a token \nexchange is being performed.\n"
+          enum:
+          - urn:ietf:params:oauth:grant-type:token-exchange
+          default: urn:ietf:params:oauth:grant-type:token-exchange
+          example: urn:ietf:params:oauth:grant-type:token-exchange
+        requestedTokenType:
+          type: string
+          description: "OPTIONAL. An identifier for the type of the requested security token. \nIf the requested type is unspecified, the issued token type is at the discretion of the authorization \nserver and may be dictated by knowledge of the requirements of the service or resource indicated by \nthe resource or audience parameter.\n"
+          example: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+        subjectToken:
+          type: string
+          description: "REQUIRED. A security token that represents the identity of the party on behalf of whom the request \nis being made. Typically, the subject of this token will be the subject of the security token issued \nin response to the request.\n\nThe subject_token must be a JWT-formatted JWS whose payload contains the following claims:\n* iss: REQUIRED. Issuer Identifier for the Issuer of the response. The iss value is a case sensitive URL \n  using the https scheme that contains scheme, host, and optionally, port number and path components and \n  no query or fragment components.\n* sub: Optional. Subject Identifier. A locally unique and never reassigned identifier within the Issuer \n  for the End-User, which is intended to be consumed by the Client, e.g., 24400320 or \n  AItOawmwtWwcT0k51BayewNvutrJUqsvl6qs7A4. It MUST NOT exceed 255 ASCII characters in length. The sub \n  value is a case sensitive string.  \n  If \"sub\" is not specified, an unpersonalized HERE access token identifying the HERE App Id\n  as the security principal, will be returned.\n* exp: REQUIRED. Expiration time on or after which the ID Token MUST NOT be accepted for processing. The \n  processing of this parameter requires that the current date/time MUST be before the expiration date/time \n  listed in the value. Implementers MAY provide for some small leeway, usually no more than a few minutes, \n  to account for clock skew. Its value is a JSON number representing the number of seconds from \n  1970-01-01T0:0:0Z as measured in UTC until the date/time. See RFC 3339 [RFC3339] for details regarding \n  date/times in general and UTC in particular.\n* iat: REQUIRED. Time at which the JWT was issued. Its value is a JSON number representing the number of \n  seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time.\n* client_id: REQUIRED. The client_id claim carries the client identifier of the OAuth 2.0 [RFC6749] client \n  that requested the token.  This value must be the HERE App Id.  The \"id\" property of the HERE App acting \n  as the Relying Party in the token exchange. See also \n  (RFC 8693)[https://www.rfc-editor.org/rfc/rfc8693.html#section-4.3].\n"
+          example: ey123.abc.xyz
+        subjectTokenType:
+          type: string
+          description: 'REQUIRED. An identifier that indicates the type of the security token in the subject_token parameter.
+
+            '
+          example: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+    Rfc6749ErrorMessage:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ErrorMessage'
+      - $ref: '#/components/schemas/Rfc6749Extensions'
+    OidcSignInRequestJson:
+      type: object
+      title: OidcSignInRequestJson
+      properties:
+        grantType:
+          type: string
+          description: 'Always "jwtIssNotHERE" for this operation.
+
+            '
+          example: jwtIssNotHERE
+        clientId:
+          type: string
+          description: 'HERE issued client that is initiating this federation. Required for OIDC federation.
+
+            '
+          example: CAAKe98vpnuPAZDZD
+        realm:
+          type: string
+          description: realm in which this token exchange happens. Required for OIDC federation.
+          example: olp-oem
+        givenName:
+          type: string
+          description: User's first name. Required when exchanging some types of third party tokens and when this is the first time sign-in; optional for subsequent sign-ins.
+          example: Jack
+        familyName:
+          type: string
+          description: User's last name. Required when exchanging some types of third party tokens and when this is the first time sign-in; optional for subsequent sign-ins.
+          example: Harrow
+        countryCode:
+          type: string
+          description: 'Required for first time sign-in, optional (since 1.2) for subsequent sign-ins. ISO 3166-1 alpha-3 country code.
+
+            '
+          example: USA
+        language:
+          type: string
+          description: 'Required if first time sign-in, Optional (since 1.2) for subsequent sign-ins. ISO 639-1 2 letter language code.
+
+            '
+          example: en
+        expiresIn:
+          type: integer
+          description: 'Number of seconds before token expires, must number zero or more. Ignored if greater than default expiration of the application.
+
+            '
+          example: 3600
+        nonce:
+          type: string
+          description: Required only for some types of third party token exchange, and only if the token contains a "nonce" claim.
+          example: n-0S6_WzA2Mj
+      required:
+      - grantType
+    TokenExchangeResponseJson:
+      type: object
+      required:
+      - accessToken
+      - issuedTokenType
+      - tokenType
+      - expiresIn
+      example:
+        accessToken: ey456.def.uvw
+        issuedTokenType: urn:ietf:params:oauth:token-type:access_token
+        tokenType: Bearer
+        expiresIn: 3600
+      properties:
+        accessToken:
+          type: string
+          description: "REQUIRED. The security token issued by the authorization server in response to the token \nexchange request. The access_token parameter from Section 5.1 of [RFC6749] is used here to carry \nthe requested token, which allows this token exchange protocol to use the existing OAuth 2.0 \nrequest and response constructs defined for the token endpoint. The identifier access_token is \nused for historical reasons and the issued token need not be an OAuth access token.\n"
+          example: ey456.def.uvw
+        issuedTokenType:
+          type: string
+          description: 'REQUIRED. An identifier, as described in Section 3, for the representation of the issued security token.
+
+            '
+          example: urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+        tokenType:
+          type: string
+          description: "REQUIRED. A case-insensitive value specifying the method of using the access token issued, as \nspecified in Section 7.1 of [RFC6749]. It provides the client with information about how to \nutilize the access token to access protected resources. For example, a value of Bearer, as \nspecified in [RFC6750], indicates that the issued security token is a bearer token and the \nclient can simply present it as is without any additional proof of eligibility beyond the \ncontents of the token itself. Note that the meaning of this parameter is different from the \nmeaning of the issued_token_type parameter, which declares the representation of the issued \nsecurity token; the term \"token type\" is more typically used to mean the structural or \nsyntactical representation of the security token, as it is in all *_token_type parameters \nin this specification. If the issued token is not an access token or usable as an access \ntoken, then the token_type value N_A is used to indicate that an OAuth 2.0 token_type \nidentifier is not applicable in that context.\n"
+          example: Bearer
+          enum:
+          - Bearer
+          default: Bearer
+        expiresIn:
+          type: string
+          description: "RECOMMENDED. The validity lifetime, in seconds, of the token issued by the authorization \nserver. Oftentimes, the client will not have the inclination or capability to inspect the \ncontent of the token, and this parameter provides a consistent and token-type-agnostic \nindication of how long the token can be expected to be valid. For example, the value 1800 \ndenotes that the token will expire in thirty minutes from the time the response was \ngenerated.\n"
+          example: 3600
+          minimum: 0
+          maximum: 86400
+        scope:
+          type: string
+          description: "OPTIONAL if the scope of the issued security token is identical to the scope requested by \nthe client; otherwise, it is REQUIRED.\n"
+          example: hrn:here:account::org123456789:project/my-project
+    SignInResponseForm:
+      oneOf:
+      - $ref: '#/components/schemas/SignInWithClientCredentialsResponseForm'
+      - $ref: '#/components/schemas/SignInWithOidcResponseForm'
+      - $ref: '#/components/schemas/TokenExchangeResponseForm'
+    SignInWithClientCredentialsRequestJson:
+      type: object
+      required:
+      - grantType
+      properties:
+        grantType:
+          type: string
+          description: Always "client_credentials" for this operation.
+          enum:
+          - client_credentials
+          example: client_credentials
+        clientAssertionType:
+          type: string
+          description: 'The type of client assertion being used for authentication. When present, OAuth 1.0 signature
+
+            headers are NOT required. Must be "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" per RFC 7523.
+
+            Required when clientAssertion is provided.
+
+            '
+          enum:
+          - urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+          example: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+        clientAssertion:
+          type: string
+          description: 'A single signed JWT used to authenticate the client (RFC 7523 §2.2). When present along with
+
+            clientAssertionType, OAuth 1.0 signature headers are NOT required.
+
+
+            The JWT MUST contain the following claims:
+
+            * iss: REQUIRED. The client_id of the application.
+
+            * sub: REQUIRED. Must equal iss (the client_id of the application).
+
+            * aud: REQUIRED. The token endpoint URL (e.g. https://account.api.here.com/oauth2/token).
+
+            * exp: REQUIRED. Expiration time (NumericDate). The AS MAY reject tokens with exp unreasonably far in the future.
+
+            * iat: OPTIONAL. Issued at time (NumericDate).
+
+            * jti: OPTIONAL. Unique assertion id. When provided, it is used for replay protection and MUST only be used once.
+
+
+            The JWT header MUST contain:
+
+            * alg: REQUIRED. The signing algorithm (e.g. RS256, ES256).
+
+            * kid: OPTIONAL. Key ID matching a registered public key. When provided, it is used to identify which registered JWK to verify against.
+
+
+            The JWT MUST be signed with a private key whose corresponding public key is registered for the
+
+            application via the JWKs management API. The JWT header MUST include the kid matching the registered key.
+
+            '
+          example: eyJhbGciOiJSUzI1NiJ9.eyJpc3Mi[...omitted for brevity...].cC4hiUPo[...omitted for brevity...]
+        expiresIn:
+          type: integer
+          example: 3600
+          description: 'Number of seconds before token expires, must number zero or more. Ignored if greater than default expiration of the application.
+
+            '
+        tokenFormat:
+          type: string
+          enum:
+          - hN
+          - jwt
+          - jwt+header
+          - jws
+          example: hN
+          description: 'Supported token formats are hN, jwt, jwt+header and jws.
+
+            * ''hN'' produces a HERE proprietary-formatted access token.
+
+            * ''jwt'' produces a Nested JWT-formatted access token with a JWE enclosed in a JWS.
+
+            * ''jwt+header'' produces a Nested JWT-formatted access token with a JWE enclosed in a JWS with additional claims copied into the JOSE header.
+
+            * ''jws'' produces a JWS-formatted access token with a JWS Payload containing the *plaintext* JWT Claims Set.
+
+            '
+        scope:
+          type: string
+          description: 'Requested scope of the access token. Must be an HRN identifying a project that the identified client has access to.
+
+            '
+          example: hrn:here:authorization::myrealm:project/myproject
+        deviceId:
+          type: string
+          description: 'Anonymous Device id. Supported only if client has deviceTokenCreationEnabled flag enabled. On success, token will contain ''did'' claim.
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+        resource:
+          type: array
+          items:
+            type: string
+            pattern: ^https?://[^/?#]+(?:/[^?#]*)?$
+            example: https://here.com/mcp
+          description: "Parameter to indicate the resource server for which the access token is requested. \n\nThe resource parameter value must be <ol> <li>Must be canonical service URI</li> <li>Must contain the scheme</li> <li>Must contain host</li> <li>May contain path component</li>  <li>May contain trialing slash</li> <li>Letters may be of uppercase and lowercase form</li>  <li>Should NOT contain query parameters</li> <li>Must NOT contain fragments</li>\n"
+    SignInResponseJson:
+      oneOf:
+      - $ref: '#/components/schemas/SignInWithClientCredentialsResponseJson'
+      - $ref: '#/components/schemas/SignInWithOidcResponseJson'
+      - $ref: '#/components/schemas/TokenExchangeResponseJson'
+    SignInRequestJson:
+      oneOf:
+      - $ref: '#/components/schemas/SignInWithClientCredentialsRequestJson'
+      - $ref: '#/components/schemas/OidcSignInRequestJson'
+      - $ref: '#/components/schemas/TokenExchangeRequestJson'
+    SignInWithClientCredentialsResponseForm:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The new client access token, identifying your service..
+          example: eyJhbGciOiJSUzUxMiIsImN0e...x1dEEtSlJ4eFBvOEREZzJyeVFHOU9pUkRvYVh6Z
+        token_type:
+          type: string
+          description: Always "bearer" for this operation..
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Seconds until token expiration.
+          example: 3600
+        scope:
+          type: string
+          description: Optional. The scope assigned to the access token.
+          example: hrn:here:authorization::myrealm:project/myproject
+        device_id:
+          type: string
+          description: 'Optional. Included only if the client has deviceTokenCreationEnabled flag enabled and the request contains the deviceId
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+    Rfc6749Extensions:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: "REQUIRED.  A single ASCII [USASCII] error code from the\nfollowing:\n\n- invalid_request\n               The request is missing a required parameter, includes an\n               unsupported parameter value (other than grant type),\n               repeats a parameter, includes multiple credentials,\n               utilizes more than one mechanism for authenticating the\n               client, or is otherwise malformed.\n\n- invalid_client\n               Client authentication failed (e.g., unknown client, no\n               client authentication included, or unsupported\n               authentication method).  The authorization server MAY\n               return an HTTP 401 (Unauthorized) status code to indicate\n               which HTTP authentication schemes are supported.  If the\n               client attempted to authenticate via the \"Authorization\"\n               request header field, the authorization server MUST\n               respond with an HTTP 401 (Unauthorized) status code and\n               include the \"WWW-Authenticate\" response header field\n               matching the authentication scheme used by the client.\n\n- invalid_grant\n               The provided authorization grant (e.g., authorization\n               code, resource owner credentials) or refresh token is\n               invalid, expired, revoked, does not match the redirection\n               URI used in the authorization request, or was issued to\n               another client.\n\n- unauthorized_client\n               The authenticated client is not authorized to use this\n               authorization grant type.\n\n- unsupported_grant_type\n               The authorization grant type is not supported by the\n               authorization server.\n- invalid_scope\n               The requested scope is invalid, unknown, malformed, or\n               exceeds the scope granted by the resource owner.\n\nValues for the \"error\" parameter MUST NOT include characters\noutside the set %x20-21 / %x23-5B / %x5D-7E.\n"
+        error_description:
+          type: string
+          description: 'OPTIONAL.  Human-readable ASCII [USASCII] text providing
+
+            additional information, used to assist the client developer in
+
+            understanding the error that occurred.
+
+            Values for the "error_description" parameter MUST NOT include
+
+            characters outside the set %x20-21 / %x23-5B / %x5D-7E.
+
+            '
+        error_uri:
+          type: string
+          description: 'OPTIONAL.  A URI identifying a human-readable web page with
+
+            information about the error, used to provide the client
+
+            developer with additional information about the error.
+
+            Values for the "error_uri" parameter MUST conform to the
+
+            URI-reference syntax and thus MUST NOT include characters
+
+            outside the set %x21 / %x23-5B / %x5D-7E.
+
+            '
+    TokenExchangeResponseForm:
+      type: object
+      required:
+      - access_token
+      - issued_token_type
+      - token_type
+      - expires_in
+      example:
+        access_token: ey456.def.uvw
+        issued_token_type: urn:ietf:params:oauth:token-type:access_token
+        token_type: Bearer
+        expires_in: 3600
+      properties:
+        access_token:
+          type: string
+          description: "REQUIRED. The security token issued by the authorization server in response to the token \nexchange request. The access_token parameter from Section 5.1 of [RFC6749] is used here to carry \nthe requested token, which allows this token exchange protocol to use the existing OAuth 2.0 \nrequest and response constructs defined for the token endpoint. The identifier access_token is \nused for historical reasons and the issued token need not be an OAuth access token.\n"
+          example: ey456.def.uvw
+        issued_token_type:
+          type: string
+          description: 'REQUIRED. An identifier, as described in Section 3, for the representation of the issued security token.
+
+            '
+          example: urn:ietf:params:oauth:token-type:access_token
+          default: urn:ietf:params:oauth:token-type:access_token
+          enum:
+          - urn:ietf:params:oauth:token-type:access_token
+        token_type:
+          type: string
+          description: "REQUIRED. A case-insensitive value specifying the method of using the access token issued, as \nspecified in Section 7.1 of [RFC6749]. It provides the client with information about how to \nutilize the access token to access protected resources. For example, a value of Bearer, as \nspecified in [RFC6750], indicates that the issued security token is a bearer token and the \nclient can simply present it as is without any additional proof of eligibility beyond the \ncontents of the token itself. Note that the meaning of this parameter is different from the \nmeaning of the issued_token_type parameter, which declares the representation of the issued \nsecurity token; the term \"token type\" is more typically used to mean the structural or \nsyntactical representation of the security token, as it is in all *_token_type parameters \nin this specification. If the issued token is not an access token or usable as an access \ntoken, then the token_type value N_A is used to indicate that an OAuth 2.0 token_type \nidentifier is not applicable in that context.\n"
+          example: Bearer
+          enum:
+          - Bearer
+          default: Bearer
+        expires_in:
+          type: string
+          description: "RECOMMENDED. The validity lifetime, in seconds, of the token issued by the authorization \nserver. Oftentimes, the client will not have the inclination or capability to inspect the \ncontent of the token, and this parameter provides a consistent and token-type-agnostic \nindication of how long the token can be expected to be valid. For example, the value 1800 \ndenotes that the token will expire in thirty minutes from the time the response was \ngenerated.\n"
+          example: 3600
+          minimum: 0
+          maximum: 86400
+        scope:
+          type: string
+          description: "OPTIONAL if the scope of the issued security token is identical to the scope requested by \nthe client; otherwise, it is REQUIRED.\n"
+          example: hrn:here:account::org123456789:project/my-project
+    SignInPreconditionFailedResponse:
+      type: object
+      title: SignInPreconditionFailedResponse
+      properties:
+        errorCode:
+          type: integer
+          description: '412001 - Major terms re-acceptance required
+
+            412002 - Minor terms re-acceptance required.
+
+            412003 - Date of birth (DoB) is required.
+
+            '
+          example: 412003
+        dobRequiredToken:
+          type: string
+          description: Only populated for errorCode 412003. Token required for the dobRequired API
+          example: h1|2nIUQOhp7...RfsAVQ==|D3qoGkpNQJm/+64mEcqgJ6ea3eAdBVNBrtzuB...Vmo2Cog/xOw==
+        termsReacceptanceToken:
+          type: string
+          description: Only populated for errorCode 412001. Token required for the terms acceptance API
+          example: h1|2nIUQOhp7...RfsAVQ==|D3qoGkpNQJm/+64mEcqgJ6ea3eAdBVNBrtzuB...Vmo2Cog/xOw==
+        url:
+          type: object
+          description: Only populated for errorCode 412001.
+          properties:
+            tos:
+              type: string
+              description: URL to the most recent terms of service, appropriate for the user's country and language.
+              example: http://here.com/terms?locale=en-US#mapsTermsDiv
+            pp:
+              type: string
+              description: URL to the most recent privacy policy, appropriate for the user's country and language.
+              example: http://here.com/terms?locale=en-US#privacyPolicyDiv
+            tosJSON:
+              type: string
+              description: URL to the most recent JSON version of terms of service, appropriate for the user's country and language.
+              example: http://here.com/terms/?cc=us&lang=en-US&out=json
+            ppJSON:
+              type: string
+              description: URL to the most recent JSON version of privacy policy, appropriate for the user's country and language.
+              example: http://here.com/privacy/privacy-policy/us/?lang=en-US&out=json
+    SignInWithOidcResponseForm:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The new client access token, identifying your service..
+          example: eyJhbGciOiJSUzUxMiIsImN0e...x1dEEtSlJ4eFBvOEREZzJyeVFHOU9pUkRvYVh6Z
+        token_type:
+          type: string
+          description: Always "bearer" for this operation..
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Seconds until token expiration.
+          example: 3600
+        scope:
+          type: string
+          description: Optional. The scope assigned to the access token.
+          example: hrn:here:authorization::myrealm:project/myproject
+        device_id:
+          type: string
+          description: 'Optional. Included only if the client has deviceTokenCreationEnabled flag enabled and the request contains the deviceId
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+    OidcSignInRequestForm:
+      type: object
+      title: OidcSignInRequestForm
+      properties:
+        grant_type:
+          type: string
+          description: Always "jwtIssNotHERE" for this operation.
+          example: jwtIssNotHERE
+        client_id:
+          type: string
+          description: HERE issued client that is initiating this federation. Required for OIDC federation.
+          example: DdcIHVVKuMvTQrdci1FW
+        realm:
+          type: string
+          description: realm in which this token exchange happens. Required for OIDC federation..
+          example: olp-oem
+        given_name:
+          type: string
+          description: User's first name. Required when exchanging some types of third party tokens and when this is the first time sign-in; optional for subsequent sign-ins.
+          example: Jack
+        family_name:
+          type: string
+          description: User's last name. Required when exchanging some types of third party tokens and when this is the first time sign-in; optional for subsequent sign-ins.
+          example: Harrow
+        country_code:
+          type: string
+          description: country code. Required for first time sign-in for OIDC federation, optional for subsequent sign-ins. ISO 3166-1 alpha-3 country code.
+          example: USA
+        language:
+          type: string
+          description: language. Required if first time sign-in for OIDC federation, Optional for subsequent sign-ins. ISO 639-1 2 letter language code.
+          example: en
+        expires_in:
+          type: integer
+          description: Number of seconds before token expires, must number zero or more.  Ignored if greater than default expiration of the token.
+          example: 3600
+        nonce:
+          type: string
+          description: Required only for some types of third party token exchange, and only if the token contains a "nonce" claim.
+          example: n-0S6_WzA2Mj
+      required:
+      - grant_type
+    SignInWithClientCredentialsResponseJson:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: The new client access token, identifying your service..
+          example: eyJhbGciOiJSUzUxMiIsImN0e...x1dEEtSlJ4eFBvOEREZzJyeVFHOU9pUkRvYVh6Z
+        tokenType:
+          type: string
+          description: Always "bearer" for this operation..
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Seconds until token expiration.
+          example: 3600
+        scope:
+          type: string
+          description: Optional. The scope assigned to the access token.
+          example: hrn:here:authorization::myrealm:project/myproject
+        deviceId:
+          type: string
+          description: 'Optional. Included only if the client has deviceTokenCreationEnabled flag enabled and the request contains the deviceId
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+    SignInWithClientCredentialsRequestForm:
+      type: object
+      required:
+      - grant_type
+      properties:
+        grant_type:
+          type: string
+          description: Always "client_credentials" for this operation.
+          enum:
+          - client_credentials
+          example: client_credentials
+        client_assertion_type:
+          type: string
+          description: 'The type of client assertion being used for authentication. When present, OAuth 1.0 signature
+
+            headers are NOT required. Must be "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" per RFC 7523.
+
+            Required when client_assertion is provided.
+
+            '
+          enum:
+          - urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+          example: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+        client_assertion:
+          type: string
+          description: 'A single signed JWT used to authenticate the client (RFC 7523 §2.2). When present along with
+
+            client_assertion_type, OAuth 1.0 signature headers are NOT required.
+
+
+            The JWT MUST contain the following claims:
+
+            * iss: REQUIRED. The client_id of the application.
+
+            * sub: REQUIRED. Must equal iss (the client_id of the application).
+
+            * aud: REQUIRED. The token endpoint URL.
+
+            * exp: REQUIRED. Expiration time (NumericDate). The AS MAY reject tokens with exp unreasonably far in the future.
+
+            * iat: OPTIONAL. Issued at time (NumericDate).
+
+            * jti: OPTIONAL. Unique assertion id. When provided, it is used for replay protection and MUST only be used once.
+
+
+            The JWT header MUST contain:
+
+            * alg: REQUIRED. The signing algorithm (e.g. RS256).
+
+            * kid: OPTIONAL. Key ID matching a registered public key. When provided, it is used to identify which registered JWK to verify against.
+
+
+            The JWT MUST be signed with a private key whose corresponding public key is registered for the
+
+            application via the JWKs management API. The JWT header MUST include the kid matching the registered key.
+
+            '
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6InJzYS1zaWduaW5nLWtleS0yMDI2In0.eyJpc3MiOiJ1SWtHellTaExLdFFRQWltWHp2ViIsInN1YiI6InVJa0d6WVNoTEt0UVFBaW1YenZWIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50LmFwaS5oZXJlLmNvbS9vYXV0aDIvdG9rZW4iLCJleHAiOjE3NDg0MzgwMDAsImlhdCI6MTc0ODQzNDQwMCwianRpIjoiYTFiMmMzZDQtZTVmNi03ODkwIn0.signature
+        expires_in:
+          type: integer
+          example: 3600
+          description: 'Number of seconds before token expires, must number zero or more.  Ignored if greater than default expiration of the application.
+
+            '
+        token_format:
+          type: string
+          example: hN
+          enum:
+          - hN
+          - jwt
+          - jwt+header
+          - jws
+          description: 'Supported token formats are hN, jwt, jwt+header and jws.
+
+            * ''hN'' produces a HERE proprietary-formatted access token.
+
+            * ''jwt'' produces a Nested JWT-formatted access token with a JWE enclosed in a JWS.
+
+            * ''jwt+header'' produces a Nested JWT-formatted access token with a JWE enclosed in a JWS with additional claims copied into the JOSE header.
+
+            * ''jws'' produces a JWS-formatted access token with a JWS Payload containing the *plaintext* JWT Claims Set.
+
+            '
+        scope:
+          type: string
+          description: 'Requested scope of the access token. Must be an HRN identifying a project that the identified client has access to.
+
+            '
+          example: hrn:here:authorization::myrealm:project/myproject
+        device_id:
+          type: string
+          description: 'Anonymous Device id. Supported only if client has deviceTokenCreationEnabled flag enabled. On success, token will contain ''did'' claim.
+
+            '
+          example: 7f911ae9-3f11-4ad3-8bb0-b3436cc0f3bf
+        resource:
+          type: array
+          items:
+            type: string
+            pattern: ^https?://[^/?#]+(?:/[^?#]*)?$
+            example: https://here.com/mcp
+          description: "Parameter to indicate the resource server for which the access token is requested. \nThe resource parameter value must be <ol> <li>Must be canonical service URI</li> <li>Must contain the scheme</li> <li>Must contain host</li> <li>May contain path component</li>  <li>May contain trialing slash</li> <li>Letters may be of uppercase and lowercase form</li>  <li>Should NOT contain query parameters</li> <li>Must NOT contain fragments</li>\n"
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  links:
+    acceptTermsLink:
+      description: The `termsReacceptanceToken` value returned in the response can be used as `termsReacceptanceToken` parameter in `POST /terms` requestBody
+      operationId: acceptTerms
+      parameters:
+        termsReacceptanceToken: $response.body.termsReacceptanceToken
+  securitySchemes:
+    OAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'OAuth [OAuth 1.0 Signing Process](http://oauth.net/core/1.0/#signing_process). Used for client_credentials grant when NOT using JWT assertion authentication.
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

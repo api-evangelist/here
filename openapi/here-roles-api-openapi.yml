@@ -1,0 +1,1051 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Roles API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Roles
+  description: Role and Role Membership Management
+paths:
+  /roles:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/roleName'
+      - $ref: '#/components/parameters/resourceHrn'
+      tags:
+      - Roles
+      summary: Get Roles
+      description: 'Retrieve the list of roles within the context of the provided realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readRoles"** action permission for the callers **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRoles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /roles/me:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      tags:
+      - Roles
+      summary: Get My Roles
+      description: 'Retrieve the list of roles which have been assigned to the calling party.
+
+
+        Access Control:
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getMyRoles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /roles/{role}:
+    parameters:
+    - $ref: '#/components/parameters/role'
+    get:
+      tags:
+      - Roles
+      summary: Get Role
+      operationId: getRole
+      description: 'Get the role identified by the provided Role HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readRoles"** action permission for the callers **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role not found
+  /roles/{role}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/role'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      tags:
+      - Roles
+      summary: Get Role Permissions
+      operationId: getRolePermissions
+      description: 'Get the **unscoped** permissions associated with the role identified by the provided Role HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPermissions"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role not found
+  /roles/{role}/permissions/{permission}:
+    parameters:
+    - $ref: '#/components/parameters/role'
+    - $ref: '#/components/parameters/permission'
+    get:
+      tags:
+      - Roles
+      summary: Get Role Permission
+      operationId: getRolePermission
+      description: 'Get a single permission associated with the role identified by the provided Role HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPermissions"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivePermission'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role or permission not found
+  /roles/{role}/filter:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/role'
+      tags:
+      - Roles
+      summary: Get Role Access Filter
+      description: 'Retrieve the Access Filter attached to this role if there is one.
+
+
+        Access Control:
+
+        * The calling principal must have **"readFilter"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRoleAccessFilter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role or access filter not found.
+  /roles/{role}/entities:
+    parameters:
+    - $ref: '#/components/parameters/role'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      tags:
+      - Roles
+      summary: Get role entities
+      description: 'Retrieve the list of entities which have been assigned the role as
+
+        identified by the provided role HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRoleEntities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleEntityPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role not found
+  /roles/{role}/entities/{entity}:
+    parameters:
+    - $ref: '#/components/parameters/role'
+    - $ref: '#/components/parameters/entity'
+    get:
+      tags:
+      - Roles
+      summary: Get a single role entity
+      description: 'Retrieve a single entity which has been assigned the role as identified
+
+        by the provided role HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRoleEntity
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleEntity'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role or entity not found
+        '422':
+          description: 'A defined system limit would be violated if this action was completed.
+
+            Example: ''MaxEntityRoles limit reached. Current value: 100. Maximum value: 100''
+
+            * 422000 - LimitReached
+
+            '
+    post:
+      tags:
+      - Roles
+      summary: Assign a role to an entity
+      description: 'Assign the role provided to the given entity. If the provided role is
+
+        associated with a group, the entity being assigned the role must be a
+
+        member of the associated group.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: addRoleEntity
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role or entity not found
+    delete:
+      tags:
+      - Roles
+      summary: Revoke a role from an entity
+      operationId: deleteRoleEntity
+      description: 'Remove the role provided to from the given member.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Role or entity not found
+components:
+  schemas:
+    AccessFilter:
+      type: object
+      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+    AccessFilterVirtualProperties:
+      type: object
+      properties:
+        externalIds:
+          type: array
+          items:
+            type: string
+          description: 'Only included in virtual Access Filters.  The list of externalIds that this virtual Access Filter is linked
+
+            to.  Plans and ResourcePlans attached to this realm with one of the externalIds in this list are used as
+
+            the basis of this filter.  The list of Plans and ResourcePlans used may be further filtered **if** the
+
+            planAttachments or resourcePlanAttachments properties are also defined.  The statements in this filter are
+
+            automatically generated to allow access to each of the permissions and resources defined in those included
+
+            plans.
+
+            '
+          example:
+          - A-12345
+          - A-67890
+        planAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of plan attachments to filter.  Must match one of the top level externalIds specified
+
+                  for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              planHrns:
+                type: array
+                items:
+                  type: string
+                description: 'The list of planHrns that may be used as the basis of this virtual Access Filter''s statements for
+
+                  any plans that are attached to this realm with the given externalId.
+
+                  '
+                example:
+                - hrn:here:authorization::HERE:plan/PLAN-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+                - hrn:here:authorization::HERE:plan/PLAN-457c91d8-f67e-49e6-b629-e72c2f5b1036
+          description: 'Only included in virtual Access Filters.  The list of planAttachments that this virtual Access Filter is
+
+            linked to.  If this field is included, for the externalId of each list entry, **only** Plans that are
+
+            attached to this realm with the defined externalId **and** one of the defined planHrns will be used as the
+
+            basis of statements in this filter.  Any Plans attached to this realm with the given externalId that are
+
+            **not** in the list of defined planHrns will be excluded from the basis of this filter.  If this field is
+
+            omitted, or there is no entry for any one of the externalIds defined for this virtual Access Filter,
+
+            **all** of the Plans attached with the externalId will be used as the basis of statements in this filter.
+
+            '
+        resourcePlanAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of resource plan attachments to filter.  Must match one of the top level externalIds
+
+                  specified for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              resourcePlanHrns:
+                type: array
+                items:
+                  type: string
+                description: "The list of resourcePlanHrns that may be used as the basis of this virtual Access Filter's statements \nfor any resource plans that are attached to this realm with the given externalId.\n"
+                example:
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0000
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0001
+          description: 'Only included in virtual Access Filters.  The list of resourcePlanAttachments that this virtual Access
+
+            Filter is linked to.  If this field is included, for the externalId of each list entry, **only** Resource
+
+            Plans that are attached to this realm with the defined externalId **and** one of the defined
+
+            resourcePlanHrns will be used as the basis of statements in this filter.  Any Resource Plans attached to
+
+            this realm with the given externalId that are **not** in the list of defined resourcePlanHrns will be
+
+            excluded from the basis of this filter.  If this field is omitted, or there is no entry for any one of the
+
+            externalIds defined for this virtual Access Filter, **all** of the Plans attached with the externalId will
+
+            be used as the basis of statements in this filter.
+
+            '
+        mode:
+          type: string
+          enum:
+          - open
+          - strict
+          description: "Only included in virtual Access Filters.  The pattern of filter statements used in this virtual Access Filter.\n* **open** - All permissions and resources specified in both Plans and ResourcePlans attached to this realm\n  with the relevant externalIds are available via this filter with both scoped and unscoped access.  In\n  addition, all linkable resources are available in both scoped and unscoped access.\n* **strict** - All permissions specified in Plans attached to this realm with the relevant externalIds are\n  ONLY available via this filter with unscoped access.  All resources specified in ResourcePlans attached\n  to this realm with the relevant externalIds are ONLY available via this filter with scoped access.\n"
+          example: open
+        priority:
+          type: integer
+          description: 'Only included in virtual Access Filters.  The priority assigned to each filter statement in this virtual
+
+            Access Filter.
+
+            '
+          minimum: 0
+          maximum: 1000
+          example: 100
+    RoleEntityInfo:
+      description: 'Details about the role entity. The provided fields are dependent on the entityType as provided.<p> User: userId, userHrn, realm, firstname, lastname, email, state<p> App: clientId, clientHrn, realm, name, description, ownerId, ownerHrn, defaultScope, isRestrictedScope, appCreationEnabled
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/UserInfo'
+      - $ref: '#/components/schemas/AppInfo'
+      example:
+        userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+        userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        realm: myrealm
+        firstname: John
+        lastname: Williams
+        email: john.williams@example.com
+        state: enabled
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    AccessFilterStatement:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Prose description of what this filter statement does.
+          example: Block evaluation of all unscoped permissions for any project scoped request.
+        permissions:
+          type: string
+          enum:
+          - unscoped
+          - scoped
+          - linkable
+          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
+          example: unscoped
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
+        service:
+          type: string
+          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
+
+            or the **serviceIdAlias** of the service.
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+        actions:
+          type: array
+          description: The specific action identifiers of the access request that will match this statement
+          items:
+            type: string
+          example:
+          - read
+        actionAccessLevel:
+          type: string
+          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
+          enum:
+          - read
+          - write
+          - default
+          - internal
+          example: read
+        resource:
+          type: string
+          description: The resource identifier of the access request that will match this statement
+          example: hrn:here:data::my-realm:service-catalog
+        scope:
+          type: string
+          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        evaluate:
+          type: boolean
+          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
+          example: true
+        priority:
+          type: integer
+          description: An integer representing the statement priority
+          minimum: 0
+          maximum: 1000
+          example: 1
+    PageWToken:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          example: 10
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          example: 7afd7f8e94eb4844ba45
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          example: 2
+          type: integer
+          description: number of items returned
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the role
+          example: ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        hrn:
+          type: string
+          description: Unique identifier for this role with partition/realm/etc, an HRN
+          example: hrn:here:authorization::myrealm:role/ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        name:
+          type: string
+          description: System defined name for the role
+          example: GroupAdmin
+        resource:
+          type: string
+          description: Represents either Group or Realm HRN for which object is scoped for
+          example: hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    AccessFilterCommonProperties:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - here-platform
+          - custom
+          - virtual
+          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
+          example: here-platform
+        name:
+          type: string
+          description: The name of the filter
+          example: Strict Projects
+    RoleEntity:
+      type: object
+      properties:
+        entityHrn:
+          type: string
+          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        entityType:
+          type: string
+          enum:
+          - user
+          - app
+        info:
+          $ref: '#/components/schemas/RoleEntityInfo'
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    RolePageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Role'
+    AppInfo:
+      type: object
+      properties:
+        clientId:
+          readOnly: true
+          type: string
+          description: Identifier for the client/application.
+          example: 0123456789ABCDEFGHHIJKLM
+        clientHrn:
+          readOnly: true
+          type: string
+          description: HRN for the client/application.
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+        realm:
+          readOnly: true
+          type: string
+          description: A realm to which app belongs to.
+          example: myrealm
+        name:
+          readOnly: true
+          type: string
+          description: Human readable name of the client.
+          example: Some Application
+        description:
+          readOnly: true
+          type: string
+          description: Prose description of the client.
+          example: Application for doing something.
+        ownerId:
+          readOnly: true
+          type: string
+          description: The id of the user that owns this client.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        ownerHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the user that owns this client.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        defaultScope:
+          readOnly: true
+          type: string
+          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        isRestrictedScope:
+          readOnly: true
+          type: boolean
+          description: If true, the app cannot request a token with a scope different from defaultScope.
+          example: true
+        appCreationEnabled:
+          readOnly: true
+          type: boolean
+          description: If true, the app can create apps.
+          example: true
+        alwaysProjectScope:
+          readOnly: true
+          type: boolean
+          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
+          example: true
+        status:
+          readOnly: true
+          type: string
+          enum:
+          - active
+          - expired
+          - blacklisted
+          - deactivated
+          - monitoring
+          - quota_exceeded
+          description: Status of the application
+          example: active
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the app.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    PermissionPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    RoleEntityPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/RoleEntity'
+            example:
+            - entityHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+              entityType: user
+              info:
+                userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+                userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+                realm: myrealm
+                firstname: John
+                lastname: Williams
+                email: john.williams@example.com
+                state: enabled
+            - entityHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+              entityType: app
+              info:
+                clientId: 0123456789ABCDEFGHHIJKLM
+                clientHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+                realm: myrealm
+                name: Some Application
+                description: Application for doing something.
+                ownerId: HERE-00000000-0000-0000-0000-000000000000
+                ownerHrn: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    AccessFilterStatements:
+      type: object
+      properties:
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFilterStatement'
+          description: List of statements in this filter.
+    AccessFilterIdentifier:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the filter
+          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
+  parameters:
+    resourceHrn:
+      in: query
+      name: resource
+      required: false
+      description: 'The hrn of the resource which the roles returned in the result set should be
+
+        associated with.
+
+        '
+      schema:
+        type: string
+    entity:
+      in: path
+      name: entity
+      required: true
+      description: HRN identifying a given entity
+      schema:
+        type: string
+    roleName:
+      in: query
+      name: roleName
+      required: false
+      description: The name of the role to be returned in the result set.
+      schema:
+        type: string
+    permission:
+      in: path
+      name: permission
+      required: true
+      description: Permission identifier
+      schema:
+        type: string
+    count:
+      in: query
+      name: count
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    role:
+      in: path
+      name: role
+      required: true
+      description: HRN identifying a given role
+      schema:
+        type: string
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

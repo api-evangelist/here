@@ -1,0 +1,1142 @@
+openapi: 3.2.0
+info:
+  title: Here Weather Alerts API
+  version: '1.0'
+  description: 'Operations tagged Weather Alerts across 2 of this provider''s published API definitions: here-destination-weather-v1-openapi.yml, here-destination-weather-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://weather.cc.api.here.com
+  description: Production environment URL.
+- url: https://weather.hereapi.com/v3
+  description: Production environment URL
+tags:
+- name: Weather Alerts
+  description: Weather alerts.
+paths:
+  /weather/2.0/alerts:
+    get:
+      tags:
+      - Weather Alerts
+      summary: Weather alerts
+      description: Weather alerts around single car location.
+      operationId: Weather API v1 weatherAlert
+      parameters:
+      - name: lat
+        in: query
+        description: Latitude of car position.
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+      - name: lon
+        in: query
+        description: Longitude of car position.
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+      - name: width
+        in: query
+        description: Width of circular area around car position in meters. Default 50 000 (app. 31 miles). Minimum value 1000 meters, maximum 100 km.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1000
+          maximum: 100000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAlertsResponse'
+        '400':
+          $ref: '#/components/responses/Error400AlertsResponse'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '429':
+          $ref: '#/components/responses/Error429Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+        '502':
+          $ref: '#/components/responses/Error502Response'
+        '503':
+          $ref: '#/components/responses/Error503Response'
+        '504':
+          $ref: '#/components/responses/Error504Response'
+      security:
+      - Bearer: []
+    post:
+      tags:
+      - Weather Alerts
+      summary: Weather alerts
+      description: Weather alerts along the route.
+      operationId: Weather API v1 weatherRouteAlert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAlertsResponse'
+        '400':
+          $ref: '#/components/responses/Error400AlertsResponse'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '429':
+          $ref: '#/components/responses/Error429Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+        '502':
+          $ref: '#/components/responses/Error502Response'
+        '503':
+          $ref: '#/components/responses/Error503Response'
+        '504':
+          $ref: '#/components/responses/Error504Response'
+      security:
+      - Bearer: []
+    servers:
+    - url: https://weather.cc.api.here.com
+      description: Production environment URL.
+  /alerts:
+    post:
+      tags:
+      - Weather Alerts
+      summary: Weather alerts
+      description: Weather alerts along the route or around a single location.
+      operationId: Weather API v3 weatherAlert
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAlertRequestGeoJson'
+            examples:
+              singleLocationExample:
+                $ref: '#/components/examples/WeatherAlertsSingleLocationRequestExample'
+              routeExample:
+                $ref: '#/components/examples/WeatherAlertsRouteRequestExample'
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAlertGeoJson'
+              examples:
+                alertExample:
+                  $ref: '#/components/examples/WeatherAlertsResponseExample'
+        '400':
+          $ref: '#/components/responses/Error400AlertsResponse_2'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '500':
+          $ref: '#/components/responses/Error500Response_2'
+        '502':
+          $ref: '#/components/responses/Error502Response_2'
+        '503':
+          $ref: '#/components/responses/Error503Response_2'
+        '504':
+          $ref: '#/components/responses/Error504Response_2'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://weather.hereapi.com/v3
+      description: Production environment URL
+components:
+  schemas:
+    Warning:
+      description: Warning details.
+      type: object
+      properties:
+        severity:
+          type: integer
+          format: int32
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          example: 2
+          description: 'The severity of the event. One of:
+
+            - 0 Event doesn''t have significance by nature.
+
+            - 1 There are no alerts for the location.
+
+            - 2 Minor Severity, the event is potentially dangerous but not usual.
+
+            - 3 Medium Severity, the event is dangerous.
+
+            - 4 High Severity, The event is very dangerous.
+
+            - 5 Emergency. Take immediate action to protect life.
+
+            '
+        type:
+          type: integer
+          format: int32
+          example: 3
+          description: 'Event type
+
+            |Event Type|Description|
+
+            |---|---|
+
+            |1|Extremely high temperature.|
+
+            |2|Extremely low temperature.|
+
+            |3|Fog|
+
+            |4|Ice or freezing rain.|
+
+            |5|Rain|
+
+            |6|Snow|
+
+            |7|Thunderstorm|
+
+            |8|Wind|
+
+            |9|Air quality.|
+
+            |10|Volcanic ashfall.|
+
+            |11|Avalanche|
+
+            |12|Tsunami|
+
+            |13|Dust storm or sandstorm.|
+
+            |14|Earthquake|
+
+            |15|Fire danger.|
+
+            |16|Flood|
+
+            |17|High waves.|
+
+            |18|High UV index.|
+
+            |19|Low water.|
+
+            |20|Smoke or smog.|
+
+            |21|Volcano|
+
+            |22|Ice in waterway.|
+
+            |23|Coastal event.|
+
+            |24|Civil danger.|
+
+            |25|Evacuation|
+
+            |26|Hazardous materials.|
+
+            |27|Radiological hazard.|
+
+            |28|Shelter in place.|
+
+            |29|Warning|
+
+            '
+        country:
+          type: string
+          example: JP
+          description: ISO-3166-1 2-letter country code.
+        startTime:
+          type: integer
+          format: int32
+          example: 1598510460
+          description: Start time of the event in UNIX time.
+        endTime:
+          type: integer
+          format: int32
+          example: 1598536800
+          description: "End time of the event in UNIX time. \nIf not present, warning is valid until it is not removed from the feed by national weather institutes (valid until warning is present in the response).\n"
+        messages:
+          description: An array of localized textual descriptions of the event.
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+        error_description:
+          type: string
+          description: Detailed information about the error.
+      example:
+        Type: Unauthorized
+        Message: ApiKey invalid. ApiKey not found.
+    PolygonCoordinates:
+      type: array
+      items:
+        $ref: '#/components/schemas/LinearRingCoordinates'
+    Polygon:
+      description: GeoJSON Polygon.
+      required:
+      - type
+      - coordinates
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Polygon
+          example: Polygon
+        coordinates:
+          $ref: '#/components/schemas/PolygonCoordinates'
+    Warnings:
+      description: Warnings
+      type: object
+      properties:
+        warnings:
+          items:
+            $ref: '#/components/schemas/Warning'
+    Message:
+      description: Warning message.
+      type: object
+      properties:
+        lang:
+          type: string
+          example: en-AU
+          description: Language code.
+        text:
+          type: string
+          example: Minor Flood Warning
+          description: Human readable weather warning description.
+    Feature:
+      description: GeoJSON Feature
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Feature
+        properties:
+          $ref: '#/components/schemas/Warnings'
+        geometry:
+          type: object
+          oneOf:
+          - $ref: '#/components/schemas/Polygon'
+          - $ref: '#/components/schemas/MultiPolygon'
+        id:
+          type: string
+          example: wa-1234
+          description: Unique weather alert id.
+    PointCoordinates:
+      type: array
+      minItems: 2
+      items:
+        type: number
+        format: double
+    WeatherAlertsResponse:
+      description: Weather alerts response - GeoJSON FeatureCollection.
+      type: object
+      required:
+      - type
+      - features
+      properties:
+        type:
+          type: string
+          enum:
+          - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+    Error:
+      type: object
+      properties:
+        Type:
+          type: string
+          example: Invalid Request
+        Message:
+          type: array
+          items:
+            type: string
+            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
+    LinearRingCoordinates:
+      type: array
+      minItems: 4
+      items:
+        $ref: '#/components/schemas/PointCoordinates'
+    MultiPolygon:
+      description: GeoJSON Polygon.
+      required:
+      - type
+      - coordinates
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - MultiPolygon
+          example: MultiPolygon
+        coordinates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolygonCoordinates'
+    Route:
+      type: object
+      required:
+      - route
+      properties:
+        route:
+          type: string
+          example: 52.5160,13.3771;52.5111,13.3712;52.5355,13.3634
+          description: List of route coordinates {latitude,longitude} separated by semicolon. At least two points are expected. maximum number of points is 1000.
+        width:
+          type: integer
+          format: int32
+          example: 2000
+          minimum: 1000
+          maximum: 25000
+      description: Weather alerts along the route.
+    Warning_2:
+      description: Warning details
+      type: object
+      properties:
+        severity:
+          type: integer
+          format: int32
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          example: 2
+          description: 'The severity of the event. One of:
+
+            - 0 Event doesn''t have significance by nature.
+
+            - 1 There are no alerts for the location.
+
+            - 2 Minor Severity, the event is potentially dangerous but not usual.
+
+            - 3 Medium Severity, the event is dangerous.
+
+            - 4 High Severity, The event is very dangerous.
+
+            - 5 Emergency. Take immediate action to protect life.
+
+            '
+        type:
+          type: integer
+          format: int32
+          example: 3
+          description: 'Event type
+
+            |Event Type|Description|
+
+            |---|---|
+
+            |1|Extremely high temperature|
+
+            |2|Extremely low temperature|
+
+            |3|Fog|
+
+            |4|Ice or freezing rain|
+
+            |5|Rain|
+
+            |6|Snow|
+
+            |7|Thunderstorm|
+
+            |8|Wind|
+
+            |9|Air quality|
+
+            |10|Volcanic ashfall|
+
+            |11|Avalanche|
+
+            |12|Tsunami|
+
+            |13|Dust storm or sandstorm|
+
+            |14|Earthquake|
+
+            |15|Fire danger|
+
+            |16|Flood|
+
+            |17|High waves|
+
+            |18|High UV index|
+
+            |19|Low water|
+
+            |20|Smoke or smog|
+
+            |21|Volcano|
+
+            |22|Ice in waterway|
+
+            |23|Coastal event|
+
+            |24|Civil danger|
+
+            |25|Evacuation|
+
+            |26|Hazardous materials|
+
+            |27|Radiological hazard|
+
+            |28|Shelter in place|
+
+            |29|Warning|
+
+            '
+        country:
+          type: string
+          example: JP
+          description: ISO-3166-1 2-letter country code.
+        startTime:
+          type: integer
+          format: int32
+          example: 1598510460
+          description: Start time of the event in UNIX time.
+        endTime:
+          type: integer
+          format: int32
+          example: 1598536800
+          description: "End time of the event in UNIX time. \nIf not present, warning is valid until it is not removed from the feed by national weather institutes (valid until warning is present in the response).\n"
+        messages:
+          description: An array of localized textual descriptions of the event.
+          type: array
+          items:
+            $ref: '#/components/schemas/Message_2'
+    FeatureRequest:
+      description: Feature object for alerts request body.
+      properties:
+        geometry:
+          $ref: '#/components/schemas/GeometryRequest'
+        properties:
+          $ref: '#/components/schemas/FeatureRequestProperties'
+        type:
+          enum:
+          - Feature
+          type: string
+      required:
+      - type
+      - geometry
+      title: Feature
+      type: object
+      example:
+        type: Feature
+    WeatherAlertRequestGeoJson:
+      description: Weather alerts geojson request.
+      properties:
+        features:
+          items:
+            $ref: '#/components/schemas/FeatureRequest'
+          type: array
+      title: FeatureCollection
+      type: object
+    WeatherAlertGeoJson:
+      description: Weather alerts geojson response.
+      properties:
+        features:
+          items:
+            $ref: '#/components/schemas/Feature_2'
+          type: array
+      title: FeatureCollection
+      type: object
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code.
+        title:
+          type: string
+          description: Human-readable error description.
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+        action:
+          type: string
+          description: Human-readable action for the user.
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request.
+      required:
+      - status
+      - title
+      - code
+      - cause
+      - action
+      - correlationId
+    GeometryRequest:
+      description: Geometry object.
+      oneOf:
+      - $ref: '#/components/schemas/GeoJsonPointType'
+      - $ref: '#/components/schemas/GeoJsonLineStringType'
+      title: Geometry
+      type: object
+    NumberItems:
+      title: NumberItems
+      type: number
+    FeatureRequestProperties:
+      type: object
+      properties:
+        width:
+          type: integer
+          format: int32
+          example: 3000
+          default: 50000
+          minimum: 1000
+          maximum: 100000
+    Message_2:
+      description: Warning message.
+      type: object
+      properties:
+        language:
+          type: string
+          example: en-AU
+          description: Language code.
+        text:
+          type: string
+          example: Minor Flood Warning
+          description: Human readable weather warning description.
+    Feature_2:
+      description: Feature object.
+      properties:
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        id:
+          type: string
+          example: w-1234
+          description: Unique weather alert ID.
+        properties:
+          $ref: '#/components/schemas/FeatureProperties'
+        type:
+          enum:
+          - Feature
+          type: string
+      required:
+      - type
+      - geometry
+      title: Feature
+      type: object
+      example:
+        type: Feature
+    Geometry:
+      description: Geometry object.
+      oneOf:
+      - $ref: '#/components/schemas/GeoJsonPolygonType'
+      - $ref: '#/components/schemas/GeoJsonMultiPolygonType'
+      title: Geometry
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          Polygon: '#/components/schemas/GeoJsonPolygonType'
+          MultiPolygon: '#/components/schemas/GeoJsonMultiPolygonType'
+    GeoJsonPointType:
+      description: GeoJson geometry.
+      properties:
+        type:
+          enum:
+          - Point
+          type: string
+        coordinates:
+          items:
+            $ref: '#/components/schemas/Point2D'
+          type: array
+          maxItems: 1
+          minItems: 1
+      required:
+      - type
+      title: Point
+      type: object
+      example:
+      - 11.125
+      - 23.456
+    GeoJsonMultiPolygonType:
+      description: GeoJson geometry.
+      properties:
+        type:
+          enum:
+          - MultiPolygon
+          type: string
+        coordinates:
+          items:
+            items:
+              items:
+                $ref: '#/components/schemas/Point2D'
+              type: array
+            type: array
+          type: array
+      required:
+      - type
+      title: MultiPolygon
+      type: object
+    Point2D:
+      description: Point in 2D space
+      items:
+        $ref: '#/components/schemas/NumberItems'
+      maxItems: 2
+      minItems: 2
+      title: Point2D
+      type: array
+    GeoJsonPolygonType:
+      description: GeoJson geometry.
+      properties:
+        type:
+          enum:
+          - Polygon
+          type: string
+        coordinates:
+          items:
+            items:
+              $ref: '#/components/schemas/Point2D'
+            type: array
+          type: array
+      required:
+      - type
+      title: Polygon
+      type: object
+      example:
+      - - - 148.2204
+          - -36.6264
+        - - 148.214811
+          - -36.638078
+        - - 148.210563
+          - -36.646957
+        - - 148.208364
+          - -36.651551
+        - - 148.199408
+          - -36.670267
+    GeoJsonLineStringType:
+      description: GeoJson geometry.
+      properties:
+        type:
+          enum:
+          - LineString
+          type: string
+        coordinates:
+          items:
+            $ref: '#/components/schemas/Point2D'
+          type: array
+      required:
+      - type
+      title: LineString
+      type: object
+      example:
+      - - 19.122004508972168
+        - 48.72310386355342
+      - - 19.123892784118652
+        - 48.72324541933301
+      - - 19.125652313232422
+        - 48.72313217474119
+      - - 19.125566482543945
+        - 48.72259425944797
+      - - 19.12621021270752
+        - 48.72267919382413
+    FeatureProperties:
+      type: object
+      properties:
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning_2'
+  examples:
+    InternalServerErrorExample:
+      value:
+        Type: Internal Server Error
+        Message:
+        - Service is not available
+    504errorResponseExample:
+      value:
+        Type: Gateway timeout
+        Message:
+        - Did not receive a timely response from an upstream server
+    BadRequestAlertExample:
+      value:
+        Type: Invalid Request
+        Message:
+        - Request payload JSON is missing.
+    BadRequestPointAlertExample:
+      value:
+        Type: Invalid Request
+        Message:
+        - 'Missing parameter: lon'
+    502errorResponseExample:
+      value:
+        Type: Bad Gateway
+        Message:
+        - Failure of communication with external system.
+    InternalServerErrorExample_2:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E611101
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    504errorResponseExample_2:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E611101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    BadRequestAlertExample_2:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: Request body is empty.
+        action: Please provide valid json request body.
+        code: E611310
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    WeatherAlertsSingleLocationRequestExample:
+      value:
+        type: FeatureCollection
+        features:
+        - type: Feature
+          geometry:
+            type: Point
+            coordinates:
+            - 15.256
+            - 23.456
+          properties:
+            width: 30000
+    WeatherAlertsResponseExample:
+      value:
+        type: FeatureCollection
+        features:
+        - type: Feature
+          geometry:
+            type: Polygon
+            coordinates:
+            - - - 148.2204
+                - -36.6264
+              - - 148.214811
+                - -36.638078
+              - - 148.210563
+                - -36.646957
+              - - 148.208364
+                - -36.651551
+              - - 148.199408
+                - -36.670267
+          properties:
+            warnings:
+            - severity: 3
+              startTime: 1602043140
+              country: AU
+              endTime: 1602162000
+              type: 29
+              messages:
+              - language: en-AU
+                text: Warning to Sheep Graziers for Mallee, Wimmera, Northern Country, North Central, North East, South West, Central and West and South Gippsland forecast districts
+    WeatherAlertsRouteRequestExample:
+      value:
+        type: FeatureCollection
+        features:
+        - type: Feature
+          geometry:
+            type: LineString
+            coordinates:
+            - - -87.64652354220011
+              - 41.87554760399442
+            - - -87.70047592527803
+              - 41.87510123848884
+            - - -87.74084030076565
+              - 1.87197659266343
+            - - -87.80778122050994
+              - 41.87346453829784
+            - - -87.87771949486996
+              - 41.87033981245949
+            - - -87.90609445189584
+              - 41.873613330956374
+            - - -87.93866570538339
+              - 41.8490578559865
+            - - -87.94865688743465
+              - 41.84474107094087
+          properties:
+            width: 3000
+    502errorResponseExample_2:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E611201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+  responses:
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error503Response:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Service not available
+            Message:
+            - Service is not available
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+    Error400AlertsResponse:
+      description: Invalid parameters were provided.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            badRequestRouteExample:
+              $ref: '#/components/examples/BadRequestAlertExample'
+            badRequestPointExample:
+              $ref: '#/components/examples/BadRequestPointAlertExample'
+    Error429Response:
+      description: API response in case of too many requests
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Too many requests
+            Message:
+            - Request rate limit reached
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    Error503Response_2:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 503
+            code: E611001
+            title: Service not available
+            cause: Service current not available
+            action: Retry later
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error500Response_2:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_2'
+    Error400AlertsResponse_2:
+      description: Invalid parameters were provided.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            badRequestExample:
+              $ref: '#/components/examples/BadRequestAlertExample_2'
+    Error504Response_2:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample_2'
+    Error502Response_2:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_2'
+  headers:
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+  parameters:
+    X-Request-Id:
+      name: X-Request-Id
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+externalDocs:
+  description: The developer guide and release notes are available here.
+  url: https://www.here.com/docs/category/destination-weatherv3
+x-refined-from:
+- here-destination-weather-v1-openapi.yml
+- here-destination-weather-v3-openapi.yml

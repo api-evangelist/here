@@ -1,0 +1,1213 @@
+openapi: 3.2.0
+info:
+  version: 2.6.11
+  title: HERE Tracking Traces API
+  description: 'HERE Tracking is a cloud product designed to address location tracking problems for a wide range of Location IoT industry verticals.
+
+
+    HERE Tracking also includes end-user mobile and web applications that can be used to demonstrate the product.'
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://tracking.hereapi.com/
+- url: https://tracking.api.here.com/
+tags:
+- description: 'The Traces service allows users querying device traces based on time ranges.
+
+
+    A device trace is a device-ingested telemetry along with the ingestion timestamp
+
+    and the device current position.
+
+
+    > **NOTE**:
+
+    > Devices should not communicate directly with this service, but should instead send telemetry to
+
+    > the ingestion endpoint. Each data ingestion results in an update to the `reported` device shadow
+
+    > and a new device trace creation.'
+  name: Traces
+paths:
+  /traces/v2/health:
+    get:
+      summary: Gets service health
+      security: []
+      responses:
+        '200':
+          description: 'OK
+
+
+            The service is performing as expected
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Health status
+                example:
+                  message: healthy
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Traces
+      operationId: getTracesV2Health
+      x-operation-id-source: derived
+  /traces/v2/version:
+    get:
+      summary: Gets service version
+      security: []
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                description: "OK\nService returns its current version number\nschema:\n    type: object\n    properties:\n        \"service-name\":\n            type: string\n            description: Version of service\n    example:\n        servicename: \"1.0.0\"\n"
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Traces
+      operationId: getTracesV2Version
+      x-operation-id-source: derived
+  /traces/v2/{trackingId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    delete:
+      summary: Deletes all the device traces and events
+      description: 'Deletes all the device `trackingId` traces.
+
+
+        This will also trigger deletion of the entire event history of the device.'
+      tags:
+      - Traces
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: trackingId
+        in: path
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+        required: true
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteTracesV2ByTrackingId
+      x-operation-id-source: derived
+    get:
+      summary: Gets traces within a specified time range
+      description: 'Gets all traces of the device `trackingId` that were recorded within the specified time range.
+
+        The range is defined with `before` and `after` parameters.
+
+        The returned traces are sorted in descending order based on their timestamps.
+
+
+        The default value for `before` parameter is the current time, and for the `after` parameter
+
+        it is one day in the past from the current time.
+
+        The `after` parameter value is not allowed to be earlier than 18 days in the past from the
+
+        `before` timestamp, otherwise an error is returned.
+
+
+        If the `trackingId` is substituted with a valid `shipmentId`, the response
+
+        contains a composition of traces of each shipment segment.
+
+        Traces are only fetched for those segments that are either in `ongoing` or `completed` state.
+
+
+        The `outliers` parameter can be used to select only traces that have
+
+        been marked as outliers (if the parameter value is `true`), or only traces
+
+        that have not been marked as outliers (if the parameter value is `false`).
+
+        If the `outliers` parameter is not present, all the traces will be returned.
+
+
+        The `count` and `pageToken` parameters are used for pagination.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: trackingId
+        in: path
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+        required: true
+      - name: before
+        description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+          The accepted range is from 1 to the current time.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: number
+          minimum: 1
+      - name: after
+        description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+          The accepted range is from 0 to the current time.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: number
+          minimum: 0
+      - name: outliers
+        description: 'Flag specifying if only outliers (`true`) or only nonoutliers (`false`)
+
+          are to be returned. If the parameter is not present both nonoutlier
+
+          and outlier traces are returned.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: mode
+        description: 'Tracker mode.
+
+          '
+        in: query
+        required: false
+        schema:
+          description: 'Tracker mode status of the device.
+
+            When a tracker is in normal mode, it can send telemetry and, for
+
+            example, use its GNSS receiver if it has one.
+
+            A tracker switches into flight mode once it detects that it''s in an
+
+            airplane, and leaves that mode once the airplane lands.
+
+            Transport mode has to be triggered by the user, and it''s used,
+
+            for example, during shipping from continent to another.
+
+            Sleep mode is used when a tracker is stored in a warehouse, and
+
+            it''s triggered by entering or leaving some defined geofence.
+
+            Power save mode can be enabled with `system.powerSave.sendMs`
+
+            property in the desired shadow and when enabled the device enters
+
+            power save mode when the device is not moving.
+
+            '
+          type: string
+          enum:
+          - unknown
+          - normal
+          - flight
+          - transport
+          - sleep
+          - powerSave
+      - name: smooth
+        description: 'Flag telling if smoothed traces (true) or non-smoothed (false)
+
+          traces should get returned. By default the traces are not smoothed.
+
+
+          The smoothing will have an effect on to the stationary trace points only.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of records per page.
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 1000
+      tags:
+      - Traces
+      responses:
+        '200':
+          description: 'Successful.
+
+
+            The response body contains an array of traces within the
+
+            given time range (`after` <= timestamp <= `before`).
+
+
+            Traces are sorted in descending order based on their timestamps.
+
+            '
+          content:
+            application/json:
+              schema:
+                description: 'The response body contains an array of traces, `count` is the number of
+
+                  returned items and `pageToken` is the next page token if available.
+
+
+                  If no traces are found, an object with an empty data array is returned.
+
+
+                  Traces are sorted in descending order based on their timestamps.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 1000
+                      default: 1000
+                      description: The number of items in the response.
+                - type: object
+                  properties: {}
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: A trace sample reported by the device.
+                        type: object
+                        properties:
+                          payload:
+                            type: object
+                            description: 'A free format JSON object.
+
+                              The maximum size is 1000B.
+
+                              '
+                          position:
+                            type: object
+                            description: The device location
+                            properties:
+                              accuracy:
+                                description: Uncertainty circle radius in meters (degree of confidence according to the 'confidence' parameter).
+                                type: number
+                                minimum: 0
+                              alt:
+                                description: Altitude in meters (referenced to the WGS-84 ellipsoid) negative or positive.
+                                type: number
+                              altaccuracy:
+                                description: Uncertainty of the altitude estimate in meters (degree of confidence according to the 'confidence' parameter).
+                                type: number
+                                minimum: 0
+                              confidence:
+                                description: Confidence level in percent for the accuracy/uncertainty. If not specified, the default is 68 (this corresponds to a 68% probability that the true position is within the accuracy/uncertainty radius of the position; the higher the number, the greater the confidence level).
+                                type: integer
+                                minimum: 50
+                                maximum: 95
+                              heading:
+                                description: GPS/GNSS heading in degrees, clockwise from true north. You must specify a value for this item when you specify a value for speed.
+                                type: integer
+                                minimum: 0
+                                maximum: 359
+                              floor:
+                                description: The building where the measurements were taken
+                                type: object
+                                required:
+                                - id
+                                - name
+                                - level
+                                properties:
+                                  level:
+                                    description: The floor in the building in integer format
+                                    type: number
+                                    minimum: -999
+                                    maximum: 999
+                                  id:
+                                    description: The building id
+                                    type: string
+                                    minimum: 1
+                                    maximum: 100
+                                  name:
+                                    description: The building name
+                                    type: string
+                                    minimum: 1
+                                    maximum: 255
+                              lat:
+                                description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                type: number
+                                minimum: -90
+                                maximum: 90
+                              lng:
+                                description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                type: number
+                                minimum: -180
+                                maximum: 180
+                              satellitecount:
+                                description: Number of GPS/GNSS satellites used for the calculation of the position fix. ('gnss' position type only)
+                                type: integer
+                                minimum: 1
+                                maximum: 50
+                              speed:
+                                description: GPS/GNSS speed of the device (m/s). One must specify a value for this item when one specifies a value for heading.
+                                type: integer
+                                minimum: 0
+                              type:
+                                description: Position type, 'gnss' (satellite based), 'cell' or 'wlan' (network based)
+                                type: string
+                              wlancount:
+                                description: The total number of observed WLAN APs in the scan used for producing the position. ('wlan' position type only)
+                                type: integer
+                                minimum: 1
+                                maximum: 254
+                              timestamp:
+                                type: integer
+                                description: Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+                                minimum: 2
+                                maximum: 4102448400000
+                            required:
+                            - lat
+                            - lng
+                            - accuracy
+                          system:
+                            allOf:
+                            - type: object
+                              properties:
+                                phoneNumber:
+                                  type: string
+                                  pattern: ^\+[1-9]\d{1,14}$
+                                  description: 'The phone number of the device''s SIM card in the international E.164 format. All the country codes should be prefixed a with "+" instead of "00".
+
+                                    '
+                                  example: '+491234567890'
+                                imsi:
+                                  type: string
+                                  pattern: ^[0-9]{1,15}$
+                                  description: 'The IMSI of the device''s SIM card.
+
+                                    '
+                                  example: '123456789012345'
+                                iccid:
+                                  type: string
+                                  minLength: 18
+                                  maxLength: 22
+                                  description: SIM card integrated circuit card identifier (ICCID)
+                                client:
+                                  description: 'Information about the client device.
+
+                                    '
+                                  type: object
+                                  properties:
+                                    manufacturer:
+                                      description: Manufacturer of the device (hardware)
+                                      type: string
+                                      minLength: 2
+                                      maxLength: 50
+                                    model:
+                                      description: Model of the device (hardware)
+                                      type: string
+                                      minLength: 1
+                                      maxLength: 50
+                                    firmware:
+                                      description: Device firmware version information
+                                      type: string
+                                      minLength: 1
+                                      maxLength: 150
+                                    name:
+                                      description: Name of the client software accessing the HERE API
+                                      type: string
+                                      minLength: 3
+                                      maxLength: 50
+                                    version:
+                                      description: Version of the client software in format X.Y.Z, where X [0..255] is a major, Y [0..255] is a minor, and Z [0..65535] is a build version number. Increase the version/build number for each release of the client.
+                                      type: string
+                                      minLength: 3
+                                      maxLength: 60
+                                    platform:
+                                      description: Software platform information of the device, for example operating system name and version.
+                                      type: string
+                                      minLength: 3
+                                      maxLength: 50
+                                    modules:
+                                      description: Software information of all updateable chips.
+                                      type: array
+                                      maxItems: 10
+                                      items:
+                                        description: Software information of an updateable chip.
+                                        type: object
+                                        properties:
+                                          manufacturer:
+                                            type: string
+                                            description: Manufacturer name
+                                            minLength: 2
+                                            maxLength: 50
+                                          model:
+                                            type: string
+                                            description: Model or chip name
+                                            minLength: 1
+                                            maxLength: 50
+                                          firmwareVersion:
+                                            type: string
+                                            description: Installed firmware version
+                                            minLength: 3
+                                            maxLength: 60
+                                    diskquota:
+                                      description: Available disk quota in kilobytes.
+                                      type: number
+                                      minimum: 0
+                                    diagnosticscode:
+                                      description: Device diagnostics code.
+                                      type: number
+                                    homenetwork:
+                                      description: Information about subscriber home network - 3GPP MCC+MNC or 3GPP2 SID+NID. Dual-SIM devices can provide information on both subscriptions.
+                                      type: array
+                                      maxItems: 2
+                                      items:
+                                        description: Network information. Either MCC + MNC or SID + NID attribute pair is required.
+                                        type: object
+                                        properties:
+                                          mcc:
+                                            description: Mobile Country Code
+                                            type: integer
+                                            minimum: 200
+                                            maximum: 999
+                                          mnc:
+                                            description: Mobile Network Code
+                                            type: integer
+                                            minimum: 0
+                                            maximum: 999
+                                          sid:
+                                            description: System Id, SID
+                                            type: integer
+                                            minimum: 1
+                                            maximum: 32767
+                                          nid:
+                                            description: Network Id, NID
+                                            type: integer
+                                            minimum: 0
+                                            maximum: 65535
+                                    hasAttachSensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to detect if the device is attached to or detached from an object.
+                                    hasNoBattery:
+                                      type: boolean
+                                      description: False if a device has a battery.
+                                    hasHumiditySensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to measure humidity.
+                                    hasPressureSensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to measure pressure.
+                                    hasTamperSensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to detect if device is disassembled.
+                                    hasTemperatureSensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to measure temperature.
+                                    hasAccelerometerSensor:
+                                      type: boolean
+                                      description: True if a device has a sensor to measure acceleration.
+                                    accelerometerSensorRange:
+                                      description: 'Specifies the range of measurable acceleration, representation
+
+                                        unit g (9.8 m/s^2). If more than one accelerometer is available,
+
+                                        each element in the list will represent individual accelerometer.
+
+                                        Each value represents a single "+/-" range.
+
+                                        For example, value 2 means that sensor is capable to measure
+
+                                        acceleration within the range of [-2 g, +2 g].
+
+                                        '
+                                      type: array
+                                      maxItems: 5
+                                      items:
+                                        type: integer
+                                        minimum: -1000
+                                        maximum: 1000
+                                  example:
+                                    manufacturer: Samsung
+                                    model: SM-G930F
+                                    firmware: heroltexx...
+                                    name: HERE Tracker
+                                    version: 1.6.1
+                                    platform: Android
+                                    diskquota: 256
+                                    diagnosticscode: 0
+                                    homenetwork: []
+                                    hasAttachSensor: true
+                                    hasNoBattery: false
+                                    hasHumiditySensor: true
+                                    hasPressureSensor: true
+                                    hasTamperSensor: true
+                                    hasTemperatureSensor: true
+                                    hasAccelerometerSensor: true
+                                    accelerometerSensorRange:
+                                    - 2
+                                stateVersion:
+                                  description: 'The version of the state of a device. This should be incremented only by HERE Tracking.
+
+                                    '
+                                  type: integer
+                                  minimum: 0
+                                reportedSensorData:
+                                  description: 'The last known device sensor data reported by the device.
+
+                                    '
+                                  type: object
+                                  properties:
+                                    accelerationG:
+                                      type: number
+                                      description: A g-force value of acceleration.
+                                      minimum: -100
+                                      maximum: 100
+                                    deviceIsAttached:
+                                      type: boolean
+                                      description: True if device is attached to an object.
+                                    deviceIsStationary:
+                                      type: boolean
+                                      description: True if device hasn't detected movement.
+                                    batteryIsCharging:
+                                      type: boolean
+                                      description: True if device battery is charging.
+                                    batteryLevel:
+                                      type: integer
+                                      description: A value of percentage battery level.
+                                      minimum: 0
+                                      maximum: 100
+                                    pressureHpa:
+                                      type: number
+                                      description: A value of pressure in hectopascal.
+                                      minimum: 300
+                                      maximum: 1500
+                                    relativeHumidity:
+                                      type: number
+                                      description: A value of relative humidity in percent.
+                                      minimum: 0
+                                      maximum: 100
+                                    deviceIsTampered:
+                                      type: boolean
+                                      description: True if device is tampered.
+                                    temperatureC:
+                                      type: number
+                                      description: A value of temperature in celcius.
+                                      minimum: -70
+                                      maximum: 100
+                                    tiltDegree:
+                                      type: number
+                                      description: A value of tilt in degrees.
+                                mode:
+                                  description: 'Tracker mode status of the device.
+
+                                    When a tracker is in normal mode, it can send telemetry and, for
+
+                                    example, use its GNSS receiver if it has one.
+
+                                    A tracker switches into flight mode once it detects that it''s in an
+
+                                    airplane, and leaves that mode once the airplane lands.
+
+                                    Transport mode has to be triggered by the user, and it''s used,
+
+                                    for example, during shipping from continent to another.
+
+                                    Sleep mode is used when a tracker is stored in a warehouse, and
+
+                                    it''s triggered by entering or leaving some defined geofence.
+
+                                    Power save mode can be enabled with `system.powerSave.sendMs`
+
+                                    property in the desired shadow and when enabled the device enters
+
+                                    power save mode when the device is not moving.
+
+                                    '
+                                  type: string
+                                  enum:
+                                  - unknown
+                                  - normal
+                                  - flight
+                                  - transport
+                                  - sleep
+                                  - powerSave
+                              description: 'Contains device-reported sensor data and device configuration settings.
+
+                                `stateVersion` property contains the version of the last
+
+                                known `desired` state seen by the device.
+
+                                '
+                            - type: object
+                              properties:
+                                computed:
+                                  description: Values computed by HERE Tracking based on other data available.
+                                  properties:
+                                    moving:
+                                      description: 'Asset is considered moving if the positions of two consecutive trace points differ more
+
+                                        than the combined positioning accuracy + 100 meters.
+
+                                        '
+                                      type: boolean
+                                    outlier:
+                                      description: 'Indicates that HERE Tracking detected position to be a possible outlier.
+
+                                        '
+                                      type: object
+                                      properties:
+                                        reason:
+                                          description: Reason why position was considered to be an outlier.
+                                          type: string
+                                        correctedPosition:
+                                          description: HERE Tracking estimate of more correct position.
+                                          type: object
+                                          properties:
+                                            accuracy:
+                                              description: Uncertainty circle radius in meters (degree of confidence according to the 'confidence' parameter).
+                                              type: number
+                                              minimum: 0
+                                            lat:
+                                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                              type: number
+                                              minimum: -90
+                                              maximum: 90
+                                            lng:
+                                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                              type: number
+                                              minimum: -180
+                                              maximum: 180
+                                            timestamp:
+                                              type: integer
+                                              description: Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+                                              minimum: 2
+                                              maximum: 4102448400000
+                                          required:
+                                          - accuracy
+                                          - lat
+                                          - lng
+                                      required:
+                                      - reason
+                          timestamp:
+                            description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                              Specifies the time the device telemetry measurements were taken.
+
+                              '
+                            type: integer
+                            minimum: 2
+                            maximum: 4102448400000
+                          serverTimestamp:
+                            description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                              This describes when the measurements were processed by the backend.
+
+                              '
+                            maximum: 4102448400000
+                            minimum: 2
+                            type: integer
+                          trackingDisabled:
+                            type: array
+                            description: 'Array containing the properties that were removed from the original device data as per disableTracking property in the device shadow. `position` refers to all positioning data and `sensors` to all reported sensor data.
+
+                              '
+                            items:
+                              type: string
+                              enum:
+                              - position
+                              - sensors
+                              - bt
+                              - country
+                              - gsm
+                              - wcdma
+                              - tdscdma
+                              - lte
+                              - cdma
+                              - wlan
+                              - gps
+                              - accelerationG
+                              - deviceIsAttached
+                              - deviceIsStationary
+                              - batteryIsCharging
+                              - batteryLevel
+                              - pressureHpa
+                              - relativeHumidity
+                              - deviceIsTampered
+                              - temperatureC
+                              - tiltDegree
+                example:
+                  count: 2
+                  data:
+                  - timestamp: 1451425708571
+                    position:
+                      lat: '52.4988217'
+                      lng: '13.35170005'
+                      alt: '86'
+                      accuracy: '25'
+                      altaccuracy: '96'
+                    system:
+                      client:
+                        name: MT2503
+                        model: AT4H
+                        version: 10.0.16
+                        firmware: 10.1.1
+                        platform: MT6261
+                        manufacturer: CONCOX
+                        hasAttachSensor: true
+                        hasTamperSensor: true
+                        hasHumiditySensor: true
+                        hasPressureSensor: true
+                        hasTemperatureSensor: true
+                      reportedSensorData:
+                        pressureHpa: 994.342
+                        batteryLevel: 100
+                        temperatureC: 24.48
+                        deviceIsAttached: true
+                        deviceIsStationary: true
+                        deviceIsTampered: false
+                        relativeHumidity: 31.39
+                    payload: {}
+                    serverTimestamp: 1451425709682
+                  - timestamp: 1451425708216
+                    position:
+                      lat: '52.4988217'
+                      lng: '13.35170005'
+                      alt: '86'
+                      accuracy: '25'
+                      altaccuracy: '96'
+                    system:
+                      reportedSensorData:
+                        pressureHpa: 994.416
+                        batteryLevel: 100
+                        temperatureC: 24.46
+                        deviceIsAttached: true
+                        deviceIsStationary: true
+                        deviceIsTampered: false
+                        relativeHumidity: 31.37
+                    payload:
+                      refAppData:
+                        nwpos: true
+                        batteryState:
+                          level: 61
+                          charging: false
+                          temperature: 26.9
+                    serverTimestamp: 1451425710434
+                  pageToken: '1490376144514'
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getTracesV2ByTrackingId
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests.
+
+
+        For more information on how to get an API key, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n\nUsers are authenticated using an OAuth 1.0 bearer token obtained using the `/users/v2/login` endpoint.\n\nDevices are authenticated using an OAuth 1.0 bearer token obtained using the `/v2/token` endpoint.\n\n**Make a request using the bearer token for authentication**\n\nMake a request with an `Authorization` header containing the obtained bearer token.\n\nExample:\n\n```\n    Authorization: Bearer h1.yxPIksZ0ViLq77f1Nh-9cg.NVgGBZVlCU8G7kjV_...\n```\n\n> **Note:** For the available authentication options, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).\n"
+    UserToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using user's realm, username and password and then further scoped to a specific project.\n\nFirst obtain access token from [/users/v2/login endpoint](#tag/Users/paths/~1users~1v2~1login/post).\nThen use [/users/v2/tokenExchange endpoint](#tag/Users/paths/~1users~1v2~1tokenExchange/post) to convert\nyour user access token into a project-scoped user access token.\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.xikjhDyJsE17VLhPXiu.fm3WsNOunstXH78RvU8_...\n```\n"
+    ClientToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using application's OAuth 2.0 credentials (key + secret) and then scoped to a specific project.\n\nFollow [instructions here](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/topics/plat-token.html)\nto create your application credentials and obtain the token using OLP CLI. With an exception\nthat when getting the token you need to provide also project's HRN value:\n\n```\n    olp api token get --scope {PROJECT_HRN}\n```\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.PGEVzQmaoW5pyBYUlWu.SQoSCF7qpToEFMHgSlJ_...\n```\n"
+    DeviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This access token is obtained from [/v2/token endpoint](#tag/Ingestion/paths/~1v2~1token/post) using a signed request.
+
+
+        > **Note:** Only a small subset of our endpoints support this token type and is only useful for hardware devices.
+
+        > You probably won''t need this.
+
+        '
+    signedRequest:
+      type: http
+      scheme: oauth
+      description: "HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.\n\n> **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.\n\n**Create the Signature Base String**\n\nThe first step in creating a signature is to create the signature base string. This string contains the parameters to use when generating the signature.\n\n*1. To begin, make sure you have the information listed in the following table.*\n\n| Parameter                | Description                              |\n| ------------------------ | -----------------------------------------|\n| oauth\\_consumer\\_key     | The device ID for which you want to generate a token. |\n| oauth\\_signature\\_method | Always use \"HMAC-SHA256\".                 |\n| oauth\\_timestamp         | The number of seconds since the Unix epoch at the point the request is generated. This must be within 10 seconds of the timestamp returned by the `/v2/timestamp` endpoint. |\n| oauth\\_nonce             | A unique string for this signature. The string cannot have been used in a previous signature. Each token generation request to HERE Tracking must have a unique signature, and the value in this parameter is what is used to ensure the signature is unique. |\n| oauth\\_version           | Always use \"1.0\".                         |\n\n*2. Combine these values into a single string by following these steps:*\n\n   1. URL encode every key and value.\n   2. Sort the list of key-value pairs alphabetically by key.\n   3. Concatenate each key/value pair, separating each with an ampersand character (\"&\").\n\nThe result is a parameter string that looks like this (line breaks are added for legibility):\n\n   ```\n   oauth_consumer_key=47164fb0-b7b3-49e8-891b-650270b82cf2\n   &oauth_nonce=LIIpk4\n   &oauth_signature_method=HMAC-SHA256\n   &oauth_timestamp=1513634609\n   &oauth_version=1.0\n   ```\n\n*3. Combine the HTTP method, base URL, and parameter string into a single string called the \"base string\". This will be the string from which the signature is generated. The base string is in this format:*\n\n   ```\n   POST&https://tracking.api.here.com/v2/token&<URL encoded parameter string>\n   ```\n\n   The base string consists of:\n\n   1. The HTTP method in caps (POST) followed by an ampersand (\"&\")\n   2. The URL of the HERE Tracking token endpoint followed by an ampersand (\"&\")\n   3. The URL-encoded parameter string.\n\n   For example (line breaks are added for legibility):\n\n   ```\n   POST\n    &https%3A%2F%2Ftracking.api.here.com%2Fv2%2Ftoken\n    &oauth_consumer_key%3D47164fb0-b7b3-49e8-891b-650270b82cf2%26\n    oauth_nonce%3DLIIpk4%26oauth_signature_method%3DHMAC-SHA256%26\n    oauth_timestamp%3D1513634609%26oauth_version%3D1.0\n   ```\n\n   > **Note:** The URL-encoded base string should contain exactly two ampersands (\"&\").\n\n**Create the signature**\n\nThe signing key used to sign the base string is the `deviceSecret` followed by an ampersand (\"&\").\n\nCreate the signature by passing the signature base string and the signing key to the `HMAC-SHA256` hashing algorithm and converting the result to a `base64` string. Then, use the signature to request a token.\n\n**Request the token**\n\nMake a `POST` request to this endpoint with an `Authorization` header constructed from the above parameters and the generated signature.\n\nExample:\n\n```\n    Authorization: OAuth oauth_consumer_key=\"47164fb0-b7b3-49e8-891b-650270b82cf2\",\n        oauth_signature_method=\"HMAC-SHA256\",\n        oauth_timestamp=\"1513634609\",\n        oauth_nonce=\"LIIpk4\",\n        oauth_version=\"1.0\",\n        oauth_signature=\"pQ9EJX14L736B%2Br7uZl4yQlO6Xw%3D\"\n```\n"
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/bundle/tracking-api-developer-guide

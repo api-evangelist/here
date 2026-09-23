@@ -1,0 +1,2040 @@
+openapi: 3.2.0
+info:
+  version: 2.6.11
+  title: HERE Tracking Largedata API
+  description: 'HERE Tracking is a cloud product designed to address location tracking problems for a wide range of Location IoT industry verticals.
+
+
+    HERE Tracking also includes end-user mobile and web applications that can be used to demonstrate the product.'
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://tracking.hereapi.com/
+- url: https://tracking.api.here.com/
+tags:
+- description: 'The Largedata service is used for storing large data blobs from devices to
+
+    HERE Tracking and retrieving the resulting assembled data from HERE Tracking by the users.'
+  name: Largedata
+paths:
+  /largedata/v4/health:
+    get:
+      summary: Gets service health
+      security: []
+      responses:
+        '200':
+          description: 'OK
+
+
+            The service is performing as expected
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Health status
+                example:
+                  message: healthy
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Largedata
+      operationId: getLargedataV4Health
+      x-operation-id-source: derived
+  /largedata/v4/version:
+    get:
+      summary: Gets service version
+      security: []
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                description: "OK\nService returns its current version number\nschema:\n    type: object\n    properties:\n        \"service-name\":\n            type: string\n            description: Version of service\n    example:\n        servicename: \"1.0.0\"\n"
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Largedata
+      operationId: getLargedataV4Version
+      x-operation-id-source: derived
+  /largedata/v4:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      summary: Creates a new data upload
+      description: Creates a new multipart large data upload. Response contains `dataId`, which is the created large data object identifier.
+      security:
+      - DeviceToken: []
+      tags:
+      - Largedata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Large data object name
+                  minLength: 1
+                  maxLength: 50
+                description:
+                  type: string
+                  description: Large data object description
+                  minLength: 1
+                  maxLength: 1000
+              description: Data upload creation request
+              example:
+                name: My large data
+                description: Description for my large data
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dataId:
+                    type: string
+                    description: Large data object identifier
+                    pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                required:
+                - dataId
+                description: Response to data upload creation request
+                example:
+                  dataId: DATA-08343421-e2d6-4abe-8e9a-adeb5361e991
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: postLargedataV4
+      x-operation-id-source: derived
+  /largedata/v4/{dataId}/parts/{partNumber}:
+    parameters:
+    - name: dataId
+      in: path
+      schema:
+        type: string
+        description: Large data object identifier
+        pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      required: true
+    - name: partNumber
+      in: path
+      schema:
+        type: integer
+        description: Part number for a large data object
+        minimum: 1
+        maximum: 10000
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    put:
+      summary: Uploads a part of a large data
+      description: 'Uploads a part of large data. The part is identified with `dataId` and a part number.
+
+
+        Part upload has the following limits:
+
+        * The part numbers must start from 1, be no greater than 10000 and be consecutive.
+
+        * The size of one uploaded data part must be between 1 byte and 1 MB.
+
+        * Parts re-uploaded with the same `partNumber` are overridden.
+
+        * Only `application/octet-stream` Content-Type is supported.
+
+
+        Parts can be uploaded in any order, the `partNumber` determines their
+
+        position in the total data.
+
+
+        The optional `md5` query parameter can be used to provide the MD5
+
+        digest for the uploaded data part. If it is specified and does not match
+
+        to the received data, HERE Tracking returns HTTP status 400.
+
+
+        If the data upload is still in ***preparing*** state, HERE Tracking
+
+        returns HTTP status 409.'
+      security:
+      - DeviceToken: []
+      parameters:
+      - name: md5
+        in: query
+        schema:
+          type: string
+          description: MD5 digest of the data (hexadecimal representation)
+          minLength: 32
+          maxLength: 32
+      tags:
+      - Largedata
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Conflict
+                code: 409
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource already exists.
+                details:
+                  hereErrorCode: 404306
+          description: 'Conflict
+
+
+            The specified resource already exists
+
+            '
+      operationId: putLargedataV4ByDataIdPartsByPartNumber
+      x-operation-id-source: derived
+  /largedata/v4/{dataId}:
+    parameters:
+    - name: dataId
+      in: path
+      schema:
+        type: string
+        description: Large data object identifier
+        pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      summary: Completes data upload
+      description: 'After all parts have been uploaded, this operation completes the upload.
+
+
+        When the upload has been completed, it is no longer possible to upload
+
+        new parts to it but the uploaded data can be downloaded.
+
+
+        This request has an optional `abort` query
+
+        parameter (the default value is `false`) for aborting the upload instead
+
+        of successfully completing it. If the upload is aborted, all of its
+
+        parts and data are removed from HERE Tracking.'
+      security:
+      - DeviceToken: []
+      parameters:
+      - name: abort
+        in: query
+        schema:
+          type: boolean
+          description: Flag telling if the data upload should be aborted
+          default: false
+      tags:
+      - Largedata
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: postLargedataV4ByDataId
+      x-operation-id-source: derived
+    delete:
+      summary: Deletes large data
+      description: Deletes large data object.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Largedata
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteLargedataV4ByDataId
+      x-operation-id-source: derived
+  /largedata/v4/{dataId}/data:
+    parameters:
+    - name: dataId
+      in: path
+      schema:
+        type: string
+        description: Large data object identifier
+        pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      summary: Gets large data object
+      description: 'Downloads a part of large data.
+
+
+        The data to be downloaded is identified with `dataId`.
+
+        `offset` query paremeter specifies the first byte of the data,
+
+        and `count` indicates how many bytes of the data is to be downloaded
+
+        starting from and including the `offset`. The default value for `offset`
+
+        is zero and the for `count` it is the total size of the data.
+
+
+        The size of one downloaded data part must be between 1 byte and 10 MB.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          description: Byte offset to the data to be downloaded (inclusive, starts at zero)
+          minimum: 0
+      - name: count
+        in: query
+        schema:
+          type: integer
+          description: Number of bytes of the data to download
+          minimum: 1
+          maximum: 10485760
+      tags:
+      - Largedata
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getLargedataV4ByDataIdData
+      x-operation-id-source: derived
+  /largedata/v4/{dataId}/metadata:
+    parameters:
+    - name: dataId
+      in: path
+      schema:
+        type: string
+        description: Large data object identifier
+        pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      summary: Gets metadata for a large data object
+      description: Gets metadata for a large data object.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      - DeviceToken: []
+      tags:
+      - Largedata
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dataId:
+                    type: string
+                    description: Large data object identifier
+                    pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                  trackingId:
+                    description: ID of the device that produced this data
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                  name:
+                    type: string
+                    description: Large data object name
+                    minLength: 1
+                    maxLength: 50
+                  description:
+                    type: string
+                    description: Large data object description
+                    minLength: 1
+                    maxLength: 1000
+                  numberOfParts:
+                    type: integer
+                    description: Number of parts
+                    minLength: 1
+                    maxLength: 10000
+                  size:
+                    type: integer
+                    description: Total size of the data in bytes
+                    minimum: 0
+                  status:
+                    type: string
+                    description: State of the data upload
+                    enum:
+                    - preparing
+                    - pending
+                    - ongoing
+                    - completed
+                    - failed
+                  createdAt:
+                    description: Time when data upload was created
+                    type: string
+                    format: date-time
+                  completedAt:
+                    description: Time when data upload was completed
+                    type: string
+                    format: date-time
+                required:
+                - dataId
+                - trackingId
+                - numberOfParts
+                - status
+                - createdAt
+                description: Metadata for a large data object
+                example:
+                  dataId: DATA-08343421-e2d6-4abe-8e9a-adeb5361e991
+                  trackingId: HERE-540bb24b-0d57-4f8c-aeaf-6c91cd0aff8d
+                  name: My large data
+                  description: Description for my large data
+                  size: 10000
+                  numberOfParts: 5
+                  status: completed
+                  createdAt: '2021-05-28T11:40:00Z'
+                  completedAt: '2021-05-28T12:10:00Z'
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getLargedataV4ByDataIdMetadata
+      x-operation-id-source: derived
+  /largedata/v4/{dataId}/parts:
+    parameters:
+    - name: dataId
+      in: path
+      schema:
+        type: string
+        description: Large data object identifier
+        pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      summary: Gets parts information listing for a large data object
+      description: Gets information about uploaded parts for a large data object.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      - DeviceToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: limit
+        description: The number of items to return per page
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Largedata
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limit:
+                    description: Maximum number of items as specified in request
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                  count:
+                    description: Number of items returned in the response
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  nextPageToken:
+                    description: Token to fetch the next page (if exists)
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        partNumber:
+                          type: integer
+                          description: Part number for a large data object
+                          minimum: 1
+                          maximum: 10000
+                        size:
+                          type: integer
+                          description: Part size in bytes
+                          minimum: 0
+                        md5:
+                          type: string
+                          description: MD5 digest of the data (hexadecimal representation)
+                          minLength: 32
+                          maxLength: 32
+                        status:
+                          type: string
+                          description: State of the data part upload
+                          enum:
+                          - pending
+                          - ongoing
+                          - completed
+                          - failed
+                      description: Information about uploaded part
+                      example:
+                        partNumber: 1
+                        size: 1
+                        md5: b026324c6904b2a9cb4b88d6d61c81d1
+                        status: completed
+                required:
+                - limit
+                - count
+                - items
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getLargedataV4ByDataIdParts
+      x-operation-id-source: derived
+  /largedata/v4/devices/{trackingId}/metadata:
+    parameters:
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      summary: Gets metadata listing for all large data for a device
+      description: Gets metadata listing for all large data objects for a given device.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: limit
+        description: The number of items to return per page
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Largedata
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limit:
+                    description: Maximum number of items as specified in request
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                  count:
+                    description: Number of items returned in the response
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  nextPageToken:
+                    description: Token to fetch the next page (if exists)
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        dataId:
+                          type: string
+                          description: Large data object identifier
+                          pattern: ^DATA-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                        trackingId:
+                          description: ID of the device that produced this data
+                          type: string
+                          minLength: 1
+                          maxLength: 50
+                        name:
+                          type: string
+                          description: Large data object name
+                          minLength: 1
+                          maxLength: 50
+                        description:
+                          type: string
+                          description: Large data object description
+                          minLength: 1
+                          maxLength: 1000
+                        numberOfParts:
+                          type: integer
+                          description: Number of parts
+                          minLength: 1
+                          maxLength: 10000
+                        size:
+                          type: integer
+                          description: Total size of the data in bytes
+                          minimum: 0
+                        status:
+                          type: string
+                          description: State of the data upload
+                          enum:
+                          - preparing
+                          - pending
+                          - ongoing
+                          - completed
+                          - failed
+                        createdAt:
+                          description: Time when data upload was created
+                          type: string
+                          format: date-time
+                        completedAt:
+                          description: Time when data upload was completed
+                          type: string
+                          format: date-time
+                      required:
+                      - dataId
+                      - trackingId
+                      - numberOfParts
+                      - status
+                      - createdAt
+                      description: Metadata for a large data object
+                      example:
+                        dataId: DATA-08343421-e2d6-4abe-8e9a-adeb5361e991
+                        trackingId: HERE-540bb24b-0d57-4f8c-aeaf-6c91cd0aff8d
+                        name: My large data
+                        description: Description for my large data
+                        size: 10000
+                        numberOfParts: 5
+                        status: completed
+                        createdAt: '2021-05-28T11:40:00Z'
+                        completedAt: '2021-05-28T12:10:00Z'
+                required:
+                - limit
+                - count
+                - items
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getLargedataV4DevicesByTrackingIdMetadata
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests.
+
+
+        For more information on how to get an API key, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n\nUsers are authenticated using an OAuth 1.0 bearer token obtained using the `/users/v2/login` endpoint.\n\nDevices are authenticated using an OAuth 1.0 bearer token obtained using the `/v2/token` endpoint.\n\n**Make a request using the bearer token for authentication**\n\nMake a request with an `Authorization` header containing the obtained bearer token.\n\nExample:\n\n```\n    Authorization: Bearer h1.yxPIksZ0ViLq77f1Nh-9cg.NVgGBZVlCU8G7kjV_...\n```\n\n> **Note:** For the available authentication options, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).\n"
+    UserToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using user's realm, username and password and then further scoped to a specific project.\n\nFirst obtain access token from [/users/v2/login endpoint](#tag/Users/paths/~1users~1v2~1login/post).\nThen use [/users/v2/tokenExchange endpoint](#tag/Users/paths/~1users~1v2~1tokenExchange/post) to convert\nyour user access token into a project-scoped user access token.\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.xikjhDyJsE17VLhPXiu.fm3WsNOunstXH78RvU8_...\n```\n"
+    ClientToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using application's OAuth 2.0 credentials (key + secret) and then scoped to a specific project.\n\nFollow [instructions here](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/topics/plat-token.html)\nto create your application credentials and obtain the token using OLP CLI. With an exception\nthat when getting the token you need to provide also project's HRN value:\n\n```\n    olp api token get --scope {PROJECT_HRN}\n```\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.PGEVzQmaoW5pyBYUlWu.SQoSCF7qpToEFMHgSlJ_...\n```\n"
+    DeviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This access token is obtained from [/v2/token endpoint](#tag/Ingestion/paths/~1v2~1token/post) using a signed request.
+
+
+        > **Note:** Only a small subset of our endpoints support this token type and is only useful for hardware devices.
+
+        > You probably won''t need this.
+
+        '
+    signedRequest:
+      type: http
+      scheme: oauth
+      description: "HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.\n\n> **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.\n\n**Create the Signature Base String**\n\nThe first step in creating a signature is to create the signature base string. This string contains the parameters to use when generating the signature.\n\n*1. To begin, make sure you have the information listed in the following table.*\n\n| Parameter                | Description                              |\n| ------------------------ | -----------------------------------------|\n| oauth\\_consumer\\_key     | The device ID for which you want to generate a token. |\n| oauth\\_signature\\_method | Always use \"HMAC-SHA256\".                 |\n| oauth\\_timestamp         | The number of seconds since the Unix epoch at the point the request is generated. This must be within 10 seconds of the timestamp returned by the `/v2/timestamp` endpoint. |\n| oauth\\_nonce             | A unique string for this signature. The string cannot have been used in a previous signature. Each token generation request to HERE Tracking must have a unique signature, and the value in this parameter is what is used to ensure the signature is unique. |\n| oauth\\_version           | Always use \"1.0\".                         |\n\n*2. Combine these values into a single string by following these steps:*\n\n   1. URL encode every key and value.\n   2. Sort the list of key-value pairs alphabetically by key.\n   3. Concatenate each key/value pair, separating each with an ampersand character (\"&\").\n\nThe result is a parameter string that looks like this (line breaks are added for legibility):\n\n   ```\n   oauth_consumer_key=47164fb0-b7b3-49e8-891b-650270b82cf2\n   &oauth_nonce=LIIpk4\n   &oauth_signature_method=HMAC-SHA256\n   &oauth_timestamp=1513634609\n   &oauth_version=1.0\n   ```\n\n*3. Combine the HTTP method, base URL, and parameter string into a single string called the \"base string\". This will be the string from which the signature is generated. The base string is in this format:*\n\n   ```\n   POST&https://tracking.api.here.com/v2/token&<URL encoded parameter string>\n   ```\n\n   The base string consists of:\n\n   1. The HTTP method in caps (POST) followed by an ampersand (\"&\")\n   2. The URL of the HERE Tracking token endpoint followed by an ampersand (\"&\")\n   3. The URL-encoded parameter string.\n\n   For example (line breaks are added for legibility):\n\n   ```\n   POST\n    &https%3A%2F%2Ftracking.api.here.com%2Fv2%2Ftoken\n    &oauth_consumer_key%3D47164fb0-b7b3-49e8-891b-650270b82cf2%26\n    oauth_nonce%3DLIIpk4%26oauth_signature_method%3DHMAC-SHA256%26\n    oauth_timestamp%3D1513634609%26oauth_version%3D1.0\n   ```\n\n   > **Note:** The URL-encoded base string should contain exactly two ampersands (\"&\").\n\n**Create the signature**\n\nThe signing key used to sign the base string is the `deviceSecret` followed by an ampersand (\"&\").\n\nCreate the signature by passing the signature base string and the signing key to the `HMAC-SHA256` hashing algorithm and converting the result to a `base64` string. Then, use the signature to request a token.\n\n**Request the token**\n\nMake a `POST` request to this endpoint with an `Authorization` header constructed from the above parameters and the generated signature.\n\nExample:\n\n```\n    Authorization: OAuth oauth_consumer_key=\"47164fb0-b7b3-49e8-891b-650270b82cf2\",\n        oauth_signature_method=\"HMAC-SHA256\",\n        oauth_timestamp=\"1513634609\",\n        oauth_nonce=\"LIIpk4\",\n        oauth_version=\"1.0\",\n        oauth_signature=\"pQ9EJX14L736B%2Br7uZl4yQlO6Xw%3D\"\n```\n"
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/bundle/tracking-api-developer-guide

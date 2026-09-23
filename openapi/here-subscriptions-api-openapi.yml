@@ -1,0 +1,1719 @@
+openapi: 3.2.0
+info:
+  title: HERE WeGo User Service Subscriptions API
+  description: The HERE WeGo user service manages user entitlements and it provides role-based access control (RBAC) to those entitlements.
+  version: 1.0.4
+servers:
+- url: https://api.wego.hereapi.com/user-service
+  description: Production environment for WeGo Pro
+tags:
+- name: Subscriptions
+  description: Endpoints for managing subscriptions
+paths:
+  /subscriptions/{subscriptionId}:
+    put:
+      tags:
+      - Subscriptions
+      summary: Update subscription by ID
+      description: Endpoint to update an existing subscription's details.
+      operationId: updateSubscriptionById
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: Unique subscription id of the subscription to update
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: d5c4d553-8272-4432-9b13-9135abee6d53
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionUpdatePublicRequestDto'
+            example:
+              zuoraSubscriptionId: SUBSCRIPTION-f3f51e10-f22d-4df7-9c28-3367854bca66
+        required: true
+      responses:
+        '204':
+          description: Subscription updated successfully
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Zuora Subscription error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400500
+                cause: Zuora subscription 'SUBSCRIPTION-f3f51e10-f22d-4df7-9c28-3367854bca66' is not active
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Subscription key not found
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/keys/{subscriptionKey}:
+    get:
+      tags:
+      - Subscriptions
+      summary: Get subscription details by subscription key
+      description: Endpoint to retrieve subscription details by their unique Subscription Key.
+      operationId: getSubscriptionByKey
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Unique subscription key of the subscription to retrieve
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-494ac3c6-3b17-4586-9662-4c7fb189ac7e
+      responses:
+        '200':
+          description: Found the subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionDetailsDto'
+              example:
+                id: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+                subscriptionKey: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+                keyType: SINGLE_DEVICE
+                organization: Here
+                status: ACTIVE
+                featureGroups:
+                - id: 550e8400-e29b-41d4-a716-446655440000
+                  name: feature_group_name
+                  description: Test feature group description
+                  createdAt: '2025-05-15T16:30:12Z'
+                  modifiedAt: '2025-05-15T16:40:12Z'
+                expirationTime: '2025-10-30T15:01:09Z'
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 9fbfc01f-bebd-4d67-afa6-cb55129a978a
+                code: E400104
+                cause: 'Invalid argument type: subscriptionKey, expected String'
+                requestId: REQ-3988cb52-bb32-46be-b788-a502feede54e
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 2546e826-e2c5-4e47-a149-54561756ccd1
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id d5c4d553-8272-4432-9b13-9135abee6d54
+                code: E404100
+                requestId: REQ-4b61ab20-7819-422c-98d5-85d8f7eb5722
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+    put:
+      tags:
+      - Subscriptions
+      summary: Update subscription by Subscription Key
+      description: Endpoint to update an existing subscription's details.
+      operationId: updateSubscriptionByKey
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Unique subscription key of the subscription to update
+        required: true
+        schema:
+          type: string
+        example: d5c4d553-8272-4432-9b13-9135abee6d53
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionUpdatePublicRequestDto'
+            example:
+              zuoraSubscriptionId: SUBSCRIPTION-f3f51e10-f22d-4df7-9c28-3367854bca66
+        required: true
+      responses:
+        '204':
+          description: Subscription updated successfully
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Zuora Subscription error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400500
+                cause: Zuora subscription 'SUBSCRIPTION-f3f51e10-f22d-4df7-9c28-3367854bca66' is not active
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Subscription key not found
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions:
+    get:
+      tags:
+      - Subscriptions
+      summary: Get active subscriptions
+      description: Endpoint to get a paginated list of active subscriptions for an organization
+      operationId: getActiveSubscriptions
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        '200':
+          description: Active subscriptions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionSummaryDto'
+              example:
+                content:
+                - id: 7a8f9b2c-ef1d-4c5e-96a7-b8c9d0e1f2a3
+                  subscriptionKey: SUBSCRIPTION-fafc5397-4044-48b8-9ff7-ae2a17c42238
+                  keyType: SINGLE_DEVICE
+                - id: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+                  subscriptionKey: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+                  keyType: SINGLE_DEVICE
+                totalElements: 2
+                totalPages: 1
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400104
+                cause: 'Invalid argument type: size, expected int'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+      security:
+      - Bearer: []
+      - apiKey: []
+    post:
+      tags:
+      - Subscriptions
+      summary: Create new subscription keys
+      description: Endpoint to create new subscription keys
+      operationId: createSubscriptionKeysPublic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionCreateRequestDto'
+            example:
+              keyType: SINGLE_DEVICE
+              numKeys: 2
+              expirationTime: '2024-05-30T23:59:59'
+              featureGroups:
+              - name: Feature Group Name
+              - id: 321e4567-e89b-12d3-a456-426655440123
+        required: true
+      responses:
+        '201':
+          description: Subscription keys created successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreatedSubscriptionDto'
+              example:
+              - id: 2550e4f5-547d-43ea-adf8-e3d3ff281583
+                subscriptionKey: 05e7fcb4-33d4-421d-b43c-447ca6c1364b
+              - id: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
+                subscriptionKey: 82b5debe-969e-4a3a-836f-b416df5a4a6f
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Validation Error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400102
+                cause: 'numKeys: Number of keys must be between 1 and 100'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '404':
+          description: Organization not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Result must not be null
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/{subscriptionId}/featureGroups/{featureGroupId}:
+    post:
+      tags:
+      - Subscriptions
+      summary: Add a feature group to a subscription
+      description: Endpoint to add a feature group to a subscription.
+      operationId: addFeatureGroupToSubscription
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of the subscription to which the feature group will be added
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 2550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupId
+        in: path
+        description: ID of the feature group to add
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 98c2d8a6-4371-4ac7-b712-43ff7349cbd9
+      responses:
+        '204':
+          description: Feature group added successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: subscriptionId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+    delete:
+      tags:
+      - Subscriptions
+      summary: Remove a feature group from a subscription
+      description: Endpoint to remove a feature group from a subscription.
+      operationId: removeFeatureGroupFromSubscription
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of the subscription from which the feature group will be removed
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 2550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupId
+        in: path
+        description: ID of the feature group to remove
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 98c2d8a6-4371-4ac7-b712-43ff7349cbd9
+      responses:
+        '204':
+          description: Feature group removed successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: subscriptionId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/keys/{subscriptionKey}/featureGroups/{featureGroupId}:
+    post:
+      tags:
+      - Subscriptions
+      summary: Add a feature group to a subscription
+      description: Endpoint to add a feature group to a subscription.
+      operationId: addFeatureGroupToSubscription_1
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Unique Subscription Key of the subscription to which the feature group will be added
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupId
+        in: path
+        description: ID of the feature group to add
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 98c2d8a6-4371-4ac7-b712-43ff7349cbd9
+      responses:
+        '204':
+          description: Feature group added successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: subscriptionId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+    delete:
+      tags:
+      - Subscriptions
+      summary: Remove a feature group from a subscription
+      description: Endpoint to remove a feature group from a subscription.
+      operationId: removeFeatureGroupFromSubscription_1
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Subscription Key of the subscription from which the feature group will be removed
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-2550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupId
+        in: path
+        description: ID of the feature group to remove
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 98c2d8a6-4371-4ac7-b712-43ff7349cbd9
+      responses:
+        '204':
+          description: Feature group removed successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: featureGroupId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/keys/{subscriptionKey}/featureGroups/names/{featureGroupName}:
+    post:
+      tags:
+      - Subscriptions
+      summary: Add a feature group to a subscription
+      description: Endpoint to add a feature group to a subscription.
+      operationId: addFeatureGroupToSubscription_2
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Unique Subscription Key of the subscription to which the feature group will be added
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-2550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupName
+        in: path
+        description: Unique name of the feature group to add
+        required: true
+        schema:
+          type: string
+        example: TRUCK_FEATURE_GROUP
+      responses:
+        '204':
+          description: Feature group added successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: subscriptionId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+    delete:
+      tags:
+      - Subscriptions
+      summary: Remove a feature group from a subscription
+      description: Endpoint to remove a feature group from a subscription.
+      operationId: removeFeatureGroupFromSubscription_2
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Subscription Key of the subscription from which the feature group will be removed
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-2550e4f5-547d-43ea-adf8-e3d3ff281583
+      - name: featureGroupName
+        in: path
+        description: Unique name of the feature group to remove
+        required: true
+        schema:
+          type: string
+        example: TRUCK_FEATURE_GROUP
+      responses:
+        '204':
+          description: Feature group removed successfully
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E400104
+                cause: 'Invalid argument type: subscriptionId, expected UUID'
+                requestId: REQ-749a88d3-2976-4459-ab99-a81bd94fe6b1
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription or feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id 7c02dfe9-f23e-43ae-8300-19da0e631923
+                requestId: REQ-f3a065d0-f868-45f5-8159-e72802e5baac
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                requestId: REQ-42b7bee9-3997-4cf6-b099-9c5c8b1bdbbd
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/keys/{subscriptionKey}/deactivate:
+    post:
+      tags:
+      - Subscriptions
+      summary: Deactivate subscription devices
+      description: Endpoint to deactivate devices associated with the given subscription
+      operationId: deactivateDevices
+      parameters:
+      - name: subscriptionKey
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeactivateSubscriptionDevicesRequestDto'
+            example:
+              devices:
+              - device1
+              - device2
+        required: true
+      responses:
+        '204':
+          description: Subscription devices deactivated successfully
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Validation Error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400102
+                cause: 'devices: must not be empty'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Subscription key not found
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/deactivate:
+    post:
+      tags:
+      - Subscriptions
+      summary: Deactivate subscription
+      description: Endpoint to deactivate a subscription
+      operationId: deactivateSubscription
+      parameters:
+      - name: x-subscription-key
+        in: header
+        description: The subscription key
+        required: true
+        schema:
+          type: string
+        example: b35eb927-0fea-4ff0-99fb-f71b85135807
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeactivateSubscriptionRequestDto'
+            example:
+              status: DELETED
+        required: true
+      responses:
+        '204':
+          description: Subscription deactivated successfully
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Validation Error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400102
+                cause: 'subscriptionKey: must not be blank'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Subscription key not found
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/keys/{subscriptionKey}/devices:
+    get:
+      tags:
+      - Subscriptions
+      summary: Get subscription devices details by subscription key
+      description: Endpoint to retrieve subscription devices by Subscription Key.
+      operationId: getSubscriptionDevices
+      parameters:
+      - name: subscriptionKey
+        in: path
+        description: Unique subscription key of the subscription to retrieve
+        required: true
+        schema:
+          type: string
+        example: SUBSCRIPTION-494ac3c6-3b17-4586-9662-4c7fb189ac7e
+      responses:
+        '200':
+          description: Found the subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionDevicesDto'
+              example:
+                subscriptionStatus: ACTIVE
+                devices:
+                - deviceId: device1
+                  deviceStatus: ACTIVE
+                  lastActiveAt: '2025-01-31T12:30:13Z'
+        '400':
+          description: Invalid request body or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 9fbfc01f-bebd-4d67-afa6-cb55129a978a
+                code: E400104
+                cause: 'Invalid argument type: subscriptionKey, expected String'
+                requestId: REQ-3988cb52-bb32-46be-b788-a502feede54e
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: 2546e826-e2c5-4e47-a149-54561756ccd1
+                cause: Unable to find com.here.wego.userservice.entity.SubscriptionEntity with id d5c4d553-8272-4432-9b13-9135abee6d54
+                code: E404100
+                requestId: REQ-4b61ab20-7819-422c-98d5-85d8f7eb5722
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+  /subscriptions/devices:
+    delete:
+      tags:
+      - Subscriptions
+      summary: Delete associated devices
+      description: Endpoint to delete all devices associated with a given subscription key
+      operationId: deleteAssociatedDevices
+      parameters:
+      - name: x-subscription-key
+        in: header
+        description: The subscription key
+        required: true
+        schema:
+          type: string
+        example: b35eb927-0fea-4ff0-99fb-f71b85135807
+      responses:
+        '204':
+          description: Associated devices deleted successfully
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Validation Error
+                correlationId: 2f2afe17-220e-4318-9299-954280d6b04f
+                code: E400102
+                cause: 'subscriptionKey: must not be blank'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Resource not found
+                correlationId: c622ba3c-2b75-446c-a37b-6e871bce3edf
+                code: E404100
+                cause: Subscription key not found
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-38f62707-746f-4071-ad3d-3c06d64785a7
+      security:
+      - Bearer: []
+      - apiKey: []
+components:
+  schemas:
+    SubscriptionDeviceDetailsDto:
+      required:
+      - deviceId
+      - deviceStatus
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: The device identifier.
+          example: DEVICE-bb9d8e02-70dd-427f-99f6-89a8a0d503a5
+        deviceStatus:
+          type: string
+          description: Device status
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        lastActiveAt:
+          type: string
+          description: The date and time when the device was last active.
+          format: date-time
+          example: '2025-02-03T16:44:12Z'
+    FeatureGroupByIdRequestDto:
+      required:
+      - id
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/FeatureGroupRequestDto'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+    UnauthorizedErrorResponseDto:
+      required:
+      - error
+      - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
+          type: string
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
+    SubscriptionDetailsDto:
+      required:
+      - expirationTime
+      - featureGroups
+      - id
+      - keyType
+      - status
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The subscription unique ID.
+          format: uuid
+          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        keyType:
+          type: string
+          description: The type of a subscription.
+          example: SINGLE_DEVICE
+          enum:
+          - SINGLE_DEVICE
+          - MULTI_DEVICE
+        status:
+          type: string
+          description: The status of the subscription.
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        featureGroups:
+          uniqueItems: true
+          type: array
+          description: Set of feature groups assigned to this subscription.
+          example:
+          - id: 550e8400-e29b-41d4-a716-446655440000
+            name: feature_group_name
+            description: Test feature group description
+            features:
+            - id: a1b2c3d4-e5f6-4321-8765-9876543210ab
+              name: feature_name
+          items:
+            $ref: '#/components/schemas/FeatureGroupDto'
+        expirationTime:
+          type: string
+          description: The expiration time of the subscription.
+          format: date-time
+          example: '2024-05-30T23:59:59Z'
+        zuoraSubscriptionId:
+          type: string
+          description: Zuora subscription ID
+          example: A-S00001563
+    FeatureGroupDto:
+      required:
+      - createdAt
+      - description
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
+        name:
+          type: string
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature group.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature group was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature group was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+    SubscriptionCreateRequestDto:
+      required:
+      - featureGroups
+      - keyType
+      - numKeys
+      type: object
+      properties:
+        keyType:
+          type: string
+          description: The type of key to be generated.
+          example: SINGLE_DEVICE
+          enum:
+          - SINGLE_DEVICE
+          - MULTI_DEVICE
+        numKeys:
+          maximum: 100
+          minimum: 1
+          type: integer
+          description: The number of keys to be generated.
+          format: int32
+          example: 2
+        expirationTime:
+          type: string
+          description: The expiration time of the generated keys.
+          format: date-time
+        featureGroups:
+          type: array
+          description: An optional list of feature groups specified by either name or ID.
+          example:
+          - name: New Feature Group
+          - id: 123e4567-e89b-12d3-a456-426614174000
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/FeatureGroupByIdRequestDto'
+            - $ref: '#/components/schemas/FeatureGroupByNameRequestDto'
+        zuoraSubscriptionId:
+          type: string
+          description: Zuora subscription ID
+          example: A-S00001563
+    SubscriptionDevicesDto:
+      required:
+      - devices
+      - subscriptionStatus
+      type: object
+      properties:
+        subscriptionStatus:
+          type: string
+          description: Subscription status.
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionDeviceDetailsDto'
+    DeactivateSubscriptionRequestDto:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status to set for the deactivated subscription
+          default: DELETED
+          enum:
+          - INACTIVE
+          - DELETED
+    SubscriptionSummaryDto:
+      required:
+      - id
+      - keyType
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The subscription unique ID.
+          format: uuid
+          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        keyType:
+          type: string
+          description: The type of a subscription.
+          example: SINGLE_DEVICE
+          enum:
+          - SINGLE_DEVICE
+          - MULTI_DEVICE
+    FeatureGroupRequestDto:
+      type: object
+      description: An optional list of feature groups specified by either name or ID.
+      example:
+      - name: New Feature Group
+      - id: 123e4567-e89b-12d3-a456-426614174000
+    CreatedSubscriptionDto:
+      required:
+      - id
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the created subscription.
+          format: uuid
+          example: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: c6f11a00-6f08-46c7-8636-4977fde39476
+    DeactivateSubscriptionDevicesRequestDto:
+      required:
+      - devices
+      type: object
+      properties:
+        devices:
+          type: array
+          items:
+            type: string
+    SubscriptionUpdatePublicRequestDto:
+      type: object
+      properties:
+        zuoraSubscriptionId:
+          type: string
+          description: Zuora subscription ID
+          example: A-S00001563
+    ErrorResponseDto:
+      required:
+      - correlationId
+      - status
+      - title
+      type: object
+      properties:
+        status:
+          type: integer
+          description: The HTTP status code
+          format: int32
+          example: 400
+        title:
+          type: string
+          description: Human-readable error description
+          example: Validation Error
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+          example: c5b92188-5eea-452a-a2e1-08c9a53bb5b9
+        code:
+          type: string
+          description: Error code
+          example: E500100
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: 'name: must not be blank'
+        action:
+          type: string
+          description: Human-readable action for the user
+          example: 'null'
+        requestId:
+          type: string
+          description: Request identifier provided by the user via `x-request-id` header
+          example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+    FeatureGroupByNameRequestDto:
+      required:
+      - name
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/FeatureGroupRequestDto'
+      - type: object
+        properties:
+          name:
+            type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      description: Bearer Access Token issued to either the User or Client.
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      description: API key from the HERE Platform Application
+      name: apiKey
+      in: query

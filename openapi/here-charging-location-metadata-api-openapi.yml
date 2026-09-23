@@ -1,0 +1,496 @@
+openapi: 3.2.0
+info:
+  title: HERE EV Charge Points API v3 Charging Location Metadata API
+  description: Use this API to get detailed information about charging locations.
+  version: 3.20.1
+servers:
+- url: https://evcp.hereapi.com/v3
+  description: Production environment URL
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Charging Location Metadata
+  description: Endpoints to query charging location metadata, namely operators and e-Mobility Service Providers.
+paths:
+  /countryMetadata:
+    get:
+      summary: Fetch metadata by countries
+      description: 'Fetch metadata by countries, such as a list of e-Mobility Service Providers
+
+        (eMSPs). If you don''t specify any countries, the response includes all available
+
+        countries. If you don''t specify any fields, the response includes only the list of
+
+        available countries.'
+      operationId: HERE EV Charge Points API v3 getCountryMeta
+      tags:
+      - Charging Location Metadata
+      parameters:
+      - $ref: '#/components/parameters/xRequestId'
+      - $ref: '#/components/parameters/countryCodes'
+      - $ref: '#/components/parameters/metaFields'
+      responses:
+        '200':
+          description: List of metadata entries by country.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataByCountry'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalErrorResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableErrorResponse'
+        default:
+          $ref: '#/components/responses/GenericErrorResponse'
+components:
+  responses:
+    InternalErrorResponse:
+      description: API response in case of internal errors.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalErrorResponse'
+    GenericErrorResponse:
+      description: API response in case of errors not specified separately.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/GenericErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/GenericErrorResponse'
+    BadRequestErrorResponse:
+      description: API response in case of bad request.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/BadRequestErrorResponse'
+    UnauthorizedErrorResponse:
+      description: API response in case of unauthorized access.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/UnauthorizedErrorResponse'
+    ServiceUnavailableErrorResponse:
+      description: API response in case of service unavailability.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/ServiceUnavailableErrorResponse'
+  headers:
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  examples:
+    ServiceUnavailableErrorResponse:
+      summary: Service unavailable error response example
+      value:
+        title: Database operation failed
+        status: 503
+        code: E629503
+        cause: Unexpected failure when querying database
+        action: Retry the request after some time, and contact support channels if the issue is not resolved
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    InternalErrorResponse:
+      summary: Internal error response example
+      value:
+        title: Internal Error
+        status: 500
+        code: E629500
+        cause: Service had an internal error while handling the request
+        action: Retry the request after some time, and contact support channels if the issue is not resolved
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    UnauthorizedErrorResponse:
+      summary: Unauthorized error response example
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+    BadRequestErrorResponse:
+      summary: Bad request error response example
+      value:
+        title: Bad Request
+        status: 400
+        code: E629400
+        cause: querystring/fields/2 must be equal to one of the allowed values
+        action: Ensure that the request is according to API schema
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    GenericErrorResponse:
+      summary: Generic error response example
+      value:
+        error: Method not allowed for this action
+        error_description: Method not allowed for this action
+  schemas:
+    ErrorResponse:
+      description: Response in case of error, common definition for most error responses.
+      type: object
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: E629000
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    GenericErrorResponse:
+      description: Generic error response
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+        status:
+          type: integer
+          description: HTTP status code
+          example: 403
+      required:
+      - error
+    MetadataDetails:
+      description: Metadata of operator or e-Mobility service provider.
+      type: object
+      properties:
+        name:
+          description: Name of the company.
+          type: string
+        partnerId:
+          description: A unique ID for the company. It can be used to assure correct mapping when the name changes.
+          type: string
+        tariffs:
+          description: 'Metadata for all tariffs (subscriptions / charging cards) the company provides.
+
+            '
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: 'Name of the tariff, corresponding to the `name` field in the `Tariff`
+
+                  object.
+
+                  '
+                type: string
+            required:
+            - name
+      required:
+      - name
+      - partnerId
+      example:
+        name: ChargePoint
+        partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+    CountryCode:
+      description: 3 letter country code according to ISO 3166-1 alpha 3.
+      example: DEU
+      type: string
+      pattern: ^[A-Za-z]{3}$
+    ConnectorTypeMetadata:
+      description: Metadata for connector types including OCPI connector type, common name, max power and legacyId.
+      type: object
+      properties:
+        standard:
+          description: "The connector type (standard) following OCPI connector type definitions.\n\nExtensible enum: `CHADEMO` `CHAOJI` `DOMESTIC_A` `DOMESTIC_B` `DOMESTIC_C` `DOMESTIC_D` `DOMESTIC_E` `DOMESTIC_F` `DOMESTIC_G` `DOMESTIC_H` `DOMESTIC_I` `DOMESTIC_J` `DOMESTIC_K` `DOMESTIC_L` `DOMESTIC_M` `DOMESTIC_N` `DOMESTIC_O` `GBT_AC` `GBT_DC` `IEC_60309_2_SINGLE_16` `IEC_60309_2_THREE_16` `IEC_60309_2_THREE_32` `IEC_60309_2_THREE_64` `IEC_62196_T1` `IEC_62196_T1_COMBO` `IEC_62196_T2` `IEC_62196_T2_COMBO` `IEC_62196_T3A` `IEC_62196_T3C` `NEMA_5_20` `NEMA_6_30` `NEMA_6_50` `NEMA_10_30` `NEMA_10_50` `NEMA_14_30` `NEMA_14_50` `PANTOGRAPH_BOTTOM_UP` `PANTOGRAPH_TOP_DOWN` `TESLA_R` `TESLA_S` `SAE_J3400` `MCS` `...`  \n\n* `CHADEMO`: The connector type is CHAdeMO, DC\n* `CHAOJI`: The ChaoJi connector. The new generation charging connector,\nharmonized between CHAdeMO and GB/T. DC.\n* `DOMESTIC_A`: Standard/Domestic household, type \"A\", NEMA 1-15, 2 pins\n* `DOMESTIC_B`: Standard/Domestic household, type \"B\", NEMA 5-15, 3 pins\n* `DOMESTIC_C`: Standard/Domestic household, type \"C\", CEE 7/17, 2 pins\n* `DOMESTIC_D`: Standard/Domestic household, type \"D\", 3 pin\n* `DOMESTIC_E`: Standard/Domestic household, type \"E\", CEE 7/5 3 pins\n* `DOMESTIC_F`: Standard/Domestic household, type \"F\", CEE 7/4, Schuko, 3\npins\n* `DOMESTIC_G`: Standard/Domestic household, type \"G\", BS 1363,\nCommonwealth, 3 pins\n* `DOMESTIC_H`: Standard/Domestic household, type \"H\", SI-32, 3 pins\n* `DOMESTIC_I`: Standard/Domestic household, type \"I\", AS 3112, 3 pins\n* `DOMESTIC_J`: Standard/Domestic household, type \"J\", SEV 1011, 3 pins\n* `DOMESTIC_K`: Standard/Domestic household, type \"K\", DS 60884-2-D1, 3\npins\n* `DOMESTIC_L`: Standard/Domestic household, type \"L\", CEI 23-16-VII, 3\npins\n* `DOMESTIC_M`: Standard/Domestic household, type \"M\", BS 546, 3 pins\n* `DOMESTIC_N`: Standard/Domestic household, type \"N\", NBR 14136, 3 pins\n* `DOMESTIC_O`: Standard/Domestic household, type \"O\", TIS 166-2549, 3\npins\n* `GBT_AC`: Guobiao GB/T 20234.2 AC socket/connector\n* `GBT_DC`: Guobiao GB/T 20234.3 DC connector\n* `IEC_60309_2_SINGLE_16`: IEC 60309-2 Industrial connector single phase\n16 amperes (usually blue)\n* `IEC_60309_2_THREE_16`: IEC 60309-2 Industrial connector three phase 16\namperes (usually red)\n* `IEC_60309_2_THREE_32`: IEC 60309-2 Industrial connector three phase 32\namperes (usually red)\n* `IEC_60309_2_THREE_64`: IEC 60309-2 Industrial connector three phase 64\namperes (usually red)\n* `IEC_62196_T1`: IEC 62196 Type 1 \"SAE J1772\"\n* `IEC_62196_T1_COMBO`: Combo Type 1 based, DC\n* `IEC_62196_T2`: IEC 62196 Type 2 \"Mennekes\"\n* `IEC_62196_T2_COMBO`: Combo Type 2 based, DC\n* `IEC_62196_T3A`: IEC 62196 Type 3A\n* `IEC_62196_T3C`: IEC 62196 Type 3C \"Scame\"\n* `NEMA_5_20`: NEMA 5-20, 3 pins\n* `NEMA_6_30`: NEMA 6-30, 3 pins\n* `NEMA_6_50`: NEMA 6-50, 3 pins\n* `NEMA_10_30`: NEMA 10-30, 3 pins\n* `NEMA_10_50`: NEMA 10-50, 3 pins\n* `NEMA_14_30`: NEMA 14-30, 4 pins\n* `NEMA_14_50`: NEMA 14-50, 4 pins\n* `PANTOGRAPH_BOTTOM_UP`: On-board Bottom-up-Pantograph typically for bus\ncharging\n* `PANTOGRAPH_TOP_DOWN`: Top-down-Pantograph typically for bus charging\n* `TESLA_R`: Tesla connector \"Roadster\"-type (round, 4 pin)\n* `TESLA_S`: Tesla connector \"Model-S\"-type (oval, 5 pin)\n* `SAE_J3400`: Tesla connector \"Model-S\"-type (oval, 5 pin), standardized\nas NACS SAE J3400\n* `MCS`: Megawatt Charging System (MCS) connector\n\nAs it is possible that new connector types are supported in the future,\nunknown connector types should be ignored.\n"
+          allOf:
+          - $ref: '#/components/schemas/ConnectorType'
+        commonName:
+          description: Human-readable connector name for display in user interfaces.
+          type: string
+        maxPower:
+          description: 'Maximum power available via this connector type in the country, in watts (W).
+
+
+            Note: Typically the maximum power for DC connectors indicates a dynamically
+
+            shared maximum power between a set of EVSEs, hence the actual maximum power
+
+            for a single connector can depend on load of other EVSEs in the location.
+
+            '
+          type: integer
+          minimum: 1
+        legacyId:
+          description: 'The id of the connector type in our EV API v2, used for backward compatibility
+
+            and mapping to the new OCPI-based connector types.
+
+            This id can be used to filter locations via HERE Search API.
+
+            '
+          type: integer
+      required:
+      - standard
+      - commonName
+      - maxPower
+      example:
+        standard: IEC_62196_T2
+        commonName: Type 2 (Mennekes)
+        maxPower: 22000
+        legacyId: 31
+    MetadataByCountry:
+      type: object
+      description: List of metadata entries per country.
+      properties:
+        countries:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            description: Metadata for a single country.
+            properties:
+              countryCode:
+                allOf:
+                - $ref: '#/components/schemas/CountryCode'
+              eMobilityServiceProviders:
+                description: Metadata on e-Mobility service providers in locations of country.
+                type: array
+                maxItems: 500
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/MetadataDetails'
+              operators:
+                description: Metadata on operators and suboperators in locations of country.
+                type: array
+                maxItems: 500
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/MetadataDetails'
+              connectorTypes:
+                description: Metadata on connector types available in locations of country.
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/ConnectorTypeMetadata'
+            required:
+            - countryCode
+        missingCountries:
+          description: List of country codes from the query parameter for which there is no data to return. Either the country is not covered by the data, or the country code is not matching the data.
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryCode'
+      example:
+        countries:
+        - countryCode: DEU
+          eMobilityServiceProviders:
+          - name: ChargePoint
+            partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+          - name: Last Mile Solutions
+            partnerId: 1f098f1e-cca5-11ed-b774-42010aa40002
+          operators:
+          - name: ChargePoint
+            partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+          - name: Last Mile Solutions
+            partnerId: 1f098f1e-cca5-11ed-b774-42010aa40002
+          connectorTypes:
+          - standard: IEC_62196_T2
+            commonName: Type 2 (Mennekes)
+            maxPower: 22000
+            legacyId: 31
+          - standard: IEC_62196_T2_COMBO
+            commonName: CCS2
+            maxPower: 350000
+            legacyId: 34
+        - countryCode: GBR
+          eMobilityServiceProviders:
+          - name: ChargePoint
+            partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+          operators:
+          - name: ChargePoint
+            partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+          connectorTypes:
+          - standard: IEC_62196_T2
+            commonName: Type 2 (Mennekes)
+            maxPower: 22000
+            legacyId: 31
+        missingCountries:
+        - ZZZ
+    ConnectorType:
+      description: "Extensible enum: `CHADEMO` `CHAOJI` `DOMESTIC_A` `DOMESTIC_B` `DOMESTIC_C` `DOMESTIC_D` `DOMESTIC_E` `DOMESTIC_F` `DOMESTIC_G` `DOMESTIC_H` `DOMESTIC_I` `DOMESTIC_J` `DOMESTIC_K` `DOMESTIC_L` `DOMESTIC_M` `DOMESTIC_N` `DOMESTIC_O` `GBT_AC` `GBT_DC` `IEC_60309_2_SINGLE_16` `IEC_60309_2_THREE_16` `IEC_60309_2_THREE_32` `IEC_60309_2_THREE_64` `IEC_62196_T1` `IEC_62196_T1_COMBO` `IEC_62196_T2` `IEC_62196_T2_COMBO` `IEC_62196_T3A` `IEC_62196_T3C` `NEMA_5_20` `NEMA_6_30` `NEMA_6_50` `NEMA_10_30` `NEMA_10_50` `NEMA_14_30` `NEMA_14_50` `PANTOGRAPH_BOTTOM_UP` `PANTOGRAPH_TOP_DOWN` `TESLA_R` `TESLA_S` `SAE_J3400` `MCS` `...`  \n\n* `CHADEMO`: The connector type is CHAdeMO, DC\n* `CHAOJI`: The ChaoJi connector. The new generation charging connector,\nharmonized between CHAdeMO and GB/T. DC.\n* `DOMESTIC_A`: Standard/Domestic household, type \"A\", NEMA 1-15, 2 pins\n* `DOMESTIC_B`: Standard/Domestic household, type \"B\", NEMA 5-15, 3 pins\n* `DOMESTIC_C`: Standard/Domestic household, type \"C\", CEE 7/17, 2 pins\n* `DOMESTIC_D`: Standard/Domestic household, type \"D\", 3 pin\n* `DOMESTIC_E`: Standard/Domestic household, type \"E\", CEE 7/5 3 pins\n* `DOMESTIC_F`: Standard/Domestic household, type \"F\", CEE 7/4, Schuko, 3\npins\n* `DOMESTIC_G`: Standard/Domestic household, type \"G\", BS 1363,\nCommonwealth, 3 pins\n* `DOMESTIC_H`: Standard/Domestic household, type \"H\", SI-32, 3 pins\n* `DOMESTIC_I`: Standard/Domestic household, type \"I\", AS 3112, 3 pins\n* `DOMESTIC_J`: Standard/Domestic household, type \"J\", SEV 1011, 3 pins\n* `DOMESTIC_K`: Standard/Domestic household, type \"K\", DS 60884-2-D1, 3\npins\n* `DOMESTIC_L`: Standard/Domestic household, type \"L\", CEI 23-16-VII, 3\npins\n* `DOMESTIC_M`: Standard/Domestic household, type \"M\", BS 546, 3 pins\n* `DOMESTIC_N`: Standard/Domestic household, type \"N\", NBR 14136, 3 pins\n* `DOMESTIC_O`: Standard/Domestic household, type \"O\", TIS 166-2549, 3\npins\n* `GBT_AC`: Guobiao GB/T 20234.2 AC socket/connector\n* `GBT_DC`: Guobiao GB/T 20234.3 DC connector\n* `IEC_60309_2_SINGLE_16`: IEC 60309-2 Industrial connector single phase\n16 amperes (usually blue)\n* `IEC_60309_2_THREE_16`: IEC 60309-2 Industrial connector three phase 16\namperes (usually red)\n* `IEC_60309_2_THREE_32`: IEC 60309-2 Industrial connector three phase 32\namperes (usually red)\n* `IEC_60309_2_THREE_64`: IEC 60309-2 Industrial connector three phase 64\namperes (usually red)\n* `IEC_62196_T1`: IEC 62196 Type 1 \"SAE J1772\"\n* `IEC_62196_T1_COMBO`: Combo Type 1 based, DC\n* `IEC_62196_T2`: IEC 62196 Type 2 \"Mennekes\"\n* `IEC_62196_T2_COMBO`: Combo Type 2 based, DC\n* `IEC_62196_T3A`: IEC 62196 Type 3A\n* `IEC_62196_T3C`: IEC 62196 Type 3C \"Scame\"\n* `NEMA_5_20`: NEMA 5-20, 3 pins\n* `NEMA_6_30`: NEMA 6-30, 3 pins\n* `NEMA_6_50`: NEMA 6-50, 3 pins\n* `NEMA_10_30`: NEMA 10-30, 3 pins\n* `NEMA_10_50`: NEMA 10-50, 3 pins\n* `NEMA_14_30`: NEMA 14-30, 4 pins\n* `NEMA_14_50`: NEMA 14-50, 4 pins\n* `PANTOGRAPH_BOTTOM_UP`: On-board Bottom-up-Pantograph typically for bus\ncharging\n* `PANTOGRAPH_TOP_DOWN`: Top-down-Pantograph typically for bus charging\n* `TESLA_R`: Tesla connector \"Roadster\"-type (round, 4 pin)\n* `TESLA_S`: Tesla connector \"Model-S\"-type (oval, 5 pin)\n* `SAE_J3400`: Tesla connector \"Model-S\"-type (oval, 5 pin), standardized\nas NACS SAE J3400\n* `MCS`: Megawatt Charging System (MCS) connector\n\nAs it is possible that new connector types are supported in the future,\nunknown connector types should be ignored.\n"
+      x-extensible-enum:
+      - CHADEMO
+      - CHAOJI
+      - DOMESTIC_A
+      - DOMESTIC_B
+      - DOMESTIC_C
+      - DOMESTIC_D
+      - DOMESTIC_E
+      - DOMESTIC_F
+      - DOMESTIC_G
+      - DOMESTIC_H
+      - DOMESTIC_I
+      - DOMESTIC_J
+      - DOMESTIC_K
+      - DOMESTIC_L
+      - DOMESTIC_M
+      - DOMESTIC_N
+      - DOMESTIC_O
+      - GBT_AC
+      - GBT_DC
+      - IEC_60309_2_SINGLE_16
+      - IEC_60309_2_THREE_16
+      - IEC_60309_2_THREE_32
+      - IEC_60309_2_THREE_64
+      - IEC_62196_T1
+      - IEC_62196_T1_COMBO
+      - IEC_62196_T2
+      - IEC_62196_T2_COMBO
+      - IEC_62196_T3A
+      - IEC_62196_T3C
+      - NEMA_5_20
+      - NEMA_6_30
+      - NEMA_6_50
+      - NEMA_10_30
+      - NEMA_10_50
+      - NEMA_14_30
+      - NEMA_14_50
+      - PANTOGRAPH_BOTTOM_UP
+      - PANTOGRAPH_TOP_DOWN
+      - TESLA_R
+      - TESLA_S
+      - SAE_J3400
+      - MCS
+      type: string
+  parameters:
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service
+      schema:
+        type: string
+    metaFields:
+      name: fields
+      description: "The fields parameter allows selecting which metadata fields are returned.\nIf no fields are specified, the response will only consist of a list of available\ncountries.\nPossible values are:\n* `eMobilityServiceProviders`: e-Mobility Service Provider names and ids.\n* `operators`: Charge point operator and suboperator names and ids.\n* `tariffs`: Tariff metadata is included in the e-Mobility Service Provider and\n  operator metadata details. No effect if used alone.\n* `connectorTypes`: Connector type identifier, common name, and max power.\n"
+      in: query
+      style: form
+      explode: false
+      schema:
+        type: array
+        minItems: 1
+        maxItems: 4
+        items:
+          type: string
+          enum:
+          - eMobilityServiceProviders
+          - operators
+          - tariffs
+          - connectorTypes
+    countryCodes:
+      name: countryCodes
+      in: query
+      description: Filter metadata results to include only the specified countries. A comma-separated list of three-letter country codes according to ISO 3166-1 alpha 3.
+      example:
+      - DEU
+      - GBR
+      - IRL
+      explode: false
+      schema:
+        type: array
+        minItems: 1
+        maxItems: 50
+        items:
+          $ref: '#/components/schemas/CountryCode'
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For
+
+        more information on how to get an API key, see the [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity
+
+        & Access Management Guide).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials
+
+        and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how
+
+        to get a bearer token, see the [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity
+
+        & Access Management Guide).
+
+        '

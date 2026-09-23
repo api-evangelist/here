@@ -1,0 +1,521 @@
+openapi: 3.2.0
+info:
+  title: HERE Map Image API v3 Icons API
+  description: Map Image API is a REST API that enables rendering personalized static map images, with access to a variety of styles and the ability to overlay custom data.
+  version: 3.0.4
+  termsOfService: https://legal.here.com/en-gb/terms/here-platform
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://image.maps.hereapi.com/mia/v3
+  description: Production
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Icons
+paths:
+  /icons/{iconType}/{format}:
+    get:
+      description: Retrieve customizable icons based on style, country, state, and road class
+      summary: Retrieve an icon in the requested format
+      operationId: getIcon
+      tags:
+      - Icons
+      parameters:
+      - $ref: '#/components/parameters/IconTypeParam'
+      - $ref: '#/components/parameters/FormatParam'
+      - $ref: '#/components/parameters/LabelParam'
+      - $ref: '#/components/parameters/CountryCodeParam'
+      - $ref: '#/components/parameters/StyleParam'
+      - $ref: '#/components/parameters/StateCodeParam'
+      - $ref: '#/components/parameters/WidthParam'
+      - $ref: '#/components/parameters/HeightParam'
+      - $ref: '#/components/parameters/RouteLevelParam'
+      - $ref: '#/components/parameters/IfNoneMatchParam'
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - Requested resource is returned
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/svg:
+              schema:
+                type: string
+                format: binary
+        '304':
+          description: The resource cached in the client (identified by the If-None-Match header) has not changed.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+components:
+  headers:
+    X-Correlation-ID:
+      description: 'The auto-generated ID that uniquely identifies the request and is accessible within the response.  When reaching out to support with an inquiry about a particular request, please include the value of this header. Doing so will assist in troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: 'User-provided token that you can use to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    ETag:
+      description: Entity tag that represents a specific version of the requested image.
+      schema:
+        type: string
+  responses:
+    BadRequestErrorResponse:
+      description: API response that indicates an error due to a bad request.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/BadRequestErrorResponseSchema'
+    ErrorResponse:
+      description: API response in case of an error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponseSchema'
+    NotFoundErrorResponse:
+      description: API response that indicates that the requested resource was not found.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundErrorResponseSchema'
+    ForbiddenError:
+      description: API response that indicates that the access token does not authorize access.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ForbiddenErrorSchema'
+    UnauthorizedError:
+      description: API response that indicates that the access token is missing or invalid.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedErrorSchema'
+    InternalServerErrorResponse:
+      description: API response that indicates a server malfunction or an unexpected error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema'
+  parameters:
+    XRequestIDParam:
+      in: header
+      name: X-Request-ID
+      required: false
+      example: '12345'
+      description: 'The ID given by the caller to match in the response.
+
+        '
+      schema:
+        type: string
+    CountryCodeParam:
+      name: countryCode
+      in: query
+      required: true
+      description: 'Specifies the country in ISO 3166-1 Alpha-3.
+
+        '
+      example: USA
+      schema:
+        type: string
+    FormatParam:
+      in: path
+      name: format
+      required: true
+      description: 'The format of the returned image. The /info endpoint response lists the available values. For more information, see [Optimize image dimensions and file type](https://docs.here.com/map-rendering/docs/image-properties).
+
+        '
+      example: png
+      schema:
+        $ref: '#/components/schemas/FormatSchema'
+    RouteLevelParam:
+      name: routeLevel
+      in: query
+      required: false
+      description: 'Specifies the route by its priority. The values are from 1 to 6:
+
+        1 - international or european road
+
+        2 - national
+
+        3 - primary road
+
+        4 - secondary
+
+        5 - minor road
+
+        6 - avenue
+
+        '
+      example: 1
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 6
+        default: 1
+    WidthParam:
+      name: width
+      in: query
+      required: false
+      description: 'Specifies the image width (if only width is given then the height is determined based on aspect ratio).
+
+        '
+      example: 256
+      schema:
+        type: integer
+    IfNoneMatchParam:
+      in: header
+      name: If-None-Match
+      required: false
+      example: '12345'
+      description: 'Specifies an optional entity tag of the resource cached in the client.
+
+        See the `304` response of the `getTile` operation for more details.
+
+        '
+      schema:
+        type: string
+    HeightParam:
+      name: height
+      in: query
+      required: false
+      description: 'Specifies the image height (if only height is given then the width is determined based on aspect ratio).
+
+        '
+      example: 256
+      schema:
+        type: integer
+    StateCodeParam:
+      name: stateCode
+      in: query
+      required: false
+      description: 'Specifies the state code in ISO 3166-2.
+
+        '
+      example: AL
+      schema:
+        type: string
+    IconTypeParam:
+      name: iconType
+      in: path
+      required: true
+      description: 'Specifies the icon type. The /info endpoint response lists the available values. For more information, see [Choose the map resource type](https://docs.here.com/map-rendering/docs/resources).
+
+        '
+      example: roadShield
+      schema:
+        $ref: '#/components/schemas/IconTypeSchema'
+    LabelParam:
+      name: label
+      in: query
+      required: true
+      description: 'Specifies the label for road shields. (string, UTF-8)
+
+        '
+      example: A1
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 13
+    StyleParam:
+      in: query
+      name: style
+      required: false
+      description: 'If present, selects the style to use to render the image. The /info endpoint response lists the available values. For more information, see [Define the map styles](https://docs.here.com/map-rendering/docs/styles).
+
+        When you do not provide this parameter in a query, the default style is "explore.day".
+
+        '
+      example: lite.day
+      schema:
+        $ref: '#/components/schemas/StyleSchema'
+  schemas:
+    ForbiddenErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
+    IconTypeSchema:
+      type: string
+      example: roadShield
+      description: Name of the underlying icon type for the icon image.
+    ErrorResponseSchema:
+      type: object
+      description: Response in case of error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: E622002
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    NotFoundErrorResponseSchema:
+      type: object
+      description: Not Found | Indicates that the resource was not found.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 404
+        code:
+          type: string
+          description: Error code.
+          example: E622000
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    UnauthorizedErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
+    ErrorResponseDetailsSchema:
+      type: object
+      description: Detailed information about the error.
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: output parameter matches none of the supported values
+    FormatSchema:
+      type: string
+      description: Supported image format types.
+      example: png
+    BadRequestErrorResponseSchema:
+      type: object
+      description: Bad Request | Indicates an invalid parameter value in the request, for example, the `zoom` value that is out of range.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code. Possible error codes include E622002,E622003,E622004,E622005,E622006,E622007,E622008,E622009, and E622010.
+          example: E622002
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: An automatically generated unique ID that identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        parameter:
+          type: string
+          description: Name of the parameter in case of a bad request due to an invalid path or query parameter; otherwise, an empty string.
+          example: overlay
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      - parameter
+    StyleSchema:
+      type: string
+      example: explore.day
+    InternalServerErrorResponseSchema:
+      type: object
+      description: Internal Error | Indicates a server malfunction and an unexpected error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 500
+        code:
+          type: string
+          description: Error code. Possible error codes include E622050,E622051,E622052,E622053, and E622054.
+          example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the  [Identity & Access Management Guide - API Keys](https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see the
+
+        [Identity & Access Management Guide - OAuth tokens](https://docs.here.com/identity-and-access-management/docs/how-to-authorize-with-oauth-20).
+
+        '
+externalDocs:
+  description: The Developer guide, Release notes, and Migration guide are available here.
+  url: https://docs.here.com/map-rendering/docs/introduction-map-image-api

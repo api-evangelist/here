@@ -1,0 +1,778 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Grants API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Grants
+  description: Manage resource access by external users
+paths:
+  /grants/resources/{resourceHrn}/entities:
+    get:
+      operationId: listGrants
+      summary: List grants on users, apps, or groups
+      description: 'List grants on user, apps, or groups. This call describes the
+
+        permissions assigned to any user, app, or group **in the same realm as
+
+        the calling principal unless includeCrossRealmGrants is true** that has been granted access to the specified
+
+        resource through an exact matching permission. Permissions granted
+
+        through policies and roles are not included.
+
+
+        Access Control:
+
+        * The calling principal must have either **"listGrants"** or **"share"** action permission for the resource **"{resourceHrn}"** in the **"authorization"** service.
+
+        * The realm of the calling principal MUST match the realm of the requested app.
+
+        * The calling principal MUST NOT include a project scope.'
+      tags:
+      - Grants
+      parameters:
+      - name: resourceHrn
+        required: true
+        description: The hrn that identifies the resource
+        in: path
+        schema:
+          type: string
+      - name: entityType
+        description: Restrict to only this type of entity  in the response.  Must be one of user, app, or group
+        in: query
+        schema:
+          type: string
+      - name: includeCrossRealmGrants
+        description: List grants on user, app, or group that have been shared across all realms. Only entityId and permissions will be included in the response. The default value is false.
+        in: query
+        schema:
+          type: boolean
+      - name: pageToken
+        description: When there are more than 'count' total records, use the pageToken from the previous page to retrieve the next page
+        in: query
+        schema:
+          type: string
+      - name: count
+        description: Number of records to return.
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityGrantsList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /grants/resources/{resourceHrn}/entities/{entityId}:
+    get:
+      operationId: getGrants
+      summary: Get grants given to a user, app, or group
+      description: 'Get grants. This call describes the permissions assigned to the
+
+        specified entity that grant access to the specified
+
+        resource. Empty list is returned if no permissions are found for
+
+        the resource hrn provided regardless of the resource being present or not
+
+
+        Access Control:
+
+        * The calling principal must have either **"listGrants"** or **"share"** action permission for the resource **"{resourceHrn}"** in the **"authorization"** service.
+
+        * The realm of the calling principal MUST match the realm of the requested app.
+
+        * The calling principal MUST NOT include a project scope.'
+      tags:
+      - Grants
+      parameters:
+      - name: resourceHrn
+        required: true
+        description: The hrn that identifies the resource
+        in: path
+        schema:
+          type: string
+      - name: entityId
+        required: true
+        description: The entityId to get the grants of
+        in: path
+        schema:
+          type: string
+      - name: entityType
+        required: true
+        description: The type of the entity requested.  Must be one of user, app, or group
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityGrant'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Resource or App not found
+  /grants/resources/{resourceHrn}/entities/{entityId}/actions/{actionId}:
+    get:
+      operationId: getGrant
+      summary: Get a single grant given to an entity
+      description: 'Get a single grant given to an entity. This calls returns any permission
+
+        to take the specified action against the specified resource on the
+
+        requested entity.
+
+
+        Access Control:
+
+        * The calling principal must have either **"listGrants"** or **"share"** action permission for the resource **"{resourceHrn}"** in the **"authorization"** service.
+
+        * The realm of the calling principal MUST match the realm of the requested app.
+
+        * The calling principal MUST NOT include a project scope.'
+      tags:
+      - Grants
+      parameters:
+      - name: resourceHrn
+        required: true
+        description: The hrn that identifies the resource
+        in: path
+        schema:
+          type: string
+      - name: entityId
+        required: true
+        description: The target entityId to get the grant of
+        in: path
+        schema:
+          type: string
+      - name: actionId
+        required: true
+        description: The action of the grant
+        in: path
+        schema:
+          type: string
+      - name: entityType
+        required: true
+        description: The type of the entity to get the grant of.  Must be one of user, app, or group
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityGrant'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Resource or App not found
+    post:
+      operationId: addGrant
+      summary: Grant access to a resource to an entity
+      description: 'Grant access to a resource to an entity. The result of this call is that
+
+        the specified entity will have permission to take the specified action
+
+        against the specified resource.
+
+
+        Access Control:
+
+        * The calling principal must have either **"addGrant:{actionId}"** or **"share"** action permission for the resource **"{resourceHrn}"** in the **"authorization"** service.
+
+        * The realm of the calling principal MUST match the realm of the requested app.
+
+        * The calling principal MUST NOT include a project scope.'
+      tags:
+      - Grants
+      parameters:
+      - name: resourceHrn
+        required: true
+        description: The hrn that identifies the resource
+        in: path
+        schema:
+          type: string
+      - name: entityId
+        required: true
+        description: The target entityId to grant access to
+        in: path
+        schema:
+          type: string
+      - name: actionId
+        required: true
+        description: The action to assign as allowed against the resource
+        in: path
+        schema:
+          type: string
+      - name: entityType
+        required: true
+        description: The type of the entity to grant access to.  Must be one of user, app, or group
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityGrant'
+        '400':
+          description: "Illegal entity ID.\\\n Illegal action value.\\\n Invalid HERE Resource Name format.\\\n Entity type is required.\\\n Illegal entity type."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: "You do not have permission to perform this action.\\\n Reserved resource prefix is required for this action.\\\n Realm of the entity does not match the realm of the caller.\\\n Realm not found."
+        '404':
+          description: Resource or App not found
+    delete:
+      operationId: removeGrant
+      summary: Revoke access to a resource from an entity
+      description: 'Revoke access to a resource from an entity. The result of this call is
+
+        that the specified entity will have any directly assigned permission to
+
+        take the specified action against the specified resource removed.
+
+
+        Access Control:
+
+        * The calling principal must have either **"removeGrant:{actionId}"** or **"share"** action permission for the resource **"{resourceHrn}"** in the **"authorization"** service.
+
+        * The realm of the calling principal MUST match the realm of the requested entity.
+
+        * The calling principal MUST NOT include a project scope.'
+      tags:
+      - Grants
+      parameters:
+      - name: resourceHrn
+        required: true
+        description: The hrn that identifies the resource
+        in: path
+        schema:
+          type: string
+      - name: entityId
+        required: true
+        description: The target entityId to revoke access from
+        in: path
+        schema:
+          type: string
+      - name: actionId
+        required: true
+        description: The action against the resource to revoke access from
+        in: path
+        schema:
+          type: string
+      - name: entityType
+        required: true
+        description: The type of the entity to revoke access from.  Must be one of user, app, or group
+        in: query
+        schema:
+          type: string
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          description: "Illegal entity ID.\\\n Illegal action value.\\\n Invalid HERE Resource Name format.\\\n Entity type is required.\\\n Illegal entity type."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: "You do not have permission to perform this action.\\\n Reserved resource prefix is required for this action.\\\n Realm of the entity does not match the realm of the caller.\\\n Realm not found."
+        '404':
+          description: Resource or App not found
+components:
+  schemas:
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    EntityGrantsCrossRealm:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          type: integer
+          description: count of page
+        data:
+          readOnly: true
+          type: array
+          description: List of entity ids and their associated permissions.
+          items:
+            $ref: '#/components/schemas/EntityGrantCrossRealm'
+    AppInfo:
+      type: object
+      properties:
+        clientId:
+          readOnly: true
+          type: string
+          description: Identifier for the client/application.
+          example: 0123456789ABCDEFGHHIJKLM
+        clientHrn:
+          readOnly: true
+          type: string
+          description: HRN for the client/application.
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+        realm:
+          readOnly: true
+          type: string
+          description: A realm to which app belongs to.
+          example: myrealm
+        name:
+          readOnly: true
+          type: string
+          description: Human readable name of the client.
+          example: Some Application
+        description:
+          readOnly: true
+          type: string
+          description: Prose description of the client.
+          example: Application for doing something.
+        ownerId:
+          readOnly: true
+          type: string
+          description: The id of the user that owns this client.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        ownerHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the user that owns this client.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        defaultScope:
+          readOnly: true
+          type: string
+          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        isRestrictedScope:
+          readOnly: true
+          type: boolean
+          description: If true, the app cannot request a token with a scope different from defaultScope.
+          example: true
+        appCreationEnabled:
+          readOnly: true
+          type: boolean
+          description: If true, the app can create apps.
+          example: true
+        alwaysProjectScope:
+          readOnly: true
+          type: boolean
+          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
+          example: true
+        status:
+          readOnly: true
+          type: string
+          enum:
+          - active
+          - expired
+          - blacklisted
+          - deactivated
+          - monitoring
+          - quota_exceeded
+          description: Status of the application
+          example: active
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the app.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    EntityGrantsList:
+      type: object
+      description: If includeCrossRealmGrants is true then EntityGrantsCrossRealm will be returned.
+      oneOf:
+      - $ref: '#/components/schemas/EntityGrants'
+      - $ref: '#/components/schemas/EntityGrantsCrossRealm'
+    GroupInfo:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: The id of the group..
+          example: GROUP-00000000-0000-0000-0000-000000000000
+        hrn:
+          readOnly: true
+          type: string
+          description: The hrn of the group..
+          example: hrn:here:authorization::myrealm:group/GROUP-00000000-0000-0000-0000-000000000000
+        name:
+          readOnly: true
+          type: string
+          description: A user assigned name for the group.
+          example: Group  name
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    EntityGrants:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          type: integer
+          description: count of page
+        data:
+          readOnly: true
+          type: array
+          description: List of users, apps, or groups and their associated permissions.
+          items:
+            $ref: '#/components/schemas/EntityGrant'
+    EntityGrant:
+      type: object
+      properties:
+        entityId:
+          $ref: '#/components/schemas/EntityId'
+        user:
+          $ref: '#/components/schemas/UserInfo'
+        app:
+          $ref: '#/components/schemas/AppInfo'
+        group:
+          $ref: '#/components/schemas/GroupInfo'
+        permissions:
+          readOnly: true
+          type: array
+          description: List of permissions
+          items:
+            $ref: '#/components/schemas/ActivePermission'
+    EntityId:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user, app, or group.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        hrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user, app, or group.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realmHrn:
+          readOnly: true
+          type: string
+          description: The realm HRN of this entity.
+          example: hrn:here:account::myrealm:realm/myrealm
+        type:
+          readOnly: true
+          type: string
+          description: The type of this entity. One of user, app, or group
+          example: user
+    EntityGrantCrossRealm:
+      type: object
+      properties:
+        entityId:
+          $ref: '#/components/schemas/EntityId'
+        permissions:
+          readOnly: true
+          type: array
+          description: List of permissions
+          items:
+            $ref: '#/components/schemas/ActivePermission'
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

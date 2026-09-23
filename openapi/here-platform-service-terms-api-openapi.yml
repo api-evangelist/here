@@ -1,0 +1,495 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Platform Service Terms API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Platform Service Terms
+  description: Platform Service Terms APIs
+paths:
+  /serviceTerms:
+    get:
+      summary: Retrieve Platform Service Terms
+      description: Retrieves the Platform Service Terms. The response of this API endpoint may not be applicable to the realms with offline contract signed.
+      operationId: getPlatformServiceTerms
+      tags:
+      - Platform Service Terms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformServiceTermsResponse'
+  /realms/{realmHrnOrMe}/serviceTermsAcceptance:
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Platform Service Terms
+      description: 'Accept the Platform Service Terms.
+
+
+        Access Control:
+
+        * The calling principal must have either **"realmAcceptServiceTerms"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: acceptRealmPlatformServiceTerms
+      parameters:
+      - $ref: '#/components/parameters/RealmHrnOrMe'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptPlatformServiceTermsResponse'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'An error has occurred.
+
+            * 400361: Realm of the resource does not match the realm of the caller.
+
+            '
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 'An error has occurred.
+
+            * 404800: Realm not found.
+
+            '
+      summary: Accept realm platform service terms
+      x-summary-source: derived
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Platform Service Terms
+      description: 'Get the realm''s Platform Service Terms.
+
+
+        Access Control:
+
+        * The calling principal must have **"realmAcceptServiceTerms"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmPlatformServiceTerms
+      parameters:
+      - $ref: '#/components/parameters/RealmHrnOrMe'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptPlatformServiceTermsResponse'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'An error has occurred.
+
+            * 400361: Realm of the resource does not match the realm of the caller.
+
+            '
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 'An error has occurred.
+
+            * 404800: Realm not found.
+
+            '
+      summary: Get realm platform service terms
+      x-summary-source: derived
+  /realms/{realmHrn}/serviceTermsAcceptanceHistory:
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Platform Service Terms
+      description: 'Get the realm''s Platform Service Terms history.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readServiceTerms"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmPlatformServiceTermsHistory
+      parameters:
+      - $ref: '#/components/parameters/RealmHrn'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptPlatformServiceTermsPageWToken'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'An error has occurred.
+
+            * 400361: Realm of the resource does not match the realm of the caller.
+
+            '
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 'An error has occurred.
+
+            * 404800: Realm not found.
+
+            * 404923: Realm Platform Service Terms have not been accepted.
+
+            '
+      summary: Get realm platform service terms history
+      x-summary-source: derived
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    AcceptPlatformServiceTermsPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AcceptPlatformServiceTermsHistory'
+        example:
+          total: 2
+          pageToken: 7afd7f8e94eb4844ba45
+          limit: 1
+          items:
+          - acceptedByName: Jack Sparrow
+            acceptedByEmail: jsparrow@example.com
+            acceptedTime: '2021-05-17T02:24:00.000Z'
+            ipAddress: 192.168.0.2
+            linkToAcceptedTerms: https://legal.here.com/en-gb/terms-2015
+            acceptedEffectiveDate: '2021-05-10'
+            offlineContractAcceptance: false
+    PlatformServiceTermsResponse:
+      type: object
+      required:
+      - link
+      - effectiveDate
+      - acceptDueDate
+      properties:
+        link:
+          type: string
+          description: URL of Platform Service Terms after redirections to a fully resolved URL.
+          example: https://legal.here.com/en-gb/terms-2015
+        effectiveDate:
+          type: string
+          description: Date Platform Service Terms goes live, in "yyyy-MM-dd" format.
+          example: '2021-05-10'
+        acceptDueDate:
+          type: string
+          description: Data Platform Service Terms should be accepted by in "yyyy-MM-dd" format.
+          example: '2021-06-10'
+    AcceptPlatformServiceTermsResponse:
+      type: object
+      required:
+      - acceptedByIdentity
+      - acceptedTime
+      - termsReacceptanceRequired
+      - acceptServiceTermsAllowed
+      properties:
+        acceptedByName:
+          type: string
+          description: User's name.
+          example: Jack Sparrow
+        acceptedByEmail:
+          type: string
+          description: User's email.
+          example: jsparrow@example.com
+        acceptedByIdentity:
+          type: string
+          description: The principal (user or app) who accepted the realm terms.
+          example: hrn:here:account::olp-here:app/jergfg2ejkvnvnkjfjh47i
+        acceptedTime:
+          type: string
+          description: Time of acceptance.
+          example: '2021-05-17T02:24:00.000Z'
+        ipAddress:
+          type: string
+          description: IP address
+          example: 192.168.0.2
+        linkToAcceptedTerms:
+          type: string
+          description: URL of Platform Service Terms. This will be unavailable if the realm has an offline contract signed.
+          example: https://legal.here.com/en-gb/terms-2015
+        acceptedEffectiveDate:
+          type: string
+          description: Platform Service Terms version at time of acceptance. This will be unavailable if the realm has an offline contract signed.
+          example: '2021-05-10'
+        termsReacceptanceRequired:
+          type: boolean
+          description: Whether the termsAcceptanceRequired User Experience must be shown
+          example: false
+        acceptServiceTermsAllowed:
+          type: boolean
+          description: Whether the principle has the necessary permission for the realm.
+          example: true
+        offlineContractAcceptance:
+          type: boolean
+          description: Whether the realm has an offline contract signed.
+          example: false
+        externalEulaAcceptance:
+          type: boolean
+          description: 'True if registration channel required EULA acceptance, false otherwise. External EULA acceptance means
+
+            that this realm doesn''t require platform terms acceptance (for example: realm with ''aws'' channel).
+
+            '
+          example: false
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    AcceptPlatformServiceTermsHistory:
+      type: object
+      required:
+      - acceptedByIdentity
+      - acceptedTime
+      properties:
+        acceptedByName:
+          type: string
+          description: User's name.
+          example: Jack Sparrow
+        acceptedByEmail:
+          type: string
+          description: User's email.
+          example: jsparrow@example.com
+        acceptedTime:
+          type: string
+          description: Time of acceptance.
+          example: '2021-05-17T02:24:00.000Z'
+        ipAddress:
+          type: string
+          description: IP address
+          example: 192.168.0.2
+        linkToAcceptedTerms:
+          type: string
+          description: URL of Platform Service Terms. This will be unavailable if the realm has an offline contract signed or the realm channel is 'aws'.
+          example: https://legal.here.com/en-gb/terms-2015
+        acceptedEffectiveDate:
+          type: string
+          description: Platform Service Terms version at time of acceptance. This will be unavailable if the realm has an offline contract signed or the realm channel is 'aws'.
+          example: '2021-05-10'
+        offlineContractAcceptance:
+          type: boolean
+          description: Whether the realm has an offline contract signed.
+          example: false
+        externalEulaAcceptance:
+          type: boolean
+          description: 'True if registration channel required EULA acceptance, false otherwise. External EULA acceptance means
+
+            that this realm doesn''t require platform terms acceptance (for example: realm with ''aws'' channel).
+
+            '
+          example: false
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+  parameters:
+    RealmHrnOrMe:
+      in: path
+      name: realmHrnOrMe
+      required: true
+      description: HRN of the realm, or "me". If "me" the "rlm" claim from the access token is used.
+      schema:
+        type: string
+    RealmHrn:
+      in: path
+      name: realmHrn
+      required: true
+      schema:
+        type: string
+      description: 'Realm is the HRN of the realm.
+
+        '
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

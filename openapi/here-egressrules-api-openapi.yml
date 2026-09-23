@@ -1,0 +1,411 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Egress Rules API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: EgressRules
+paths:
+  /v2/egressRules:
+    get:
+      tags:
+      - EgressRules
+      summary: List all egress rules in a realm.
+      operationId: listEgressRules
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: Identifier for a specific http request. If not present, one should be generated. This header and value should be returned in the http response.
+        schema:
+          type: string
+      - name: X-Correlation-ID
+        in: header
+        description: Identifier for all http requests made in service of an incoming http request. If not present, one should be generated. This header and value should be included in all outgoing http requests and should be returned in the response.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EgressRule'
+        '403':
+          description: Authorization for this request failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      tags:
+      - EgressRules
+      summary: Create one or more egress rules atomically.
+      operationId: createEgressRules
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: Identifier for a specific http request. If not present, one should be generated. This header and value should be returned in the http response.
+        schema:
+          type: string
+      - name: X-Correlation-ID
+        in: header
+        description: Identifier for all http requests made in service of an incoming http request. If not present, one should be generated. This header and value should be included in all outgoing http requests and should be returned in the response.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              description: List of egress rules to be created.
+              items:
+                $ref: '#/components/schemas/EgressRule'
+        required: true
+      responses:
+        '201':
+          description: Rules created successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EgressRule'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '403':
+          description: Authorization for this request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '409':
+          description: Conflict with existing rules. Error message provides information on destinations that are already exist in realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/egressRules/{ruleId}:
+    get:
+      tags:
+      - EgressRules
+      summary: Get a specific egress rule.
+      operationId: getEgressRule
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: Identifier for a specific http request. If not present, one should be generated. This header and value should be returned in the http response.
+        schema:
+          type: string
+      - name: X-Correlation-ID
+        in: header
+        description: Identifier for all http requests made in service of an incoming http request. If not present, one should be generated. This header and value should be included in all outgoing http requests and should be returned in the response.
+        schema:
+          type: string
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 0
+          type: string
+      responses:
+        '200':
+          description: Egress rule details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EgressRule'
+        '403':
+          description: Authorization for this request failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '409':
+          description: EgressRule not found for the provided identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      tags:
+      - EgressRules
+      summary: Delete a specific egress rule.
+      operationId: deleteEgressRule
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: Identifier for a specific http request. If not present, one should be generated. This header and value should be returned in the http response.
+        schema:
+          type: string
+      - name: X-Correlation-ID
+        in: header
+        description: Identifier for all http requests made in service of an incoming http request. If not present, one should be generated. This header and value should be included in all outgoing http requests and should be returned in the response.
+        schema:
+          type: string
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 0
+          type: string
+      responses:
+        '204':
+          description: Rule deleted successfully.
+          headers:
+            X-Request-ID:
+              description: Value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: Value of the request header or generated value.
+              schema:
+                type: string
+          content: {}
+        '403':
+          description: Authorization for this request failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: EgressRule not found for the provided identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/egressRules/auditlog:
+    get:
+      tags:
+      - EgressRules
+      summary: Retrieve a list of actions applied to EgressRules in a realm.
+      operationId: getEgressRulesAuditLog
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: Identifier for a specific http request. If not present, one should be generated. This header and value should be returned in the http response.
+        schema:
+          type: string
+      - name: X-Correlation-ID
+        in: header
+        description: Identifier for all http requests made in service of an incoming http request. If not present, one should be generated. This header and value should be included in all outgoing http requests and should be returned in the response.
+        schema:
+          type: string
+      - name: ruleId
+        in: query
+        description: Filter actions applied to EgressRules in a realm to only include those with a ruleId that matches the ruleId query parameter.
+        schema:
+          type: string
+      - name: ruleDestination
+        in: query
+        description: Filter actions applied to EgressRules in a realm to only include those with a ruleDestination that matches the ruleDestination query parameter.
+        schema:
+          type: string
+      - name: action
+        in: query
+        description: Filter actions applied to EgressRules in a realm to only include those with an action that matches the action query parameter.
+        schema:
+          pattern: created|deleted
+          type: string
+          enum:
+          - created
+          - deleted
+      - name: principal
+        in: query
+        description: Filter actions applied to EgressRules in a realm to only include those with a principal that matches the principal query parameter.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogEntry'
+        '403':
+          description: Authorization for this request failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+components:
+  schemas:
+    AuditLogEntry:
+      type: object
+      properties:
+        created:
+          type: string
+          format: date-time
+        ruleId:
+          type: string
+          description: Identifier of EgressRule that was affected by action.
+          example: 286aad61-50f2-4745-a336-a087aaa0e746
+        ruleDestination:
+          type: string
+          description: Destination of EgressRule that was affected by action.
+          example: '*.weather.gov'
+        action:
+          type: string
+          description: Action applied to EgressRule.
+          example: created
+          enum:
+          - created
+          - deleted
+        principal:
+          type: string
+          description: HERE identifier for user/client that issued this action.
+          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
+        realm:
+          type: string
+          description: 'System generated: Realm under which EgressRule exists.'
+          example: olp-here
+      description: Record representing change made to an EgressRule.
+    EgressRule:
+      type: object
+      properties:
+        created:
+          type: string
+          description: 'System generated: Time when this EgressRule was created. This is in ISO-8601 calendar system.'
+          format: date-time
+          example: '2007-12-03T09:15:30Z'
+        id:
+          type: string
+          description: 'System generated: Unique id of this Egress Rule'
+          example: 286aad61-50f2-4745-a336-a087aaa0e746
+        description:
+          type: string
+          description: Optional Egress Rule description
+          example: Allow access to National Weather Services APIs
+        destination:
+          type: string
+          description: IP address or DNS name for this egress Rule. Wildcards are allowed in DNS names only in leftmost part and not right before a public suffix. For example, *.example.com is allowed, but *.*.com or *.com or *.co.uk are not. DNS name cannot be a public suffix.
+          example: '*.weather.gov'
+        destinationType:
+          type: string
+          description: Defines destination type for this EgressRule.
+          example: host
+          readOnly: true
+          enum:
+          - ipAddress
+          - host
+        realm:
+          type: string
+          description: 'System generated: The realm under which the rule will be applied.'
+          example: olp-here
+      description: Represents a rule that allows access from a pipeline namespace to host or IP address.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

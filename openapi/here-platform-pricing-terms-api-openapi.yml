@@ -1,0 +1,446 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Platform Pricing Terms API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Platform Pricing Terms
+  description: Platform Pricing Terms APIs
+paths:
+  /realms/{realmHrnOrMe}/pricingTermsAcceptance:
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Platform Pricing Terms
+      description: 'Accept the Platform Pricing Terms.
+
+
+        Access Control:
+
+        * The calling principal must have **"realmAcceptServiceTerms"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: acceptRealmPlatformPricingTerms
+      parameters:
+      - $ref: '#/components/parameters/RealmHrnOrMe'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptPlatformPricingTermsResponse'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      summary: Accept realm platform pricing terms
+      x-summary-source: derived
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Platform Pricing Terms
+      description: 'Get the organization''s Pricing Terms acceptance details.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readServiceTerms"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmPlatformPricingTerms
+      parameters:
+      - $ref: '#/components/parameters/RealmHrnOrMe'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptPlatformPricingTermsResponse'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Get realm platform pricing terms
+      x-summary-source: derived
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    AcceptPlatformPricingTermsResponse:
+      type: object
+      required:
+      - acceptedByIdentity
+      - acceptedTime
+      properties:
+        acceptedByName:
+          type: string
+          description: User's name.
+          example: Jack Sparrow
+        acceptedByEmail:
+          type: string
+          description: User's email.
+          example: jsparrow@example.com
+        acceptedByIdentity:
+          type: string
+          description: The principal (user or app) who accepted the platform pricing terms for this realm.
+          example: hrn:here:account::myrealm:user/HERE-e1e824d6-f3ba-4a8f-b1d6-6991ccd89b62
+        acceptedTime:
+          type: string
+          description: Time of acceptance.
+          example: '2021-05-17T02:24:00.000Z'
+        ipAddress:
+          type: string
+          description: IP address
+          example: 192.168.0.2
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    GenericError404Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Resource not found.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 404
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: Resource not found.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Validate input parameters and retry.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-3c7cae72-f407-4d75-807d-bc1689fbbd4d
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: Resource not found.
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+  responses:
+    Conflict:
+      description: There was a conflict, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError404Response'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    RealmHrnOrMe:
+      in: path
+      name: realmHrnOrMe
+      required: true
+      description: HRN of the realm, or "me". If "me" the "rlm" claim from the access token is used.
+      schema:
+        type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

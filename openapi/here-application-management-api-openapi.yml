@@ -1,0 +1,1162 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Application Management API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Application Management
+  description: Application Management APIs enable HERE users to create applications and authorized identities (user/another app) to manage such applications.
+paths:
+  /apps:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/ActionParam'
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Get Applications
+      description: 'List applications over which the calling party OR one of the groups the calling party is a member of has an exact match permission on as defined below.
+
+
+        Exact match permissions include: service = **"account"** and action = **"read"**, **"write"**, or **"manage"** and service = **"authorization"** and action = **"share"**.
+
+
+        Access Control:
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: listApplications
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Create Application
+      description: 'Create a new application.
+
+        * A new app will be created and a clientId will be automatically generated and assigned to it.
+
+        * The application will be created in the same realm the user/app belongs to. This information is obtained from the User/Client Access Token.
+
+        * The user/app creating the app will be granted permission to ''manage'' and delegate application management (''share''). This user/app can now delegate access to the application in more granular fashion (all sharable actions - read, write, manage, share) to another identity in his realm via the share/grants APIs.
+
+        * The app created by an app will inherit the creator user id of the caller app. The creator user id does not get permissions to the new app.
+
+
+        * Any authenticated user has access to create an application.
+
+        * Any authenticated app that has the ''appCreationEnabled'' property enabled by any of its managers has access to create an application.
+
+
+        Access Control:
+
+        * The calling principal must be in a realm of type **"olp"**.
+
+        * The calling principal must have **"createApp"** action permission in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppRequest'
+            example:
+              name: My Application
+              description: This is a description of My Application
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /apps/{app}:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Get Application
+      description: 'Retrieve the application identified by the provided HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getApplication
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Update Application
+      description: 'Update the application identified by the provided HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: updateApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAppRequest'
+            example:
+              name: My Updated Application
+              description: This is a new description of My Application
+              deviceTokenCreationEnabled: true
+              deviceApiCallRateLimitPer15Minutes: 10
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Delete Application
+      description: 'Delete the application identified by the provided HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteApplication
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/defaultScope:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Get application default scope
+      description: 'Get the default scope for the application identified by the provided HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"read"** action permission for the resource **"{app}"** in the **"account"** service.'
+      operationId: getApplicationDefaultScope
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDefaultScopeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Create or update application default scope
+      description: 'Create or update the default scope for the application identified by the provided HRN.
+
+
+        Application Default Scope Management APIs enabled authorized identities to manage the the default scope for a given application.
+
+        The default scope represents the default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no
+
+        "scope" parameter is specified. If a "scope" parameter is specified when requesting a client_credentials OAuth2 token, the default
+
+        scope value will be disregarded.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.'
+      operationId: setApplicationDefaultScope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppDefaultScope'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDefaultScopeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Delete application default scope
+      description: 'Delete the default scope for the application identified by the provided HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteApplicationDefaultScope
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/appCreationEnabled:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Verify the app's ability to create another app
+      description: 'Verify if the property "appCreationEnabled" for the application is enabled.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getAppCreationEnabled
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Enables the app's ability to create another app
+      description: 'Enable the property "appCreationEnabled" for the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: enableAppCreation
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Management
+      summary: Disables the app's ability to create another app
+      description: 'Disable the property "appCreationEnabled" for the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: disableAppCreation
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    TokenEndpointAuthMethodReason:
+      type: string
+      minLength: 20
+      example: Here's the reason why client_secret_jwt was not used.
+      description: This needs to be included only if  "tokenEndpointAuthMethod" is not equal to client_secret_jwt. The reason for choosing a less secure tokenEndpoint auth method needs to be provided here. Minimum 20 characters required.
+    App:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CreateAppRequest'
+      - type: object
+        properties:
+          appCreationEnabled:
+            $ref: '#/components/schemas/AppCreationEnabled'
+          platformTier:
+            $ref: '#/components/schemas/PlatformTier'
+          hrn:
+            $ref: '#/components/schemas/HRN'
+          status:
+            $ref: '#/components/schemas/Status'
+          appCodeEnabled:
+            $ref: '#/components/schemas/AppCodeEnabled'
+          appCodeVisible:
+            $ref: '#/components/schemas/AppCodeVisible'
+          applicationType:
+            $ref: '#/components/schemas/ApplicationType'
+          createdTime:
+            $ref: '#/components/schemas/CreatedTime'
+          realm:
+            $ref: '#/components/schemas/Realm'
+          rateLimitTier:
+            $ref: '#/components/schemas/RateLimitTier'
+    AppDefaultScopeResponse:
+      type: object
+      properties:
+        defaultScope:
+          $ref: '#/components/schemas/DefaultScope'
+        isRestrictedScope:
+          $ref: '#/components/schemas/IsRestrictedScope'
+        alwaysProjectScope:
+          $ref: '#/components/schemas/AlwaysProjectScope'
+        scope:
+          allOf:
+          - $ref: '#/components/schemas/DefaultScope'
+          - deprecated: true
+          - description: Use `defaultScope` property instead.
+        isRestricted:
+          allOf:
+          - $ref: '#/components/schemas/IsRestrictedScope'
+          - deprecated: true
+          - description: Use `isRestrictedScope` property instead.
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    TokenDuration:
+      type: integer
+      example: 3600
+      description: default duration in seconds for the token issued to this application. It has be a non-zero value, less than or equal to 24 hours (86400) or the max allowed for the realm via the realm setting.
+    DobRequired:
+      type: boolean
+      example: false
+      description: 'Flag indicating whether or not application users are required to provide their date of birth.
+
+
+        true - the user must supply their DOB
+
+        false - the user can use self-service and indicate "yes I am over age X"
+
+
+        Collection of users date of birth is required for compliance with Article 8 of the General Data Protection Regulation. For more details [see here](https://gdpr-info.eu/art-8-gdpr/)'
+    HRN:
+      type: string
+      example: hrn:here:account::HERE:app/uIkGzYShLKtQQAimXzvV
+      description: HRN of the application.
+      readOnly: true
+    AppCreationEnabled:
+      type: boolean
+      example: true
+      description: If the application is allowed to create an App.
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    AppPageWithToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AppInfo'
+            description: List of apps.
+    AllowedRealmTypes:
+      type: array
+      items:
+        type: string
+        enum:
+        - olp
+        - auto
+        - consumer
+        - all
+      example:
+      - olp
+      description: 'List of realmTypes from which this client is allowed to request user access tokens when using either the OAuth2 or OpenID protocols.
+
+        '
+    Referrers:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 255
+        example: api.here.com/api
+      maxItems: 20
+      example:
+      - localhost
+      - 127.0.0.1
+      - www.example.com/hello/world/
+      description: "List Referrer URLs to register/registered with Application\n  * On create/update: if the parameter is not present, the current value(s) are unchanged. If empty list specified, current value(s) will be reset to empty list.\n  * Value has a min length of 1 char and max of 255 chars.\n  * Wildcards are NOT allowed. The only valid characters`:` alphanumerics, '-', '_', '.', '/'\n  * The protocol is NOT specified, i.e. no http:// or https://\n  * Some examples`:` here.com, localhost, 127.0.0.1, www.example.com/hello/world/\n  * A port may be specified. Ex. localhost:1234\n  * Maximum of 20 Referrer URLs are allowed per application.\n"
+    DefaultScope:
+      type: string
+      description: The default requested scope for the given application.
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+    IsRestrictedScope:
+      type: boolean
+      example: true
+      default: false
+      description: 'Boolean value indicating whether or not the given application should be restricted
+
+        from requesting a client token with a different scope from the default value.
+
+        Access tokens with NO scope are allowed with this value set to true unless
+
+        the ''alwaysProjectScope'' setting is also true.  This value has no effect on the scope
+
+        of API Keys which are assigned no scope unless ''alwaysProjectScope'' is set to true.
+
+        '
+    AllowedScopes:
+      type: array
+      items:
+        type: string
+        enum:
+        - openid
+        - email
+        - profile
+        - phone
+      example:
+      - email
+      - profile
+      description: List of Strings representing the scopes. This field is required when the response types is non-empty. For more details [see here](http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims).
+    Status:
+      type: string
+      enum:
+      - active
+      - expired
+      - blacklisted
+      - deactivated
+      example: active
+      description: Status of the application.
+      readOnly: true
+    TokenEndpointAuthMethod:
+      type: string
+      enum:
+      - client_secret_basic
+      - client_secret_post
+      - client_secret_jwt
+      example: client_secret_jwt
+      description: The default value will be "client_secret_jwt" if the field is not included in the request body.Please check [here](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) for further details.
+    CreateAppRequest:
+      type: object
+      required:
+      - name
+      properties:
+        clientId:
+          $ref: '#/components/schemas/ClientId'
+        name:
+          $ref: '#/components/schemas/Name'
+        description:
+          $ref: '#/components/schemas/Description'
+        redirectUris:
+          $ref: '#/components/schemas/RedirectUris'
+        allowedScopes:
+          $ref: '#/components/schemas/AllowedScopes'
+        tokenEndpointAuthMethod:
+          $ref: '#/components/schemas/TokenEndpointAuthMethod'
+        tokenEndpointAuthMethodReason:
+          $ref: '#/components/schemas/TokenEndpointAuthMethodReason'
+        dobRequired:
+          $ref: '#/components/schemas/DobRequired'
+        tokenDuration:
+          $ref: '#/components/schemas/TokenDuration'
+        responseTypes:
+          $ref: '#/components/schemas/ResponseTypes'
+        referrers:
+          $ref: '#/components/schemas/Referrers'
+        allowedRealmTypes:
+          $ref: '#/components/schemas/AllowedRealmTypes'
+        deviceTokenCreationEnabled:
+          $ref: '#/components/schemas/DeviceTokenCreationEnabled'
+        deviceApiCallRateLimitPer15Minutes:
+          $ref: '#/components/schemas/DeviceApiCallRateLimitPer15Minutes'
+    Name:
+      type: string
+      example: My Application
+      description: Human readable name of the client.  This field is required unless a clientId is provided.
+    ClientId:
+      type: string
+      example: uIkGzYShLKtQQAimXzvV
+      description: Identifier for the client/application. If provided, identifier should be present and active in Druid.
+    Description:
+      type: string
+      example: This is a description of my application.
+      description: Prose description of the client
+    DeviceTokenCreationEnabled:
+      type: boolean
+      example: false
+      description: If the application allows token creation for linked anonymous devices.
+    GenericError404Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Resource not found.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 404
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: Resource not found.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Validate input parameters and retry.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-3c7cae72-f407-4d75-807d-bc1689fbbd4d
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: Resource not found.
+    CreatedTime:
+      type: integer
+      format: int64
+      example: 1432216394712
+      description: Timestamp (milliseconds since the Unix epoch) of when the app was created.
+      readOnly: true
+    AppDefaultScope:
+      type: object
+      required:
+      - scope
+      properties:
+        scope:
+          $ref: '#/components/schemas/DefaultScope'
+        isRestricted:
+          $ref: '#/components/schemas/IsRestrictedScope'
+        alwaysProjectScope:
+          $ref: '#/components/schemas/AlwaysProjectScope'
+    AppInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: 0123456789ABCDEFGHHIJKLM
+          description: Identifier for the client/application.
+        hrn:
+          type: string
+          readOnly: true
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+          description: HRN for the client/application.
+        realm:
+          type: string
+          readOnly: true
+          example: myrealm
+          description: The realm to which the app belongs.
+        name:
+          type: string
+          readOnly: true
+          example: Some Application
+          description: Human readable name of the client.
+        description:
+          type: string
+          readOnly: true
+          example: Application for doing something.
+          description: Prose description of the client.
+        status:
+          type: string
+          readOnly: true
+          example: active
+          description: Status of the client.
+        appCreationEnabled:
+          $ref: '#/components/schemas/AppCreationEnabled'
+        deviceTokenCreationEnabled:
+          $ref: '#/components/schemas/DeviceTokenCreationEnabled'
+        deviceApiCallRateLimitPer15Minutes:
+          $ref: '#/components/schemas/DeviceApiCallRateLimitPer15Minutes'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        createdTime:
+          $ref: '#/components/schemas/CreatedTime'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    PatchAppRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CreateAppRequest'
+      - type: object
+        properties:
+          clientId:
+            type: string
+            readOnly: true
+    PlatformTier:
+      type: integer
+      example: 1
+      description: 'The platform rate limit tier assigned to this realm.  Must be an integer > 0.  All identities in the realm are associated with this
+
+        tier unless otherwise individually overridden.  This tier applies to calls against all Platform APIs excluding HERE Account APIs.
+
+        The rate limiting rules for each tier are dynamically configured.
+
+        '
+    ApplicationType:
+      type: string
+      enum:
+      - application
+      - service
+      example: application
+      description: Whether it's an application or a trusted back-end service.
+      readOnly: true
+    AppCodeVisible:
+      type: boolean
+      example: true
+      description: Identifies if app code is available via the /apps/{app}/appCode API.
+      readOnly: true
+    DeviceApiCallRateLimitPer15Minutes:
+      type: integer
+      minimum: 1
+      maximum: 1000
+      example: 10
+      description: The rate limit per 15 minutes for linked anonymous devices. Property deviceTokenCreationEnabled needs to be true and a value needs to be set for property deviceApiCallRateLimitPer15Minutes to enable this rate limit. Otherwise the rate limit defaults to the client level rate limit.
+    RedirectUris:
+      type: array
+      items:
+        type: string
+        format: uri
+      example:
+      - https://www.example.com
+      - https://qa.example.com
+      description: 'List of redirect Uris. should be fully qualified HTTPS URIs without any fragments (HTTP is only supported for localhost development). At least one Redirect URI should be registered if the response types is non-empty.
+
+        Redirect URI as defined in OAuth2 specification: [https://tools.ietf.org/html/rfc6749#section-3.1.2](https://tools.ietf.org/html/rfc6749#section-3.1.2)'
+    AlwaysProjectScope:
+      type: boolean
+      example: true
+      default: false
+      description: 'Indicates whether or not the given application is locked to the default scope.
+
+        When this value is set to true, both API Keys and Access Tokens for this app are
+
+        always assigned the default project.  In addition, the given application cannot
+
+        be added to any additional projects or groups.  Any attempt to get an unscoped access token
+
+        for the given application will fail.  Any API Keys associated with the given
+
+        application are assigned the default scope.
+
+        '
+    Realm:
+      type: string
+      example: HERE
+      description: Realm the application belongs to.
+      readOnly: true
+    AppCodeEnabled:
+      type: boolean
+      example: true
+      description: Identifies if app codes are enabled.
+      readOnly: true
+    ResponseTypes:
+      type: array
+      items:
+        type: string
+        enum:
+        - code
+        - token
+        - id_token
+      example:
+      - code
+      description: Valid value is "code". If the responseTypes value is "id_token" or ["token", "id_token"], then the allowedScopes value must contain "openid". For more details see [here](http://openid.net/specs/openid-connect-core-1_0.html#Authentication) and [here](https://tools.ietf.org/html/rfc6749#section-3.1.1).
+    RateLimitTier:
+      type: string
+      example: olp_tier_50k
+      description: Rate limit tier to configure application for. If no rate limit tier is specified, created application will be configured with 'global' rate limit tier.
+      readOnly: true
+  parameters:
+    ActionParam:
+      in: query
+      required: false
+      name: action
+      schema:
+        type: string
+        enum:
+        - read
+        - write
+        - manage
+        - share
+      description: Optionally filters the list of returned applications based on the caller having the provided permission action over the returned applications.
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+  headers:
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError404Response'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

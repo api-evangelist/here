@@ -1,0 +1,365 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Services API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Services
+  description: Service discovery and management
+paths:
+  /services/{serviceId}:
+    parameters:
+    - $ref: '#/components/parameters/serviceId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Services
+      summary: Get Service Information by service id
+      operationId: getServiceInfoById
+      description: 'Get service information by service id.
+
+
+        Access Control:
+
+        * The calling principal must have **"readServices"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInformation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /services:
+    parameters:
+    - $ref: '#/components/parameters/serviceIdAlias'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Services
+      summary: Get Service Information
+      operationId: getServiceInfo
+      description: 'Get service information.
+
+
+        Access Control:
+
+        * The calling principal must have **"readServices"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInformationWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /services/resourceTypes:
+    parameters:
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Services
+      summary: Get Resource Types
+      operationId: getResourceTypes
+      description: 'Get resource types for all services.
+
+
+        Access Control:
+
+        * The calling principal must have **"readServices"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceTypesWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  schemas:
+    ResourceTypeInfo:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          example: footype
+          description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
+        serviceIdAlias:
+          type: string
+          example: foo
+          description: The alias for the service id
+        serviceId:
+          type: string
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+          description: The service descriptor id
+    ServiceInformation:
+      type: object
+      properties:
+        serviceId:
+          type: string
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+          description: The service descriptor id
+        serviceIdAlias:
+          type: string
+          example: foo
+          description: The alias for the service id
+        allowedActions:
+          type: array
+          description: List of allowed actions
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                example: readResource
+                description: The action string
+              resourceRequired:
+                type: boolean
+                description: Defines if the action requires use with a resource
+                example: false
+        resourceTypes:
+          type: array
+          description: List of resource types
+          items:
+            type: string
+            example: footype
+            description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
+    ResourceTypesWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceTypeInfo'
+            description: List of resource types.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ServiceInformationWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ServiceInformation'
+            description: Service information list.
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+  parameters:
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    serviceId:
+      in: path
+      name: serviceId
+      required: true
+      description: The ID of the service to look up the information
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    serviceIdAlias:
+      in: query
+      name: serviceIdAlias
+      required: true
+      description: The alias for the service id. eg. data, pipeline
+      schema:
+        type: string
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

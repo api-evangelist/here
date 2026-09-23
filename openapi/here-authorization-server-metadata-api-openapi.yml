@@ -1,0 +1,178 @@
+openapi: 3.2.0
+info:
+  title: OAuth 2.0 Access Token Authorization Server Metadata API
+  version: 1.2.0
+  description: 'Request an OAuth 2.0 access token that identifies your identity
+
+    The term "realm" is now known as "organization" or "org".'
+servers:
+- url: https://account.api.here.com
+tags:
+- name: Authorization Server Metadata
+paths:
+  /.well-known/oauth-authorization-server:
+    get:
+      tags:
+      - Authorization Server Metadata
+      summary: Get OAuth Authorization Server Metadata
+      operationId: OAuth 2.0 Access Token getAuthServerMetadata
+      description: Returns OAuth 2.0 Authorization Server Metadata according to https://datatracker.ietf.org/doc/html/rfc8414#section-3.1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthServerMetadata'
+  /.well-known/oauth-authorization-server/mcp:
+    get:
+      tags:
+      - Authorization Server Metadata
+      summary: Get MCP OAuth Authorization Server Metadata
+      operationId: OAuth 2.0 Access Token getMcpAuthServerMetadata
+      security: []
+      description: Returns OAuth 2.0 Authorization Server Metadata according to https://datatracker.ietf.org/doc/html/rfc8414#section-3.1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPAuthServerMetadata'
+components:
+  schemas:
+    AuthServerMetadata:
+      type: object
+      properties:
+        issuer:
+          type: string
+          format: uri
+          description: The authorization server's issuer identifier.
+          example: https://account.api.here.com
+        token_endpoint:
+          type: string
+          format: uri
+          description: URL of authorization servers’s token endpoint
+          example: https://account.api.here.com/oauth2/token
+        token_endpoint_auth_methods_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - private_key_jwt
+          description: JSON array containing a list of client authentication methods supported by this token endpoint.
+          example:
+          - private_key_jwt
+        token_endpoint_auth_signing_alg_values_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - RS256
+          description: JSON array containing a list of the JWS signing algorithms ("alg" values) supported by the token endpoint for the signature on the JWT
+          example:
+          - RS256
+        grant_types_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - client_credentials
+            - jwtIssNotHERE
+            - urn:ietf:params:oauth:grant-type:token-exchange
+          description: JSON array containing a list of the OAuth 2.0 grant type values that this authorization server supports.
+          example:
+          - client_credentials
+        response_types_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - token
+          description: JSON array containing a list of the OAuth 2.0 response_type values. Supported values 'token'
+          example:
+          - token
+    MCPAuthServerMetadata:
+      type: object
+      properties:
+        issuer:
+          type: string
+          format: uri
+          description: The authorization server's MCP issuer identifier.
+          example: https://account.here.com
+        authorization_endpoint:
+          type: string
+          format: uri
+          description: URL of authorization servers’s MCP authorization endpoint
+          example: https://account.here.com/mcp/authorize
+        token_endpoint:
+          type: string
+          format: uri
+          description: URL of authorization servers’s token endpoint
+          example: https://account.here.com/token
+        registration_endpoint:
+          type: string
+          format: uri
+          description: URL of authorization servers’s MCP client registration endpoint
+          example: https://account.api.here.com/mcp/register
+        token_endpoint_auth_methods_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - none
+          description: JSON array containing a list of client authentication methods supported by this token endpoint.
+          example:
+          - none
+        grant_types_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - authorization_code
+          description: JSON array containing a list of the OAuth 2.0 grant type values that this authorization server supports.
+          example:
+          - authorization_code
+        response_types_supported:
+          type: array
+          items:
+            type: string
+            enum:
+            - code
+          description: JSON array containing a list of the OAuth 2.0 response_type values. Supported values 'code'
+          example:
+          - code
+        jwks_uri:
+          type: string
+          format: uri
+          description: URL of the authorization server's JSON Web Key Set document.
+          example: https://account.here.com/openid/jwk
+        code_challenge_methods_supported:
+          type: array
+          items:
+            type: string
+          description: PKCE code challenge methods supported by the server. Only SHA-256 (S256) is supported.
+          example:
+          - S256
+  securitySchemes:
+    OAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'OAuth [OAuth 1.0 Signing Process](http://oauth.net/core/1.0/#signing_process). Used for client_credentials grant when NOT using JWT assertion authentication.
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

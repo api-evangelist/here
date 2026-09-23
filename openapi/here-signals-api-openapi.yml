@@ -1,0 +1,146 @@
+openapi: 3.2.0
+info:
+  title: Geocoding and Search API v7 Signals API
+  version: '7.155'
+  description: This document describes the Geocoding and Search API.
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Signals
+paths:
+  /signals:
+    servers:
+    - url: https://signals.search.hereapi.com/v1
+    post:
+      summary: Signals
+      description: '**RESTRICTED**
+
+
+        This endpoint receives user interaction data from previous search results to improve future result quality.'
+      parameters:
+      - $ref: '#/components/parameters/X-Request-ID'
+      responses:
+        '204':
+          description: Empty response
+        '400':
+          description: 'Client error: request failed validation.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          description: 'Client error: http method not supported.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 'Client error: request body exceeds size limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 'Client error: request body has unsupported content type.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 'Client error: Rate limit exceeded.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Temporary server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        description: "Takes a newline-separated list of requests, following the URL query parameter syntax.\n\nEach line in the body informs the search backend about a user interaction. A typical call contains only one user interaction, but multiple can be provided at once.\nThe fields expected in each line are:\n\n* `version`: Defines the version of the payload (needs to be set to 1)\n\n* `action`: Specifies the user action. It must be one of the following values (any other value will lead to a 400):\n\n  * `here:gs:action:call`: To be sent when the end-user uses the result phone number.\n  * `here:gs:action:email`: To be sent when the end-user uses the result email address.\n  * `here:gs:action:navigate-from`: To be sent when the end-user starts a navigation from the result item.\n  * `here:gs:action:navigate-to`: To be sent when the end-user starts a navigation to the result item.\n  * `here:gs:action:pin`: To be sent when the end-user bookmarks a result\n  * `here:gs:action:tap`: To be sent when the end-user taps on the result displayed on a map.\n  * `here:gs:action:view`: To be sent when the end-user selects a result in a result list.\n  * `here:gs:action:share`: To be sent when the end-user shares/sends a result to another user or as a mail/PM.\n  * `here:gs:action:visit`: To be sent when the end-user visits the result www contact.\n\n* `correlationId`: The value of the previous response `X-Correlation-ID` header on which the action is performed\n\n* `resourceId`: The ID value of the search result on which the action is performed.\n\n This is either:\n  * `id` when the action occurs on a Lookup response\n  * `items[].id` when the action occurs on any other endpoint\n\n* `rank`: The rank of the object in the response items array. The first result is at rank 0. It is always 0 when the action happens on a Lookup response.\n\nRecommended:\n\n* `timestamp`: (Recommended but optional) The Unix Epoch timestamp in milliseconds based on user interaction performed on the response item.\n\nExample payload to `POST /v1/signals`:\n```\nversion=1&resourceId=hrn:af:street:bYLa1RIXm08-g5lRgt0ebA&correlationId=22457435-efcf-46b9-8c87-62912f3f2f0&rank=0&action=here:gs:action:navigate-to&timestamp=1692625661\n```\n"
+        required: true
+        content:
+          text/plain; charset=UTF-8:
+            schema:
+              type: string
+            example: version=1&resourceId=hrn:af:street:bYLa1RIXm08-g5lRgt0ebA&correlationId=22457435-efcf-46b9-8c87-62912f3f2f0c&rank=0&action=here:gs:action:navigate-to&timestamp=1692625661
+          application/x-www-form-urlencoded:
+            schema:
+              type: string
+            example: version=1&resourceId=hrn:af:street:bYLa1RIXm08-g5lRgt0ebA&correlationId=22457435-efcf-46b9-8c87-62912f3f2f0c&rank=0&action=here:gs:action:navigate-to&timestamp=1692625661
+      tags:
+      - Signals
+      operationId: postSignals
+      x-operation-id-source: derived
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - status
+      - title
+      - correlationId
+      - requestId
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code
+        title:
+          type: string
+          description: Human-readable error description
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+        action:
+          type: string
+          description: Human-readable action for the user
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+        requestId:
+          type: string
+          description: Request identifier provided by the user
+  parameters:
+    X-Request-ID:
+      name: X-Request-ID
+      description: 'Used to correlate requests with their responses within a customer''s application, for logging and error reporting.
+
+
+        Format: Free string, but a valid UUIDv4 is recommended.'
+      in: header
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see the
+
+        [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/).
+
+        '
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKey:
+      description: 'A key generated specifically to authenticate API requests.
+
+        For more information on how to get an API key, see the
+
+        [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/).
+
+        '
+      type: apiKey
+      name: apiKey
+      in: query
+externalDocs:
+  description: The developer guide, release notes, and migration guide are available here.
+  url: https://www.here.com/docs/category/geocoding-search-v7

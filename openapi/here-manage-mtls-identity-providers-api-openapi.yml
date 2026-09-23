@@ -1,0 +1,1000 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Manage mTLS Identity Providers API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Manage mTLS Identity Providers
+  description: APIs to manage mTLS Identity Provider Certificate Authorities in a Realm.
+paths:
+  /realms/{realm}/mtlsIdentityProviders:
+    post:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Create an mTLS Identity Provider
+      description: 'Create an mTLS Identity Provider and define the Certificate Authority.
+
+
+        * The provided Certificate Authority will be installed as a trusted mTLS Identity Provider and bound to the given realm
+
+        * A single Certificate Authority can be bound to one and only one realm at any one point in time.
+
+        * Certificates issued by the Certificate Authority can be used to authenticate identities in the realm via the /mtls/token endpoint
+
+
+        Certificate Revocation:
+
+        * If the provided Certificate Authority contains a CRL Distribution Point URL, this URL will be used to periodically retrieve
+
+        revoked certificates and prevent such certificates from authenticating to the platform.
+
+        * If the provided Certificate Authority contains an OCSP responder URL, this URL will be used to check the status
+
+        of individual certificates to determine if they are revoked.
+
+        * The timeliness between a certificate being revoked by the Certificate Authority and the same revoked certificate
+
+        being denied by an mTLS Authenticator in the platform is not defined by this specification.
+
+
+        **NOTE:** A maximum of 10 mTLS Identity Providers can be created per realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createMtlsIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MtlsCARequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsCAResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Unable to create, Certificate Authority already bound to another realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+    get:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Get the list of mTLS Identity Providers
+      description: 'Get the list of mTLS Identity Providers configured for the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getMtlsIdentityProviders
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsCAResponseWithPageToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/mtlsIdentityProviders/{mtlsIdentityProvider}:
+    get:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Get an mTLS Identity Provider
+      description: 'Get an mTLS Identity Provider configured for the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getMtlsIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsCAResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Update mTLS Identity Provider
+      description: 'Update an mTLS Identity Provider configured for the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: updateMtlsIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MtlsCARequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsCAResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Unable to update, Certificate Authority already bound to another realm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+    delete:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Remove mTLS Identity Provider
+      description: 'Delete an mTLS Identity Provider configured for the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteMtlsIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Unable to delete, Identity provider in use.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+  /realms/{realm}/mtlsIdentityProviders/{mtlsIdentityProvider}/authenticators:
+    get:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: List the mTLS Authenticators configured for the specified mTLS Identity Provider
+      description: 'Get the list of mTLS Authenticators that are configured to authenticate certificates for the specified mTLS Identity Provider.
+
+
+        An mTLS Identity Provider always has **1** mTLS Authenticator configured automatically by default:
+
+        * The Default Authenticator is capable of authenticating certificates issued by the Certificate Authority of the mTLS Identity Provider.
+
+        * The Default Authenticator maps each authenticating certificate to an identity of **accountType** __car__ in the realm
+
+        * The Default Authenticator uses the Subject.CN field from the certificate to identify and map to the **carId** field of the car
+
+        * The Default Authenticator is automatically created with a new app in the realm that is included in all access tokens provided by the authenticator
+
+        * The Default Authenticator is enabled by default when it is created
+
+        * The Default Authenticator and its corresponding app is automatically deleted when its mTLS Identity Provider is deleted
+
+
+        Access Control:
+
+        * The calling principal must have **"readMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: listMtlsAuthenticatorsForIdp
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsAuthenticatorPageWithToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/mtlsIdentityProviders/{mtlsIdentityProvider}/authenticators/{mtlsAuthenticator}:
+    get:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Get an mTLS Authenticator
+      description: 'Get an mTLS Authenticator configured to authenticate certificates for the specified mTLS Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have **"readMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getMtlsAuthenticatorForIdp
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/MtlsAuthenticatorHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsAuthenticator'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: Update an mTLS Authenticator
+      description: 'Update an mTLS Authenticator configured to authenticate certificates for the specified mTLS Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: updateMtlsAuthenticatorForIdp
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/MtlsIdentityProviderHrn'
+      - $ref: '#/components/parameters/MtlsAuthenticatorHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MtlsAuthenticatorRequest'
+            example:
+              enabled: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsAuthenticator'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/mtlsAuthenticators:
+    get:
+      tags:
+      - Manage mTLS Identity Providers
+      summary: List the mTLS Authenticators configured for an App
+      description: 'Get the list of mTLS Authenticators that the app is configured to authenticate certificates for the associated
+
+        mTLS Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service and **"readMtlsIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: listMtlsAuthenticatorsForApp
+      parameters:
+      - $ref: '#/components/parameters/App'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtlsAuthenticatorPageWithToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    MtlsIdentityProviderHrn:
+      in: path
+      name: mtlsIdentityProvider
+      required: true
+      description: HRN for the specific mTLS IdentityProvider with a realm
+      schema:
+        type: string
+      example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    MtlsAuthenticatorHrn:
+      in: path
+      name: mtlsAuthenticator
+      required: true
+      description: HRN for the specific mTLS Authenticator
+      schema:
+        type: string
+      example: hrn:here:account::myRealm:mtlsAuthenticator/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
+  schemas:
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    MtlsAuthenticator:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: HRN for the mTLS Authenticator
+          example: hrn:here:account::myRealm:mtlsAuthenticator/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        accountType:
+          type: string
+          description: 'The type of account from the realm that may authenticate with a valid certificate issued from the
+
+            mTLS Identity Provider with this mTLS Authenticator.  Always "car" for now. Reserved for future use.
+
+            '
+          enum:
+          - car
+          example: car
+        mtlsIdentityProviderHrn:
+          type: string
+          description: HRN for the mTLS Identity Provider
+          example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        mtlsIdentityProviderName:
+          type: string
+          description: Name of the mTLS Identity Provider
+          example: OEM Certificate Authority
+        appHrn:
+          type: string
+          description: HRN for the App that will be used for all access tokens provided by this authenticator
+          example: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+        enabled:
+          type: boolean
+          description: Indicates whether or not the app is enabled for authenticating certificates from the mTLS Identity Provider
+          example: true
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    MtlsAuthenticatorRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether or not this authenticator is enabled for authenticating client certificates.
+          default: true
+          example: true
+    MtlsCARequest:
+      type: object
+      required:
+      - name
+      - certificateChainPemContent
+      properties:
+        name:
+          type: string
+          description: IdP's display name.
+          example: My Certificate Authority
+        certificateChainPemContent:
+          type: string
+          description: PEM encoded certificate chain
+          example: '-----BEGIN CERTIFICATE-----\nMIIF7TCCBNWgAwIBAgIQJ1J...\n-----END CERTIFICATE-----'
+    GenericError404Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Resource not found.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 404
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: Resource not found.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Validate input parameters and retry.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-3c7cae72-f407-4d75-807d-bc1689fbbd4d
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: Resource not found.
+    MtlsCAResponse:
+      type: object
+      required:
+      - hrn
+      - name
+      - certificates
+      properties:
+        hrn:
+          type: string
+          description: HRN of the mTLS Identity Provider
+          example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        name:
+          type: string
+          description: IdP's display name.
+          example: My Certificate Authority
+        certificates:
+          type: array
+          description: Details about each certificate in the chain
+          items:
+            type: object
+            properties:
+              subject:
+                type: string
+                description: The subject field of the certificate
+                example: C=DE, O=Company Name, CN=Company Intermediate CA v1
+              fingerprint:
+                type: string
+                description: The SHA-1 encoded fingerprint the certificate
+                example: 123456789
+              serialNumber:
+                type: string
+                description: The serial number of the certificate
+                example: 43:40:44:51:3a:80:2a:a1:9c:97:a2:d0:41:47:74:5a:e1:b0:48:48
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    MtlsCAResponseWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/MtlsCAResponse'
+            description: List of mTLS Certificate Authorities
+    MtlsAuthenticatorPageWithToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/MtlsAuthenticator'
+  headers:
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError404Response'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

@@ -1,0 +1,496 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Cross Realm Trusts API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Cross Realm Trusts
+  description: Cross Realm Trusts
+paths:
+  /crossRealmTrusts:
+    get:
+      tags:
+      - Cross Realm Trusts
+      parameters:
+      - $ref: '#/components/parameters/sourceRealm'
+      - $ref: '#/components/parameters/targetRealm'
+      - $ref: '#/components/parameters/sourceProject'
+      - $ref: '#/components/parameters/targetProject'
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/XCorrelationId'
+      summary: Get a list of cross realm trusts
+      operationId: getCrossRealmTrusts
+      description: 'Get a list of CrossRealmTrusts established for the Realm or Project of the requesting User or App,
+
+        where the realm/project is either source or target.
+
+        An entity can get the CrossRealmTrusts created for its realm/project or granted from its realm/project to other realms/projects
+
+        based on the "rlm" claim in the access token.
+
+        Among query parameters sourceRealm, sourceProject, targetProject and targetRealm supports only one filter at a time.
+
+        Caller entity''s realm must match realm specified in sourceProject or targetProject query parameter.
+
+
+        Access Control:
+
+        * The calling principal must have **"readCrossRealmTrust"** action permission for the resource **"{realm}"** in the **"authorization"** service. The **"{realm}"** here represents the HRN of the target realm.
+
+        * This permission is granted to all entities by default policy. This permission is also explicitly granted to all entities with roles OrgAdmin or CrossRealmTrustManager.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrossRealmTrustListWithPageToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /crossRealmTrusts/sources/{sourceProjectOrRealm}/targets/{targetProjectOrRealm}:
+    parameters:
+    - $ref: '#/components/parameters/sourceProjectOrRealm'
+    - $ref: '#/components/parameters/targetProjectOrRealm'
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Cross Realm Trusts
+      summary: Create or update a cross realm trust
+      operationId: createCrossRealmTrust
+      description: 'Create or update a CrossRealmTrust that allows LinkableResources to be received from the source of the resource.
+
+        The source HRN is defined by either the home project or the realm of the resource.
+
+        The CrossRealmTrust is established with a target specified in the path which could either be a specific project or the entire realm.
+
+        An access token from an identity with appropriate privileges in the target realm should be used to create/update the CrossRealmTrust.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageCrossRealmTrust"** action permission for the resource **"{realm}"** in the **"authorization"** service. The **"{realm}"** here represents the HRN of represent the target realm.
+
+        * This permission is granted to all entities with roles OrgAdmin or CrossRealmTrustManager.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrossRealmTrustRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrossRealmTrust'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Cross Realm Trusts
+      summary: Get a cross realm trust
+      operationId: getCrossRealmTrust
+      description: 'Get a single CrossRealmTrust object identified by source and target realms or projects.
+
+        An entity can get the CrossRealmTrust created for its realm or granted from its realm to other realms
+
+        based on the "rlm" claim in the access token.
+
+
+        Access Control:
+
+        * The calling principal must have **"readCrossRealmTrust"** action permission for the resource **"{realm}"** in the **"authorization"** service. The **"{realm}"** here represents the HRN of the target realm.
+
+        * This permission is granted to all entities by default policy. This permission is also explicitly granted to all entities with roles OrgAdmin or CrossRealmTrustManager.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrossRealmTrust'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Cross Realm Trusts
+      summary: Delete a cross realm trust
+      operationId: deleteCrossRealmTrust
+      description: 'Delete an existing CrossRealmTrust to no longer allow LinkableResources to be offered
+
+        by the source Project or Realm into the context of the target Realm or a Project therein.
+
+        Deleting an existing CrossRealmTrust will disable the accessibility of any resources already linked
+
+        to the projects of the target realm. It will also hide any resources already made available to the target realm.
+
+        An access token from an identity with appropriate privileges in the target realm should be used to delete the CrossRealmTrust.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageCrossRealmTrust"** action permission for the resource **"{realm}"** in the **"authorization"** service. The **"{realm}"** here represents the HRN of represent the target realm.
+
+        * This permission is granted to all entities with roles OrgAdmin or CrossRealmTrustManager.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    targetProjectOrRealm:
+      in: path
+      name: targetProjectOrRealm
+      required: true
+      description: HRN identifying the target realm or project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:project/Project-B
+    sourceProjectOrRealm:
+      in: path
+      name: sourceProjectOrRealm
+      required: true
+      description: HRN identifying the source realm or project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:project/Project-A
+    targetRealm:
+      in: query
+      name: targetRealm
+      required: false
+      description: HRN identifying the target realm
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:realm/rlm-b
+    sourceProject:
+      in: query
+      name: sourceProject
+      required: false
+      description: HRN identifying the source project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:project/Project-A
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    sourceRealm:
+      in: query
+      name: sourceRealm
+      required: false
+      description: HRN identifying the source realm
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:realm/rlm-a
+    targetProject:
+      in: query
+      name: targetProject
+      required: false
+      description: HRN identifying the target project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:project/Project-B
+  schemas:
+    CrossRealmTrustRequest:
+      type: object
+      properties:
+        requiresLinkableResourceWithTargetProject:
+          type: boolean
+          example: true
+          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
+
+            when offering a LinkableResource.
+
+            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
+
+            in the target Realm such that it could be added to any Project in the target Realm.
+
+            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
+
+            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
+
+            '
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    CrossRealmTrust:
+      description: 'CrossRealmTrust allows LinkableResources to be offered by the source realm HRN or project HRN
+
+        into the context of the target Realm or target Project in that Realm.
+
+        CrossRealmTrust optionally identifies both the source and the target Project.
+
+        '
+      type: object
+      required:
+      - sourceRealm
+      - targetRealm
+      properties:
+        sourceRealm:
+          type: string
+          example: hrn:here:account::rlm-a:realm/rlm-a
+          description: 'The hrn of the source realm
+
+            '
+        targetRealm:
+          type: string
+          example: hrn:here:account::rlm-b:realm/rlm-b
+          description: 'The hrn of the target realm
+
+            '
+        sourceProject:
+          type: string
+          example: hrn:here:account::rlm-a:project/project-a
+          description: 'The hrn of the source project
+
+            '
+        targetProject:
+          type: string
+          example: hrn:here:account::rlm-b:project/project-b
+          description: 'The hrn of the target project
+
+            '
+        requiresLinkableResourceWithTargetProject:
+          type: boolean
+          example: true
+          default: false
+          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
+
+            when offering a LinkableResource.
+
+            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
+
+            in the target Realm such that it could be added to any Project in the target Realm.
+
+            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
+
+            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
+
+            '
+    CrossRealmTrustListWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CrossRealmTrust'
+            description: List of CrossRealmTrusts.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

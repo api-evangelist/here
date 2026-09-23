@@ -1,0 +1,551 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 API Key Management API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: API Key Management
+  description: API Key Management APIs enable identities authorized to manage an application to create and maintain API keys. API Keys can be used to simplify the usage of HLS services by insecure clients.
+paths:
+  /apps/{app}/apiKeys:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      tags:
+      - API Key Management
+      summary: Generate API Key
+      operationId: generateAPIKey
+      description: 'This generates a new API key that you use for authenticating an application. Note that the API key is contained in the field named `apiKeyId`.
+
+        The value in the field `apiKey` is the HERE Resource Name (HRN) prefixed with “hrn" followed by the API key, and is not usable as an API key in the request.
+
+        A maximum of two API keys can be maintained per application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIKeyGenerateRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '400':
+          description: '* 400337 - API Key cannot be generated for client with issuer(s).
+
+            '
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            '
+        '409':
+          description: '* 409303 - Reached allowed maximum number of active API keys per application. Delete an API key to generate another one.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+    get:
+      parameters:
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      tags:
+      - API Key Management
+      summary: Get API Keys
+      operationId: getAPIKeys
+      description: 'Lists the API keys generated for an application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyPageWToken'
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+  /apps/{app}/apiKeys/{apiKey}:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/ApiKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    delete:
+      tags:
+      - API Key Management
+      summary: Delete API Key
+      operationId: deleteAPIKey
+      description: 'Deletes API key of the application. This API key can no longer be used for authentication or authorization.
+
+
+        Since API key cannot be recovered once deleted, it is recommended that the client application calling this
+
+        end-point should enforce a confirmation of delete action (Example: Confirm box saying: Are you sure you want to delete this API Key?).
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            * 404666 - The API key does not exist.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+    get:
+      tags:
+      - API Key Management
+      summary: Retrieve API Key by user
+      operationId: getAPIKeyByUser
+      description: 'Retrieves API key of the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            * 404666 - The API key does not exist
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+    patch:
+      tags:
+      - API Key Management
+      summary: Update API Key
+      operationId: updateAPIKey
+      description: 'Updates API key of the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIKeyUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            * 404666 - The API key does not exist.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+  /apps/{app}/apiKeys/{apiKey}/enable:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/ApiKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - API Key Management
+      summary: Enable API Key
+      description: 'Enables API key of the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: enableAPIKey
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            * 404666 - The API key does not exist.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+  /apps/{app}/apiKeys/{apiKey}/disable:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/ApiKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - API Key Management
+      summary: Disable API Key
+      description: 'Disables API key of the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: disableAPIKey
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: '* 401300 - Access is denied due to invalid credentials.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given id.
+
+            * 404666 - The API key does not exist.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many requests made. Wait for a while before making a new request.
+
+            '
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  parameters:
+    ApiKey:
+      in: path
+      required: true
+      name: apiKey
+      schema:
+        type: string
+      description: 'HRN with obfuscated apiKeyId. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+      example: hrn:here:account::myrealm:apikey/ygfDVbZc7vJQTRGjC5-YXZbuwWwxFu4FxD5SsWbp-no
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+  schemas:
+    APIKeyName:
+      type: string
+      description: 'Creator-defined name or short description for the API key.
+
+        '
+      example: API Key for test app
+    APIKeyUpdateRequest:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/APIKeyName'
+        expiresAt:
+          $ref: '#/components/schemas/APIKeyExpiresAt'
+    ApiKeyPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ApiKey'
+        example:
+          total: 2
+          pageToken: 7afd7f8e94eb4844ba45
+          limit: 1
+          items:
+          - apiKeyId: 2MZr9AInTFk45NAU8ClIza2Yw7w_AXyUyM4ChvtO7bY
+            apiKey: hrn:here:account::myrealm:apikey/ygfDVbZc7vJQTRGjC5-YXZbuwWwxFu4FxD5SsWbp-no
+            identity: hrn:here:account::myrealm:app/lACE8kgYxsahjbXnvy8w
+            realm: hrn:here:account::myrealm:realm/myrealm
+            name: First API key for ABC app
+            enabled: true
+            createdTime: 1545041748000
+            expiresAt: 1545041748456
+    ApiKey:
+      type: object
+      properties:
+        apiKeyId:
+          type: string
+          description: 'Plaintext query string argument used to authenticate requests to HERE Services using this API Key.
+
+            '
+          example: 2MZr9AInTFk45NAU8ClIza2Yw7w_AXyUyM4ChvtO7bY
+        apiKey:
+          type: string
+          description: 'HRN with obfuscated apiKeyId.
+
+            '
+          example: hrn:here:account::myrealm:apikey/ygfDVbZc7vJQTRGjC5-YXZbuwWwxFu4FxD5SsWbp-no
+        identity:
+          type: string
+          description: 'HRN identifying an identity to which this API key associated with.
+
+            '
+          example: hrn:here:account::myrealm:app/lACE8kgYxsahjbXnvy8w
+        realm:
+          type: string
+          description: 'The HRN of the realm of API key.
+
+            '
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          $ref: '#/components/schemas/APIKeyName'
+        enabled:
+          $ref: '#/components/schemas/APIKeyEnabled'
+        createdTime:
+          type: integer
+          format: int64
+          description: 'Timestamp (milliseconds since the Unix epoch) of when the API key was created.
+
+            '
+          example: 1545041748000
+        expiresAt:
+          $ref: '#/components/schemas/APIKeyExpiresAt'
+    APIKeyExpiresAt:
+      type: integer
+      format: int64
+      description: 'Timestamp (milliseconds since the Unix epoch) of when the API key will expire.
+
+        If expiresAt is not provided on creation, it will default to ''-1'', i.e. API key does NOT expire
+
+        '
+      default: -1
+      example: 1545041748000
+    APIKeyGenerateRequest:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          $ref: '#/components/schemas/APIKeyName'
+        expiresAt:
+          $ref: '#/components/schemas/APIKeyExpiresAt'
+        enabled:
+          $ref: '#/components/schemas/APIKeyEnabled'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    APIKeyEnabled:
+      type: boolean
+      description: 'Whether API key is enabled or disabled.
+
+        '
+      default: true
+      example: true
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

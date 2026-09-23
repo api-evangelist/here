@@ -1,0 +1,212 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Resource Profiles API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Resource Profiles
+paths:
+  /v2/resourceProfiles:
+    parameters:
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Resource Profiles
+      summary: Get available resource profiles
+      description: This endpoint returns information about resource profiles currently enabled for the customer or their organization.
+      operationId: listResourceProfiles
+      responses:
+        '200':
+          description: Resource profile information retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceProfiles'
+        '500':
+          description: Internal error while retrieving the resource profile information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+components:
+  schemas:
+    ResourceProfiles:
+      type: object
+      properties:
+        availableResourceProfiles:
+          type: array
+          description: A list of the resource profiles currently available to the user.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ResourceProfile'
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+    ResourceProfile:
+      type: object
+      description: Model representing details about a resource profile.
+      properties:
+        id:
+          type: string
+          description: Identifier for the resource profile.  Use this value when creating a pipeline template.
+          readOnly: true
+          example: profileId
+        label:
+          type: string
+          description: Label for the resource profile.
+          example: User-friendly label for display
+        name:
+          type: string
+          description: Name for the resource profile.
+          example: Description of the profile
+        cpuPerUnit:
+          type: number
+          format: float
+          example: 1
+          description: The number of cpus per resource unit.
+        memoryInGiBPerUnit:
+          type: number
+          format: float
+          example: 3.5
+          description: The amount of memory (in GiB) per resource unit.
+        diskInGiBPerUnit:
+          type: number
+          format: float
+          example: 3.5
+          description: The amount of disk (in GiB) per resource unit.
+  parameters:
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

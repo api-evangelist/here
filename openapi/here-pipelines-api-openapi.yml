@@ -1,0 +1,554 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Pipelines API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Pipelines
+paths:
+  /v2/pipelines:
+    parameters:
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipelines
+      summary: Get the list of Pipelines
+      description: This endpoint returns a list of all Pipelines currently defined.
+      operationId: listPipelines
+      responses:
+        '200':
+          description: List retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pipeline'
+        '500':
+          description: Internal error while retrieving the list of Pipelines.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      tags:
+      - Pipelines
+      summary: Create a new Pipeline
+      description: A Pipeline is the top-level entity introduced to group the work of implementing an actual data processing pipeline, in the form of one or more related PipelineVersions. This endpoint creates a Pipeline with no initial PipelineVersion and returns its metadata, that includes the id assigned to it.
+      operationId: createPipeline
+      requestBody:
+        description: Pipeline to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pipeline'
+        required: true
+      responses:
+        '201':
+          description: Pipeline successfully defined and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pipeline'
+        '400':
+          description: Required parameters are missing or invalid values were provided.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while defining the Pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipelines
+      summary: Get a Pipeline
+      description: This endpoint returns the details about the Pipeline identified by the pipelineId path parameter.
+      operationId: getPipeline
+      responses:
+        '200':
+          description: Pipeline retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pipeline'
+        '404':
+          description: Pipeline with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the Pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      tags:
+      - Pipelines
+      summary: Update a Pipeline
+      description: Updates the metadata about a pipeline identified by pipelineId. The PUT body contains the updated data. Note that the group field in Pipeline cannot be updated.
+      operationId: updatePipeline
+      requestBody:
+        description: Pipeline details to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pipeline'
+        required: true
+      responses:
+        '200':
+          description: Pipeline updated successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pipeline'
+        '404':
+          description: Pipeline with provided ID not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while updating the pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+      - Pipelines
+      summary: Delete a Pipeline
+      description: This endpoint deletes a Pipeline and its set of Pipeline Versions and associated content. The API will return an error if one or more of its Pipeline Versions are either 'running' or 'paused'.
+      operationId: deletePipeline
+      responses:
+        '204':
+          description: Pipeline deleted successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content: {}
+        '404':
+          description: Pipeline with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '412':
+          description: The specified Pipeline can not be deleted because it has one or more dependent Pipeline Versions which have a state of 'running' or 'paused'.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while deleting the Pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/hrn:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipelines
+      summary: Get a Pipeline HRN
+      description: This endpoint returns the HRN of the Pipeline identified by the pipelineId path parameter.
+      operationId: getPipelineHrn
+      responses:
+        '200':
+          description: Pipeline HRN retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HrnResponse'
+        '404':
+          description: Pipeline with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the Pipeline HRN.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    HrnResponse:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: Unique HERE Resource Name of an entity.
+          readOnly: true
+          example: hrn:here:pipeline:::6d9c8dd6-56dc-49af-83f2-d97896aa8bf0
+      description: HRN of an entity.
+    Pipeline:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Pipeline.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        name:
+          maxLength: 64
+          minLength: 3
+          type: string
+          description: User provided name of the Pipeline.
+          example: Tire traction weather adjustment
+        description:
+          maxLength: 512
+          minLength: 0
+          type: string
+          description: Additional text describing the Pipeline.
+          example: Weather analysis per region processed to adjust tire traction in real time.
+        realm:
+          type: string
+          description: The realm under which the pipeline will run and be shared.
+          readOnly: true
+          example: olp-here
+        groupId:
+          pattern: GROUP-\p{XDigit}{8}-(\p{XDigit}{4}-){3}\p{XDigit}{12}
+          type: string
+          description: Sharing group identifier in which this pipeline will be created.  Required unless this pipeline is created in project scope (with a project-scoped token) in which case this field must be null.
+          example: GROUP-00000000-0000-0000-0000-000000000000
+        hrn:
+          type: string
+          description: Unique HERE Resource Name of this pipeline.
+          readOnly: true
+          example: hrn:here:pipeline:::00112233-4455-6677-8899-aabbccddeeff
+        contactEmail:
+          maxLength: 256
+          type: string
+          description: A single contact e-mail address for this Pipeline. A 'distribution list' or 'group' e-mail address is strongly recommended. This field is required.
+          example: group.list@example.com
+        home:
+          type: string
+          description: Resource Home for this pipeline, if available. At this time, only Project HRN is supported as resource home. See Authorization API
+          readOnly: true
+          example: hrn:here:authorization::olp-here:project/11111111-0000-1111-0000-111111111111
+        homeStatus:
+          type: integer
+          format: int32
+          description: HTTP status code returned from the Resource Home system of record (Authorization Project Administration) while retrieving the "home" value, if any. This field may be useful to differentiate between null home values due to the Resource Home not existing from errors communicating with the Resource Home system of record.
+          readOnly: true
+          example: 200
+        created:
+          type: string
+          description: Time when this Pipeline was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        updated:
+          type: string
+          description: Time when this Pipeline was last updated. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+      description: A Pipeline is the top-level entity introduced to group the work of implementing an actual data processing pipeline, in the form of one or more related PipelineVersions.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+  parameters:
+    PipelineIdPathParam:
+      name: pipelineId
+      in: path
+      description: System generated identifier for the Pipeline.
+      required: true
+      schema:
+        type: string
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

@@ -1,0 +1,222 @@
+openapi: 3.2.0
+info:
+  title: HERE WeGo User Service User Tracking API
+  description: The HERE WeGo user service manages user entitlements and it provides role-based access control (RBAC) to those entitlements.
+  version: 1.0.4
+servers:
+- url: https://api.wego.hereapi.com/user-service
+  description: Production environment for WeGo Pro
+tags:
+- name: User Tracking
+  description: Endpoints for tracking users
+paths:
+  /users/tracking/report:
+    get:
+      tags:
+      - User Tracking
+      summary: Get user tracking report
+      description: Get tracking report for all users of an organization
+      operationId: getOrganizationTrackingReport
+      responses:
+        '200':
+          description: Report generated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserTrackingReportDto'
+              example:
+              - email: user@example.com
+                hereAccountUserId: HERE-4e82b2a6-6c58-45d6-ab2d-774f75bb973c
+                deviceId: 42b3a3f6-8d2e-4c11-bafc-0a68f24e7dc9
+                currentLocation:
+                  lat: 52
+                  lon: -1.5
+                waypoints:
+                - eta: '2024-01-11T11:38:15Z'
+                  lat: 53
+                  lon: -2.5
+                modifiedAt: '2024-03-22T15:43:11Z'
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 71827357-9de4-4a9d-8956-b8c161f7261a
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+                requestId: REQ-8e912d12-63f8-4a7c-9209-96f1a720be5d
+      security:
+      - Bearer: []
+      - apiKey: []
+components:
+  schemas:
+    UserTrackingReportDto:
+      required:
+      - currentLocation
+      - deviceId
+      - modifiedAt
+      - waypoints
+      type: object
+      properties:
+        email:
+          type: string
+          description: The email address of the user.
+          example: user@example.com
+        hereAccountUserId:
+          type: string
+          description: The Here Account User identifier of the user.
+          example: HERE-c6f11a00-6f08-46c7-8636-4977fde39476
+        subscriptionKey:
+          type: string
+          description: Subscription key of a subscription associated with tracked device
+          example: 0676c48e-56b6-4bee-b317-f3fad499f4f8
+        deviceId:
+          type: string
+          description: The device ID associated with the user location.
+          example: b8dc5d44-2210-4d4f-b383-3dc6c7f8c52d
+        currentLocation:
+          $ref: '#/components/schemas/CurrentLocationResponseDto'
+        waypoints:
+          type: array
+          description: The list of waypoints including each waypoint's location and ETA.
+          items:
+            $ref: '#/components/schemas/WaypointDto'
+        modifiedAt:
+          type: string
+          description: The date and time when the user location was last updated. This reflects the most recent change to the user's location or waypoints.
+          format: date-time
+          example: '2024-03-21T14:42:35Z'
+    UnauthorizedErrorResponseDto:
+      required:
+      - error
+      - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
+          type: string
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
+    CurrentLocationResponseDto:
+      required:
+      - lat
+      - lon
+      type: object
+      properties:
+        lat:
+          type: number
+          description: The latitude of the current location.
+          format: double
+          example: 51
+        lon:
+          type: number
+          description: The longitude of the current location.
+          format: double
+          example: -0.5
+      description: The current location of the user.
+    ErrorResponseDto:
+      required:
+      - correlationId
+      - status
+      - title
+      type: object
+      properties:
+        status:
+          type: integer
+          description: The HTTP status code
+          format: int32
+          example: 400
+        title:
+          type: string
+          description: Human-readable error description
+          example: Validation Error
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+          example: c5b92188-5eea-452a-a2e1-08c9a53bb5b9
+        code:
+          type: string
+          description: Error code
+          example: E500100
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: 'name: must not be blank'
+        action:
+          type: string
+          description: Human-readable action for the user
+          example: 'null'
+        requestId:
+          type: string
+          description: Request identifier provided by the user via `x-request-id` header
+          example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+    WaypointDto:
+      required:
+      - eta
+      - lat
+      - lon
+      type: object
+      properties:
+        eta:
+          type: string
+          description: The estimated time of arrival (ETA) at this waypoint.
+          format: date-time
+          example: '2024-02-05T22:56:48Z'
+        lat:
+          type: number
+          description: The latitude of the waypoint.
+          format: double
+          example: 52
+        lon:
+          type: number
+          description: The longitude of the waypoint.
+          format: double
+          example: -1
+      description: The list of waypoints including each waypoint's location and ETA.
+  securitySchemes:
+    Bearer:
+      type: http
+      description: Bearer Access Token issued to either the User or Client.
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      description: API key from the HERE Platform Application
+      name: apiKey
+      in: query

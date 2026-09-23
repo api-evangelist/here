@@ -1,0 +1,635 @@
+openapi: 3.2.0
+info:
+  title: HERE Batch API v7 Batch notifications (BETA) API
+  description: API for processing large numbers of Geocode, Reverse Geocoding, and Lookup by ID requests.
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+  version: 7.40.0
+servers:
+- url: https://batch.search.hereapi.com/v7
+  description: Production environment URL
+security:
+- ApiKey: []
+- Bearer: []
+tags:
+- name: Batch notifications (BETA)
+  description: API for creating and managing notifications. E.g. webhooks.
+paths:
+  /batch/notifications:
+    get:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Get all notifications
+      description: (BETA) Get all notifications that the current client has access to.
+      operationId: getNotifications
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    post:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Create a new notification
+      description: '(BETA) Create a new notification.
+
+
+        To configure a notification, the **type** as well as the the **config** property needs to be defined. Each type requires individual properties as listed below.
+
+
+        ### `webHook`
+
+        For the notification of the type `webHook` only a **url** parameter is required. This URL is called via a GET request, after the job is completed.
+
+        To individualize the request, property placeholders in the URL are substituted if surrounded by ''${'' and ''}'' These placeholders can be in the path or a query parameter.
+
+
+        Available properties are:
+
+        - JOB_ID
+
+        - JOB_NAME
+
+        - JOB_STATUS
+
+        - JOB_OUTPUT_TYPE
+
+        - JOB_RECORDS_SUCCEEDED
+
+        - JOB_RECORDS_FAILED
+
+        - JOB_RECORDS_TOTAL
+
+        - JOB_RECORDS_VALID
+
+        - JOB_RECORDS_INVALID
+
+
+        An example for the url property would be: ''https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}'''
+      operationId: postNotification
+      parameters:
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      requestBody:
+        description: The notification to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+  /batch/notifications/{notificationId}:
+    get:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Get a notification
+      description: (BETA) Get a notification by id.
+      operationId: getNotification
+      parameters:
+      - name: notificationId
+        in: path
+        description: Identifier that was auto-generated on notification creation and uniquely identifies the notification.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    put:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Replace a notification
+      description: '(BETA) Replace a notification.
+
+
+        To configure a notification, the **type** as well as the the **config** property needs to be defined. Each type requires individual properties as listed below.
+
+
+        ### `webHook`
+
+        For the notification of the type `webHook` only a **url** parameter is required. This URL is called via a GET request, after the job is completed.
+
+        To individualize the request, property placeholders in the URL are substituted if surrounded by ''${'' and ''}'' These placeholders can be in the path or a query parameter.
+
+
+        Available properties are:
+
+        - JOB_ID
+
+        - JOB_NAME
+
+        - JOB_STATUS
+
+        - JOB_OUTPUT_TYPE
+
+        - JOB_RECORDS_SUCCEEDED
+
+        - JOB_RECORDS_FAILED
+
+        - JOB_RECORDS_TOTAL
+
+        - JOB_RECORDS_VALID
+
+        - JOB_RECORDS_INVALID
+
+
+        An example for the url property would be: ''https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}'''
+      operationId: putNotification
+      parameters:
+      - name: notificationId
+        in: path
+        description: Identifier that was auto-generated on notification creation and uniquely identifies the notification.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    delete:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Delete a notification
+      description: (BETA) Delete a notification by its id.
+      operationId: deleteNotification
+      parameters:
+      - name: notificationId
+        in: path
+        description: Identifier that was auto-generated on notification creation and uniquely identifies the notification.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+  /batch/notifications/{notificationId}/test:
+    get:
+      tags:
+      - Batch notifications (BETA)
+      summary: (BETA) Test a notification
+      description: (BETA) Test a notification with dummy parameters. This allows, to test the endpoint without letting a job run.
+      operationId: testNotification
+      parameters:
+      - name: notificationId
+        in: path
+        description: Identifier that was auto-generated on notification creation and uniquely identifies the notification.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+components:
+  schemas:
+    AuthErrorResponse:
+      description: Response on Authorization Error
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+      required:
+      - error
+      - error_description
+    Notification:
+      type: object
+      description: Notification hook that is called on jobs completion.
+      properties:
+        id:
+          type: string
+          description: Identifier that was auto-generated on notification creation and uniquely identifies this notification.
+          example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+          readOnly: true
+        type:
+          type: string
+          default: webHook
+          description: The type of the notification.
+          enum:
+          - webHook
+          example: webHook
+        lastUsedTime:
+          type: string
+          format: date-time
+          description: The timestamp when the notification was last used.
+          readOnly: true
+        config:
+          type: object
+          additionalProperties: false
+          description: "To configure a notification, the **type** as well as the the **config** property needs to be defined. Each type requires individual properties as listed below.\n\n### `webHook`\nFor the notification of the type `webHook` only a **url** parameter is required. This URL is called via a GET request, after the job is completed.\nTo individualize the request, property placeholders in the URL are substituted if surrounded by '${' and '}' These placeholders can be in the path or a query parameter.\n\nAvailable properties are:\n - JOB_ID\n - JOB_NAME\n - JOB_STATUS\n - JOB_OUTPUT_TYPE\n - JOB_RECORDS_SUCCEEDED\n - JOB_RECORDS_FAILED\n - JOB_RECORDS_TOTAL\n - JOB_RECORDS_VALID\n - JOB_RECORDS_INVALID\n\nAn example for the url property would be: 'https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}'"
+          example:
+            url: https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}
+      required:
+      - config
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      description: Response in case of error.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Exxxxxx
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error.
+          example: Provide validated input
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - action
+      - cause
+      - code
+      - correlationId
+      - status
+      - title
+  headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
+      schema:
+        type: string
+  examples:
+    ForbiddenErrorExample:
+      value:
+        error: Forbidden
+        error_description: These credentials do not authorize access
+    UnauthorizedErrorExample:
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      description: "A key generated specifically to authenticate API requests. For more information on how to get an API key, see the\n API key used to authorize requests. For more information, see\n [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html)"
+      name: apiKey
+      in: query
+    Bearer:
+      type: http
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html)"
+      scheme: bearer
+      bearerFormat: JWT
+externalDocs:
+  description: The developer guide and changelog are available here.
+  url: https://www.here.com/docs/bundle/batch-api-developer-guide/page/README.html

@@ -1,0 +1,921 @@
+openapi: 3.2.0
+info:
+  title: Public Transit API v8 Next Departures API
+  version: 8.0.1
+  description: 'Public Transit is a set of three REST APIs that provides public transit
+
+    routing information and public transit stations information available within
+
+    an area or for a given station.'
+  termsOfService: https://legal.here.com/en-gb/terms
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://transit.hereapi.com/v8
+  description: All Public Transit services, namely Routing, Next Departures, and Station Search.
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Next Departures
+paths:
+  /departures:
+    get:
+      operationId: Public Transit API v8 getDepartures
+      summary: Departures
+      tags:
+      - Next Departures
+      description: 'Lists public transit departures.
+
+        Discovers subsequent departures using structured or topological queries.
+
+        The service accepts two types of queries as shown in the table below:
+
+
+        | Query | Parameter | Description |
+
+        |-------|-----------|-------------|
+
+        | Departures by IDs | `ids` | takes a comma-separated list of station/stop identifiers |
+
+        | Departures by Location | `in` | takes a pair of coordinates to define the center and a radius to define the extent of a circular area where to search for departures |
+
+
+        Select a query from `one of` the options above to visualize the request parameters.'
+      parameters:
+      - $ref: '#/components/parameters/boardOptions'
+      - $ref: '#/components/parameters/boardTime'
+      - $ref: '#/components/parameters/transitModes'
+      - $ref: '#/components/parameters/maxPerBoard'
+      - $ref: '#/components/parameters/maxPerTransport'
+      - $ref: '#/components/parameters/boardSort'
+      - $ref: '#/components/parameters/timespan'
+      - $ref: '#/components/parameters/lang'
+      - $ref: '#/components/parameters/accessibility'
+      - $ref: '#/components/parameters/xRequestId'
+      responses:
+        '200':
+          description: API response in case of success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationBoardResponse'
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+        '400':
+          $ref: '#/components/responses/400ErrorResponseWithRequestID'
+        '401':
+          $ref: '#/components/responses/401ErrorResponseWithRequestID'
+        '403':
+          $ref: '#/components/responses/403ErrorResponseWithRequestID'
+        '500':
+          $ref: '#/components/responses/500ErrorResponseWithRequestID'
+        '502':
+          $ref: '#/components/responses/502ErrorResponseWithRequestID'
+        '503':
+          $ref: '#/components/responses/503ErrorResponseWithRequestID'
+        '504':
+          $ref: '#/components/responses/504ErrorResponseWithRequestID'
+components:
+  responses:
+    403ErrorResponseWithRequestID:
+      description: API response in case of forbidden access.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SimpleErrorResponseSchema'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/403errorResponseExample'
+    400ErrorResponseWithRequestID:
+      description: API response in case of bad request.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/400errorResponseExample'
+    500ErrorResponseWithRequestID:
+      description: API response in case of internal server error.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/500errorResponseExample'
+    401ErrorResponseWithRequestID:
+      description: API response in case of unauthorized access.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SimpleErrorResponseSchema'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/401errorResponseExample'
+    502ErrorResponseWithRequestID:
+      description: API response in case of bad gateway.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    503ErrorResponseWithRequestID:
+      description: API response in case of service unavailable.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/503errorResponseExample'
+    504ErrorResponseWithRequestID:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+  schemas:
+    AttributionLinkType:
+      description: 'Attribution link type.
+
+
+        * `disclaimer` - Page with further legal information from the agency.
+
+        * `tariff` - Page with information on the tariff.
+
+        '
+      type: string
+      enum:
+      - disclaimer
+      - tariff
+    Attribution:
+      type: object
+      description: The URL address to an external resource.
+      properties:
+        id:
+          description: Unique identifier for the web link. It is used to deduplicate links defined in multiple sections.
+          type: string
+        href:
+          $ref: '#/components/schemas/Uri'
+        text:
+          description: Text describing the url address (e.g. The example website).
+          type: string
+        hrefText:
+          description: 'The interactive (or clickable) portion of the text. If not present (default), the entire content of the text attribute will be considered.
+
+            '
+          type: string
+        type:
+          $ref: '#/components/schemas/AttributionLinkType'
+      required:
+      - id
+      - text
+      example:
+        id: 88-7568-21.07.2023
+        text: Information for public transit provided by ThePublicTransit GmbH
+    Uri:
+      description: An URL address that links to a particular resource.
+      type: string
+      format: uri
+      example: https://url.address.com/resource
+    BoardByLocation:
+      title: Query departures by Location
+      type: object
+      properties:
+        in:
+          $ref: '#/components/schemas/InCircle'
+        maxPlaces:
+          description: The maximum number of stations the response should include.
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 5
+      required:
+      - in
+    WheelchairAccessibility:
+      description: 'Defines accessibility for people with a disability and who use a wheelchair.
+
+
+        * `unknown` - Information is not available.
+
+        * `yes` - Full unrestricted accessibility.
+
+        * `limited` - Accessibility is limited, not everywhere or require assistance.
+
+        * `no` - No accessibility.
+
+        '
+      type: string
+      enum:
+      - unknown
+      - 'yes'
+      - limited
+      - 'no'
+      default: unknown
+      example: unknown
+    ErrorResponse:
+      type: object
+      description: Response in case of error
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: 'Error code.
+
+
+            All error codes start with "`E60`".
+
+            '
+          example: E600101
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that univocally identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    StationBoardResponse:
+      description: Station board response.
+      properties:
+        notices:
+          description: 'Contains a list of issues related to this response.
+
+            Follows a list of possible notice codes:
+
+
+            * `unknownStations`: The response is incomplete as one or more of the given station IDs were not found.
+
+            * `noDeparturesFound`: No departures information is available given current input parameters
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+        boards:
+          description: A list of subsequent station board departures.
+          type: array
+          items:
+            $ref: '#/components/schemas/StationBoard'
+      required:
+      - boards
+    DepartureDetails:
+      required:
+      - transport
+      description: Defines a departure where the departure stop is implicit (e.g. station board departures).
+      properties:
+        time:
+          description: Expected time of the departure of the event. Format is **RFC 3339**, section 5.6 as defined by `date-time`.
+          allOf:
+          - $ref: '#/components/schemas/Time'
+        delay:
+          $ref: '#/components/schemas/DepartureDelay'
+        status:
+          $ref: '#/components/schemas/DepartureStatus'
+        platform:
+          $ref: '#/components/schemas/DeparturePlatform'
+        transport:
+          allOf:
+          - $ref: '#/components/schemas/TransitTransport'
+        agency:
+          $ref: '#/components/schemas/Agency'
+    TransitMode:
+      title: Modes
+      description: "Extensible enum: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain` `bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail` `flight` `...`  \nTransit mode of transport in the route response\n"
+      example: intercityTrain
+      type: string
+      x-extensible-enum:
+      - highSpeedTrain
+      - intercityTrain
+      - interRegionalTrain
+      - regionalTrain
+      - cityTrain
+      - bus
+      - ferry
+      - subway
+      - lightRail
+      - privateBus
+      - inclined
+      - aerial
+      - busRapid
+      - monorail
+      - flight
+    Duration:
+      type: integer
+      description: Duration in seconds.
+      example: 198
+    Agency:
+      description: Contains information about a particular agency.
+      properties:
+        id:
+          description: 'Unique code of the agency. Specifies if the same agency is used on different sections of the same route.
+
+
+            **NOTE**: The given ID is only valid within the context of the response it is in.
+
+            '
+          type: string
+          example: 49030_dd54cc8
+        name:
+          description: Human readable name of the owner of the transport service.
+          type: string
+          example: The Rail Provider
+        website:
+          description: Link to the agency's website.
+          example: http://www.railcompany.com/
+          allOf:
+          - $ref: '#/components/schemas/Uri'
+      required:
+      - id
+      - name
+    Notice:
+      type: object
+      description: A notice contains important notifications.
+      properties:
+        title:
+          type: string
+          description: Human-readable notice description.
+          example: No route found
+        code:
+          type: string
+          description: Notice code.
+          example: noRouteFound
+        severity:
+          $ref: '#/components/schemas/NoticeSeverity'
+      required:
+      - code
+    DepartureStatus:
+      description: "Extensible enum: `scheduled` `cancelled` `additional` `replaced` `...`  \nStatus of the departure\n\n* `scheduled`: A trip that is running as planned in the schedule.\n* `cancelled`: A trip that existed in the schedule but was removed.\n* `additional`: An extra trip that was added in addition to a running schedule, for example, to respond to sudden passenger load.\n* `replaced`: A trip that was in the schedule but is removed and replaced with `additional` trip, for example, to replace a broken vehicle or handle detour.\n"
+      type: string
+      x-extensible-enum:
+      - scheduled
+      - cancelled
+      - additional
+      - replaced
+      default: scheduled
+    Time:
+      type: string
+      description: '**RFC 3339**, section 5.6 as defined by either `date-time` or `date-only` ''T'' `partial-time` (ie no time-offset).'
+      format: date-time
+    NoticeSeverity:
+      description: 'Describes the impact a notice has on the resource to which the notice is attached.
+
+        * critical - The notice must not be ignored, even if the type of notice is not known to the user. Any associated resource (e.g., route section) must not be used without further evaluation.
+
+        * info - The notice is for informative purposes, but does not affect usability of the route.
+
+        '
+      type: string
+      enum:
+      - critical
+      - info
+    BoardByIds:
+      title: Query departures by IDs
+      type: object
+      properties:
+        ids:
+          description: 'Specifies a comma separated list of station IDs. A maximum of 50 station identifiers are allowed in a single query
+
+            '
+          type: string
+          maxLength: 1000
+      required:
+      - ids
+    DeparturePlatform:
+      description: Platform name or number for the departure.
+      type: string
+    TransitModeExcluded:
+      title: Excluded modes
+      description: "Extensible enum: `-highSpeedTrain` `-intercityTrain` `-interRegionalTrain` `-regionalTrain` `-cityTrain` `-bus` `-ferry` `-subway` `-lightRail` `-privateBus` `-inclined` `-aerial` `-busRapid` `-monorail` `-flight` `...`  \nTransit mode to be excluded from the route\n"
+      type: string
+      x-extensible-enum:
+      - -highSpeedTrain
+      - -intercityTrain
+      - -interRegionalTrain
+      - -regionalTrain
+      - -cityTrain
+      - -bus
+      - -ferry
+      - -subway
+      - -lightRail
+      - -privateBus
+      - -inclined
+      - -aerial
+      - -busRapid
+      - -monorail
+      - -flight
+    StationBoard:
+      description: It contains a list of departures from this station.
+      properties:
+        place:
+          description: Information about a station or stop.
+          allOf:
+          - $ref: '#/components/schemas/StationSearchPlace'
+        departures:
+          description: A list of departures.
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartureDetails'
+        attributions:
+          description: List of required attributions to display.
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribution'
+      required:
+      - place
+      - departures
+    StationSearchPlace:
+      description: A station
+      properties:
+        name:
+          description: Location name
+          type: string
+          example: S Potsdamer Platz Bhf/Voßstr.
+        type:
+          description: 'Place type. Each place type can have extra attributes.
+
+
+            **NOTE:** The list of possible place types could be extended in the future.
+
+            The client application is expected to handle such a case gracefully.
+
+            '
+          type: string
+        location:
+          description: 'The position of this location
+
+
+            This position was used in route calculation. It may be different to the original position provided in the request.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Location'
+        id:
+          description: 'Identifier of this station.
+
+
+            **NOTE**: The given ID is only valid within the context of the response it is in.
+
+            '
+          type: string
+          example: '110543003'
+        platform:
+          description: Platform name or number for the departure.
+          type: string
+          example: '1'
+        code:
+          description: Short text or a number that identifies the place for riders.
+          type: string
+          example: '74370'
+        wheelchairAccessible:
+          description: 'Information about accessibility for people with a disability and who use a wheelchair.
+
+
+            * `unknown` - Accessibility information is not available.
+
+            * `yes` - There exists some accessible path from outside the station to the specific stop/platform.
+
+            * `limited` - Accessibility is limited or assistance is required.
+
+            * `no` - There exists no accessible path from outside the station to the specific stop/platform.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/WheelchairAccessibility'
+      required:
+      - type
+      - location
+      example:
+        type: place
+        location:
+          lat: 52.531677
+          lng: 13.381777
+    TransitModesFilterItem:
+      oneOf:
+      - $ref: '#/components/schemas/TransitMode'
+      - $ref: '#/components/schemas/TransitModeExcluded'
+    SourceFeedMapping:
+      description: 'Mapping of the internal data returned in the respone to the data from the source feed.
+
+        A `type` will only be returned if the source feed data has a match.
+
+        Each `type` might be returned more than once in the response as the source feed may have multiple matches.
+
+
+        Currently possible values for `type` are:
+
+
+        * `agencyId`: ID of the agency that provides the data which is defined in the source feed.
+
+        * `routeId`: ID of the route that is provided in source feed.
+
+        * `tripId`: ID of the trip that is provided in source feed.
+
+        * `feedVersion`: Version of the feed that is defined in source feed.
+
+        '
+      type: object
+      properties:
+        type:
+          type: string
+          description: "Extensible enum: `agencyId` `routeId` `tripId` `feedVersion` `...`  \nType of source feed data.\n"
+          x-extensible-enum:
+          - agencyId
+          - routeId
+          - tripId
+          - feedVersion
+          example: tripId
+        sourceValue:
+          type: string
+          description: Source value for the data defined in the `type`.
+          example: 1234-567
+    Color:
+      type: string
+      pattern: '#[0-9A-Fa-f]{6}'
+      example: '#FF0000'
+    Location:
+      description: Location on the Earth
+      properties:
+        lat:
+          description: Location of a point on the Earth north or south of the equator in decimal degrees.
+          type: number
+          format: double
+          example: 52.531677
+        lng:
+          description: Location of a place on the Earth east or west of the prime meridian in decimal degrees.
+          type: number
+          format: double
+          example: 13.381777
+      example:
+        lat: 52.531677
+        lng: 13.381777
+      required:
+      - lat
+      - lng
+    SimpleErrorResponseSchema:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+    TransitTransport:
+      description: Transit transport information.
+      properties:
+        mode:
+          $ref: '#/components/schemas/TransitMode'
+        name:
+          description: Transit line name
+          type: string
+          example: U2
+        headsign:
+          description: Transit line headsign.
+          type: string
+          example: Cottbus, Hauptbahnhof
+        category:
+          description: Human readable transport category (such as Bus, Gondola, Tram, Train, ...).
+          type: string
+          example: Railway Service
+        color:
+          description: Color of the transport polyline and background for the transport name.
+          allOf:
+          - $ref: '#/components/schemas/Color'
+        textColor:
+          description: Color of the transport name.
+          allOf:
+          - $ref: '#/components/schemas/Color'
+        shortName:
+          description: Short name of a transit line.
+          type: string
+          example: U2
+        longName:
+          description: Long name of a transit line.
+          type: string
+          example: Pankow - Ruhleben
+        wheelchairAccessible:
+          description: 'Information about accessibility for people with a disability and who use a wheelchair.
+
+
+            * `unknown` - Accessibility information is not available.
+
+            * `yes` - Vehicle can accommodate at least one rider in a wheelchair.
+
+            * `limited` - Accessibility is limited or assistance is required.
+
+            * `no` - No riders in wheelchairs can be accommodated.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/WheelchairAccessibility'
+        sourceFeedMapping:
+          description: 'List of source feeds that shows the original feed data. The item keys
+
+            can be repeated if the original data has multiple mappings for the same ID.
+
+
+            For this instance, only `routeId` and `tripId` are valid values for `type`. No other values will be returned in this scope.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceFeedMapping'
+      required:
+      - mode
+    DepartureDelay:
+      description: The accumulated delay in seconds from the scheduled time of the event.
+      type: integer
+    TransitModesFilter:
+      description: 'Transit type filter used to determine which types of transit to include in the response. By default, all supported transit types are permitted. Mixing of inclusive and exclusive transit types is not allowed.
+
+        '
+      type: array
+      uniqueItems: true
+      items:
+        $ref: '#/components/schemas/TransitModesFilterItem'
+    InCircle:
+      description: 'Specifies the center point and the optional radius of your search.
+
+        Format `{lat},{lng}[;r={radius}]`, where `radius=500` meters by default.
+
+        '
+      type: string
+      pattern: '[-+]?\d*\.?\d+,[-+]?\d*\.?\d+(;r=\d+)?'
+      example: 24.5,16.8;r=500
+  parameters:
+    maxPerTransport:
+      name: maxPerTransport
+      description: 'The maximum number of subsequent departures per transport returned in the response. A transport is identified by its name, direction and mode. When not set, all departures are returned, otherwise the first `maxPerTransport` departures for each transport in chronological order are returned.
+
+        '
+      in: query
+      schema:
+        type:
+        - integer
+        - 'null'
+        minimum: 1
+        maximum: 10
+        default: null
+    transitModes:
+      name: modes
+      description: "Transit mode filter used to determine which modes of transit to include in the response.\nBy default, all supported transit modes are permitted.\n\nSupported modes: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain`\n`bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail`\n`flight`\n\nThis parameter also support an exclusion list: It's sufficient to specify each mode to exclude by prefixing it with `-`.\nMixing of inclusive and exclusive transit modes is not allowed.\n\nexamples:\n  * `subway,bus`. Returns only subways and busses.\n  * `-subway,-bus`. Returns all modes except subways and busses.\n"
+      in: query
+      schema:
+        $ref: '#/components/schemas/TransitModesFilter'
+      style: form
+      explode: false
+    boardTime:
+      name: time
+      description: 'Specifies the time of earliest departure in `RFC 3339`, section 5.6 as defined by either `date-time` or `full-date` "T" `partial-time` (for example, `2019-06-24T01:23:45`).
+
+        The requested time is converted to local time at each location. When the optional timezone offset is
+
+        not specified, time is assumed to be local. If `time` is not specified, current time at departure place will be used.
+
+        All `Time` values in the response are returned in the timezone of each location.
+
+        '
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Time'
+    timespan:
+      name: timespan
+      description: 'Limit the subsequent departures to the defined time window and starting from the time provided in the request. When not set, this filter is not applied and a maximum of 24 hours of departures can be returned. The filter will remove all departures outside the interval defined by time and time span.
+
+        '
+      in: query
+      schema:
+        allOf:
+        - $ref: '#/components/schemas/Duration'
+        - type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 1440
+          default: null
+          example: 56
+    boardOptions:
+      name: boardOptions
+      description: Board options
+      in: query
+      schema:
+        type: object
+        oneOf:
+        - $ref: '#/components/schemas/BoardByIds'
+        - $ref: '#/components/schemas/BoardByLocation'
+      style: form
+      explode: true
+    maxPerBoard:
+      name: maxPerBoard
+      description: The maximum number of subsequent departures per station board the response is to include.
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 5
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    boardSort:
+      name: sort
+      description: 'Define how the departures are sorted. By default, the departures are returned sorted by scheduled time.
+
+        When `sort=transport`, the departures are sorted first by transport and then by scheduled time.
+
+
+        * `sort=time`: means sorted by time.
+
+        * `sort=transport`: means that we sort by `name`, `headsign`, `mode` and `time` in this order.
+
+        '
+      in: query
+      schema:
+        type: string
+        enum:
+        - time
+        - transport
+        default: time
+    lang:
+      name: lang
+      description: 'Specifies the list of preferred languages of the response.
+
+        The first supported language from the list will be used for the response.
+
+        The value should comply with the [IETF BCP 47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
+
+        '
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+        default:
+        - en-US
+      style: form
+      explode: false
+      example:
+      - zh-tw
+      - en-gb
+      - en-us
+    accessibility:
+      name: accessibility
+      description: "Defines accessibility requirements for routes.\n\n * `wheelchair` - Select only wheelchair accessible vehicles and stations.\n"
+      in: query
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+          - wheelchair
+      style: form
+      explode: false
+  examples:
+    503errorResponseExample:
+      value:
+        title: 'failed with reason: service unavailable'
+        status: 503
+        code: E600001
+        cause: Service Unavailable
+        action: ''
+        correlationId: ''
+    504errorResponseExample:
+      value:
+        title: 'failed with reason: gateway timeout'
+        status: 504
+        code: E600000
+        cause: Gateway Timeout
+        action: ''
+        correlationId: ''
+    500errorResponseExample:
+      value:
+        title: 'failed with reason: internal server error'
+        status: 500
+        code: E600103
+        cause: Internal Server Error
+        action: ''
+        correlationId: ''
+    401errorResponseExample:
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+    403errorResponseExample:
+      value:
+        error: Forbidden
+        error_description: These credentials do not authorize access.
+    502errorResponseExample:
+      value:
+        title: 'failed with reason: bad gateway'
+        status: 502
+        code: E600002
+        cause: Bad Gateway
+        action: ''
+        correlationId: ''
+    400errorResponseExample:
+      value:
+        title: 'failed with reason: missing field `destination`'
+        status: 400
+        code: E600000
+        cause: Bad request
+        action: ''
+        correlationId: ''
+  headers:
+    X-Request-Id:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-Id:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information
+
+        on how to get an API key, see [Identity and Access Management Developer Guide](https://docs.here.com/identity-and-access-management/docs/readme).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see the [Identity and Access Management Developer Guide](https://docs.here.com/identity-and-access-management/docs/readme).
+
+        '

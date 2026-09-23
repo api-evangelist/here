@@ -1,0 +1,717 @@
+openapi: 3.2.0
+info:
+  title: Geofencing V8 API
+  description: Geofence asset positions against HERE Map objects or custom fence objects
+  termsOfService: https://developer.here.com/terms-conditions
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+  version: 8.3.3
+servers:
+- url: https://geofencing.hereapi.com
+  description: Generated server url
+security:
+- apiKey: []
+- bearerTokenAuth: []
+tags:
+- name: Geofencing V8
+  description: The HERE Geofencing API can geofence asset positions against HERE Map objects or custom fence objects
+paths:
+  /v8/geofence:
+    get:
+      tags:
+      - Geofencing V8
+      summary: Simple and fast search for geometries on HERE Map Content layers, extensible…
+      description: 'Simple and fast search for geometries on HERE Map Content layers, extensible with custom geometry layers
+
+
+        Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
+      operationId: Geofencing API geofence
+      parameters:
+      - name: layers
+        in: query
+        description: "Comma-separated list of layers to search, with layer names being case-insensitive.\n * Both custom layers and Map Attribute core map layers are supported.\n * Map Attribute layers categorized by functional class, like ROAD_GEOM_FC1 to FC5, can be selected by using `FCN` notation, e.g. `ROAD_GEOM_FCN`.\n * The maximum length of a layer name and the permitted characters can be looked up in the service via `/v8/maps/serviceconfiguration`.\n * Using the `attributes` parameter specific column attributes from a layer can be returned."
+        required: true
+        schema:
+          type: string
+      - name: in
+        in: query
+        description: 'Spatial filtering for multi layer search. For GET requests supported filter type is `point` with radius.
+
+          * Example: `in=point:41.93,12.43;r=40`
+
+          * Multipoint search is supported only via POST request with filter type `assetPositions`'
+        required: true
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 'A SQL expression which is evaluated for each geometry returned from the specified layer list.
+
+          * Columns values for each geometry are available as predefined variables.
+
+          * When an expression is specified, only geometries where the expression evaluates to true are returned.
+
+          * Supported SQL filter operators include: `=`, `!=`, `>`, `<`, `AND`, `OR` and `LIKE`.
+
+          * Example: `filter=RATING > 3 AND NAME != ''MyPlace23'' AND NAME LIKE ''FOOD%''`.
+
+          * Parameter value must be url encoded when using special characters.
+
+          * This filter applies to all geometries and may be slow for large layers. To avoid service overload, filter expressions should not exceed 100 characters.
+
+          * The filter is applied across all objects from specified layers, so it is most effective when a single layer is requested.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: meta
+        in: query
+        description: When set to `1`, then meta info is returned in the response.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: attributes
+        in: query
+        description: 'A Semicolon-separated list of column names (in uppercase) to indicate which attributes will be included in the results.
+
+          * If the request specifies several layers, then pass attributes for each layer as a comma separated list.
+
+          * Default includes all columns from each layer.
+
+          * Example if `&layers=LINK_ATTRIBUTE2_FCn,LINK_ATTRIBUTE_FCn,ROAD_GEOM_FCn` are requested, then the columns can be restricted to only following `&attributes=PARKING_LOT_ROAD;CARPOOL_ROAD,PAVED;PRIVATE,BRIDGE;TUNNEL`.* `PARKING_LOT_ROAD` and `CARPOOL_ROAD` are from layer `LINK_ATTRIBUTE2_FCn`, `PAVED` and `PRIVATE` from `LINK_ATTRIBUTE_FCn`, `BRIDGE` and `TUNNEL` from `ROAD_GEOM_FCn` layer.'
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Map in which the specific layer or layers exist, which will be accessed to retrieve the layer content. If parameter is not specified, the behavior is: search in the default map where all custom layers are stored, which were created without `mapName` in `upload/modify` request.'
+        required: false
+        schema:
+          type: string
+      - name: assetId
+        in: query
+        description: "Optional. Identifier for the asset. If provided, the response will contain the assetId.\n * The maximum length of an asset id and the permitted characters can be looked up in the service via `/v8/maps/serviceconfiguration`."
+        required: false
+        schema:
+          type: string
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+    post:
+      tags:
+      - Geofencing V8
+      summary: Simple and fast search for geometries on HERE Map Content layers, extensible…
+      description: Simple and fast search for geometries on HERE Map Content layers, extensible with custom geometry layers
+      operationId: Geofencing API geofencePost
+      parameters:
+      - name: in
+        in: query
+        description: 'Spatial filtering for multi layer search. For POST requests supported filter type is `assetPositions`.
+
+          * The POST body must contain a json structure, as specified in example below and explained in requestBody.
+
+          * Each asset `point` should have properties `lat`, `lon`, `layer` and `searchRadius`.
+
+          * The property `attributes` is optional. Specify a String array of column names (in uppercase) to specify which attributes from specific layer shall appear in the result. If omitted, the returned result will include all the attributes of the specified layer.
+
+          * Example POST body: {"point": [{ "lat" : 41.9101, "lon" : 12.5021, "layer" : "ROAD_GEOM_FC3", "searchRadius" : 100 },{ "lat" : 42.0299, "lon" : 12.6932, "layer" : "ROAD_GEOM_FC5", "searchRadius" : 200, "attributes" : ["LINK_ID", "NAME", "TUNNEL", "BRIDGE" ] }]}'
+        required: true
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 'A SQL expression which is evaluated for each geometry returned from the specified layer list.
+
+          * Columns values for each geometry are available as predefined variables.
+
+          * When an expression is specified, only geometries where the expression evaluates to true are returned.
+
+          * Supported SQL filter operators include: `=`, `!=`, `>`, `<`, `AND`, `OR` and `LIKE`.
+
+          * Example: `filter=RATING > 3 AND NAME != ''MyPlace23'' AND NAME LIKE ''FOOD%''`.
+
+          * Parameter value must be url encoded when using special characters.
+
+          * This filter applies to all geometries and may be slow for large layers. To avoid service overload, filter expressions should not exceed 100 characters.
+
+          * The filter is applied across all objects from specified layers, so it is most effective when a single layer is requested.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: meta
+        in: query
+        description: When set to `1`, then meta info is returned in the response.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: mapName
+        in: query
+        description: 'Optional. Map in which the specific layer or layers exist, which will be accessed to retrieve the layer content. Default behavior: Check in the default map.'
+        required: false
+        schema:
+          type: string
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      requestBody:
+        description: Asset positions to geofence, sent as an application/json request body instead of query parameters. Each point has lat, lon, layer and searchRadius; the optional attributes array restricts the returned columns. Authentication `apiKey` must - and basic configuration parameters can remain in the query string.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetPositions'
+            examples:
+              assetPositions:
+                description: assetPositions
+                value:
+                  point:
+                  - lat: 50.0996
+                    lon: 8.67125
+                    layer: MYTESTLAYER2
+                    searchRadius: 15000
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+        '415':
+          description: 'Bad mediatype. Supported values: application/json, text/plain'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+  /v8/geofence/upload:
+    post:
+      tags:
+      - Geofencing V8
+      summary: Import Geometries in a WKT or Shape File
+      description: Import polygons, polylines or points in WKT (Wellknown Text) or Shapefile format geometries using an HTTP POST request. A layer can contain only one geometry type - polygons, polylines or points, but not a mix of different types. After the response there is a delay of several seconds to compile, store and make the geometries available in the service.
+      operationId: Geofencing API v8UploadPost
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format: {app_id}.{mapName}.{layerName} .
+
+          * `app_id` - app_id of the project creating the layer.
+
+          * `mapName` - the map into which the layer is to be uploaded. default = upload the layer into the app_id''s default map.
+
+          * `layerName` - name of layer to create/replace. The maximum length of a layer name and the permitted characters can be looked up in the service via resource `/v8/maps/serviceconfiguration`.'
+        required: true
+        schema:
+          type: string
+      - name: level
+        in: query
+        description: Specify tile size for the database for performance optimization, if not specified default tile size of 12 is used.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 12
+      - name: storage
+        in: query
+        description: Either updatable or readonly. Default = updatable.
+        required: false
+        schema:
+          type: string
+          default: updatable
+      - name: wktQuote
+        in: query
+        description: Specify the quote character to use. Specifying NONE disables quotes.
+        required: false
+        schema:
+          type: string
+          default: '"'
+      - name: indexColumns
+        in: query
+        description: 'Specify columns of the layer that should be indexed. Column name is followed by semi-colon(;) and indexing type. Supported indexing types are: order(o), text(t) or both - order,text(o,t). Columns are separated by pipe(|). Example &indexColumns=POI_ID;order|CAT_ID;text|ADMIN_IDS;order,text'
+        required: false
+        schema:
+          type: string
+      - name: grantedAppIds
+        in: query
+        description: Comma separated list of app_ids (in addition to the one creating the layer), which would also get access (per default read+export access) to this layer. Example `&granted_app_ids=otherAppId1,otherAppId2` .
+        required: false
+        schema:
+          type: string
+      - name: file
+        in: query
+        description: WKT file content
+        required: true
+        style: form
+        schema:
+          type: string
+          format: text/plain
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerUploadResponse'
+  /v8/geofence/modify:
+    post:
+      tags:
+      - Geofencing V8
+      summary: Modify Geometries in Existing Layers
+      description: 'Modify geometries using an HTTP POST request. After receiving the response, there is a delay of several seconds to compile, store and make the modified geometries available in the service. Note: The level (tile grid size) of the layer can only be changed by re-uploading the whole layer, not as a modification operation.'
+      operationId: Geofencing API v8ModifyPost
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format {app_id}.{mapName}.{layerName}. app_id: app_id of the project modifying the layer; mapName: the map into which the layer is uploaded, default = upload the layer into the app_id''s default map; layerName:  Name of layer to modify, the maximum length of a layer name and the permitted characters can be looked up in the service via resource ''v8/maps/serviceconfiguration''.'
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: query
+        description: 'Action can be `append`, `update` or `delete`.
+
+          * Geometries are identified by their unique geometry_id column value.
+
+          * For an append operation, new geometries in requestBody must not already exist in the layer, and they will be added.
+
+          * For an update, geometries in requestBody must already exist, and these will be replaced.
+
+          * All column values must be specified, not only the changes.
+
+          * For update and delete operation, attribute columns names, sequence order and type must remain unchanged.
+
+          * For delete operation, the geometries must exist and will be removed. Only the `geometry_id` column is required for this operation.'
+        required: true
+        schema:
+          type: string
+      - name: wktQuote
+        in: query
+        description: Specify the quote character to use. Specifying NONE disables quotes.
+        required: false
+        schema:
+          type: string
+          default: '"'
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      - name: file
+        in: query
+        description: WKT file content
+        required: true
+        style: form
+        schema:
+          type: string
+          format: text/plain
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerModifyResponse'
+        '409':
+          description: Modify Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerModifyResponse'
+  /v8/geofence/delete:
+    get:
+      tags:
+      - Geofencing V8
+      summary: Delete some of my Geometry Layers.
+      operationId: Geofencing API v8DeleteMapsLayers
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format {app_id}.{mapName}.{layerNames}. app_id: app_id of the project under which the layers exit; mapName: delete the layers within this map, default = delete the layers in app_id''s default map; layerNames:  Comma separated name of layers to delete. The maximum length of a layer name and the permitted characters can be looked up up in the service via /serviceconfiguration.json.'
+        required: true
+        schema:
+          type: string
+      - name: storage
+        in: query
+        description: Either updatable or readonly. Default = updatable. Only updatable layers can be deleted, for readonly layers and overlays complete map containing the layer should be deleted.
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteLayersResponse'
+  /v8/geofence/attributes:
+    get:
+      tags:
+      - Geofencing V8
+      summary: Simple and fast access to your custom geofence attributes
+      operationId: Geofencing API geofenceAttributes
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. If not specified, the content of all maps containing the requested layer(s) is retrieved
+        required: false
+        schema:
+          type: string
+      - name: layers
+        in: query
+        description: Comma separated list of layers to be searched. Layer names are not case sensitive. The maximum length of a layer name and the permitted characters can be looked up up in the service via v8/maps/serviceconfiguration. Via the attributes parameter only certain column attributes from a layer can be returned.
+        required: true
+        schema:
+          type: string
+      - name: in
+        in: query
+        description: Supported filtering options are tile and all(full layer). The format is &in=all or &in=tile:{comma separated list of tile ids}. In case of tile search, the number of tile ids must match with the number of requested layers.
+        required: false
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 'A SQL expression is evaluated for each geometry returned from the specified layer listing. Column values for the geometry are available as defined variables. When specified, only geometries where expression evaluates to true will be returned. Supported SQL filter operators are: ''='', ''!='', ''>'', ''<'', ''AND'', ''OR'', ''LIKE''. Example: filter=RATING > 3 AND NAME != ''MyPlace23'' AND NAME LIKE ''FOOD%''. Parameter value must be url encoded when using special characters. This filter expression is applied to all geometries, so it can become slow for big layers. To avoid service overload, filter expressions must not exceed 100 characters of text.
+
+          Note:
+
+          1. The filter expression is applied to all objects across all specified layers. Therefore, it is most likely to work as intended when a single layer is requested.
+
+          2. The filter expression is not compatible with tile search. Tile search only allows filtering results based on attribute columns. Column filtering can be used to reduce response size.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: meta
+        in: query
+        description: When set to 1 then meta info is returned in the response. The default value is 1.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: attributes
+        in: query
+        description: Semicolon separated list of column names (in uppercase) to specify which attributes shall appear in the result. If the request specifies several layers, then pass this for each layer, as a comma separated list. Default = all.
+        required: false
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: The number of geometries in the response. If more geometries satisfy the search/filter criteria, they will be suppressed. It is undefined, which of the matching geometries are returned, unless this parameter is used together with offset, which sorts the results set by geometry id. Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layers parameter. The maximum number of records supported within a single request can be looked up in the v8/maps/serviceconfiguration endpoint. This parameter can only be used with &in=all filter to download the custom layers.
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        description: To paginate huge responses, this parameter specifies the lowest geometry id to be returned. If geometry ids are not known, then retrieve the first page using zero, and to retrieve subsequent pages then request highest geometry of current page + 1 (it doesn't matter whether this geometry id actually exists or not). Use this parameter together with count parameter. Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layers parameter. This parameter can only be used with &in=all filter to download custom layers.
+        required: false
+        schema:
+          type: string
+      - name: acceptMissingLayers
+        in: query
+        description: Optional. If this parameter is set to true, user will get list of geometries from available layers, even if some of the requested layers are missing. If none of the requested layers are found, service returns empty list.
+        required: false
+        schema:
+          type: string
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+components:
+  schemas:
+    AssetPositions:
+      type: object
+      properties:
+        point:
+          type: array
+          description: List of asset points with corresponding attributes.
+          items:
+            $ref: '#/components/schemas/AssetPoint'
+    SearchMetaResponse:
+      type: object
+      properties:
+        searchParameter:
+          type: string
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
+          type: integer
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
+      description: List of Meta info for spatial search response.
+    TileRow:
+      type: object
+      properties:
+        columns:
+          type: array
+          description: Map of attributes and values.
+          example:
+            LINK_ID: '113421120'
+            LONG_HAUL: N
+            NAME: SR-33 / Commonwealth Ave N
+            NAMES: ''
+            TUNNEL: N
+            BRIDGE: N
+            LAT: 2831248,47,72,46,50,47,21,42,33,31
+            LON: -8183529,6,10,5,7,5,2,5,3,3
+            ZLEVEL: ',,,,,,,,,'
+            ELEVATION: null
+            TOPOLOGY_ID: '399791974'
+            START_OFFSET: '0'
+            END_OFFSET: '100000'
+          items:
+            type: string
+            description: Map of attributes and values.
+            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
+      description: List of Attribute/value map from a specific layer.
+    AssetPoint:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: Latitude of asset location.
+          format: double
+        lon:
+          type: number
+          description: Longitude of asset location.
+          format: double
+        layer:
+          type: string
+          description: 'Layer name to search. Layer name is case in-sensitive.
+
+            * Both custom layers and Map Attribute core map layers are supported.
+
+            * Map Attribute layers categorized by functional class, like ROAD_GEOM_FC1 to FC5, can be selected by using `FCN` notation, e.g. `ROAD_GEOM_FCN`.
+
+            * The maximum length of a layer name and the permitted characters can be looked up up in the service via `/v8/maps/serviceconfiguration`.
+
+            * Using the `attributes` parameter specific column attributes from a layer can be returned.'
+        searchRadius:
+          type: number
+          description: Radius around the asset location.
+          format: double
+        attributes:
+          type: array
+          description: String array of column names (in uppercase) to specify which attributes from specific layer shall appear in the result.
+          items:
+            type: string
+            description: String array of column names (in uppercase) to specify which attributes from specific layer shall appear in the result.
+        assetId:
+          type: string
+          description: "Optional. Identifier for the asset. If provided, the response will contain the assetId.\n * The maximum length of an asset id and the permitted characters can be looked up in the service via `/v8/maps/serviceconfiguration`."
+      description: List of asset points with corresponding attributes.
+    MetaResponseV8:
+      type: object
+      properties:
+        layerName:
+          type: string
+          description: Name of layer returned in this tile response.
+          example: ROAD_GEOM_FC4
+        tileId:
+          type: integer
+          description: Tile ID for the tile returned in this response.
+          format: int32
+          example: 22055097
+        level:
+          type: integer
+          description: Level for layer returned in this tile response.
+          format: int32
+          example: 12
+        mapRegion:
+          type: string
+          description: Map region for layer returned in this tile response.
+          example: WEU
+        mapRelease:
+          type: string
+          description: Specific map release that this layer content belongs to.
+          example: '25122'
+      description: Meta info for a specific layer.
+    MapAttributesV8Response:
+      type: object
+      properties:
+        geometries:
+          type: array
+          description: List of geometries for spatial search response.
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          description: List of Meta info for spatial search response.
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+        Tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TileResponseV8'
+    Geometry:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+            description: Map of attributes and values.
+            example: '{"VERTICAL_FLAGS":"1","START_OFFSET":"0","LINK_ACCURACY":"3","TOPOLOGY_ID":"84266553","CURVATURES":"320","NREFNODE_LINKCURVHEADS":"1:323:37748","HPY":"419003000,1153,1647","BUA_ROAD_VERIFIED":"Y","HPX":"124992600,1153,1647","HPZ":"10429,90,122","END_OFFSET":"63636","LINK_ID":"1211034601","BUA_ROAD":"1","SLOPES":"2987,291,-655","REFNODE_LINKCURVHEADS":"-1155506340:318:38460","HEADINGS":"38168"}'
+          description: Map of attributes and values.
+          example:
+            VERTICAL_FLAGS: '1'
+            START_OFFSET: '0'
+            LINK_ACCURACY: '3'
+            TOPOLOGY_ID: '84266553'
+            CURVATURES: '320'
+            NREFNODE_LINKCURVHEADS: 1:323:37748
+            HPY: 419003000,1153,1647
+            BUA_ROAD_VERIFIED: Y
+            HPX: 124992600,1153,1647
+            HPZ: 10429,90,122
+            END_OFFSET: '63636'
+            LINK_ID: '1211034601'
+            BUA_ROAD: '1'
+            SLOPES: 2987,291,-655
+            REFNODE_LINKCURVHEADS: -1155506340:318:38460
+            HEADINGS: '38168'
+        distance:
+          type: number
+          description: Straight line distance calculated to the closest geometry shape point (nearestLat, nearestLong) from the search point/polygon.
+          format: double
+          example: 69.13
+        nearestLat:
+          type: number
+          description: Nearest latitude on this geometry from the search point/polygon.
+          format: double
+          example: 41.90037
+        nearestLon:
+          type: number
+          description: Nearest longitude on this geometry from the search point/polygon.
+          format: double
+          example: 12.49933
+        layerId:
+          type: string
+          description: Layer name that this geometry belongs to.
+          writeOnly: true
+          example: ADAS_ATTRIB_FC4
+        geometry:
+          type: string
+          description: WKT string representing the geometry item.
+          example: MULTILINESTRING((4.80498 43.95174,4.80522 43.95196,4.80525 43.95201))
+        originalLat:
+          type: number
+          description: Original latitude of the asset position.
+          format: double
+          example: 41.9
+        originalLon:
+          type: number
+          description: Original longitude of the asset position.
+          format: double
+          example: 12.5
+        assetId:
+          type: string
+          description: Optional identifier of the asset.
+          example: asset1
+        geometryOverride:
+          type: string
+          writeOnly: true
+        geometryMode:
+          type: string
+          writeOnly: true
+          enum:
+          - NONE
+          - TILED
+          - FULL
+      description: List of geometries for spatial search response.
+    TileResponseV8:
+      type: object
+      properties:
+        rows:
+          type: array
+          description: List of Attribute/value map from a specific layer.
+          items:
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
+    LayerModifyResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
+    LayerUploadResponse:
+      type: object
+      properties:
+        storedTilesCount:
+          type: integer
+          description: Number of tiles that were created to store the uploaded layer content
+          format: int32
+          example: 20
+    DeleteLayersResponse:
+      type: object
+      properties:
+        deletedLayers:
+          type: array
+          description: List of deleted layers.
+          example:
+          - SAMPLE_LAYER
+          items:
+            type: string
+            description: List of deleted layers.
+            example: '["SAMPLE_LAYER"]'
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      description: A key generated specifically to authenticate API requests. For more information on how to get an API key, see [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide).
+      name: apiKey
+      in: query
+    bearerTokenAuth:
+      type: http
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see the [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide).
+      scheme: bearer
+      bearerFormat: JWT
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/category/geofencing-api

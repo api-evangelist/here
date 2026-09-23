@@ -1,0 +1,388 @@
+openapi: 3.2.0
+info:
+  title: HERE WeGo User Service Feature Groups API
+  description: The HERE WeGo user service manages user entitlements and it provides role-based access control (RBAC) to those entitlements.
+  version: 1.0.4
+servers:
+- url: https://api.wego.hereapi.com/user-service
+  description: Production environment for WeGo Pro
+tags:
+- name: Feature Groups
+  description: Endpoints for managing feature groups
+paths:
+  /featureGroups:
+    get:
+      tags:
+      - Feature Groups
+      summary: Get paginated feature groups
+      description: Endpoint to get a paginated list of feature groups sorted alphabetically by name.
+      operationId: getFeatureGroups
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        '200':
+          description: List of feature groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageFeatureGroupDto'
+              example:
+                content:
+                - id: 999ac3c6-3b17-3456-9662-4c7fb189aa8b
+                  name: Another Feature Group
+                  description: Another Feature Group Description
+                  createdAt: '2022-05-24T18:41:50Z'
+                  modifiedAt: '2022-05-24T18:41:50Z'
+                - id: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
+                  name: New Feature Group
+                  description: Feature Group Description
+                  createdAt: '2023-07-24T18:41:50Z'
+                  modifiedAt: '2023-07-24T18:41:50Z'
+                - id: 2b38af71-56c6-4e43-b67a-ee8fdb78cfdc
+                  name: Test Feature Group
+                  description: Test Feature Group Description
+                  createdAt: '2023-07-14T15:31:20Z'
+                  modifiedAt: '2023-07-14T15:31:20Z'
+                totalPages: 1
+                totalElements: 3
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 4b5c8cfb-a13d-4cf9-a3cc-50f22c2a529e
+                code: E400104
+                cause: 'Invalid argument type: size, expected int'
+                requestId: REQ-ae47badf-66c2-4944-83f4-106f595cf975
+        '401':
+          description: Unauthorized - Invalid authorization token
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UnauthorizedErrorResponseDto'
+                - $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 401
+                title: Unauthorized
+                correlationId: a74fee73-f99c-4721-95a9-96e5c2615e63
+                code: E401100
+                cause: Unauthorized - Invalid Credentials
+                requestId: REQ-t59f32eg-3181-52t6-13wc-6g7h9179u8c3
+        '403':
+          description: Forbidden - Access to the requested resource is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 403
+                title: Access Denied
+                correlationId: 01ae70f6-d756-4352-b219-b7ee4820f184
+                code: E403100
+                cause: Not an admin user
+                requestId: REQ-e48e44df-6290-43e4-85eb-8f8a8258e1d8
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+  /featureGroups/{featureGroupId}/features:
+    get:
+      tags:
+      - Feature Groups
+      summary: Get feature group with its features
+      description: Endpoint to get a feature group with its associated features.
+      operationId: getFeatureGroupWithFeatures
+      parameters:
+      - name: featureGroupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Feature group with features
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureGroupWithFeaturesDto'
+              example:
+                featureGroup:
+                  id: a6b8fe28-39b3-4df1-8a6c-56d92c79fc97
+                  name: Test Feature Group
+                  description: Test Feature Group Description
+                  createdAt: '2023-07-01T14:30:00Z'
+                  modifiedAt: '2023-07-01T14:35:10Z'
+                  features:
+                  - id: d3f9c6ac-87b7-4d2e-9465-4d3a5c852b2a
+                    name: Test feature
+                    description: Test feature description
+                    createdAt: '2023-07-03T13:30:00Z'
+                    modifiedAt: '2023-07-03T13:35:10Z'
+        '400':
+          description: Invalid argument type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 400
+                title: Invalid argument type
+                correlationId: 62bac32b-ba4b-4965-9155-5a0ffd9d3564
+                code: E400104
+                cause: 'Invalid argument type: featureGroupId, expected UUID'
+        '404':
+          description: Feature group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 404
+                title: Not Found
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E404100
+                cause: Feature group not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                status: 500
+                title: Internal Server Error
+                correlationId: 414ed0d4-5804-4173-a136-404ffed07c69
+                code: E500100
+      security:
+      - Bearer: []
+      - apiKey: []
+components:
+  schemas:
+    UnauthorizedErrorResponseDto:
+      required:
+      - error
+      - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
+          type: string
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
+    FeatureGroupDto:
+      required:
+      - createdAt
+      - description
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
+        name:
+          type: string
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature group.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature group was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature group was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+    PageFeatureGroupDto:
+      required:
+      - content
+      - totalElements
+      - totalPages
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureGroupDto'
+        totalElements:
+          type: integer
+          description: Total number of elements
+          format: int64
+          example: 2
+        totalPages:
+          type: integer
+          description: Total number of pages
+          format: int32
+          example: 1
+    FeatureDto:
+      required:
+      - createdAt
+      - description
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the feature.
+          format: uuid
+          example: 2550e4f5-547d-43ea-adf8-e3d3ff281583
+        name:
+          type: string
+          description: The name of the new feature.
+          enum:
+          - ALL_TRUCK_FEATURE
+          - ASSISTANT_LANDING
+          - ASSISTANT_NAVIGATION
+          - CUSTOM_BRANDING
+          - HIDE_NON_TRUCK_MODES
+          - LIVE_TRACKING
+          - ORGANIZATION_MANAGER
+          - READ_MONTHLY_ACTIVE_DEVICES_REPORT
+          - READ_TRACKING_REPORT
+          - WIFI_ONLY_MAP_DOWNLOAD
+        description:
+          type: string
+          description: A brief description of the feature.
+          example: Feature Description
+        createdAt:
+          type: string
+          description: The date and time when the feature was created.
+          format: date-time
+          example: '2023-07-24T17:29:03Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature was last modified.
+          format: date-time
+          example: '2023-07-24T17:29:03Z'
+    FeatureGroupWithFeaturesDto:
+      required:
+      - featureGroup
+      type: object
+      properties:
+        featureGroup:
+          $ref: '#/components/schemas/FeatureGroupFeatureDto'
+    FeatureGroupFeatureDto:
+      required:
+      - createdAt
+      - description
+      - features
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 878bb615-3fbd-415f-85cf-e496da3596cb
+        name:
+          type: string
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        features:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureDto'
+    ErrorResponseDto:
+      required:
+      - correlationId
+      - status
+      - title
+      type: object
+      properties:
+        status:
+          type: integer
+          description: The HTTP status code
+          format: int32
+          example: 400
+        title:
+          type: string
+          description: Human-readable error description
+          example: Validation Error
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+          example: c5b92188-5eea-452a-a2e1-08c9a53bb5b9
+        code:
+          type: string
+          description: Error code
+          example: E500100
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: 'name: must not be blank'
+        action:
+          type: string
+          description: Human-readable action for the user
+          example: 'null'
+        requestId:
+          type: string
+          description: Request identifier provided by the user via `x-request-id` header
+          example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+  securitySchemes:
+    Bearer:
+      type: http
+      description: Bearer Access Token issued to either the User or Client.
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      description: API key from the HERE Platform Application
+      name: apiKey
+      in: query

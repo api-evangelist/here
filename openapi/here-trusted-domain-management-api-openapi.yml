@@ -1,0 +1,584 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Trusted Domain Management API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Trusted Domain Management
+  description: Trusted Domain Management APIs enable authorized identities to manage URIs to register with an appliication
+paths:
+  /apps/{app}/trustedDomainsEnabled:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    put:
+      tags:
+      - Trusted Domain Management
+      summary: Enable Trusted Domains for an application
+      operationId: enableTrustedDomains
+      description: 'Enables Trusted Domains for the application. A maximum of 3000 Trusted Domains per application are allowed.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+    delete:
+      tags:
+      - Trusted Domain Management
+      summary: Disable Trusted Domains for an application
+      operationId: disableTrustedDomains
+      description: 'Disables Trusted Domains for the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+    get:
+      tags:
+      - Trusted Domain Management
+      summary: Retrieve whether Trusted Domains is enabled/disabled for an application
+      operationId: getTrustedDomainsEnabled
+      description: 'Whether Trusted Domains is enabled, or disabled, for the application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEnableTrustedDomainsResponse'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+  /apps/{app}/trustedDomains/{trustedDomainUri}:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/TrustedDomainUri'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    put:
+      tags:
+      - Trusted Domain Management
+      summary: Add a Trusted Domain to an application
+      operationId: addTrustedDomain
+      description: 'Add a Trusted Domain to an application. A maximum of 3000 Trusted Domains per application are allowed.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            * 400203 - Invalid Trusted Domain URI.
+
+            * 400368 - Trusted Domain URI too long.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+        '422':
+          description: '* 422000 - Maximum number of Trusted Domains reached
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many Trusted Domains being added or deleted. Wait for a while before retrying the request.
+
+            '
+    get:
+      tags:
+      - Trusted Domain Management
+      summary: Retrieve a Trusted Domain associated with an application
+      operationId: getTrustedDomain
+      description: 'Retrieve a Trusted Domain associated with an application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            * 400203 - Invalid Trusted Domain URI.
+
+            * 400368 - Trusted Domain URI too long.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            * 404922 - No Trusted Domain exists with the given URI.
+
+            '
+    delete:
+      tags:
+      - Trusted Domain Management
+      summary: Delete a Trusted Domain associated with an application
+      operationId: deleteTrustedDomain
+      description: 'Delete a Trusted Domain associated with an application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            * 400203 - Invalid Trusted Domain URI.
+
+            * 400368 - Trusted Domain URI too long.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            * 404922 - No Trusted Domain exists with the given URI.
+
+            '
+  /apps/{app}/trustedDomains:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      tags:
+      - Trusted Domain Management
+      summary: Add multiple Trusted Domains to an application
+      operationId: addManyTrustedDomains
+      description: 'Add Trusted Domains to an application. A maximum of 3000 Trusted Domains per application are allowed.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustedDomainsRequest'
+      responses:
+        '204':
+          description: No Content. If all Trusted Domains were added.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '207':
+          description: Partial success. Response body contains additional information.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustedDomainPartialSuccessResponse'
+        '400':
+          description: '* 400367 - At least one of the Trusted Domain URIs is invalid.
+
+            * 400368 - At least one of the Trusted Domain URIs too long.
+
+            * 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+        '422':
+          description: '* 422000 - Maximum number of Trusted Domains reached
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many Trusted Domains being added or deleted. Wait for a while before retrying the request.
+
+            '
+    get:
+      parameters:
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit10'
+      tags:
+      - Trusted Domain Management
+      summary: Retrieve a list of Trusted Domains associated with an application
+      operationId: listTrustedDomains
+      description: 'Retrieve a list of Trusted Domains associated with an application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustedDomainPageWToken'
+        '400':
+          description: '* 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+    delete:
+      tags:
+      - Trusted Domain Management
+      summary: Delete multiple Trusted Domains associated with an application
+      operationId: deleteManyTrustedDomains
+      description: 'Delete many Trusted Domains associated with an application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - UserOrClientBearerToken: []
+      parameters:
+      - $ref: '#/components/parameters/ListParam'
+      responses:
+        '204':
+          description: No Content. If all Trusted Domains were deleted.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '207':
+          description: Partial success. Response body contains additional information.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustedDomainPartialSuccessResponse'
+        '400':
+          description: '* 400367 - At least one of the Trusted Domain URI is invalid.
+
+            * 400368 - At least one of the Trusted Domain URI too long.
+
+            * 400288 - Invalid app HRN.
+
+            '
+        '404':
+          description: '* 404660 - No app exists with the given HRN.
+
+            '
+        '429':
+          description: '* 429003 - Request blocked because of too many Trusted Domains being added or deleted. Wait for a while before retrying the request.
+
+            '
+components:
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  parameters:
+    ListParam:
+      in: query
+      name: list
+      required: true
+      description: Comma separated list of Trusted Domain URIs. Maximum of 10. Must be URL-encoded, if reserved characters ":/?#[]@!$&'()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+      example: 2MZr9AInTFk45NAU8ClIza2Yw7w_AXyUyM4ChvtO7bY
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    Limit10:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 10 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 10
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    TrustedDomainUri:
+      in: path
+      required: true
+      name: trustedDomainUri
+      schema:
+        type: string
+      description: "URI for a Trusted Domain. A Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
+      example: https://example.com:1080
+  schemas:
+    TrustedDomainError:
+      type: object
+      required:
+      - trustedDomain
+      - status
+      properties:
+        trustedDomain:
+          type: string
+          example: https://www.example.com
+          description: A Trusted Domain URI.
+        status:
+          type: integer
+          example: 400367
+          description: 204 if successfully added/deleted, else a Here Account error code.
+    TrustedDomainsRequestItem:
+      type: string
+      description: "URI for a Trusted Domain.\n\nA Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
+    TrustedDomainPartialSuccessResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/TrustedDomainError'
+        example:
+          total: 2
+          pageToken: 7afd7f8e94eb4844ba45
+          limit: 1
+          items:
+          - trustedDomain: https://www.example.com
+            status: 204
+    TrustedDomainsRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrustedDomainsRequestItem'
+          minItems: 1
+          maxItems: 10
+          example:
+          - https://www.example.com:1080
+          - www.example.com
+    GetEnableTrustedDomainsResponse:
+      type: object
+      required:
+      - trustedDomainsEnabled
+      properties:
+        trustedDomainsEnabled:
+          type: boolean
+          example: true
+          description: If Trusted Domains are enabled for the App.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    TrustedDomainPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              example: https://www.example.com
+              description: A Trusted Domain URI.
+        example:
+          total: 5
+          pageToken: 7afd7f8e94eb4844ba45
+          limit: 2
+          items:
+          - https://www.example.com
+          - 127.0.0.1
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

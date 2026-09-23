@@ -1,0 +1,220 @@
+openapi: 3.2.0
+info:
+  title: Lookup Service v1 Resources API
+  description: 'The API Lookup Service is a platform service with following goals:
+
+    - Redirect users to REST APIs related to a resource identified by an HRN
+
+    - Given an HRN, provide parameters to be used in REST APIs calls.
+
+    - Discovery of other platform APIs.'
+  version: 1.0.4
+  x-olp-service:
+    name: lookup
+    version: v1
+servers:
+- url: https://api-lookup.data.api.platform.here.com/lookup/v1
+security:
+- Bearer: []
+tags:
+- name: Resources
+  description: Lookup of APIs related to resources identified by an HRN
+paths:
+  /resources/{hrn}/apis:
+    get:
+      tags:
+      - Resources
+      summary: Return the list of APIs for a given resource
+      description: Return the list of APIs for a given resource identified by hrn. This response is valid for the time specified by 'Cache-Control' header.
+      operationId: API Lookup Service v1 resourceAPIList
+      parameters:
+      - name: hrn
+        in: path
+        description: The HRN identifying the resource
+        required: true
+        schema:
+          type: string
+          format: uri
+      - name: region
+        in: query
+        description: If you want to look up a specific region for a given resource.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The list of APIs that can be used with the resource
+          headers:
+            Cache-Control:
+              description: Standard HTTP header defining validity of the response as per [RFC 7234](https://tools.ietf.org/html/rfc7234#section-5.2).
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/API'
+        '400':
+          description: User Error - Invalid input is provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Bad Request
+                description: Request contains hrn with unknown structure of resource
+        '404':
+          description: Error looking up the API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: Resource not Found
+                description: Requested resource not found
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 500
+                message: Internal Server Error
+                description: There was an internal server error.
+      x-olp-access-type: authenticated
+  /resources/{hrn}/apis/{api}/{version}:
+    get:
+      tags:
+      - Resources
+      summary: Return details of a single API for a given resource
+      description: Return details of a single API for a given resource identified by hrn, api and version. This response is valid for the time specified by 'Cache-Control' header.
+      operationId: API Lookup Service v1 resourceAPI
+      parameters:
+      - name: hrn
+        in: path
+        description: The HRN identifying the resource
+        required: true
+        schema:
+          type: string
+          format: uri
+      - name: api
+        in: path
+        description: The identifier of the API
+        required: true
+        schema:
+          pattern: ^[a-z0-9\-_]+$
+          type: string
+      - name: version
+        in: path
+        description: The version of the API
+        required: true
+        schema:
+          pattern: ^v[0-9]+(\.[0-9]+)?$
+          type: string
+      - name: region
+        in: query
+        description: If you want to look up a specific region for a given resource.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Details of the requested API for the resource
+          headers:
+            Cache-Control:
+              description: Standard HTTP header defining validity of the response as per [RFC 7234](https://tools.ietf.org/html/rfc7234#section-5.2).
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/API'
+        '400':
+          description: User Error - Invalid input is provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Bad Request
+                description: Request contains hrn with unknown structure of resource
+        '404':
+          description: Error looking up the API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: Resource not Found
+                description: Requested resource not found
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 500
+                message: Internal Server Error
+                description: There was an internal server error.
+      x-olp-access-type: authenticated
+components:
+  schemas:
+    Error:
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Repetition of the HTTP error code
+          format: int32
+        message:
+          type: string
+          description: Short description of the error
+        description:
+          type: string
+          description: Complete description of the error
+    API:
+      required:
+      - api
+      - baseURL
+      - version
+      type: object
+      properties:
+        api:
+          pattern: ^[a-z0-9\-_]+$
+          type: string
+          description: The name of the API.
+          example: config
+        version:
+          pattern: ^v[0-9]+(\.[0-9]+)?$
+          type: string
+          description: The version of the API.
+          example: v1
+        baseURL:
+          type: string
+          description: 'The base URL to use when constructing HTTP calls to the API. Concatenate the base URL with the API path shown in the API specification. For example, for the ''config'' API''s catalog list endpoint, you would construct the URL as follows: ''https://config.data.api.platform.here.com/config/v1'' + ''/catalogs'' where the first part of the URL is the base URL and the second part is the API path.'
+          format: url
+          example: https://config.data.api.platform.here.com/config/v1
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+      name: Authorization
+      in: header
+externalDocs:
+  description: The developer guide is available here.
+  url: https://www.here.com/docs/category/api-lookup

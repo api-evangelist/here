@@ -1,0 +1,519 @@
+openapi: 3.2.0
+info:
+  title: Here Fuel types and brands API
+  version: '1.0'
+  description: 'Operations tagged Fuel types and brands across 2 of this provider''s published API definitions: here-fuel-prices-v2-openapi.yml, here-fuel-prices-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://fuel-v2.cc.api.here.com
+  description: Production environment URL
+- url: https://fuel-v2.cit.cc.api.here.com
+  description: Staging environment URL
+- url: https://fuel.hereapi.com/v3
+  description: Production environment URL
+tags:
+- name: Fuel types and brands
+  description: Get available fuel types and brands
+paths:
+  /fuel/fueltypes:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      tags:
+      - Fuel types and brands
+      summary: Fuel types
+      description: Returns all available fuel types. Fuel type id can be used as fuelType query parameter in Fuel stations search
+      operationId: Fuel Prices API v2 fuelTypes
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelTypes'
+              examples:
+                dieselFuelTypesExample:
+                  $ref: '#/components/examples/FuelTypesExample'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+      security:
+      - Bearer: []
+    servers:
+    - url: https://fuel-v2.cc.api.here.com
+      description: Production environment URL
+    - url: https://fuel-v2.cit.cc.api.here.com
+      description: Staging environment URL
+  /fuel/fuelbrands:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      tags:
+      - Fuel types and brands
+      summary: Fuel brands
+      description: Returns all available fuel station brands. Fuel station brand can be used as brands query parameter in Fuel stations search
+      operationId: Fuel Prices API v2 fuelBrands
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelBrands'
+              examples:
+                fuelBrandsExample:
+                  $ref: '#/components/examples/FuelBrandsExample'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+      security:
+      - Bearer: []
+    servers:
+    - url: https://fuel-v2.cc.api.here.com
+      description: Production environment URL
+    - url: https://fuel-v2.cit.cc.api.here.com
+      description: Staging environment URL
+  /fuelTypes:
+    get:
+      tags:
+      - Fuel types and brands
+      summary: Fuel types
+      description: Returns all available fuel types. Fuel type id can be used as fuelType query parameter in Fuel stations search
+      operationId: Fuel Prices API v3 fuelTypes
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelTypes'
+              examples:
+                dieselFuelTypesExample:
+                  $ref: '#/components/examples/FuelTypesExample'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '429':
+          $ref: '#/components/responses/Error429Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+        '502':
+          $ref: '#/components/responses/Error502Response'
+        '503':
+          $ref: '#/components/responses/Error503Response'
+        '504':
+          $ref: '#/components/responses/Error504Response'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://fuel.hereapi.com/v3
+      description: Production environment URL
+  /fuelBrands:
+    get:
+      tags:
+      - Fuel types and brands
+      summary: Fuel brands
+      description: Returns all available fuel station brands. Fuel station brand can be used as brands query parameter in Fuel stations search
+      operationId: Fuel Prices API v3 fuelBrands
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      - name: country
+        in: query
+        description: ISO 3166-1 alpha-3 country code for which list of brands is returned
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelBrands_2'
+              examples:
+                fuelBrandsExample:
+                  $ref: '#/components/examples/FuelBrandsExample_2'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '429':
+          $ref: '#/components/responses/Error429Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+        '502':
+          $ref: '#/components/responses/Error502Response'
+        '503':
+          $ref: '#/components/responses/Error503Response'
+        '504':
+          $ref: '#/components/responses/Error504Response'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://fuel.hereapi.com/v3
+      description: Production environment URL
+components:
+  examples:
+    FuelBrandsExample:
+      value:
+        fuelBrands:
+        - 1 Stop
+        - 1-2-3
+        - 1a autoservice
+        - 25 Chasov
+        - 3A Barontini
+        - 4 Petroli
+        - 7-Eleven
+        - Agip
+        - Shell
+    InternalServerErrorExample:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E612010
+        correlationId: c1281609-7a9a-45d0-8438-f4ac82c4e2c2
+    FuelTypesExample:
+      value:
+        fuelTypes:
+        - id: -1
+          name: All Truck Diesel
+        - id: -2
+          name: All Diesel
+        - id: 1
+          name: Diesel
+          parentIds:
+          - -2
+        - id: 6
+          name: Bio-Diesel
+          parentIds:
+          - -2
+        - id: 7
+          name: Bio-Diesel 10
+          parentIds:
+          - -2
+        - id: 10
+          name: Diesel plus
+          parentIds:
+          - -2
+        - id: 12
+          name: Red-Diesel
+          parentIds:
+          - -2
+    InternalServerErrorExample_2:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E612010
+        correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
+    504errorResponseExample:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E612101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    FuelBrandsExample_2:
+      value:
+        fuelBrands:
+        - name: 1 Stop
+        - name: 1-2-3
+        - name: 1a autoservice
+        - name: 25 Chasov
+        - name: 3A Barontini
+        - name: 4 Petroli
+        - name: 7-Eleven
+        - name: Agip
+        - name: Shell
+    502errorResponseExample:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E612201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+  schemas:
+    FuelBrands:
+      type: object
+      description: Fuel station brand list
+      properties:
+        fuelBrands:
+          description: List of available fuel brands
+          type: array
+          items:
+            type: string
+    FuelTypes:
+      type: object
+      description: Fuel type list
+      properties:
+        fuelTypes:
+          description: List of available fuel types
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelType'
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
+    FuelType:
+      type: object
+      description: Fuel type
+      properties:
+        id:
+          description: Unique fuel type identifier
+          type: integer
+          format: int32
+          example: 1
+        name:
+          description: Fuel type name
+          type: string
+          example: Regular
+        parentIds:
+          description: "Container for ParentIds data type.\nE.g. if fuelType in search stations query is -3, returns all stations with fuel type that has parentId = -3. \nThis can be used to search stations with e.g. all types of Diesel - diesel, Bio-diesel, Red-diesel, etc.\n"
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: -3
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code
+        title:
+          type: string
+          description: Human-readable error description
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+        action:
+          type: string
+          description: Human-readable action for the user
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    FuelBrands_2:
+      type: object
+      description: Fuel station brand list
+      properties:
+        fuelBrands:
+          description: List of available fuel brands
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelBrand'
+    FuelBrand:
+      type: object
+      description: Fuel brand detail
+      properties:
+        name:
+          type: string
+          description: Fuel brand name
+          example: Shell
+      required:
+      - name
+  responses:
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+    Error503Response:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 503
+            code: E611001
+            title: Service not available
+            cause: Service current not available
+            action: Retry later
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error429Response:
+      description: API response in case of too many requests
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 429
+            code: E611125
+            title: Too many requests
+            cause: Request rate limit reached
+            action: Retry later, lower the request rate
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+  headers:
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+  parameters:
+    X-Request-Id:
+      name: X-Request-Id
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/fuel-prices
+x-refined-from:
+- here-fuel-prices-v2-openapi.yml
+- here-fuel-prices-v3-openapi.yml

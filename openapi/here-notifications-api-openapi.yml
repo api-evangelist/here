@@ -5,9 +5,7 @@ info:
 
     Generated best-effort from public docs at
 
-    https://docs.here.com/geocoding-and-search/.
-
-    '
+    https://docs.here.com/geocoding-and-search/.'
   version: 7.0.0
   contact:
     name: HERE Technologies
@@ -35,6 +33,8 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getNotifications
+      x-operation-id-source: derived
     post:
       tags:
       - Notifications
@@ -56,6 +56,8 @@ paths:
       responses:
         '201':
           description: Created
+      operationId: postNotifications
+      x-operation-id-source: derived
 components:
   securitySchemes:
     apiKey:

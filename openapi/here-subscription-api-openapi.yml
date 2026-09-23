@@ -1,0 +1,599 @@
+openapi: 3.2.0
+info:
+  description: The `config` service provides basic catalog management operations. It manages all platform resources needed for different kinds of catalogs and operations on them.
+  version: 1.3.4
+  title: Config API v1 Subscription API
+  x-olp-service:
+    name: config
+    version: v1
+servers:
+- url: https://use.apilookup.for.a.base.url/
+security:
+- Bearer: []
+tags:
+- name: Subscription
+  description: Manages subscriptions.
+paths:
+  /subscriptions:
+    get:
+      tags:
+      - Subscription
+      summary: Gets a list of all subscriptions
+      description: Lists all subscriptions that your account has access to.
+      operationId: Config API v1 listSubscriptions
+      parameters:
+      - $ref: '#/components/parameters/billingTag'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      responses:
+        '200':
+          description: Paginated list of subscription configurations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+          links:
+            NextPageTokenLink:
+              operationId: listSubscriptions
+              parameters:
+                pageToken: $response.body#/nextPageToken
+              description: 'The `nextPageToken` value returned in the response is used as
+
+                the `pageToken` query parameter in `GET /subscriptions`.
+
+                '
+            PreviousPageTokenLink:
+              operationId: listSubscriptions
+              parameters:
+                pageToken: $response.body#/previousPageToken
+              description: 'The `previousPageToken` value returned in the response is used as
+
+                the `pageToken` query parameter in `GET /subscriptions`.
+
+                '
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      x-olp-access-type: service
+    post:
+      tags:
+      - Subscription
+      summary: Creates a subscription
+      description: Creates a subscription between the source catalog/layer and target catalog/layer.
+      operationId: Config API v1 createSubscription
+      parameters:
+      - $ref: '#/components/parameters/X-Idempotency-Key'
+      requestBody:
+        description: A subscription configuration object.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequestBody'
+      responses:
+        '202':
+          description: Accepted - your request was received and is being processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusToken'
+          links:
+            CreateStatusTokenLink:
+              operationId: getSubscriptionStatus
+              parameters:
+                statusToken: $response.body#/statusToken
+              description: 'The `statusToken` value returned in the response is used as
+
+                the `statusToken` parameter in `GET /subscriptions/status/{statusToken}`.
+
+                '
+        '400':
+          description: Bad Request - indicates that your request failed fast validation due to an issue, such as syntax or logical errors.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: 'Conflict - indicates that:
+
+            * a subscription token with the same `x-idempotency-key` but different subscription already exists or is in the process of being created,
+
+            * or a subscription with the same source, destination, and type already exists.
+
+            '
+      x-olp-access-type: service
+  /subscriptions/{subscriptionHrn}:
+    parameters:
+    - name: subscriptionHrn
+      in: path
+      required: true
+      description: The HERE Resource Name (HRN) of the subscription.
+      schema:
+        type: string
+      example: hrn:here:data-subscription::olp-here:my-subscription-7d93563980d94f1b
+    - $ref: '#/components/parameters/billingTag'
+    get:
+      tags:
+      - Subscription
+      summary: Gets the configuration of the subscription
+      description: Returns the configuration of the subscription associated with the HRN.
+      operationId: Config API v1 getSubscription
+      responses:
+        '200':
+          description: OK
+          x-baseType: SubscriptionBase
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - A subscription with the specified HRN doesn't exist or access to this subscription is forbidden.
+        '404':
+          description: Not Found - A subscription with the specified HRN doesn't exist.
+      x-olp-access-type: service
+    head:
+      tags:
+      - Subscription
+      summary: Checks the existence of a subscription
+      description: Checks whether a subscription with the specified HRN exists.
+      operationId: Config API v1 checkSubscriptionExists
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - A subscription with the specified HRN doesn't exist or access to this subscription is forbidden.
+        '404':
+          description: Not Found - A subscription with the specified HRN doesn't exist.
+      x-olp-access-type: service
+    delete:
+      tags:
+      - Subscription
+      summary: Deletes a subscription
+      description: Deletes a subscription associated with the HRN.
+      operationId: Config API v1 deleteSubscription
+      parameters:
+      - $ref: '#/components/parameters/X-Idempotency-Key'
+      responses:
+        '202':
+          description: Accepted - your request was received and is being processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusToken'
+          links:
+            DeleteStatusTokenLink:
+              operationId: getSubscriptionStatus
+              parameters:
+                statusToken: $response.body#/statusToken
+              description: 'The `statusToken` value returned in the response is used as
+
+                the `statusToken` parameter in `GET /subscriptions/status/{statusToken}`.
+
+                '
+        '400':
+          description: Bad Request - indicates that your request failed fast validation due to an issue, such as syntax or logical errors.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Access to this subscription is forbidden.
+        '404':
+          description: Not Found - A subscription with the specified HRN doesn't exist.
+        '409':
+          description: Conflict - indicates that a subscription token with the same `x-idempotency-key` but a different subscription already exists or is in the process of being deleted.
+      x-olp-access-type: service
+  /subscriptions/status/{statusToken}:
+    get:
+      tags:
+      - Subscription
+      summary: Gets the status of the subscription create/delete process
+      description: Returns the configuration of the subscription associated with the HRN.
+      operationId: Config API v1 getSubscriptionStatus
+      parameters:
+      - $ref: '#/components/parameters/billingTag'
+      - name: statusToken
+        in: path
+        required: true
+        description: Status token from the create/delete subscription response.
+        schema:
+          type: string
+        example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatus'
+          links:
+            SubscriptionHrnLink:
+              operationId: getSubscription
+              parameters:
+                subscriptionHrn: $response.body#/subscriptionHrn
+              description: 'The `subscriptionHrn` value returned in the response is used as
+
+                the `subscriptionHrn` parameter in the `GET /subscriptions/{subscriptionHrn}` and `DELETE /subscriptions/{subscriptionHrn}`.
+
+                '
+        '400':
+          description: Bad Request - indicates that your request failed fast validation due to an issue, such as syntax or logical errors.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found - no action is associated with the provided token.
+  /subscriptions/batch:
+    post:
+      tags:
+      - Subscription
+      summary: Creates multiple subscriptions in a single request
+      description: Creates multiple subscriptions between source and target catalogs/layers in batch.
+      operationId: Config API v1 batchCreateSubscriptions
+      requestBody:
+        description: Batch subscription creation request.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - items
+              properties:
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    $ref: '#/components/schemas/CreateSubscriptionRequestBody'
+      responses:
+        '202':
+          description: Accepted - your batch request was received and is being processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusToken'
+        '400':
+          description: Bad Request - indicates that your request failed fast validation due to an issue, such as syntax or logical errors.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: 'Conflict - indicates that:
+
+            * a request with the same `x-idempotency-key` but different payload already exists,
+
+            * or one or more subscriptions in the request already exist.
+
+            '
+      x-olp-access-type: service
+  /subscriptions/batch/status/{statusToken}:
+    get:
+      tags:
+      - Subscription
+      summary: Gets status of batch subscripton creation
+      description: Status of batch subscription creation
+      operationId: Config API v1 batchGetSubscriptionStatus
+      parameters:
+      - name: statusToken
+        in: path
+        required: true
+        description: Status token from the create/delete subscription response.
+        schema:
+          type: string
+        example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchSubscriptionStatusResponse'
+        '400':
+          description: Bad Request - indicates that your request failed fast validation due to an issue, such as syntax or logical errors.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found - no action is associated with the provided token.
+components:
+  schemas:
+    BatchSubscriptionStatusResponse:
+      type: object
+      required:
+      - batchRequestId
+      - status
+      - subscriptions
+      properties:
+        batchRequestId:
+          type: string
+          description: Unique identifier for the batch subscription request.
+          example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
+        status:
+          $ref: '#/components/schemas/BatchRequestStatus'
+        subscriptions:
+          type: array
+          description: Status of each subscription in the batch request.
+          items:
+            $ref: '#/components/schemas/SubscriptionStatus'
+    BatchRequestStatus:
+      type: string
+      enum:
+      - PENDING
+      - SUCCESS
+      - FAILED
+    SubscriptionBase:
+      type: object
+      required:
+      - subscriptionName
+      - sourceCatalog
+      - sourceLayer
+      - destinationCatalog
+      - destinationLayer
+      - owner
+      - version
+      - created
+      - updated
+      - status
+      properties:
+        subscriptionName:
+          type: string
+          example: my-subscription
+          description: The ID to use when referring to this subscription programmatically.
+          minLength: 3
+          maxLength: 46
+          pattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
+        subscriptionHrn:
+          type: string
+          readOnly: true
+          example: hrn:here:data-subscription::olp-here:my-subscription-7d93563980d94f1b
+          description: The HERE Resource Name (HRN) of subscription
+        description:
+          type: string
+          description: A detailed description of the subscription.
+          example: Subscription to a layer
+          minLength: 0
+          maxLength: 10000
+        sourceCatalog:
+          type: string
+          example: hrn:here:data::olp-here:my-source-catalog
+          description: The HERE Resource Name (HRN) of the subscription source catalog.
+        sourceLayer:
+          type: string
+          example: source-layer
+          description: The ID of the subscription source layer.
+        destinationCatalog:
+          type: string
+          example: hrn:here:data::olp-here:my-destination-catalog
+          description: The HERE Resource Name (HRN) of the subscription destination catalog.
+        destinationLayer:
+          type: string
+          example: destination-layer
+          description: The ID of the subscription destination layer.
+        filters:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+          description: Optional JSON object containing filtering criteria. This filter is consumed by downstream systems (e.g., MPA jobs) to determine which features or records should be selected for processing. The structure of this object is flexible and may contain arbitrary key-value pairs depending on the consuming system's requirements.
+          example:
+            jsonPaths:
+            - $.properties.name
+            - $[?(@.properties.type == 'building')]
+        owner:
+          type: object
+          readOnly: true
+          description: Information about the subscription's creator.
+          required:
+          - creator
+          - organisation
+          properties:
+            creator:
+              $ref: '#/components/schemas/Creator'
+            organisation:
+              $ref: '#/components/schemas/Organisation'
+        version:
+          type: integer
+          format: int32
+          readOnly: true
+          description: Version of the subscription configuration.
+        created:
+          type: string
+          example: '2017-08-04T17:19:03.853Z'
+          description: The subscription creation timestamp in ISO 8601 format.
+          readOnly: true
+        updated:
+          type: string
+          example: '2017-08-04T17:19:03.853Z'
+          description: The subscription's last update timestamp in ISO 8601 format.
+          readOnly: true
+        status:
+          type: object
+          readOnly: true
+          description: Subscription status information.
+          required:
+          - state
+          properties:
+            state:
+              type: string
+              enum:
+              - active
+              - failed
+              - deleted
+              description: 'State:
+
+                * `active` - Subscription was created successfully and is active.
+
+                * `failed` - The operation failed.
+
+                * `deleted` - Subscription was deleted successfully.
+
+                * `disabled` - Subscription in disable state because the source catalog/layer or target catalog/layer was removed.
+
+                '
+            message:
+              type: string
+              example: Some error message
+    SubscriptionList:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          description: Current page size limit.
+          example: 100
+        nextPageToken:
+          type: string
+        previousPageToken:
+          type: string
+        items:
+          type: array
+          x-baseType: SubscriptionBase
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
+    SubscriptionStatusToken:
+      type: object
+      required:
+      - statusToken
+      properties:
+        statusToken:
+          type: string
+          description: Token to check subscription create or delete status.
+          example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: HERE
+          description: The ID of the customer organisation relating to this catalog
+    Creator:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the user or application that initially created the catalog
+          example: Mejk6DMxAq7kKI5lt2T2
+    SubscriptionInteractiveMapLayer:
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionBase'
+      - type: object
+        required:
+        - interactiveMapSubscription
+        properties:
+          interactiveMapSubscription:
+            type: object
+            description: Interactive map subscription.
+            required:
+            - type
+            properties:
+              type:
+                type: string
+                enum:
+                - perFeature
+                - perTransaction
+                - contentChange
+                description: 'Type:
+
+                  * `perFeature` - Per feature interactive map subscription type.
+
+                  * `perTransaction` - Per transaction interactive map subscription type.
+
+                  * `contentChange` - Content change interactive map subscription type.
+
+                  '
+    SubscriptionStatus:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - pending
+          - failed
+          - active
+          - deleted
+          description: 'Status:
+
+            * `pending` - Operation is in progress.
+
+            * `failed` - The operation failed.
+
+            * `active` - Subscription was successfully created and is active.
+
+            * `deleted` - Subscription was successfully deleted.
+
+            '
+        subscriptionHrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the newly created subscription.
+          example: hrn:here:data-subscription::olp-here:my-subscription-7d93563980d94f1b
+    CreateSubscriptionRequestBody:
+      x-baseType: SubscriptionBase
+      oneOf:
+      - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
+  parameters:
+    pageToken:
+      name: pageToken
+      description: Token to access other pages. To access next page use the `nextPageToken` fields in the response or  `previousPageToken` to access previous page.
+      in: query
+      required: false
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+    X-Idempotency-Key:
+      in: header
+      name: x-idempotency-key
+      description: '`x-idempotency-key` is the unique value generated by the client to create a subscription request.
+
+        Any additional retry requests must have the same `x-idempotency-key` header value and the same body content as the first subscription request.
+
+        If the retry request body content is different, then the server will return a 409 status code.
+
+        It is recommended to use UUID v4 for `x-idempotency-key` value.
+
+        Minimum length: 10, maximum length: 255.
+
+        '
+      required: true
+      schema:
+        type: string
+      example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+    billingTag:
+      name: billingTag
+      in: query
+      description: The `billingTag` parameter is an optional free-form tag that you can use to group billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/data-api

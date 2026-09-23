@@ -1,0 +1,727 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Access Filters API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Access Filters
+  description: Manage access control boundaries for identities
+paths:
+  /filters:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/realmFilters'
+      - $ref: '#/components/parameters/projectFilters'
+      - $ref: '#/components/parameters/typeFilters'
+      - $ref: '#/components/parameters/externalIdFilters'
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/limit'
+      tags:
+      - Access Filters
+      summary: Get Access Filters
+      description: 'Retrieve the list of Access Filters available.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getAccessFilters
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilterPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Access Filters
+      summary: Create Access Filter
+      description: 'Create an Access Filter available to be attached to a user or app to control access.
+
+        A maximum of 100 Access Filters may be created in a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createAccessFilter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFilterRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /filters/{filterHrn}:
+    parameters:
+    - $ref: '#/components/parameters/filterHrn'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Access Filters
+      summary: Get Access Filter
+      description: 'Get the details of an Access Filter.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getAccessFilter
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+      - Access Filters
+      summary: Update Access Filter
+      description: 'Update an Access Filter.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: updateAccessFilter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFilterRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Access Filters
+      summary: Delete Access Filter
+      description: 'Delete an Access Filter.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteAccessFilter
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /filters/{filterHrn}/members:
+    parameters:
+    - $ref: '#/components/parameters/filterHrn'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/realmEntityType'
+      tags:
+      - Access Filters
+      summary: Get Access Filter Members
+      description: 'Get the list of realm members that are assigned this Access Filter.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilters"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getAccessFilterMembers
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilterMemberPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    typeFilters:
+      in: query
+      name: type
+      required: false
+      description: Only include Access Filters of the specified type.
+      schema:
+        type: string
+        enum:
+        - here-platform
+        - custom
+        - virtual
+    realmFilters:
+      in: query
+      name: realm
+      required: false
+      description: If true, only include Access Filters that could be attached to a realm
+      schema:
+        type: boolean
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    realmEntityType:
+      in: query
+      name: entityType
+      required: false
+      description: The type of members to return in the result. One of 'user', 'app', or 'car'. If this parameter is omitted, all entity types will be returned.
+      schema:
+        type: string
+        enum:
+        - user
+        - app
+        - car
+    externalIdFilters:
+      in: query
+      name: externalId
+      required: false
+      description: Only include virtual Access Filters that are associated with the specific externalId.
+      schema:
+        type: string
+    filterHrn:
+      in: path
+      name: filterHrn
+      required: true
+      description: HRN identifying the filter.
+      schema:
+        type: string
+      example: hrn:here:authorization::HERE:filter/FILTER-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+    count:
+      in: query
+      name: count
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    projectFilters:
+      in: query
+      name: project
+      required: false
+      description: If true, only include Access Filters that could be attached to a project
+      schema:
+        type: boolean
+  schemas:
+    AccessFilterMember:
+      type: object
+      properties:
+        memberHrn:
+          type: string
+          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        entityType:
+          type: string
+          enum:
+          - user
+          - app
+          - car
+    AccessFilterRequest:
+      oneOf:
+      - $ref: '#/components/schemas/AccessFilterCustomRequest'
+      - $ref: '#/components/schemas/AccessFilterVirtualRequest'
+    AccessFilter:
+      type: object
+      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+    AccessFilterVirtualProperties:
+      type: object
+      properties:
+        externalIds:
+          type: array
+          items:
+            type: string
+          description: 'Only included in virtual Access Filters.  The list of externalIds that this virtual Access Filter is linked
+
+            to.  Plans and ResourcePlans attached to this realm with one of the externalIds in this list are used as
+
+            the basis of this filter.  The list of Plans and ResourcePlans used may be further filtered **if** the
+
+            planAttachments or resourcePlanAttachments properties are also defined.  The statements in this filter are
+
+            automatically generated to allow access to each of the permissions and resources defined in those included
+
+            plans.
+
+            '
+          example:
+          - A-12345
+          - A-67890
+        planAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of plan attachments to filter.  Must match one of the top level externalIds specified
+
+                  for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              planHrns:
+                type: array
+                items:
+                  type: string
+                description: 'The list of planHrns that may be used as the basis of this virtual Access Filter''s statements for
+
+                  any plans that are attached to this realm with the given externalId.
+
+                  '
+                example:
+                - hrn:here:authorization::HERE:plan/PLAN-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+                - hrn:here:authorization::HERE:plan/PLAN-457c91d8-f67e-49e6-b629-e72c2f5b1036
+          description: 'Only included in virtual Access Filters.  The list of planAttachments that this virtual Access Filter is
+
+            linked to.  If this field is included, for the externalId of each list entry, **only** Plans that are
+
+            attached to this realm with the defined externalId **and** one of the defined planHrns will be used as the
+
+            basis of statements in this filter.  Any Plans attached to this realm with the given externalId that are
+
+            **not** in the list of defined planHrns will be excluded from the basis of this filter.  If this field is
+
+            omitted, or there is no entry for any one of the externalIds defined for this virtual Access Filter,
+
+            **all** of the Plans attached with the externalId will be used as the basis of statements in this filter.
+
+            '
+        resourcePlanAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of resource plan attachments to filter.  Must match one of the top level externalIds
+
+                  specified for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              resourcePlanHrns:
+                type: array
+                items:
+                  type: string
+                description: "The list of resourcePlanHrns that may be used as the basis of this virtual Access Filter's statements \nfor any resource plans that are attached to this realm with the given externalId.\n"
+                example:
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0000
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0001
+          description: 'Only included in virtual Access Filters.  The list of resourcePlanAttachments that this virtual Access
+
+            Filter is linked to.  If this field is included, for the externalId of each list entry, **only** Resource
+
+            Plans that are attached to this realm with the defined externalId **and** one of the defined
+
+            resourcePlanHrns will be used as the basis of statements in this filter.  Any Resource Plans attached to
+
+            this realm with the given externalId that are **not** in the list of defined resourcePlanHrns will be
+
+            excluded from the basis of this filter.  If this field is omitted, or there is no entry for any one of the
+
+            externalIds defined for this virtual Access Filter, **all** of the Plans attached with the externalId will
+
+            be used as the basis of statements in this filter.
+
+            '
+        mode:
+          type: string
+          enum:
+          - open
+          - strict
+          description: "Only included in virtual Access Filters.  The pattern of filter statements used in this virtual Access Filter.\n* **open** - All permissions and resources specified in both Plans and ResourcePlans attached to this realm\n  with the relevant externalIds are available via this filter with both scoped and unscoped access.  In\n  addition, all linkable resources are available in both scoped and unscoped access.\n* **strict** - All permissions specified in Plans attached to this realm with the relevant externalIds are\n  ONLY available via this filter with unscoped access.  All resources specified in ResourcePlans attached\n  to this realm with the relevant externalIds are ONLY available via this filter with scoped access.\n"
+          example: open
+        priority:
+          type: integer
+          description: 'Only included in virtual Access Filters.  The priority assigned to each filter statement in this virtual
+
+            Access Filter.
+
+            '
+          minimum: 0
+          maximum: 1000
+          example: 100
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    AccessFilterStatement:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Prose description of what this filter statement does.
+          example: Block evaluation of all unscoped permissions for any project scoped request.
+        permissions:
+          type: string
+          enum:
+          - unscoped
+          - scoped
+          - linkable
+          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
+          example: unscoped
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
+        service:
+          type: string
+          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
+
+            or the **serviceIdAlias** of the service.
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+        actions:
+          type: array
+          description: The specific action identifiers of the access request that will match this statement
+          items:
+            type: string
+          example:
+          - read
+        actionAccessLevel:
+          type: string
+          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
+          enum:
+          - read
+          - write
+          - default
+          - internal
+          example: read
+        resource:
+          type: string
+          description: The resource identifier of the access request that will match this statement
+          example: hrn:here:data::my-realm:service-catalog
+        scope:
+          type: string
+          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        evaluate:
+          type: boolean
+          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
+          example: true
+        priority:
+          type: integer
+          description: An integer representing the statement priority
+          minimum: 0
+          maximum: 1000
+          example: 1
+    AccessFilterMemberPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AccessFilterMember'
+    AccessFilterCommonProperties:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - here-platform
+          - custom
+          - virtual
+          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
+          example: here-platform
+        name:
+          type: string
+          description: The name of the filter
+          example: Strict Projects
+    AccessFilterVirtualRequest:
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - virtual
+            description: 'Identifies this request as a **virtual** Access Filter.  Must be **virtual**.
+
+              '
+            example: virtual
+    AccessFilterCustomRequest:
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - custom
+            description: 'Identifies this request as a **custom** Access Filter.  Must be **custom**.
+
+              '
+            example: custom
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    AccessFilterPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AccessFilter'
+    AccessFilterStatements:
+      type: object
+      properties:
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFilterStatement'
+          description: List of statements in this filter.
+    AccessFilterIdentifier:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the filter
+          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

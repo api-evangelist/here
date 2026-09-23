@@ -1,0 +1,1275 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Resource Info and Management API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Resource Info and Management
+  description: Resource Management and Information
+paths:
+  /resources:
+    parameters:
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/ResourceType'
+    - $ref: '#/components/parameters/Access'
+    - $ref: '#/components/parameters/Referenceable'
+    - $ref: '#/components/parameters/Linkable'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get a list of resources
+      operationId: getResources
+      description: 'Get a list of Resources that the caller is allowed to see based on the input query parameters.
+
+
+        **Note:**
+
+        - If the presented access token has **a project scope**:
+
+        - The response will only include resources from that project or,
+
+        - If **referenceable=true** or **linkable=true**, the response will ONLY include the resources that are available to the caller to
+
+        link to the project in the token''s project scope.
+
+        - If the presented access token has **no scope**:
+
+        - For access=**default** or access=**manage**:
+
+        - The response will include resources from all projects that the caller has access to.
+
+        - For raiEnabled types, the response will also include resources that exist outside of any project.
+
+        - For all other types, the response will NOT include resources that exist outside of any project.
+
+        - For access=**readOutsideProject**:
+
+        - For raiEnabled types, the response will ONLY include resources that exist outside of a project.
+
+        - For all other types, the response will be empty.
+
+        - For **referenceable=true** or **linkable=true**, the response will include the HERE public resources that are available
+
+        to the caller to link to ANY project and all resources available to be linked to ANY project via
+
+        Resource Plan Attachments or by virtue of being a Linkable resource to the realm
+
+        - raiEnabled types = [catalog, service, schema, artifact]
+
+
+        Access Control:
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceListDetailedWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realm/resources:
+    parameters:
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/Type'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get List of all the resources in the realm of the caller
+      operationId: listRealmResources
+      description: 'Get List of all the resources in the realm of the caller.
+
+
+        Access Control:
+
+        * The calling principal must have **"listRealmResources"** action permission in the **"authorization"** service.
+
+        * This API works only with tokens that are scoped to a project.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceListDetailedWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realm/externalResources:
+    parameters:
+    - $ref: '#/components/parameters/externalResourcesResourceType'
+    - $ref: '#/components/parameters/externalResourcesAction'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get external resources available in the realm to the caller
+      description: 'Get the list of resources that have been made specifically available in the caller''s realm via
+
+        direct Plan, Policy, or ResourcePlan attachments and are accessible to the caller according to the caller''s
+
+        Access Filters.
+
+
+        This will specifically include:
+
+
+        * Any resource that is accessible in the realm via a Plan attachment to the realm and is an exact match in a permission.
+
+        * Any resource that is accessible in the realm via a Policy attachment to the realm and is an exact match in a permission.
+
+        * Any resource that is accessible in the realm via a ResourcePlan attachment to the realm.
+
+
+        The returned list will ONLY include the above. In addition, it will be further filtered according to the following:
+
+        * If the caller contains NO project scope, the returned list will ONLY include resources accessible to the
+
+        caller for **unscoped** access according to the Access Filters associated with the caller.
+
+        * If the caller contains a project scope, the returned list will ONLY include resources accessible to the
+
+        caller for **scoped** access according to the Access Filters associated with the caller.
+
+        * The returned list WILL NOT contain resources that are only available via wildcard permissions specified
+
+        in an attached Plan or Policy on the realm.
+
+
+        Access Control:
+
+        * The calling principal MAY include a project scope.'
+      operationId: getRealmExternalResources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalResourcePageWithTokenNoTotal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm not found
+  /resourceTypes/{resourceType}/actions:
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get a list of actions for the resource type
+      parameters:
+      - $ref: '#/components/parameters/ResourceTypePath'
+      - $ref: '#/components/parameters/actionType'
+      - $ref: '#/components/parameters/XCorrelationId'
+      operationId: getResourceTypeActionList
+      description: Gets the actions list for the resource type based on the query parameters.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceActionsList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /resources/{resource}:
+    parameters:
+    - $ref: '#/components/parameters/resource'
+    - $ref: '#/components/parameters/ReferenceableSingle'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get a single resource
+      operationId: getResource
+      description: 'Get the Resource that the caller is allowed to see based on
+
+        the input query parameters
+
+
+        **Note:**
+
+        - If the presented access token has **a project scope**:
+
+        - If **referenceable=true**, the response will ONLY return the resource if it is available to the caller to
+
+        link to the project in the token''s project scope.
+
+        - If the presented access token has **no scope**:
+
+        - For **referenceable=true**, the response will ONLY return the resource if it is a HERE public resource that is available
+
+        to the caller to link to ANY project or available to be linked to ANY project via
+
+        Resource Plan Attachments or by virtue of being a Linkable resource to the realm'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponseDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /resources/{resource}/settings:
+    parameters:
+    - $ref: '#/components/parameters/resource'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get the resource settings
+      operationId: getResourceSettings
+      description: 'Get the settings of a resource. By default, all resources are available to be added to a resource policy by
+
+        entities that have permission to take the "requiredToMakeLinkable" actions against the resource service.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSetting'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Resource Info and Management
+      summary: Set or update the resource setting
+      operationId: updateResourceSettings
+      description: 'Set or update the resource setting. By default, all resources are available to be added to a resource policy by
+
+        entities that have permission to take the "requiredToMakeLinkable" actions against the resource service.
+
+        Optionally a developer managing a resource can mark the resource as available to be added to a resource policy
+
+        by any entity within its home realm and choose one or more "projectLinkingEnabled" allowed actions for this setting
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceSetting'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSetting'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /resources/{resource}/projects:
+    parameters:
+    - $ref: '#/components/parameters/resource'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/Relation'
+    - $ref: '#/components/parameters/includeNonMemberProjects'
+    - $ref: '#/components/parameters/includeCrossRealmProjects'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get the requested Projects that the resource belongs to or is referenced…
+      operationId: getResourceProjects
+      description: 'Get the list of Projects that the resource belongs to or is referenced in(linked to).
+
+        When includeCrossRealmProjects=true and a cross-realm trust is established between home project or realm
+
+        of the resource and a project or realm that resource is linked to, then returned list will also include that project.
+
+        In other cases the returned list will only include projects that are in the caller''s realm.
+
+
+        **Note:**
+
+        - If the presented access token has **a project scope**, the response will include:
+
+        - The home project of the resource
+
+        - The list of Projects that the resource has been linked to
+
+        - If the presented access token has **no scope**, the response will include:
+
+        - The list of Projects filtered out based on the membership of the caller unless includeNonMemberProjects=true.
+
+
+        Access Control for project scoped call:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceProjectListWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /resources/{resource}/linkable:
+    parameters:
+    - $ref: '#/components/parameters/resource'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get a list of ways the resource has been made linkable
+      operationId: getListOfWaysResourceIsLinkable
+      description: 'Get a list of ways this resource has been made linkable.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.'
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkableResourceList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+      - Resource Info and Management
+      summary: Make a resource Linkable
+      operationId: makeResourceLinkable
+      description: 'Adds a listing to make this resource linkable to either a project or entire realm. The resource must belong to
+
+        a project to be made linkable. Either projectHrn or realmHrn must be provided to make the resource linkable to.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.
+
+        * This API does not support the resources of type **"pipeline"**.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkableResource'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedLinkableResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /resources/{resource}/linkable/{linkableToHrn}:
+    parameters:
+    - $ref: '#/components/parameters/resource'
+    - $ref: '#/components/parameters/linkableToHrn'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Resource Info and Management
+      summary: Get the linkability of a resource
+      operationId: getResourceLinkability
+      description: 'Get the availability for linking this resource to either a project or realm.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedLinkableResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Resource Info and Management
+      summary: Update the linkability of a resource
+      operationId: updateResourceLinkability
+      description: 'Update the linkability of this resource against the requested project or realm.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.
+
+        * This API does not support the resources of type **"pipeline"**.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkableResource'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedLinkableResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Resource Info and Management
+      summary: Remove the linkability of a resource
+      operationId: removeResourceLinkability
+      description: 'Remove the linkability of this resource against the requested project or realm.
+
+        **Note:** This action does not have any impact on pre-existing links.
+
+
+        Access Control:
+
+        * The calling principal must have permission to take all the **"requiredToMakeLinkable"** actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works only with tokens that are scoped to the home project of the resource.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    includeNonMemberProjects:
+      in: query
+      name: includeNonMemberProjects
+      required: false
+      description: If true, the list of Projects is **not** filtered out based on the membership of the caller. Defaults to false.
+      schema:
+        type: boolean
+    linkableToHrn:
+      in: path
+      name: linkableToHrn
+      schema:
+        type: string
+      required: true
+      description: 'The HRN of the project that the resource is made linkable to or
+
+        the HRN of the realm that the resource is made linkable to.
+
+        This property can be used for cross-realm sharing only if cross-realm trust is established.
+
+        If there is no cross-realm trust established, the linkableToHrn value must be either a project in the same realm as the resource''s home project,
+
+        or must be the resource''s home project''s realm.
+
+        '
+      example: hrn:here:authorization::myrealm:project/Project-00000
+    Linkable:
+      in: query
+      name: linkable
+      required: false
+      description: 'Get all linkable resources available to the caller to attach as a link to project. Only supported value is true.
+
+        Note - Can be used as a synonym for referenceable
+
+        '
+      schema:
+        type: boolean
+    ReferenceableSingle:
+      in: query
+      name: referenceable
+      required: true
+      description: Get the resource only if it is available to the caller to attach as a reference to projects.  A resource is referenceable if it is marked as referenceable and the caller has permission to all reference enabled actions against the resource.  Otherwise 404.  Only supported value is true.
+      schema:
+        type: boolean
+    actionType:
+      in: query
+      name: type
+      required: true
+      description: 'The type of action for the resource type.
+
+
+        - projectEnabled : Actions that are enabled for Project access
+
+        - projectLinkingEnabled : Actions that are allowed to be linked
+
+        - projectReferenceEnabled : Actions that are allowed for Project references
+
+        - requiredToMakeLinkable : Actions that are required when an identity is making a resource linkable to a realm or other projects
+
+        - sharingEnabled : Actions that are allowed to be shared
+
+        - projectResourceCreationEnabled : Actions that are marked as resource creation actions for Projects
+
+        '
+      schema:
+        type: string
+        enum:
+        - projectEnabled
+        - projectLinkingEnabled
+        - projectReferenceEnabled
+        - requiredToMakeLinkable
+        - sharingEnabled
+        - projectResourceCreationEnabled
+    resource:
+      in: path
+      name: resource
+      schema:
+        type: string
+      required: true
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    Type:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    Access:
+      in: query
+      name: access
+      required: false
+      description: "Filter the resources accessible to the caller based on the access types.\nThe default value is 'default'. Not applicable to use along with the query parameter 'referenceable=true' or 'linkable=true'\n\n- If 'default' includes resources where:\n  - The user has access to the resource's home project OR\n  - The user has access to a project that the resource is linked to as a reference OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'write' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'manage' includes resources where:\n  - The user has access to the resource's home project OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'readOutsideProject' includes resources where:\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it.\n\nraiEnabled types = [catalog, service, schema, artifact]\n"
+      schema:
+        type: string
+        enum:
+        - default
+        - manage
+    Relation:
+      in: query
+      name: relation
+      required: false
+      description: The relation of the resource. A resource is only returned in the response if it matches the requested relation.
+      schema:
+        $ref: '#/components/schemas/Relation'
+    ResourceType:
+      in: query
+      name: type
+      required: true
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    externalResourcesAction:
+      in: query
+      name: action
+      required: true
+      description: 'Only include resources accessible with the requested action via the registered serviceId of the resource''s
+
+        resource type.
+
+        '
+      schema:
+        type: string
+    Referenceable:
+      in: query
+      name: referenceable
+      required: false
+      description: "Get all referenceable(linkable) resources available to the caller to attach as a reference(link) to projects. Only supported value is true.\nNote - Can be used as a synonym for linkable\n\nA resource is referenceable(linkable) if it is marked as referenceable:\n  - and the caller has permission to all reference enabled actions against the resource or,\n  - in case of a project scoped token, the caller has effective membership on the projects to attach resources\n    as a reference(link) to the Project.\n"
+      schema:
+        type: boolean
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    externalResourcesResourceType:
+      in: query
+      name: type
+      required: true
+      description: 'Only include resources of the requested resource type.
+
+        '
+      schema:
+        type: string
+    includeCrossRealmProjects:
+      in: query
+      name: includeCrossRealmProjects
+      required: false
+      description: If true, the list of Projects will include projects that resource is linked too across realms, if a valid cross-realm trust is established. Defaults to false.
+      schema:
+        type: boolean
+    ResourceTypePath:
+      in: path
+      name: resourceType
+      required: true
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+  schemas:
+    ResourceProjectResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ProjectResponse'
+      - type: object
+        properties:
+          relation:
+            allOf:
+            - $ref: '#/components/schemas/Relation'
+            - description: 'The relation of the resource with the Project. The absense of relation implies the
+
+                resource has not been linked to the Project.
+
+                '
+      - type: object
+        properties:
+          allowedActions:
+            allOf:
+            - $ref: '#/components/schemas/allowedActions'
+    ResourceProjectListWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceProjectResponse'
+            description: List of Projects associated with a given resource.
+    Type:
+      type: string
+      example: catalog
+      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
+    linkOptions:
+      type: array
+      maxItems: 50
+      description: 'This list contains all possible link options for the given resource in the realm.
+
+        It will repeat the main entry (with an empty `externalId`), as well as any
+
+        additional entries with unique `externalId` values.
+
+        '
+      example:
+      - allowedActions:
+        - readResource
+      - externalId: A-S0001234
+        allowedActions:
+        - readResource
+        subresources:
+        - usa-il-chicago
+        - deu
+      items:
+        $ref: '#/components/schemas/linkOption'
+    ExternalResourcePageWithTokenNoTotal:
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExternalResource'
+    allowedActions:
+      type: array
+      items:
+        type: string
+        example: readResource
+      description: 'The list of actions made available for referencing for the resourceType.
+
+        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
+
+        reserved resource prefix of the resource in the path.
+
+        '
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    LinkableResourceList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/DetailedLinkableResource'
+            description: List of ways the resource has been made linkable
+    ExternalResource:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        type:
+          $ref: '#/components/schemas/Type'
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+        expiresAt:
+          type: integer
+          format: int64
+          example: 1735689600000
+          description: 'The timestamp in milliseconds when the resource access expires
+
+            '
+    LinkableResource:
+      type: object
+      required:
+      - resource
+      - allowedActions
+      properties:
+        resource:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        projectHrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/Project-00000
+          description: 'The hrn of the project that the resource is made linkable to
+
+            '
+        realmHrn:
+          type: string
+          example: hrn:here:account::myrealm:realm/myrealm
+          description: 'The hrn of the project that the resource is made linkable to
+
+            '
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+    ResourceSetting:
+      type: object
+      required:
+      - resourcePolicyAvailability
+      properties:
+        resourcePolicyAvailability:
+          type: object
+          required:
+          - authorizedTo
+          - allowedActions
+          properties:
+            authorizedTo:
+              type: string
+              enum:
+              - requiredToMakeLinkable
+              - realm
+              example: requiredToMakeLinkable
+              description: 'The authorization required to add the resource to a resource policy. By default a resource
+
+                is allowed to be added to a resource policy for principals who have the permission to take the
+
+                "requiredToMakeLinkable" actions against the resource service. Set to "realm" to allow the resource to
+
+                be added to a resource policy by anyone in the realm with sufficient privileges to create the resource policy.
+
+                '
+            allowedActions:
+              type: array
+              items:
+                type: string
+                example: readResource
+              description: 'The actions allowed for a resource to be added to a resource policy. By default all "projectLinkingEnabled"
+
+                actions can be added as allowed actions for a resource policy. Optionally a developer can also limit the
+
+                actions to be one of any "projectLinkingEnabled" actions defined by the service
+
+                '
+    Relation:
+      type: string
+      enum:
+      - home
+      - reference
+      example: home
+      description: 'The relation of the resource with the Project.
+
+        '
+    ServiceActionsList:
+      type: object
+      properties:
+        allowedActions:
+          type: array
+          items:
+            type: string
+          example:
+          - readResource
+          - writeResource
+          description: List of allowed actions
+    subresources:
+      type: array
+      maxItems: 10
+      items:
+        type: string
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
+
+        '
+    PageWithTokenNoTotal:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+    ResourceListDetailedWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceResponseDetailed'
+            description: List of Resources.
+    linkOption:
+      type: object
+      properties:
+        externalId:
+          $ref: '#/components/schemas/externalId'
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        subresources:
+          $ref: '#/components/schemas/subresources'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ResourceResponseDetailed:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        type:
+          $ref: '#/components/schemas/Type'
+        home:
+          type: string
+          example: hrn:here:authorization::myrealm:project/Project-00000
+          description: 'The hrn of the home project that the resource belongs to
+
+            '
+        relation:
+          $ref: '#/components/schemas/Relation'
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        active:
+          type: boolean
+          example: true
+          description: 'Indicates whether this resource is active or not for the caller. For
+
+            resources with a relation of type ''home'', it is always active.
+
+            If a reference is not active, the caller may not access the resource via
+
+            project scope.
+
+            '
+        linkOptions:
+          $ref: '#/components/schemas/linkOptions'
+    DetailedLinkableResource:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/LinkableResource'
+      - type: object
+        properties:
+          projectId:
+            type: string
+            example: my-project-0000
+            description: 'The id of the Project
+
+              '
+          projectName:
+            type: string
+            example: My Project
+            description: 'The name of the Project
+
+              '
+          projectDescription:
+            type: string
+            example: This is my demo Project
+            description: 'The description of the Project
+
+              '
+    externalId:
+      type: string
+      maxLength: 80
+      example: A-S0001234
+      description: 'ID provided by an external system. For every resource in a target realm this must be unique.
+
+        Typically, this holds the subscription ID used to license the resource. You can have the same
+
+        resource with different external IDs in a target realm. The empty value is valid, and is the
+
+        implicit value used for resource made explicitly linkable.
+
+        '
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: my-project-0000
+          description: 'The id of the Project
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+          description: 'The hrn of the Project
+
+            '
+        name:
+          type: string
+          example: My Project
+          description: 'The name of the Project
+
+            '
+        description:
+          type: string
+          example: This is my demo Project
+          description: 'The description of the Project
+
+            '
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

@@ -1,0 +1,717 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Manage Identity Providers for an…
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Manage Identity Providers for an App
+  description: APIs to manage Identity Providers attached to an App.
+paths:
+  /apps/{app}/identityProviders:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Manage Identity Providers for an App
+      summary: List trusted OpenID Connect Identity Providers for an App
+      operationId: listAppIdentityProviders
+      description: 'List trusted OpenID Connect Identity Providers for an App.
+
+
+        Access Control:
+
+        * The calling principal must have either **"read"** or **"readIdentityProviders"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      - in: query
+        required: false
+        name: fields
+        schema:
+          type: string
+        description: "Comma-separated list of fields to return, for each AppIdentityProviderAttachment.  \nBy default, the \"identityProviderHrn\", \"appHrn\", and \"enabled\" properties are returned.\nAdditional supported fields also include \"identityProviderId\", \"identityProviderName\", \n\"identityProviderDescription\", \"identityProviderAccountType\", \"identityProviderRealm\", \nand \"identityProviderIssuers\".\n"
+        example: identityProviderHrn,identityProviderName,appHrn,enabled
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppIdentityProviderAttachmentList'
+              example:
+                count: 1
+                total: 1
+                items:
+                - identityProviderHrn: hrn:here:account::org123456789:identityProviders/example-op
+                  identityProviderName: Example OP
+                  appHrn: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+                  enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: "An error has occurred.\n* E110000 - Subject does not have the required *\"read\"* access to the *app* , \nor *\"readIdentityProviders\"* access to the Realm of the App.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested App does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /apps/{app}/identityProviders/{identityProvider}:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/IdentityProvider'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Manage Identity Providers for an App
+      summary: Attach a trusted OpenID Connect Identity Provider to an App
+      operationId: createAppIdentityProviderAttachment
+      description: 'Attach a new trusted OpenID Connect Identity Provider to an App.
+
+
+        The App must be constrained to a Project. To constrain an App to a Project, use the Access Manager ->
+
+        Apps -> My Apps -> Edit app -> specify "DEFAULT ACCESS TO A PROJECT",
+
+        and check "Allow access only in this project".
+
+
+        An App may have at most 2 IdentityProviders attached to it.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manage"** action permission for the resource **"{app}"** in the
+
+        **"account"** service or **"readIdentityProviders"** action permission for the callers **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - in: query
+        required: false
+        name: fields
+        schema:
+          type: string
+        description: "Comma-separated list of fields to return, for the created AppIdentityProviderAttachment.  \nBy default, the \"identityProviderHrn\", \"appHrn\", and \"enabled\" properties are returned.\nAdditional supported fields also include \"identityProviderId\", \"identityProviderName\", \n\"identityProviderDescription\", \"identityProviderAccountType\", \"identityProviderRealm\", \nand \"identityProviderIssuerAttachments\".\n"
+        example: identityProviderHrn,identityProviderName,appHrn,enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppIdentityProviderAttachmentRequest'
+            example:
+              enabled: true
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppIdentityProviderAttachment'
+              example:
+                identityProviderHrn: hrn:here:account::org123456789:identityProviders/example-op
+                identityProviderName: Example OP
+                appHrn: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            * E110000 - Maximum number of Identity Providers configured per App was exceeded.  The maximum is 2.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: "An error has occurred.\n* E110000 - Subject does not have the required *\"manage\"* access to the *app* , \n  or does not have the required *\"readIdentityProviders\"* access to the *realm*.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    get:
+      tags:
+      - Manage Identity Providers for an App
+      summary: Gets a trusted OpenID Connect Identity Provider for an App
+      operationId: getAppIdentityProviderAttachment
+      description: 'Gets a trusted OpenID Connect Identity Provider configured for an App.
+
+
+        Access Control:
+
+        * The calling principal must either have **"read"** action permission for the resource **"{app}"**
+
+        in the **"account"** service and that the App is constrained to a Project or have
+
+        **"readIdentityProviders"** action permission for the callers **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - in: query
+        required: false
+        name: fields
+        schema:
+          type: string
+        description: "Comma-separated list of fields to return, for the specified AppIdentityProviderAttachment.  \nBy default, the \"identityProviderHrn\", \"appHrn\", and \"enabled\" properties are returned.\nAdditional supported fields also include \"identityProviderId\", \"identityProviderName\", \n\"identityProviderDescription\", \"identityProviderAccountType\", \"identityProviderRealm\", \nand \"identityProviderIssuers\".\n"
+        example: identityProviderHrn,identityProviderName,appHrn,enabled
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppIdentityProviderAttachment'
+              example:
+                identityProviderHrn: hrn:here:account::org123456789:identityProviders/example-op
+                identityProviderName: Example OP
+                appHrn: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: "An error has occurred.\n* E110000 - Subject does not have the required *\"read\"* access to the *app*,\n  or does not have the required *\"readIdentityProviders\"* access to the Realm.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested App and/or Identity Provider and/or Identity Provider Attachment does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    patch:
+      tags:
+      - Manage Identity Providers for an App
+      summary: Update a trusted OpenID Connect Identity Provider for an App
+      operationId: updateAppIdentityProviderAttachment
+      description: 'Update a trusted OpenID Connect Identity Provider for an App.
+
+
+        Access Control:
+
+        * The calling principal must either have **"manage"** action permission for the resource **"{app}"**
+
+        in the **"account"** service, and that the App is constrained to a Project or have
+
+        **"readIdentityProviders"** action permission for the callers **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - in: query
+        required: false
+        name: fields
+        schema:
+          type: string
+        description: "Comma-separated list of fields to return, for each AppIdentityProviderAttachment.  \nBy default, the \"identityProviderHrn\", \"appHrn\", and \"enabled\" properties are returned.\nAdditional supported fields also include \"identityProviderId\", \"identityProviderName\", \n\"identityProviderDescription\", \"identityProviderAccountType\", \"identityProviderRealm\", \nand \"identityProviderIssuers\".\n"
+        example: identityProviderHrn,identityProviderName,appHrn,enabled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppIdentityProviderAttachmentRequest'
+            example:
+              enabled: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppIdentityProviderAttachment'
+              example:
+                identityProviderHrn: hrn:here:account::org123456789:identityProviders/example-op
+                identityProviderName: Example OP
+                appHrn: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: "An error has occurred.\n* E110000 - Subject does not have the required *\"manage\"* access to the *app*,\n  or does not have the required *\"readIdentityProviders\"* access to the *realm*.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    delete:
+      tags:
+      - Manage Identity Providers for an App
+      summary: Detach a trusted OpenID Connect Identity Provider for an App
+      operationId: deleteAppIdentityProviderAttachment
+      description: 'Detaches a trusted OpenID Connect Identity Provider from an App.
+
+
+        Access Control:
+
+        * The calling principal must either have **"manage"** action permission for the resource **"{app}"**
+
+        in the **"account"** service, and that the App is constrained to a Project or have
+
+        **"readIdentityProviders"** action permission for the callers **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: "An error has occurred.\n* E110000 - Subject does not have the required *\"manage\"* access to the *app* identified in the path,\n  or does not have the required *\"readIdentityProviders\"* access to the *realm*.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested App and/or Identity Provider and/or Identity Provider Attachment does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+components:
+  schemas:
+    UpdateAppIdentityProviderAttachmentRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
+          default: true
+          example: true
+    CreateAppIdentityProviderAttachmentRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
+          default: true
+          example: true
+    AppIdentityProviderAttachmentList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of AppIdentityProviderAttachments in this page of the List.
+        total:
+          type: integer
+          description: The total number of AppIdentityProviderAttachments in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppIdentityProviderAttachment'
+          minItems: 0
+          maxItems: 2
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    AppIdentityProviderAttachment:
+      type: object
+      properties:
+        identityProviderId:
+          type: string
+          description: Unique identifier the OpenID Connect Provider within the Realm.
+          example: example-op
+        identityProviderHrn:
+          type: string
+          description: HRN for the Realm Provider
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        identityProviderName:
+          type: string
+          description: User-friendly name for the OpenID Connect Provider
+          example: Example OP
+        identityProviderDescription:
+          type: string
+          description: Detailed text description of the Identity Provider
+          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
+        identityProviderAccountType:
+          type: string
+          description: Always "device" for now.  Reserved for future use, new account types may be added in the future.
+          enum:
+          - device
+          default: device
+          example: device
+        identityProviderRealm:
+          type: string
+          description: HRN of the Realm within which the OpenID Connect Provider is trusted.
+        identityProviderIssuers:
+          type: array
+          maxLength: 2
+          items:
+            type: object
+            required:
+            - issuer
+            properties:
+              issuer:
+                type: string
+                description: OpenID Connect Provider Issuer URL.
+                example: https://op.example.com
+              enabled:
+                type: boolean
+                description: true to enable an individual issuer URL.
+                default: true
+        appHrn:
+          type: string
+          description: HRN for the App
+          example: hrn:here:account::org123456789:app/uIkGzYShLKtQQAimXzvV
+        enabled:
+          type: boolean
+          description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
+          default: true
+          example: true
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  parameters:
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

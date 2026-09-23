@@ -1,0 +1,870 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Manage SAML identity providers API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Manage SAML identity providers
+  description: APIs to manage SAML Identity Providers for a Realm.
+paths:
+  /realms/{realm}/samlIdentityProviders:
+    post:
+      tags:
+      - Manage SAML identity providers
+      summary: Create a SAML identity provider
+      description: 'Create an identity provider
+
+        * Supports the creation of SAML identity providers.
+
+        * Addition of identity providers will not enable them by default, it needs to be enabled explicitly.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - name: validateOnly
+        description: If set to true, only metadata content will be validated and SAML identity provider creation will be skipped. By default, false.
+        in: query
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SamlIdpConfigRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok. When validateOnly query parameter is set to true.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlIdpConfigValidateOnlyResponse'
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlIdpConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Manage SAML identity providers
+      summary: Get the list of SAML identity providers
+      description: 'Get the list of SAML identity providers configured with the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getIdpConfigs
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - name: enabled
+        description: If true, returns only enabled SAML identity providers. If false, returns only those that are not enabled. Returns all SAML identity providers if not included in request.
+        in: query
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlIdpConfigResponseWithPageToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/samlIdentityProviders/{samlIdentityProvider}/enable:
+    post:
+      tags:
+      - Manage SAML identity providers
+      summary: Enable identity provider
+      description: 'Enables a SAML identity provider for a realm. If there is any other enabled SAML identity provider, it will be disabled.
+
+        The realm''s login method will be changed to ''saml''. ''password'' logins can also be allowed, if the ''allowPasswordLogin''
+
+        parameter was provided.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: enableIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/SamlIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/AllowPasswordLogin'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/samlIdentityProviders/{samlIdentityProvider}/disable:
+    post:
+      tags:
+      - Manage SAML identity providers
+      summary: Disable identity provider
+      description: 'Disables a SAML identity provider for a realm. If no other enabled SAML identity provider exists, the realm login method will be changed to ''password''.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: disableIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/SamlIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/samlIdentityProviders/{samlIdentityProvider}:
+    get:
+      tags:
+      - Manage SAML identity providers
+      summary: Get a SAML identity provider
+      description: 'Get a SAML identity provider configuration for a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/SamlIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlIdpConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+      - Manage SAML identity providers
+      summary: Update SAML identity provider
+      description: 'Update a SAML identity provider for a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: updateIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/SamlIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SamlIdpUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlIdpConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Manage SAML identity providers
+      summary: Remove SAML identity provider
+      description: 'Deletes a SAML identity provider for a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageSamlIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteIdpConfig
+      parameters:
+      - $ref: '#/components/parameters/Realm'
+      - $ref: '#/components/parameters/SamlIdentityProviderHrn'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/XRequestId'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Unable to delete, Identity provider in use.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+components:
+  parameters:
+    SamlIdentityProviderHrn:
+      in: path
+      name: samlIdentityProvider
+      required: true
+      description: HRN for the specific SAML IdP configuration with a realm
+      schema:
+        type: string
+      example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    AllowPasswordLogin:
+      in: query
+      required: false
+      name: allowPasswordLogin
+      schema:
+        type: boolean
+      description: "Flag indicating if password login should be allowed after enabling identity provider for the realm. \nIf omitted, the value is defaulted to false.\n\ntrue - both 'password' and 'saml' login methods are allowed\nfalse - 'saml' is the only allowed login method for the realm\n"
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
+  schemas:
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    SamlIdpUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Idp's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        entityId:
+          type: string
+          description: Issuer Id provided for the IDP
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: Login url for the IDP
+          example: https://here.example.com/sso/saml
+        metadataSource:
+          type: string
+          description: Path to the IdP metadata file (file path or URL).
+          example: File
+        metadataContent:
+          type: string
+          description: Base-64 encrypted metadata xml content.
+          example: PG1kOkVudGl0eURlc2NyaXB0b3IKCXhtbG5zOm1kPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLj==
+    SamlIdpConfigResponseWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SamlIdpConfigResponse'
+            description: List of IdP configurations.
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    SamlIdpConfigValidateOnlyResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: IdP's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        entityId:
+          type: string
+          description: IdP entity Id.
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: The login url for IdP
+          example: https://here.example.com/sso/saml
+    SamlIdpConfigRequest:
+      type: object
+      required:
+      - name
+      - identityProviderTemplateId
+      - metadataContent
+      properties:
+        name:
+          type: string
+          description: IdP's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        metadataContent:
+          type: string
+          description: Base-64 encoded metadata xml content.
+          example: PG1kOkVudGl0eURlc2NyaXB0b3IKCXhtbG5zOm1kPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLj==
+        metadataSource:
+          type: string
+          description: Path to the IdP metadata file (file path or URL).
+          example: /root/meta.xml
+        entityId:
+          type: string
+          description: Issuer Id provided for the IdP. This will be extracted from the metadata if not provided.
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: Login url for the IdP. This will be extracted from the metadata if not provided.
+          example: https://here.example.com/sso/saml
+    GenericError404Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Resource not found.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 404
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: Resource not found.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Validate input parameters and retry.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-3c7cae72-f407-4d75-807d-bc1689fbbd4d
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: Resource not found.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    SamlIdpConfigResponse:
+      type: object
+      properties:
+        samlIdentityProviderHrn:
+          type: string
+          description: HRN of the IdP
+          example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        name:
+          type: string
+          description: IdP's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        entityId:
+          type: string
+          description: IdP entity Id.
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: The login url for IdP
+          example: https://here.example.com/sso/saml
+        created:
+          type: string
+          format: date-time
+          example: '2023-01-21T17:32:28Z'
+        enabled:
+          type: boolean
+          description: Whether the IdP config is enabled or not
+          example: true
+        callback:
+          type: string
+          description: Service provider's callback url.
+          example: https://account.here.com/saml/callback
+        spMetadataUrl:
+          type: string
+          description: Url to get service provider metadata.xml file content.
+          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/metadata
+        spCertificateUrl:
+          type: string
+          description: Url to get service provider public key certificate.
+          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/cert
+  headers:
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError404Response'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

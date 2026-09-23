@@ -1,0 +1,555 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Application Access Key Management…
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Application Access Key Management
+  description: These APIs enable authorized identities (user/another app) to manage access key credentials for the applications.
+paths:
+  /apps/{app}/accessKeys:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Access Key Management
+      summary: Create Access Key
+      description: 'Create a new access key for the requested application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createAccessKey
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAccessKeyResponse'
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CreateAccessKeyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageToken'
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Access Key Management
+      summary: Get Access Keys
+      description: 'Retrieve the list of access keys associated with the requested application.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getAccessKeys
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessKeyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/accessKeys/{accessKey}:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/AccessKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    delete:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Access Key Management
+      summary: Delete Access Key
+      description: 'Delete the requested access key for the requested application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: deleteAccessKey
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/accessKeys/{accessKey}/enable:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/AccessKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Access Key Management
+      summary: Enable Access Key
+      description: 'Enable the requested access key for the given application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: enableAccessKey
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /apps/{app}/accessKeys/{accessKey}/disable:
+    parameters:
+    - $ref: '#/components/parameters/App'
+    - $ref: '#/components/parameters/AccessKey'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    post:
+      security:
+      - UserOrClientBearerToken: []
+      tags:
+      - Application Access Key Management
+      summary: Disable Access Key
+      description: 'Disable the requested access key for the given application.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** or **"write"** action permission for the resource **"{app}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: disableAccessKey
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    AccessKey:
+      in: path
+      required: true
+      name: accessKey
+      schema:
+        type: string
+      description: 'HRN identifying the access key. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+  headers:
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    AccessKeyPageWithToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AccessKey'
+            description: List of access keys.
+    Error403Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: These credentials do not authorize access for this operation.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 403
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: App/User WgxjTzUL8sTbq5fMDPDg/HERE-f7ef7b16-6deb-4b44-986f-d86deed59980 credentials do not authorize access to perform manage action on hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000 via SERVICE-00000000-0000-0000-0000-000000000000 because No matching permissions found for the identity, its groups and roles, or the realm.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Add/Share the necessary permissions to the identity.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    CreateAccessKeyResponse:
+      type: object
+      properties:
+        accessKeyId:
+          type: string
+          example: 846ee567-7806-403a-97b6-6cf0b6ffa897
+        accessKeyHrn:
+          type: string
+          example: hrn:here:account::myrealm:accesskey/846ee567-7806-403a-97b6-6cf0b6ffa897
+        accessKeySecret:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+        clientId:
+          type: string
+          example: uIkGzYShLKtQQAimXzvV
+          readOnly: true
+        clientHrn:
+          type: string
+          example: hrn:here:account::myrealm:app/uIkGzYShLKtQQAimXzvV
+        tokenEndpointUrl:
+          type: string
+          example: https://account.api.here.com/oauth2/token
+        enabled:
+          type: boolean
+          example: true
+        createdTime:
+          type: integer
+          format: int64
+          example: 1545041748000
+    GenericError404Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Resource not found.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 404
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: Resource not found.
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Validate input parameters and retry.
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-3c7cae72-f407-4d75-807d-bc1689fbbd4d
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        error:
+          type: string
+          description: Human-readable error
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description
+          example: Resource not found.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    AccessKey:
+      type: object
+      properties:
+        accessKeyId:
+          type: string
+          example: 846ee567-7806-403a-97b6-6cf0b6ffa897
+          readOnly: true
+        accessKeyHrn:
+          type: string
+          example: hrn:here:account::myrealm:accesskey/846ee567-7806-403a-97b6-6cf0b6ffa897
+          readOnly: true
+        clientId:
+          type: string
+          example: uIkGzYShLKtQQAimXzvV
+          readOnly: true
+        clientHrn:
+          type: string
+          example: hrn:here:account::myrealm:app/uIkGzYShLKtQQAimXzvV
+          readOnly: true
+        enabled:
+          type: boolean
+          example: true
+        createdTime:
+          type: integer
+          format: int64
+          example: 1545041748000
+          readOnly: true
+        lastTimeUsed:
+          type: integer
+          format: int64
+          description: The timestamp that this Access Key was last used within one minute precision.
+          example: 1545041748000
+          readOnly: true
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError404Response'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error403Response'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error401Response'
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

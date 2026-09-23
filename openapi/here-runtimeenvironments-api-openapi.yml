@@ -1,0 +1,274 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Runtime Environments API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: RuntimeEnvironments
+paths:
+  /v2/runtimeEnvironments:
+    parameters:
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - RuntimeEnvironments
+      summary: Get runtime environments information
+      description: This endpoint returns information about runtime environments currently enabled for the customer or their organization.
+      operationId: listRuntimeEnvironments
+      responses:
+        '200':
+          description: Runtime environment information retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeEnvironments'
+        '500':
+          description: Internal error while retrieving the Runtime Environment information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+components:
+  schemas:
+    RuntimeEnvironment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier for the runtime environment.  Use this value when creating a pipeline template.
+          readOnly: true
+          example: batch-x.y.z
+        availableResourceProfileIds:
+          type: array
+          description: Identifiers for the resource profiles available for this runtime environment.
+          readOnly: true
+          items:
+            type: string
+            example:
+            - HS1
+        defaultWorkerResourceProfileId:
+          type: string
+          description: Identifier for the default resource profile for workers in this runtime environment.
+          readOnly: true
+          example: HS1
+        defaultSupervisorResourceProfileId:
+          type: string
+          description: Identifier for the default resource profile for supervisors in this runtime environment.
+          readOnly: true
+          example: HS1
+        maxWorkerUnits:
+          type: integer
+          example: 15
+          description: The maximum number of worker resource units available for this runtime environment.
+        maxSupervisorUnits:
+          type: integer
+          example: 15
+          description: The maximum number of supervisor resource units available for this runtime environment.
+        maxAdditionalOverheadMemory:
+          type: number
+          description: The maximum additional overhead memory available for supervisor and worker for this runtime environment.
+          format: float
+          readOnly: true
+          example: 0.05
+        description:
+          type: string
+          description: Description of this runtime environment.
+          readOnly: true
+          example: Spark x.y.z, Java x, Scala y
+        deprecationPeriodAnnounced:
+          type: string
+          description: Date this runtime environment was or will be deprecated. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        deprecationPeriodEnd:
+          type: string
+          description: Date this runtime environment is subject to removal. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        displayName:
+          type: string
+          description: Display name of this runtime environment.
+          readOnly: true
+          example: Batch x.y.z
+        defaultGcProfile:
+          type: string
+          description: Identifier of the default GC profile for this runtime environment.
+          readOnly: true
+          example: g1gc
+        availableGcProfiles:
+          type: array
+          description: Identifiers for the GC profiles available for this runtime environment.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/GcProfileDefinition'
+      description: Model representing details about a runtime environment.
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    RuntimeEnvironments:
+      type: object
+      properties:
+        availableRuntimes:
+          type: array
+          description: A list of runtime environments currently available to the caller.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/RuntimeEnvironment'
+      description: Model representing details about runtime environments.
+    GcProfileDefinition:
+      description: Model representing Garbage Collector (GC) profile. Each GC profile is identified by unique ID, name, and description that describes its behavior and settings. These profiles are used to configure the garbage collection strategy for the pipeline execution.
+      type: object
+      properties:
+        id:
+          description: The unique identifier for a GC profile.
+          type: string
+          readOnly: true
+          example: g1gc
+        name:
+          description: The human-readable name of a GC profile.
+          type: string
+          readOnly: true
+          example: G1 GC
+        description:
+          description: The description of a GC profile that outlines its unique characteristics.
+          type: string
+          readOnly: true
+          example: G1 GC is low-pause, region-based collector optimized for large heaps and throughput.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+  parameters:
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

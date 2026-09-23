@@ -1,0 +1,4024 @@
+openapi: 3.2.0
+info:
+  version: 2.6.11
+  title: HERE Tracking Associations API
+  description: 'HERE Tracking is a cloud product designed to address location tracking problems for a wide range of Location IoT industry verticals.
+
+
+    HERE Tracking also includes end-user mobile and web applications that can be used to demonstrate the product.'
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://tracking.hereapi.com/
+- url: https://tracking.api.here.com/
+tags:
+- description: 'An association is a link between a device and a geofence, a sensor rule or a rule.
+
+    Device events get generated for existing associations only.'
+  name: Associations
+paths:
+  /associations/v3/health:
+    get:
+      summary: Gets service health
+      security: []
+      responses:
+        '200':
+          description: 'OK
+
+
+            The service is performing as expected
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Health status
+                example:
+                  message: healthy
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Associations
+      operationId: getAssociationsV3Health
+      x-operation-id-source: derived
+  /associations/v3/version:
+    get:
+      summary: Gets service version
+      security: []
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                description: "OK\nService returns its current version number\nschema:\n    type: object\n    properties:\n        \"service-name\":\n            type: string\n            description: Version of service\n    example:\n        servicename: \"1.0.0\"\n"
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Associations
+      operationId: getAssociationsV3Version
+      x-operation-id-source: derived
+  /associations/v3/sensors/{sensorRuleId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+        description: 'Must be a valid UUIDv4.
+
+          '
+      name: sensorRuleId
+      description: ID of the sensor rule
+      required: true
+    get:
+      deprecated: true
+      summary: Gets all devices associated with a sensor rule
+      description: Gets all devices associated with the sensor rule `sensorRuleId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+            and pageToken if available.
+
+
+            If no associations are found, an object with empty data array is returned.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - trackingId: HERE-6da0f871-b4eb-4800-90e6-4bae86a788d6
+                  externalId: TestDevice1
+                  appId: c2639c686251407a9052aaea824a1fb5
+                - trackingId: HERE-b0146d7b-2e46-4cee-bc71-6da03ba2da85
+                  externalId: TestDevice2
+                  appId: c2639c686251407a9052aaea824a1fc9
+                pageToken: 024ggjjea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+                  and pageToken if available. If no devices are found, an object with empty data array is returned.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: 'Response body contains a single device object.
+
+                          '
+                        type: object
+                        properties:
+                          trackingId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                          externalId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: Virtual device external ID, only present when the device is virtual
+                          appId:
+                            type: string
+                            minLength: 8
+                            description: Virtual device application ID, only present when the device is virtual
+                        required:
+                        - trackingId
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee
+                message: The sensor rule ID was not found.
+                details:
+                  hereErrorCode: 404306
+          description: The sensor rule ID was not found
+      operationId: getAssociationsV3SensorsBySensorRuleId
+      x-operation-id-source: derived
+  /associations/v3/geofences/{geofenceId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+      name: geofenceId
+      description: ID of the geofence
+      required: true
+    get:
+      deprecated: true
+      summary: Gets all devices associated with a geofence
+      description: Gets all devices associated with the geofence `geofenceId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+            and pageToken if available.
+
+
+            If no associations are found, an object with empty data array is returned.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - trackingId: HERE-6da0f871-b4eb-4800-90e6-4bae86a788d6
+                  externalId: TestDevice1
+                  appId: c2639c686251407a9052aaea824a1fb5
+                - trackingId: HERE-b0146d7b-2e46-4cee-bc71-6da03ba2da85
+                  externalId: TestDevice2
+                  appId: c2639c686251407a9052aaea824a1fc9
+                pageToken: 024ggjjea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+                  and pageToken if available. If no devices are found, an object with empty data array is returned.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: 'Response body contains a single device object.
+
+                          '
+                        type: object
+                        properties:
+                          trackingId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                          externalId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: Virtual device external ID, only present when the device is virtual
+                          appId:
+                            type: string
+                            minLength: 8
+                            description: Virtual device application ID, only present when the device is virtual
+                        required:
+                        - trackingId
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getAssociationsV3GeofencesByGeofenceId
+      x-operation-id-source: derived
+  /associations/v3/rules/{ruleId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+        description: 'Must be a valid UUIDv4.
+
+          '
+      name: ruleId
+      description: ID of the rule
+      required: true
+    get:
+      deprecated: true
+      summary: Gets all devices associated with a rule
+      description: Gets all devices associated with the rule `ruleId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+            and pageToken if available.
+
+
+            If no associations are found, an object with empty data array is returned.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - trackingId: HERE-6da0f871-b4eb-4800-90e6-4bae86a788d6
+                  externalId: TestDevice1
+                  appId: c2639c686251407a9052aaea824a1fb5
+                - trackingId: HERE-b0146d7b-2e46-4cee-bc71-6da03ba2da85
+                  externalId: TestDevice2
+                  appId: c2639c686251407a9052aaea824a1fc9
+                pageToken: 024ggjjea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: 'Response body contains an array of device objects, count indicating the number of returned devices,
+
+                  and pageToken if available. If no devices are found, an object with empty data array is returned.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: 'Response body contains a single device object.
+
+                          '
+                        type: object
+                        properties:
+                          trackingId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                          externalId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: Virtual device external ID, only present when the device is virtual
+                          appId:
+                            type: string
+                            minLength: 8
+                            description: Virtual device application ID, only present when the device is virtual
+                        required:
+                        - trackingId
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getAssociationsV3RulesByRuleId
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/sensors/{sensorRuleId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+        description: 'Must be a valid UUIDv4.
+
+          '
+      name: sensorRuleId
+      description: ID of the sensor rule
+      required: true
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    put:
+      summary: Associates a device with a sensor rule
+      description: 'Associates the device with `trackingId` to the sensor rule with `sensorRuleId`.
+
+
+        A single device can only have one sensor rule per sensor type associated.
+
+
+        The associated sensor rule settings will be automatically synchronised to the `system.sensorAlarmConfig` section of the device
+
+        `desired shadow`.
+
+
+        Every time the associated sensor rule gets triggered by the device ingestion, an event will be generated.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Successful
+
+
+            Device already associated with the sensor rule
+
+            '
+        '201':
+          description: 'Successful
+
+
+            The device has been associated with the sensor rule
+
+            '
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putAssociationsV3ByTrackingIdSensorsBySensorRuleId
+      x-operation-id-source: derived
+    delete:
+      summary: Disassociates a device and a sensor rule
+      description: Deletes the association between the sensor rule `sensorRuleId` and the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteAssociationsV3ByTrackingIdSensorsBySensorRuleId
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/geofences/{geofenceId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+      name: geofenceId
+      description: ID of the geofence
+      required: true
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    put:
+      summary: Associates a device to a geofence
+      description: 'Associates the device with `trackingId` to the geofence with `geofenceId`.
+
+        Whenever the device enters or exits the associated geofence, an event is generated.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Successful
+
+
+            Device already associated with the geofence
+
+            '
+        '201':
+          description: 'Successful
+
+
+            The device has been associated with the geofence
+
+            '
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putAssociationsV3ByTrackingIdGeofencesByGeofenceId
+      x-operation-id-source: derived
+    delete:
+      summary: Disassociates a device and a geofence
+      description: Deletes an association between the geofence `geofenceId` and the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteAssociationsV3ByTrackingIdGeofencesByGeofenceId
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/rules/{ruleId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+        description: 'Must be a valid UUIDv4.
+
+          '
+      name: ruleId
+      description: ID of the rule
+      required: true
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    put:
+      summary: Associates a device to a rule
+      description: 'Associates the device with `trackingId` to the rule with `ruleId`.
+
+        Whenever the device behaviour triggers the rule, an event is generated.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Successful
+
+
+            Device already associated with the rule
+
+            '
+        '201':
+          description: 'Successful
+
+
+            The device has been associated with the rule
+
+            '
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putAssociationsV3ByTrackingIdRulesByRuleId
+      x-operation-id-source: derived
+    delete:
+      summary: Disassociates a device and a rule
+      description: Deletes an association between the rule `ruleId` and the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteAssociationsV3ByTrackingIdRulesByRuleId
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/sensors:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    get:
+      summary: Gets sensor rules associated with a device
+      description: Gets a list of sensor rules associated with the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of sensor rule objects, count indicating the number of returned sensor rules,
+
+            and pageToken if available.
+
+
+            If no sensor rule is found, an object with empty data array is returned.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - id: f4c26630-5d26-4cd1-a57e-g7834e72cb99
+                  type: temperature
+                  range:
+                    begin: -20
+                    end: 30
+                - id: j7c24430-5f26-4kd1-c58e-g7126e72ab33
+                  type: pressure
+                  range:
+                    begin: 30
+                    end: 80
+                pageToken: 024ggjjea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: 'Response body contains an array of sensor rule objects, `count` indicates the number of returned sensor rules,
+
+                  and `pageToken` is the next page token if available.
+
+
+                  If no sensor rules are found, an object with an empty data array is returned.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: Response body contains a single sensor rule object
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            description: 'Must be a valid UUIDv4.
+
+                              '
+                          type:
+                            type: string
+                            description: The sensor type.
+                            enum:
+                            - attach
+                            - battery
+                            - humidity
+                            - pressure
+                            - tamper
+                            - temperature
+                            - acceleration
+                          range:
+                            type: object
+                            properties:
+                              begin:
+                                type: number
+                                description: The lower threshold value.
+                              end:
+                                type: number
+                                description: The upper threshold value.
+                            required:
+                            - begin
+                            - end
+                          threshold:
+                            type: object
+                            properties:
+                              value:
+                                type: number
+                                description: Threshold value
+                            required:
+                            - value
+                          name:
+                            type: string
+                          description:
+                            type: string
+                        required:
+                        - id
+                        - type
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getAssociationsV3ByTrackingIdSensors
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/geofences:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    get:
+      summary: Gets geofences associated with a device
+      description: Gets a list of geofences associated with the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      - DeviceToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      - name: type
+        description: Type of a geofence
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - circle
+            - polygon
+            - poi
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of geofence objects, `count` specifies the number of returned geofences,
+
+            and `pageToken` indicates the next available page in the matching result set.
+
+
+            If no geofences are found, an object with empty data array is returned.
+
+            Response content type can be either JSON or protobuf depending on the ''Content-Type'' request header.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - id: d0c29690-5d26-4cf1-a37e-b7816e72cb99
+                  geofence:
+                    definition:
+                      points:
+                      - lng: 13.38490035
+                        lat: 52.5308398
+                      - lng: 14.38490035
+                        lat: 52.5408398
+                      - lng: 13.39490035
+                        lat: 53.5308398
+                    type: polygon
+                - id: ff92eda0-3114-4640-b7e6-4ba641ae1124
+                  geofence:
+                    name: 16fbc82c-88d1-4219-bfad-6e5de52688a2
+                    description: This is a circular geofence
+                    type: circle
+                    definition:
+                      center:
+                        lat: 52.5308398
+                        lng: 13.38490035
+                      radius: 100
+                      floor:
+                        id: DM_82228
+                        name: House 3
+                pageToken: 027ffffea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: Response body contains an array of geofence objects. `count` indicates the number of returned geofences, and `pageToken` indicates the next available page in the matching result set. If no geofences are found, an object with empty data array is returned.
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: Single geofence object
+                        type: object
+                        properties:
+                          id:
+                            description: Geofence ID
+                            type: string
+                            format: uuid
+                          version:
+                            description: Geofence version
+                            type: integer
+                          createdAt:
+                            description: Timestamp indicating when the geofence has been created
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            description: Timestamp indicating when the geofence has been updated
+                            type: string
+                            format: date-time
+                          geofence:
+                            oneOf:
+                            - title: Circle
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - circle
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a circular geofence
+                                  properties:
+                                    center:
+                                      description: The coordinates of the center point of the circle.
+                                      type: object
+                                      properties:
+                                        lat:
+                                          description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                          type: number
+                                          minimum: -90
+                                          maximum: 90
+                                        lng:
+                                          description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                          type: number
+                                          minimum: -180
+                                          maximum: 180
+                                      required:
+                                      - lat
+                                      - lng
+                                    radius:
+                                      type: number
+                                      description: The radius of the circle in meters.
+                                      minimum: 0
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                  required:
+                                  - center
+                                  - radius
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - definition
+                            - title: Polygon
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - polygon
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a polygonal geofence.
+                                  properties:
+                                    points:
+                                      type: array
+                                      description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                                      minItems: 3
+                                      maxItems: 500
+                                      items:
+                                        type: object
+                                        properties:
+                                          lat:
+                                            description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                            type: number
+                                            minimum: -90
+                                            maximum: 90
+                                          lng:
+                                            description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                            type: number
+                                            minimum: -180
+                                            maximum: 180
+                                        required:
+                                        - lat
+                                        - lng
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                  required:
+                                  - points
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - definition
+                            - title: POI
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - poi
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a POI geofence.
+                                  properties:
+                                    location:
+                                      type: object
+                                      description: Details of the geofence location
+                                      properties:
+                                        room:
+                                          description: The room ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        address:
+                                          description: Address
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                        country:
+                                          description: Country
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                        position:
+                                          type: object
+                                          properties:
+                                            lat:
+                                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                              type: number
+                                              minimum: -90
+                                              maximum: 90
+                                            lng:
+                                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                              type: number
+                                              minimum: -180
+                                              maximum: 180
+                                          required:
+                                          - lat
+                                          - lng
+                                          description: Coordinates for visualization purposes
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                trainingStatus:
+                                  type: object
+                                  properties:
+                                    trained:
+                                      description: True if the POI geofence is trained
+                                      type: boolean
+                                    metadata:
+                                      type: object
+                                      properties:
+                                        usedWlanApCount:
+                                          description: The number of WLAN access point used in training
+                                          type: number
+                                        trackingId:
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 50
+                                          description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                                        timestamp:
+                                          description: Training data timestamp
+                                          type: integer
+                                          minimum: 2
+                                          maximum: 4102448400000
+                                        coordinate:
+                                          type: object
+                                          properties:
+                                            lat:
+                                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                              type: number
+                                              minimum: -90
+                                              maximum: 90
+                                            lng:
+                                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                              type: number
+                                              minimum: -180
+                                              maximum: 180
+                                          required:
+                                          - lat
+                                          - lng
+                                          description: Training data position
+                                      required:
+                                      - usedWlanApCount
+                                  required:
+                                  - trained
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - trainingStatus
+                        required:
+                        - id
+                        - geofence
+            application/octet-stream:
+              example: 34 56 18 93 45 29 54 62 77 28 23 79 22
+              schema:
+                type: array
+                items: {}
+                description: 'Response body contains an array of geofence objects, `count` specifies the number of returned geofences,
+
+                  and `pageToken` indicates the next available page in the matching result set.
+
+
+                  If no geofences are found, an object with empty data array is returned.
+
+                  '
+                example:
+                  response data as Protobuf binary, format as follows: "message GeofenceMsg {\n  message GeofenceCircular {\n    //Latitude value\n    float lat = 1;\n    //Longitude value\n    float lng = 2;\n    //Center radius value\n    uint32 radius = 3;\n    //Geofence ID\n    string id = 4;\n  }\n  message GeofencePolygonal {\n    //Latitude value array\n    repeated float lat = 1;\n    //Longitude value array\n    repeated float lng = 2;\n    //Geofence ID\n    string id = 3;\n  }\n  //Circular geofence array\n  repeated GeofenceCircular circulars = 1;\n  //Polygonal geofence array\n  repeated GeofencePolygonal polygonals = 2;\n  //Page token\n  string pageToken = 3;\n}\n"
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee
+                message: The trackingId was not found.
+                details:
+                  hereErrorCode: 404306
+          description: TrackingId not found.
+      operationId: getAssociationsV3ByTrackingIdGeofences
+      x-operation-id-source: derived
+  /associations/v3/{trackingId}/rules:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    get:
+      summary: Gets rules associated with a device
+      description: Gets a list of rules associated with the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      tags:
+      - Associations
+      responses:
+        '200':
+          description: 'Response body contains an array of rule objects, count indicating the number of returned rules,
+
+            and pageToken if available.
+
+
+            If no rule is found, an object with empty data array is returned.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - ruleId: f4c26630-5d26-4cd1-a57e-g7834e72cb99
+                  rule:
+                    type: dwelling
+                    threshold:
+                      durationS: 3600
+                pageToken: 024ggjjea253d79fc
+                count: 1
+              schema:
+                type: object
+                description: 'Response body contains an array of rule objects, count indicating the number of returned rules,
+
+                  and pageToken if available. If no rules are found, an object with empty data array is returned.
+
+                  '
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          ruleId:
+                            type: string
+                            format: uuid
+                            description: 'Must be a valid UUIDv4.
+
+                              '
+                          rule:
+                            oneOf:
+                            - title: Detention
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The rule type
+                                  enum:
+                                  - detention
+                                threshold:
+                                  description: 'Detention event is triggered when the asset has been continuously stationary for longer
+
+                                    than the threshold duration.
+
+                                    '
+                                  type: object
+                                  properties:
+                                    durationS:
+                                      type: integer
+                                      description: Duration in seconds
+                                      minimum: 0
+                                      maximum: 2147483647
+                                  required:
+                                  - durationS
+                                  additionalProperties: false
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: Rule name
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: Rule description
+                              required:
+                              - type
+                              - threshold
+                              additionalProperties: false
+                            - title: Dwelling
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The rule type
+                                  enum:
+                                  - dwelling
+                                threshold:
+                                  description: 'Dwelling event is triggered when the asset has been continuously inside a geofence
+
+                                    for longer than the threshold duration.
+
+                                    '
+                                  type: object
+                                  properties:
+                                    durationS:
+                                      type: integer
+                                      description: Duration in seconds
+                                      minimum: 0
+                                      maximum: 2147483647
+                                  required:
+                                  - durationS
+                                  additionalProperties: false
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: Rule name
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: Rule description
+                              required:
+                              - type
+                              - threshold
+                              additionalProperties: false
+                            - title: Utilization
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The rule type
+                                  enum:
+                                  - utilization
+                                threshold:
+                                  description: 'Utilization event is triggered when the asset starts moving
+
+                                    indicating that the asset is utilized, and also when the asset stops
+
+                                    moving and has been stationary for longer than the threshold duration
+
+                                    indicating that the asset is unutilized.
+
+                                    '
+                                  type: object
+                                  properties:
+                                    durationS:
+                                      type: integer
+                                      description: Duration in seconds
+                                      minimum: 0
+                                      maximum: 2147483647
+                                  required:
+                                  - durationS
+                                  additionalProperties: false
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: Rule name
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: Rule description
+                              required:
+                              - type
+                              - threshold
+                              additionalProperties: false
+                            - title: Online
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The rule type
+                                  enum:
+                                  - online
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: Rule name
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: Rule description
+                              required:
+                              - type
+                              additionalProperties: false
+                        required:
+                        - ruleId
+                        - rule
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getAssociationsV3ByTrackingIdRules
+      x-operation-id-source: derived
+  /associations/v3/devices/{trackingId}/batchCreate:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    post:
+      summary: Associates rules with a device
+      description: Associates rules with the device `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Body containing arrays of ruleIds and geofenceIds to associate with the device.
+              type: object
+              properties:
+                ruleIds:
+                  type: array
+                  description: Array of rule IDs
+                  maxItems: 15
+                  items:
+                    type: string
+                    format: uuid
+                    description: 'Must be a valid UUIDv4.
+
+                      '
+                geofenceIds:
+                  type: array
+                  description: Array of geofence IDs
+                  maxItems: 15
+                  items:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+              required:
+              - ruleIds
+              - geofenceIds
+              additionalProperties: false
+      responses:
+        '201':
+          description: 'Successful
+
+
+            Device has been associated with provided rules.
+
+            '
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+      operationId: postAssociationsV3DevicesByTrackingIdBatchCreate
+      x-operation-id-source: derived
+  /associations/v3/devices/{trackingId}/batchDelete:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+      required: true
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    post:
+      summary: Disassociates rules from a device
+      description: Disassociates rules from the device identified by `trackingId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Body containing arrays of ruleIds and geofenceIds to disassociate from the device.
+              type: object
+              properties:
+                ruleIds:
+                  type: array
+                  description: Array of rule IDs
+                  maxItems: 15
+                  items:
+                    type: string
+                    format: uuid
+                    description: 'Must be a valid UUIDv4.
+
+                      '
+                geofenceIds:
+                  type: array
+                  description: Array of geofence IDs
+                  maxItems: 15
+                  items:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+              required:
+              - ruleIds
+              - geofenceIds
+              additionalProperties: false
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+      operationId: postAssociationsV3DevicesByTrackingIdBatchDelete
+      x-operation-id-source: derived
+  /associations/v3/devices/batchUpdate:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    put:
+      summary: Updates rules associations for devices
+      description: Updates rules associated with devices.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Associations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: 'Body containing arrays of ruleIds and geofenceIds to disassociate
+
+                (oldRules) from and associate (newRules) to the devices identified
+
+                in trackingIds array.
+
+                '
+              type: object
+              properties:
+                trackingIds:
+                  type: array
+                  description: Array of tracking IDs (external IDs are also permitted here)
+                  minItems: 1
+                  maxItems: 50
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                oldRules:
+                  description: Rules to be disassociated from the devices
+                  type: object
+                  properties:
+                    ruleIds:
+                      type: array
+                      description: Array of rule IDs
+                      maxItems: 15
+                      items:
+                        type: string
+                        format: uuid
+                        description: 'Must be a valid UUIDv4.
+
+                          '
+                    geofenceIds:
+                      type: array
+                      description: Array of geofence IDs
+                      maxItems: 15
+                      items:
+                        description: Geofence ID
+                        type: string
+                        format: uuid
+                  required:
+                  - ruleIds
+                  - geofenceIds
+                  additionalProperties: false
+                newRules:
+                  description: Rules to be associated to the devices
+                  type: object
+                  properties:
+                    ruleIds:
+                      type: array
+                      description: Array of rule IDs
+                      maxItems: 15
+                      items:
+                        type: string
+                        format: uuid
+                        description: 'Must be a valid UUIDv4.
+
+                          '
+                    geofenceIds:
+                      type: array
+                      description: Array of geofence IDs
+                      maxItems: 15
+                      items:
+                        description: Geofence ID
+                        type: string
+                        format: uuid
+                  required:
+                  - ruleIds
+                  - geofenceIds
+                  additionalProperties: false
+              required:
+              - trackingIds
+              - oldRules
+              - newRules
+              additionalProperties: false
+      responses:
+        '201':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+      operationId: putAssociationsV3DevicesBatchUpdate
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests.
+
+
+        For more information on how to get an API key, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n\nUsers are authenticated using an OAuth 1.0 bearer token obtained using the `/users/v2/login` endpoint.\n\nDevices are authenticated using an OAuth 1.0 bearer token obtained using the `/v2/token` endpoint.\n\n**Make a request using the bearer token for authentication**\n\nMake a request with an `Authorization` header containing the obtained bearer token.\n\nExample:\n\n```\n    Authorization: Bearer h1.yxPIksZ0ViLq77f1Nh-9cg.NVgGBZVlCU8G7kjV_...\n```\n\n> **Note:** For the available authentication options, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).\n"
+    UserToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using user's realm, username and password and then further scoped to a specific project.\n\nFirst obtain access token from [/users/v2/login endpoint](#tag/Users/paths/~1users~1v2~1login/post).\nThen use [/users/v2/tokenExchange endpoint](#tag/Users/paths/~1users~1v2~1tokenExchange/post) to convert\nyour user access token into a project-scoped user access token.\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.xikjhDyJsE17VLhPXiu.fm3WsNOunstXH78RvU8_...\n```\n"
+    ClientToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using application's OAuth 2.0 credentials (key + secret) and then scoped to a specific project.\n\nFollow [instructions here](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/topics/plat-token.html)\nto create your application credentials and obtain the token using OLP CLI. With an exception\nthat when getting the token you need to provide also project's HRN value:\n\n```\n    olp api token get --scope {PROJECT_HRN}\n```\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.PGEVzQmaoW5pyBYUlWu.SQoSCF7qpToEFMHgSlJ_...\n```\n"
+    DeviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This access token is obtained from [/v2/token endpoint](#tag/Ingestion/paths/~1v2~1token/post) using a signed request.
+
+
+        > **Note:** Only a small subset of our endpoints support this token type and is only useful for hardware devices.
+
+        > You probably won''t need this.
+
+        '
+    signedRequest:
+      type: http
+      scheme: oauth
+      description: "HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.\n\n> **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.\n\n**Create the Signature Base String**\n\nThe first step in creating a signature is to create the signature base string. This string contains the parameters to use when generating the signature.\n\n*1. To begin, make sure you have the information listed in the following table.*\n\n| Parameter                | Description                              |\n| ------------------------ | -----------------------------------------|\n| oauth\\_consumer\\_key     | The device ID for which you want to generate a token. |\n| oauth\\_signature\\_method | Always use \"HMAC-SHA256\".                 |\n| oauth\\_timestamp         | The number of seconds since the Unix epoch at the point the request is generated. This must be within 10 seconds of the timestamp returned by the `/v2/timestamp` endpoint. |\n| oauth\\_nonce             | A unique string for this signature. The string cannot have been used in a previous signature. Each token generation request to HERE Tracking must have a unique signature, and the value in this parameter is what is used to ensure the signature is unique. |\n| oauth\\_version           | Always use \"1.0\".                         |\n\n*2. Combine these values into a single string by following these steps:*\n\n   1. URL encode every key and value.\n   2. Sort the list of key-value pairs alphabetically by key.\n   3. Concatenate each key/value pair, separating each with an ampersand character (\"&\").\n\nThe result is a parameter string that looks like this (line breaks are added for legibility):\n\n   ```\n   oauth_consumer_key=47164fb0-b7b3-49e8-891b-650270b82cf2\n   &oauth_nonce=LIIpk4\n   &oauth_signature_method=HMAC-SHA256\n   &oauth_timestamp=1513634609\n   &oauth_version=1.0\n   ```\n\n*3. Combine the HTTP method, base URL, and parameter string into a single string called the \"base string\". This will be the string from which the signature is generated. The base string is in this format:*\n\n   ```\n   POST&https://tracking.api.here.com/v2/token&<URL encoded parameter string>\n   ```\n\n   The base string consists of:\n\n   1. The HTTP method in caps (POST) followed by an ampersand (\"&\")\n   2. The URL of the HERE Tracking token endpoint followed by an ampersand (\"&\")\n   3. The URL-encoded parameter string.\n\n   For example (line breaks are added for legibility):\n\n   ```\n   POST\n    &https%3A%2F%2Ftracking.api.here.com%2Fv2%2Ftoken\n    &oauth_consumer_key%3D47164fb0-b7b3-49e8-891b-650270b82cf2%26\n    oauth_nonce%3DLIIpk4%26oauth_signature_method%3DHMAC-SHA256%26\n    oauth_timestamp%3D1513634609%26oauth_version%3D1.0\n   ```\n\n   > **Note:** The URL-encoded base string should contain exactly two ampersands (\"&\").\n\n**Create the signature**\n\nThe signing key used to sign the base string is the `deviceSecret` followed by an ampersand (\"&\").\n\nCreate the signature by passing the signature base string and the signing key to the `HMAC-SHA256` hashing algorithm and converting the result to a `base64` string. Then, use the signature to request a token.\n\n**Request the token**\n\nMake a `POST` request to this endpoint with an `Authorization` header constructed from the above parameters and the generated signature.\n\nExample:\n\n```\n    Authorization: OAuth oauth_consumer_key=\"47164fb0-b7b3-49e8-891b-650270b82cf2\",\n        oauth_signature_method=\"HMAC-SHA256\",\n        oauth_timestamp=\"1513634609\",\n        oauth_nonce=\"LIIpk4\",\n        oauth_version=\"1.0\",\n        oauth_signature=\"pQ9EJX14L736B%2Br7uZl4yQlO6Xw%3D\"\n```\n"
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/bundle/tracking-api-developer-guide

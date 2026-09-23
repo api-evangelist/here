@@ -1,0 +1,230 @@
+openapi: 3.2.0
+info:
+  title: OAuth 2.0 Access Token Client Registration API
+  version: 1.2.0
+  description: 'Request an OAuth 2.0 access token that identifies your identity
+
+    The term "realm" is now known as "organization" or "org".'
+servers:
+- url: https://account.api.here.com
+tags:
+- name: Client Registration
+  description: OAuth Relying Party - Client Registration
+paths:
+  /mcp/register:
+    post:
+      tags:
+      - Client Registration
+      summary: Dynamically register a MCP client
+      operationId: OAuth 2.0 Access Token RegisterMcpClient
+      description: 'Registers a new public OAuth client for use with the MCP Authorization Code
+
+        + PKCE flow, per RFC 7591.
+
+        No authentication is required.
+
+
+        Note - Fields like client_uri, logo_uri, contacts etc. are not supported yet.'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpClientRegistrationRequest'
+      responses:
+        '201':
+          description: Client registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpClientRegistrationResponse'
+        '400':
+          description: "Registration failed. OAuth error codes per <a href=https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.2>RFC 7591 Section 3.2.2</a>.\n* invalid_redirect_uri  - A redirect URI is missing or fails validation.\n* invalid_client_metadata - Disallowed grant_types/response_types/token_endpoint_auth_method,\n  or application_type conflicts with the supplied redirect URIs.\n\n* invalid_request - Malformed JSON or missing body.\n"
+        '413':
+          description: Request body exceeds the maximum allowed size.
+        '429':
+          description: 'Registration rate limit exceeded (per-IP or global DCR cap). A Retry-After header SHOULD be present.
+
+            '
+        default:
+          $ref: '#/components/responses/CommonError'
+components:
+  schemas:
+    McpClientRegistrationResponse:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Server-assigned client identifier.
+          example: test-mcp-app-1a2b3c4d
+        client_id_issued_at:
+          type: integer
+          format: int64
+          description: Epoch seconds at which the client_id was issued.
+          example: 1783036055
+        client_name:
+          type: string
+          description: 'Human-readable client name. Shown on the consent screen.
+
+            '
+          example: Kiro
+        redirect_uris:
+          type: array
+          items:
+            type: string
+          description: 'Redirection URIs from request body. Must be HTTPS (non-loopback) or loopback HTTP
+
+            '
+          example:
+          - http://127.0.0.1:63749/oauth/callback
+        grant_types:
+          type: array
+          items:
+            type: string
+          description: 'Only authorization code supported for Public MCP Clients.
+
+            '
+          example:
+          - authorization_code
+        response_types:
+          type: array
+          items:
+            type: string
+          example:
+          - code
+          description: JSON array containing a list of the OAuth 2.0 response_type values. Supported values 'code'
+        token_endpoint_auth_method:
+          type: string
+          description: 'Token endpoint authentication method. Must be "none" if supplied.
+
+            '
+          example: none
+    ErrorResponse:
+      type: object
+      properties:
+        errorId:
+          type: string
+          description: Unique id for the error. This is searchable from HERE Account logs.
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+        httpStatus:
+          type: integer
+          description: HTTP status code of the response
+          example: 401
+        errorCode:
+          type: integer
+          description: 'Error code representing the specific error. If the ''errorFields'' element is present, it will have precise error codes.
+
+            '
+          example: 401300
+        message:
+          type: string
+          description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
+
+            '
+          example: Invalid client credentials.
+        errorFields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: 'Name of the field that had an error. Will be blank in case the error was caused when comparing multiple fields.
+
+                  '
+                example: Received invalid data.  See json element 'errorFields' for more information.
+              errorCode:
+                type: integer
+                description: 'More detailed error code. Needs to be paired with ''errorFields.name'' to get the exact error.
+
+                  '
+                example: 400201
+              message:
+                type: string
+                description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
+
+                  '
+                example: This field is required.
+    McpClientRegistrationRequest:
+      type: object
+      required:
+      - client_name
+      - redirect_uris
+      properties:
+        client_name:
+          type: string
+          maxLength: 256
+          description: 'Human-readable client name. Shown on the consent screen.
+
+            '
+          example: Kiro
+        redirect_uris:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            pattern: ^https://[^/?#]+(?:/[^#]*)?$|^http://(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:/[^#]*)?$
+          description: 'Redirection URIs. Must be HTTPS (non-loopback) or loopback HTTP (http://localhost, http://127.0.0.1, http://[::1]) only. No wildcards, no fragments. Validated against application_type at registration and exact-matched at authorize/token time.
+
+            '
+          example:
+          - http://127.0.0.1:63749/oauth/callback
+        token_endpoint_auth_method:
+          type: string
+          enum:
+          - none
+          description: 'Must be "none" if supplied. The server always provisions a public (PKCE-only) client and issues no client_secret. Defaults to ["none"]
+
+            '
+          example: none
+        grant_types:
+          type: array
+          items:
+            type: string
+            enum:
+            - authorization_code
+          description: 'Only authorization code supported for Public MCP Clients. Any other value (e.g. client_credentials, implicit) is rejected with invalid_client_metadata. Defaults to ["authorization_code"]
+
+            '
+          example:
+          - authorization_code
+        response_types:
+          type: array
+          items:
+            type: string
+            enum:
+            - code
+          description: Must be "code" if supplied. Defaults to ["code"].
+          example:
+          - code
+  responses:
+    CommonError:
+      description: "An error occurred while processing the request. The following common error codes apply to all endpoints.\n## General Error Codes\n* httpStatus 400, errorCode 400002: Invalid JSON.\n* httpStatus 400, errorCode 400003: Content-Type header missing.\n* httpStatus 400, errorCode 400004: Content-Type header something else than 'application/json'.\n* httpStatus 400, errorCode 400200: Received invalid data. See 'errorFields' for more information.\n  * errorFields.errorCode 400201: Missing required field. 'errorFields.name' describes which field was missing.\n  * errorFields.errorCode 400202: Value cannot be empty. 'errorFields.name' describes which field was empty.\n  * errorFields.errorCode 400203: Invalid value. 'errorFields.name' describes which field had illegal characters (Illegal characters are all control characters, non-breaking space, and * / < > \\ | )\n  * errorFields.errorCode 400204: Invalid system generated value. 'errorFields.name' describes which field had illegal characters.\n  * errorFields.errorCode 400216: Not a valid array value. 'errorFields.name' describes which field was expecting an array value.\n  * errorFields.errorCode 400217: Not a valid string value. 'errorFields.name' describes which field was expecting a string value.\n  * errorFields.errorCode 400218: Not a valid JSON object. 'errorFields.name' describes which field was expecting a JSON object value.\n* httpStatus 400, errorCode 400255: Invalid realm format.\n* httpStatus 400, errorCode 400917: Unable to perform request. Size limit exceeded.\n* httpStatus 401, errorCode 401300: Invalid client credentials.\n* httpStatus 401, errorCode 401302: Client does not have access to the endpoint.\n* httpStatus 401, errorCode 401424: Access key has been disabled.\n* httpStatus 429, errorCode 429002: Request blocked because too many requests were made. Please wait for a while before making a new request.\n## Token Validation Error Codes\n* httpStatus 401, errorCode 400300: Invalid characters in access token.\n* httpStatus 401, errorCode 400601: Unsupported token format.\n* httpStatus 401, errorCode 400600: Expired token.\n* httpStatus 401, errorCode 401200: Authorization header missing.\n* httpStatus 401, errorCode 401201: Invalid Authorization header format, expecting Bearer format.\n* httpStatus 401, errorCode 401303: Wrong token type. (example: passed user token in place of client token)\n* httpStatus 401, errorCode 401701: Access Token no longer valid.\n* httpStatus 401, errorCode 401600: No account found for given account Id.\n* httpStatus 401, errorCode 401510: User: {ID} has expired.\n* httpStatus 401, errorCode 401500: User: {ID} is not enabled.\n* httpStatus 401, errorCode 404660: No app exists with the given Id.\n* httpStatus 401, errorCode 401311: Requesting client status is not active.\n## Client Signed Request Error Codes\n* httpStatus 401, errorCode 401202: Malformed OAuth 1.0 header (ex. duplicated parameters, missing parameters).\n* httpStatus 401, errorCode 401204: Time stamp is outside the valid period.\n* httpStatus 401, errorCode 401205: Unsupported value for signature method.\n* httpStatus 401, errorCode 401206: Unsupported value for \"oauth_version\" parameter - should be 1.0.\n* httpStatus 401, errorCode 401207: Nonce already consumed.\n* httpStatus 401, errorCode 401300: Invalid client credentials / signature mismatch.\n* httpStatus 401, errorCode 401310: Invalid signature. Attempt to use client ID instead of access key identifier for consumer key.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    OAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'OAuth [OAuth 1.0 Signing Process](http://oauth.net/core/1.0/#signing_process). Used for client_credentials grant when NOT using JWT assertion authentication.
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

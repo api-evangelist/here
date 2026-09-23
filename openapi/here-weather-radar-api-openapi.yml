@@ -1,0 +1,548 @@
+openapi: 3.2.0
+info:
+  title: Here Weather Radar API
+  version: '1.0'
+  description: 'Operations tagged Weather Radar across 2 of this provider''s published API definitions: here-destination-weather-v1-openapi.yml, here-destination-weather-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://weather.cc.api.here.com
+  description: Production environment URL.
+- url: https://weather.hereapi.com/v3
+  description: Production environment URL
+tags:
+- name: Weather Radar
+  description: Dopler radar images.
+paths:
+  /weather/2.0/tile/{zoom}/{x}/{y}/{imageType}:
+    get:
+      tags:
+      - Weather Radar
+      summary: Weather radar image
+      description: Retrieves a doppler radar image.
+      operationId: Weather API v1 weatherRadarImage
+      parameters:
+      - name: zoom
+        in: path
+        description: "Zoom level. Value can be in range:\n* for imageTye=1 from 3 to 11, \n* for imageType=2 from 4 to 9\n"
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 3
+          maximum: 11
+      - name: x
+        in: path
+        description: x coordinate for the tile, can be any number between 0 and 2^zoom - 1.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2047
+      - name: y
+        in: path
+        description: y coordinate for the tile, can be any number between 0 and 2^zoom - 1.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2047
+      - name: imageType
+        in: path
+        description: ID of the image type. Currently, there are two valid image types identifying the Doppler radar images (1) and Global precipitation images (2). Other image types might be added in future versions of the API.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 2
+      - name: ts
+        in: query
+        description: The time in ISO 8601 format. By default, current time is being considered. You can specify a time in the past to get archived radar images or future to retrieve precipitation forecasts.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+          headers:
+            X-RADAR-IMAGE:
+              description: Image timestamp. if requested area is not covered. Custom header 'X-RADAR-IMAGE' in the response contains value 'NC'
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/Error400TileResponse'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '429':
+          $ref: '#/components/responses/Error429Response'
+        '500':
+          $ref: '#/components/responses/Error500Response'
+        '502':
+          $ref: '#/components/responses/Error502Response'
+        '503':
+          $ref: '#/components/responses/Error503Response'
+        '504':
+          $ref: '#/components/responses/Error504Response'
+      security:
+      - Bearer: []
+    servers:
+    - url: https://weather.cc.api.here.com
+      description: Production environment URL.
+  /tile/{zoom}/{x}/{y}/{imageType}:
+    get:
+      tags:
+      - Weather Radar
+      summary: Weather radar image
+      description: Retrieves a Doppler radar image
+      operationId: Weather API v3 weatherRadarImage
+      parameters:
+      - $ref: '#/components/parameters/X-Request-Id'
+      - name: zoom
+        in: path
+        description: "Zoom level. Value can be in range:\n* for imageTye=`radar` from 3 to 11, \n* for imageType=`precipitation` from 4 to 9\n"
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 3
+          maximum: 11
+      - name: x
+        in: path
+        description: x coordinate for the tile, can be any number between 0 and 2^zoom - 1.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2047
+      - name: y
+        in: path
+        description: y coordinate for the tile, can be any number between 0 and 2^zoom - 1.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2047
+      - name: imageType
+        in: path
+        description: Type of image. Currently, there are two valid image types identifying the Doppler radar images and Global precipitation images. Other image types might be added in future versions of the API.
+        required: true
+        schema:
+          type: string
+          enum:
+          - radar
+          - precipitation
+      - name: time
+        in: query
+        description: The time in ISO 8601 format. By default, current time is being considered. You can specify a time in the past to get archived radar images or future to retrieve precipitation forecasts.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: format
+        in: query
+        description: The desired image output format. Currently, the output format is PNG, but other formats might be supported in the future. The default is `png`.
+        required: false
+        schema:
+          type: string
+          enum:
+          - png
+      - name: Accept
+        description: Specify certain media types which are acceptable for the response.
+        in: header
+        required: true
+        schema:
+          type: string
+          enum:
+          - image/png
+      responses:
+        '200':
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Last-Modified:
+              description: radar image timestamp.
+              schema:
+                type: string
+            X-Radar-Covered:
+              description: Area is covered by radar images. True or False.
+              schema:
+                type: boolean
+            X-Correlation-Id:
+              $ref: '#/components/headers/X-Correlation-Id'
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+        '400':
+          $ref: '#/components/responses/Error400TileResponse_2'
+        '401':
+          $ref: '#/components/responses/Error401Response'
+        '403':
+          $ref: '#/components/responses/Error403Response'
+        '500':
+          $ref: '#/components/responses/Error500Response_2'
+        '502':
+          $ref: '#/components/responses/Error502Response_2'
+        '503':
+          $ref: '#/components/responses/Error503Response_2'
+        '504':
+          $ref: '#/components/responses/Error504Response_2'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://weather.hereapi.com/v3
+      description: Production environment URL
+components:
+  examples:
+    BadRequestTileExample:
+      value:
+        Type: Invalid Request
+        Message:
+        - LayerId '3' is invalid. Only layer Ids '2,1' are allowed.
+    InternalServerErrorExample:
+      value:
+        Type: Internal Server Error
+        Message:
+        - Service is not available
+    502errorResponseExample:
+      value:
+        Type: Bad Gateway
+        Message:
+        - Failure of communication with external system.
+    504errorResponseExample:
+      value:
+        Type: Gateway timeout
+        Message:
+        - Did not receive a timely response from an upstream server
+    BadRequestTileExample_2:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: imageType 'temperature' is invalid. Only imageType=radar is allowed.
+        action: Please provide valid imageType in the request.
+        code: E611206
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    InternalServerErrorExample_2:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E611101
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    502errorResponseExample_2:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E611201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    504errorResponseExample_2:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E611101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+  responses:
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error503Response:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Service not available
+            Message:
+            - Service is not available
+    Error429Response:
+      description: API response in case of too many requests
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Too many requests
+            Message:
+            - Request rate limit reached
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+    Error400TileResponse:
+      description: Invalid parameters were provided.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            badRequestExample:
+              $ref: '#/components/examples/BadRequestTileExample'
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+    Error502Response_2:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_2'
+    Error503Response_2:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 503
+            code: E611001
+            title: Service not available
+            cause: Service current not available
+            action: Retry later
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error504Response_2:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample_2'
+    Error400TileResponse_2:
+      description: Invalid parameters were provided.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            badRequestExample:
+              $ref: '#/components/examples/BadRequestTileExample_2'
+    Error500Response_2:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_2'
+  headers:
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+  schemas:
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+        error_description:
+          type: string
+          description: Detailed information about the error.
+      example:
+        Type: Unauthorized
+        Message: ApiKey invalid. ApiKey not found.
+    Error:
+      type: object
+      properties:
+        Type:
+          type: string
+          example: Invalid Request
+        Message:
+          type: array
+          items:
+            type: string
+            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code.
+        title:
+          type: string
+          description: Human-readable error description.
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+        action:
+          type: string
+          description: Human-readable action for the user.
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request.
+      required:
+      - status
+      - title
+      - code
+      - cause
+      - action
+      - correlationId
+  parameters:
+    X-Request-Id:
+      name: X-Request-Id
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+
+        '
+externalDocs:
+  description: The developer guide and release notes are available here.
+  url: https://www.here.com/docs/category/destination-weatherv3
+x-refined-from:
+- here-destination-weather-v1-openapi.yml
+- here-destination-weather-v3-openapi.yml

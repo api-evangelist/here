@@ -1,0 +1,834 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Manage Device Accounts API
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Manage Device Accounts
+  description: APIs to Manage Device Accounts.
+paths:
+  /devices:
+    parameters:
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/RealmQuery'
+      - $ref: '#/components/parameters/IdentityProviderQuery'
+      - $ref: '#/components/parameters/ExternalId'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      tags:
+      - Manage Device Accounts
+      summary: List Devices
+      operationId: listDevices
+      description: 'List Devices.
+
+
+        Access Control:
+
+        * The calling principal must have **"readDevices"** action permission for the resource **"{realm}"** in
+
+        the **"account"** service. The *realm* is either taken from the query string parameters, or if absent
+
+        defaults to the *realm* in the request access token.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceList'
+              example:
+                count: 1
+                items:
+                - id: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                  hrn: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                  realm: hrn:here:account::org123456789:realm/org123456789
+                  project: hrn:here:account::org123456789:project/my-project-0000
+                  identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                  externalId: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+                  enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "readDevices" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Realm, or Device with specified Provider and ExternalId, does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    delete:
+      parameters:
+      - $ref: '#/components/parameters/RequiredIdentityProvider'
+      - $ref: '#/components/parameters/RequiredExternalId'
+      tags:
+      - Manage Device Accounts
+      summary: Delete Devices
+      operationId: deleteDevices
+      description: 'Delete a Device by its Identity Provider and ExternalId.
+
+        Deleting multiple Devices at a time is not currently supported.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageDevices"** action permission for the resource **"{realm}"** in
+
+        the **"account"** service. The *realm* is realm of the device.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "readDevices" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: "An error has occurred.\n* E110000 - The requested Identity Provider, or Device with specified Identity Provider and ExternalId, \n  does not exist.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /devices/{device}:
+    parameters:
+    - $ref: '#/components/parameters/Device'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Manage Device Accounts
+      summary: Get a Device by HRN
+      operationId: getDevice
+      description: 'Get the Device specified by HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readDevices"** action permission for the resource **"{realm}"** in
+
+        the **"account"** service. The *realm* is identified in the **"{device}"**.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+              example:
+                id: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                hrn: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                realm: hrn:here:account::org123456789:realm/org123456789
+                project: hrn:here:account::org123456789:project/my-project-0000
+                identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                externalId: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"readDevices"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Project or Device does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    patch:
+      tags:
+      - Manage Device Accounts
+      summary: Update a Device by HRN
+      operationId: updateDevice
+      description: 'Update the Device specified by HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageDevices"** action permission for the resource **"{realm}"** in
+
+        the **"account"** service. The *realm* is identified in the **"{device}"**.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDevice'
+            example:
+              enabled: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+              example:
+                id: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                hrn: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                realm: hrn:here:account::org123456789:realm/org123456789
+                project: hrn:here:account::org123456789:project/my-project-0000
+                identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                externalId: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"manageDevices"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Project or Device does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    delete:
+      tags:
+      - Manage Device Accounts
+      summary: Delete a Device by HRN
+      operationId: deleteDevice
+      description: 'Delete the Device specified by HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageDevices"** action permission for the resource **"{realm}"** in
+
+        the **"account"** service. The *realm* is identified in the **"{device}"**.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "manageDevices" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Device does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /projects/{project}/devices:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/Project'
+      - $ref: '#/components/parameters/IdentityProviderQuery'
+      - $ref: '#/components/parameters/ExternalId'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      tags:
+      - Manage Device Accounts
+      summary: List Project Devices
+      operationId: listProjectDevices
+      description: 'List Devices in the specified Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"readDevices"** action permission for the resource **"{project}"** in
+
+        the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceList'
+              example:
+                count: 1
+                items:
+                - id: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                  hrn: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+                  realm: hrn:here:account::org123456789:realm/org123456789
+                  project: hrn:here:account::org123456789:project/my-project-0000
+                  identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                  externalId: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+                  enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "readDevices" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Realm, or Device with specified Provider and ExternalId, does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+components:
+  parameters:
+    RequiredIdentityProvider:
+      in: query
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Project:
+      in: path
+      required: true
+      name: project
+      schema:
+        type: string
+      description: 'HRN identifying the Project.
+
+        '
+      example: hrn:here:authorization::org123456789:project/proj-123456
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    RequiredExternalId:
+      in: query
+      required: true
+      name: externalId
+      schema:
+        type: string
+      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.\n"
+      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    RealmQuery:
+      in: query
+      required: false
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  If neither `identityProvider` nor `realm` is specified, defaults to the realm \nidentified in your access token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
+    IdentityProviderQuery:
+      in: query
+      required: false
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.  Ignored if `externalId` is not specified in the request.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Device:
+      in: path
+      required: true
+      name: device
+      schema:
+        type: string
+      description: 'HRN of the Device.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    ExternalId:
+      in: query
+      required: false
+      name: externalId
+      schema:
+        type: string
+      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.  \nIgnored if `identityProvider` is not specified in the request.\n"
+      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  schemas:
+    UpdateDevice:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: true if the Device is enabled for use in the platform, false if disabled for use.
+          example: true
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    DeviceList:
+      type: object
+      required:
+      - count
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of Devices in this page of the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+          description: List of Devices.
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
+    Device:
+      type: object
+      required:
+      - id
+      - hrn
+      - realm
+      - project
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Device within the Realm.
+          example: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+        hrn:
+          type: string
+          description: HRN for the Device
+          example: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+        realm:
+          type: string
+          description: The HRN for the Realm of the Device.
+          example: hrn:here:account::org123456789:realm/org123456789
+        project:
+          type: string
+          description: The HRN for the Project of the Device.
+          example: hrn:here:account::org123456789:project/my-project-0000
+        identityProvider:
+          type: string
+          description: "HRN of the IdentityProvider for the Device, if the Device was created from an identity in third-party \nIdentity Provider.\n"
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        externalId:
+          type: string
+          description: "External identifier for the Device under a third-party Identity Provider.\nAn example External ID is a Pseudo-VIN representing a stable hashed VIN identifying \nthe Subject vehicle at the Identity Provider.\nIf OpenID Connect Token Exchange was used to create this Device identity, the\nExternalId matches the value of the \"sub\" claim in the OP's access tokens.\nExternal IDs are considered unique for a given a Identity Provider.\n\nTODO: should we expose this in our APIs, or does it raise Privacy concerns?\n"
+          example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+        enabled:
+          type: boolean
+          description: true if the Device is enabled for use in the platform, false if disabled for use.
+          example: true
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

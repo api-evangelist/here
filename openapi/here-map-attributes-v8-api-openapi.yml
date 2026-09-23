@@ -1,0 +1,2533 @@
+openapi: 3.2.0
+info:
+  title: Map Attributes V8 API
+  description: 'Simple and fast access to the rich HERE Map content
+
+
+    Note: Support for custom map data and custom routing is deprecated.'
+  termsOfService: https://developer.here.com/terms-conditions
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+  version: 8.3.3
+servers:
+- url: https://smap.hereapi.com
+  description: Generated server url
+security:
+- apiKey: []
+- bearerTokenAuth: []
+tags:
+- name: Map Attributes V8
+paths:
+  /v8/maps/attributes:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Simple and fast access to the rich HERE Map Content
+      operationId: Map Attributes API v8GetMapAttributes
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the content of all maps containing the requested layer(s) is retrieved
+        required: false
+        schema:
+          type: string
+      - name: layers
+        in: query
+        description: Comma separated list of layers to be searched. Layer names are not case sensitive. Both custom layers and Map Attribute core map layers are supported. Map Attribute layers divided by functional class, like ROAD_GEOM_FC1 ... FC5 can be selected by N, e.g. ROAD_GEOM_FCN. The maximum length of a layer name and the permitted characters can be looked up up in the service via v8/maps/serviceconfiguration. Via the attributes parameter only certain column attributes from a layer can be returned.
+        required: true
+        schema:
+          type: string
+      - name: in
+        in: query
+        description: "Spatial filtering. Supported are bbox, proximity, tile, corridor and all (full layer). \nThe format is &in=all or \n&in=bbox:{west longitude},{south latitude},{east longitude},{north latitude} or \n&in=proximity:latitude,longitude;r={radius} or \n&in=tile:{comma separated list of tile ids. The number of tile ids must match with the number of layers.} or \n&in=corridor:{comma separated WGS84 degree coordinates of corridor, for example:latitude 1,longitude 1,latitude 2,longitude 2 / encoded polyline string from Routing v8 response/ routeHandle string from Routing v8 response};r={radius}[;type=geoCoordinate(gc)/encodedPolyline(ep)/routeHandle(rh) }.\n When using routeHandle for corridor search an access token or apikey used for the router v8 service should be specified as Authorization header, else request will fail."
+        required: false
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 'A SQL expression being evaluated for each geometry being returned from the specified layer listing. Columns value for the geometry are available as defined variables. When specified, only geometries where expression evaluates to true will be returned. Supported SQL filter operators are: ''='', ''!='', ''>'', ''<'', ''AND'', ''OR'', ''LIKE''. Example: filter=RATING > 3 AND NAME != ''MyPlace23'' AND NAME LIKE ''FOOD%''. Parameter value must be url encoded when using special characters. This filter expression is applied to all geometries, so it can become slow for big layers. To avoid service overload, filter expressions must not exceed 100 characters of text.
+
+          Note:
+
+          1. The filter expression is applied to all objects across all specified layers. Therefore, it is most likely to work as intended when a single layer is requested.
+
+          2. The filter expression is not compatible with tile search. Tile search only allows filtering results based on attribute columns. Column filtering can be used to reduce response size.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: link2stabletopologyid
+        in: query
+        description: When set to 1 then stable topology ids are returned in the response. The default value is 1.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: release
+        in: query
+        description: Map release quarter, e.g. 2015Q4, 161J0, 16153 or LATEST (= default) for the latest available map release quarter. Specifying a map release is strongly discouraged, because there is no guarantee how long old map releases are available, hence applications that specify a release might stop working when the release gets retired. To choose a (nearest to) specific snapshot of the live traffic speed record or archived weather layer, a UNIX timestamp (number of milliseconds since 1970) or a url encoded date in 2017-12-01T17:30:00+01:00 format can be passed.
+        required: false
+        schema:
+          type: string
+      - name: meta
+        in: query
+        description: When set to 1 then meta info is returned in the response. The default value is 1.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: attributes
+        in: query
+        description: Semicolon separated list of column names (in uppercase) to specify which attributes shall appear in the result. If the request specifies several layers, then pass this for each layer, as a comma separated list. Default = all. F.e. if layers=LINK_ATTRIBUTE2_FCn,LINK_ATTRIBUTE_FCn,ROAD_GEOM_FCn are requested, then the columns can be restricted to only following attributes=PARKING_LOT_ROAD;CARPOOL_ROAD,PAVED;PRIVATE,BRIDGE;TUNNEL. Parking lot and carpool road are from layer LINK_ATTRIBUTE2_FCn, paved and private from LINK_ATTRIBUTE_FCn and bridge, tunnel from ROAD_GEOM_FCn layer.
+        required: false
+        schema:
+          type: string
+      - name: transportMode
+        in: query
+        description: 'Mode of transport to be used for the route calculation: car, truck, pedestrian. Required when routeHandle is used to retrieve attributes in corridor, please specify the same transportMode which was used to get the route handle from v8 Routing API.'
+        required: false
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: 'The number of geometries in the response. If more geometries satisfy the search/filter criteria, they will be suppressed. It is undefined, which of the matching geometries are returned, unless this parameter is used together with offset, which sorts the results set by geometry id.
+
+          Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layer_id parameter.
+
+          The maximum number of records supported within a single request can be looked up in the v8/maps/serviceconfiguration endpoint.
+
+          This parameter can only be used with &in=all filter to download either the custom layers or public static layers.'
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        description: 'To paginate huge responses, this parameter specifies the lowest geometry id to be returned. If geometry ids are not known, then retrieve the first page using zero, and to retrieve subsequent pages then request highest geometry of current page + 1 (it doesn''t matter whether this geometry id actually exists or not). Use this parameter together with count.
+
+          Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layer_id parameter.
+
+          This parameter can only be used with &in=all filter to download either the custom layers or public static layers.'
+        required: false
+        schema:
+          type: string
+      - name: acceptMissingLayers
+        in: query
+        description: Optional. If this parameter is set to true, user will get list of geometries from available layers, even if some of the requested layers are missing. If none of the requested layers are found, service returns empty list.
+        required: false
+        schema:
+          type: string
+      - name: geom
+        in: query
+        description: local, full or none. Specifies the geometry representation in the result. Default = local. Local geometry is used for map display purposes, returning geometry pieces that cover the given search radius, bounding box or corridor polygon. Full geometry is used for interactive editing, where the original geometry is required. Full geometry can only be retrieved for custom layers, for map  None is used for applications like geofencing, which most of the time want to know only the ids of the geofence points/lines polygons they are in or near.
+        required: false
+        schema:
+          type: string
+          default: local
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+    post:
+      tags:
+      - Map Attributes V8
+      summary: Simple and fast access to the rich HERE Map Content
+      operationId: Map Attributes API v8GetMapAttributes_1
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the content of all maps containing the requested layer(s) is retrieved
+        required: false
+        schema:
+          type: string
+      - name: layers
+        in: query
+        description: Comma separated list of layers to be searched. Layer names are not case sensitive. Both custom layers and Map Attribute core map layers are supported. Map Attribute layers divided by functional class, like ROAD_GEOM_FC1 ... FC5 can be selected by N, e.g. ROAD_GEOM_FCN. The maximum length of a layer name and the permitted characters can be looked up up in the service via v8/maps/serviceconfiguration. Via the attributes parameter only certain column attributes from a layer can be returned.
+        required: true
+        schema:
+          type: string
+      - name: in
+        in: query
+        description: "Spatial filtering. Supported are bbox, proximity, tile, corridor and all (full layer). \nThe format is &in=all or \n&in=bbox:{west longitude},{south latitude},{east longitude},{north latitude} or \n&in=proximity:latitude,longitude;r={radius} or \n&in=tile:{comma separated list of tile ids. The number of tile ids must match with the number of layers.} or \n&in=corridor:{comma separated WGS84 degree coordinates of corridor, for example:latitude 1,longitude 1,latitude 2,longitude 2 / encoded polyline string from Routing v8 response/ routeHandle string from Routing v8 response};r={radius}[;type=geoCoordinate(gc)/encodedPolyline(ep)/routeHandle(rh) }.\n When using routeHandle for corridor search an access token or apikey used for the router v8 service should be specified as Authorization header, else request will fail."
+        required: false
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 'A SQL expression being evaluated for each geometry being returned from the specified layer listing. Columns value for the geometry are available as defined variables. When specified, only geometries where expression evaluates to true will be returned. Supported SQL filter operators are: ''='', ''!='', ''>'', ''<'', ''AND'', ''OR'', ''LIKE''. Example: filter=RATING > 3 AND NAME != ''MyPlace23'' AND NAME LIKE ''FOOD%''. Parameter value must be url encoded when using special characters. This filter expression is applied to all geometries, so it can become slow for big layers. To avoid service overload, filter expressions must not exceed 100 characters of text.
+
+          Note:
+
+          1. The filter expression is applied to all objects across all specified layers. Therefore, it is most likely to work as intended when a single layer is requested.
+
+          2. The filter expression is not compatible with tile search. Tile search only allows filtering results based on attribute columns. Column filtering can be used to reduce response size.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: link2stabletopologyid
+        in: query
+        description: When set to 1 then stable topology ids are returned in the response. The default value is 1.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: release
+        in: query
+        description: Map release quarter, e.g. 2015Q4, 161J0, 16153 or LATEST (= default) for the latest available map release quarter. Specifying a map release is strongly discouraged, because there is no guarantee how long old map releases are available, hence applications that specify a release might stop working when the release gets retired. To choose a (nearest to) specific snapshot of the live traffic speed record or archived weather layer, a UNIX timestamp (number of milliseconds since 1970) or a url encoded date in 2017-12-01T17:30:00+01:00 format can be passed.
+        required: false
+        schema:
+          type: string
+      - name: meta
+        in: query
+        description: When set to 1 then meta info is returned in the response. The default value is 1.
+        required: false
+        schema:
+          type: string
+          default: '1'
+      - name: attributes
+        in: query
+        description: Semicolon separated list of column names (in uppercase) to specify which attributes shall appear in the result. If the request specifies several layers, then pass this for each layer, as a comma separated list. Default = all. F.e. if layers=LINK_ATTRIBUTE2_FCn,LINK_ATTRIBUTE_FCn,ROAD_GEOM_FCn are requested, then the columns can be restricted to only following attributes=PARKING_LOT_ROAD;CARPOOL_ROAD,PAVED;PRIVATE,BRIDGE;TUNNEL. Parking lot and carpool road are from layer LINK_ATTRIBUTE2_FCn, paved and private from LINK_ATTRIBUTE_FCn and bridge, tunnel from ROAD_GEOM_FCn layer.
+        required: false
+        schema:
+          type: string
+      - name: transportMode
+        in: query
+        description: 'Mode of transport to be used for the route calculation: car, truck, pedestrian. Required when routeHandle is used to retrieve attributes in corridor, please specify the same transportMode which was used to get the route handle from v8 Routing API.'
+        required: false
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: 'The number of geometries in the response. If more geometries satisfy the search/filter criteria, they will be suppressed. It is undefined, which of the matching geometries are returned, unless this parameter is used together with offset, which sorts the results set by geometry id.
+
+          Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layer_id parameter.
+
+          The maximum number of records supported within a single request can be looked up in the v8/maps/serviceconfiguration endpoint.
+
+          This parameter can only be used with &in=all filter to download either the custom layers or public static layers.'
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        description: 'To paginate huge responses, this parameter specifies the lowest geometry id to be returned. If geometry ids are not known, then retrieve the first page using zero, and to retrieve subsequent pages then request highest geometry of current page + 1 (it doesn''t matter whether this geometry id actually exists or not). Use this parameter together with count.
+
+          Parameter can be a single value that applies to all layers, or a comma separated list equal in number to the number of layers specified in layer_id parameter.
+
+          This parameter can only be used with &in=all filter to download either the custom layers or public static layers.'
+        required: false
+        schema:
+          type: string
+      - name: acceptMissingLayers
+        in: query
+        description: Optional. If this parameter is set to true, user will get list of geometries from available layers, even if some of the requested layers are missing. If none of the requested layers are found, service returns empty list.
+        required: false
+        schema:
+          type: string
+      - name: geom
+        in: query
+        description: local, full or none. Specifies the geometry representation in the result. Default = local. Local geometry is used for map display purposes, returning geometry pieces that cover the given search radius, bounding box or corridor polygon. Full geometry is used for interactive editing, where the original geometry is required. Full geometry can only be retrieved for custom layers, for map  None is used for applications like geofencing, which most of the time want to know only the ids of the geofence points/lines polygons they are in or near.
+        required: false
+        schema:
+          type: string
+          default: local
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesV8Response'
+  /v8/maps/attributes/segments:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Map Attributes for individual segments
+      description: 'The segments endpoint can be used to enrich multiple unconnected segments with HERE Map content attributes.
+
+
+        Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
+      operationId: Map Attributes API v8GetMapAttributesForMultiSegment
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Default: For public HERE maps all maps/regions containing the layer are returned, for private BYOD maps the layers from the DEFAULT map are returned'
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: 'Comma separated list of PDE layer names, to get link attributes along the route. Only link attribute layers (roughly those ending in _FC1, _FC2 ... ) are supported. Specify FCn to get the layers of all functional classes. Behind each layer name attributes can be listed, or (*) to get all. Example: &attributes=ROAD_GEOM_FCn(TUNNEL), SPEED_LIMITS_FCn (FROM_REF_SPEED_LIMIT, TO_REF_SPEED_LIMIT), ADAS_ATTRIB_FCn (SLOPES). A maximum of 32 layers can be requested per request.'
+        required: false
+        schema:
+          type: string
+      - name: segmentRefs
+        in: query
+        description: Semicolon separated list of one or multiple disconnected topology segment references. Format of a SegmentRef is [Segment Identifier:]Segment Ref Id#Start Offset[..End Offset][,LAT,LON][,Remaining Time On Route,Functional Class]. Please use here:xs1:segment as the segment identifier for Japan segmentRefs and here:cm:segment for segmentRefs from rest of the world.  The input is typically retrieved from the Geocoding&Search (Reverse Geocoding) API. A maximum of 64 segment references can be requested per request.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+    post:
+      tags:
+      - Map Attributes V8
+      summary: Map Attributes for individual segments (POST)
+      description: The segments endpoint can be used to enrich multiple unconnected segments with HERE Map content attributes. For POST requests, send the segmentRefs parameter in an application/x-www-form-urlencoded request body instead of the query string. Authentication `apiKey` must - and basic configuration parameters can remain in the query string.
+      operationId: Map Attributes API v8GetMapAttributesForMultiSegmentPost
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Default: For public HERE maps all maps/regions containing the layer are returned, for private BYOD maps the layers from the DEFAULT map are returned'
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: 'Comma separated list of PDE layer names, to get link attributes along the route. Only link attribute layers (roughly those ending in _FC1, _FC2 ... ) are supported. Specify FCn to get the layers of all functional classes. Behind each layer name attributes can be listed, or (*) to get all. Example: &attributes=ROAD_GEOM_FCn(TUNNEL), SPEED_LIMITS_FCn (FROM_REF_SPEED_LIMIT, TO_REF_SPEED_LIMIT), ADAS_ATTRIB_FCn (SLOPES). A maximum of 32 layers can be requested per request.'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      requestBody:
+        description: Segment references sent as an application/x-www-form-urlencoded form field instead of a query parameter, to keep the request line within length limits.
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                segmentRefs:
+                  type: string
+                  description: Semicolon separated list of one or multiple disconnected topology segment references. Format of a SegmentRef is [Segment Identifier:]Segment Ref Id#Start Offset[..End Offset][,LAT,LON][,Remaining Time On Route,Functional Class]. Please use here:xs1:segment as the segment identifier for Japan segmentRefs and here:cm:segment for segmentRefs from rest of the world.  The input is typically retrieved from the Geocoding&Search (Reverse Geocoding) API. A maximum of 64 segment references can be requested per request.
+            examples:
+              segmentRefs:
+                description: segmentRefs
+                value: segmentRefs=$1:87628529#0.725739..0.725739;$1:89921205#0..0.780687
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+  /v8/maps/upload:
+    post:
+      tags:
+      - Map Attributes V8
+      summary: Import Geometries in a WKT or Shape File - deprecated, use HERE Geofencing API
+      description: 'Import polygons, polylines or points in WKT (Wellknown Text) or Shapefile format geometries using an HTTP POST request, or import WKT geometries using HTTP GET. A layer can contain only one geometry type - polygons, polylines or points, but not a mix of different types. After the response there is a delay of several seconds to compile, store and make the geometries available in the service.
+
+
+        Note: The feature to import custom layers is deprecated. It will be only supported in self-hosting in maintenance mode.'
+      operationId: Map Attributes API v8UploadPost
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format {app_id}.{mapName}.{layerName}. app_id: app_id of the project creating the layer; mapName: the map into which the layer is uploaded, default = upload the layer into the app_id''s default map; layerName:  Name of layer to create/replace, the maximum length of a layer name and the permitted characters can be looked up up in the service via /serviceconfiguration.json.'
+        required: true
+        schema:
+          type: string
+      - name: level
+        in: query
+        description: Specify tile size for the database for performance optimization, if not specified default tile size of 12 is used.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 12
+      - name: storage
+        in: query
+        description: Either updatable or readonly. Default = updatable.
+        required: false
+        schema:
+          type: string
+          default: updatable
+      - name: wktQuote
+        in: query
+        description: Specify the quote character to use. Default = " (double quotes). Specifying NONE disables quotes.
+        required: false
+        schema:
+          type: string
+          default: '"'
+      - name: indexColumns
+        in: query
+        description: 'Specify columns of the layer that should be indexed. Column name is followed by semi-colon(;) and indexing type. Supported indexing type are: order(o), text(t) or both order,text(o,t). Columns are separated by pipe(|). Example &indexColumns=POI_ID;order|CAT_ID;text|ADMIN_IDS;order,text'
+        required: false
+        schema:
+          type: string
+      - name: grantedAppIds
+        in: query
+        description: Comma separated list of app_ids which also have (per default read+export) access to this layer (specifying ownerAppId.mapName.layerName). Example &granted_app_ids=otherAppId1,otherAppId2
+        required: false
+        schema:
+          type: string
+      - name: file
+        in: query
+        description: WKT file content
+        required: true
+        style: form
+        schema:
+          type: string
+          format: binary
+      - name: apikey
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerUploadResponse'
+  /v8/maps/modify:
+    post:
+      tags:
+      - Map Attributes V8
+      summary: Modify Geometries in Existing Layers - deprecated, use HERE Geofencing API
+      description: 'Modify geometries using an HTTP GET or POST request. After the response there is a delay of several seconds to compile, store and make the modified geometries available in the service.
+
+        Note: The level (tile grid size) of the layer can only be changed by uploading the whole layer, not as a modification operation.
+
+
+        Note: The feature to modify custom layers is deprecated. It will be only supported in self-hosting in maintenance mode.'
+      operationId: Map Attributes API v8ModifyPost
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format {app_id}.{mapName}.{layerName}. app_id: app_id of the project modifying the layer; mapName: the map into which the layer is uploaded, default = upload the layer into the app_id''s default map; layerName:  Name of layer to modify, the maximum length of a layer name and the permitted characters can be looked up up in the service via /serviceconfiguration.json.'
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: query
+        description: append, update or delete. Geometries are identified by their geometry_id column value. For append, the geometries must not exist yet and will be added. For update, the geometries must exist and will be replaced. All column values must be specified, not only the changes. For update and delete, the columns must not change - names, sequence orders and type must be identical. For delete, the geometries must exist and will be replaced. Only the geometry_id column is required.
+        required: true
+        schema:
+          type: string
+      - name: wktQuote
+        in: query
+        description: Specify the quote character to use. Default = " (double quotes). Specifying NONE disables quotes.
+        required: false
+        schema:
+          type: string
+          default: '"'
+      - name: ownerAppId
+        in: query
+        description: Owner app_id that was used to upload a layer. It is mandatory when a granted app_id is used to access the layer.
+        required: false
+        schema:
+          type: string
+      - name: file
+        in: query
+        description: WKT file content
+        required: true
+        style: form
+        schema:
+          type: string
+          format: binary
+      - name: apikey
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              format: byte
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerModifyResponse'
+        '409':
+          description: Modify Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerModifyResponse'
+  /v8/maps/routeisoline:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Retrieve the POIs that are reachable within a certain time or distance from the…
+      description: Retrieve the POIs that are reachable within a certain time or distance from the main route
+      operationId: Map Attributes API searchRouteIsolineV8
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: layer_ids
+        in: query
+        description: Comma separated list of layer IDs to be searched. Layer names are not case sensitive. Both custom layers and PDE map layers are supported. PDE layers divided by functional class, like ROAD_GEOM_FC1 ... FC5 can be selected by N, e.g. ROAD_GEOM_FCN. Layers must have a LINK_ID column. If a customer doesn't have a LINK_ID column, customers can create it using the Geocoder, Reverse Geocoder or RME. The maximum length of a layer name and the permitted characters can be looked up up in the service via v8/maps/serviceconfiguration
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: List of comma separated column names to specify which attributes shall appear in the result. Column names are not case sensitive. Default = all.
+        required: false
+        schema:
+          type: string
+      - name: geom
+        in: query
+        description: local, full or none. Specifies the geometry representation in the result. Default = local. Local geometry is used for map display purposes, returning geometry pieces that cover the given search radius, bounding box or corridor polygon. Full geometry is used for interactive editing, where the original geometry is required. None is used for applications like geofencing, which most of the time want to know only the ids of the geofence points/lines polygons they are in or near.
+        required: false
+        schema:
+          type: string
+          default: local
+          enum:
+          - local
+          - full
+          - none
+      - name: max_detour_distance
+        in: query
+        description: Either max_detour_distance or max_detour_time must be specified. Maximum travel distance in meter away from the route to reach the map object. This is one way, from the junction that leaves the route until to the map object. The distance to get back onto the route is not considered here.
+        required: false
+        schema:
+          type: number
+          format: double
+      - name: max_detour_time
+        in: query
+        description: "Either max_detour_time or max_detour_distance\tMaximum travel time in seconds away from the route to reach the map object. This is one way, from the junction that leaves the route until to the map object. The time to get back onto the route is not considered here."
+        required: false
+        schema:
+          type: number
+          format: double
+      - name: storage
+        in: query
+        description: Optional, default searches in both. Specify 'updatable' or 'readonly', how you uploaded the layer.
+        required: false
+        schema:
+          type: string
+          default: updatable
+      - name: mapMatchRadius
+        in: query
+        description: Maximum adaptive map match search radius [meter]. Will be applied to each way point. If given it overrides waypoints' transitRadius values and the default maximum adaptive search radius. For routing, default 1600. Limit 5000.
+        required: false
+        schema:
+          type: string
+      - name: trailerType
+        in: query
+        description: 'Trailer type in a vehicle + trailer combination. Supported values: 0 - None (Default), 1 - Caravan, 2 - Trailer, 3 - RVTrailer, 4 - BoatTrailer. Applicable for toll cost calculation and recreational vehicle restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleNumberAxles
+        in: query
+        description: Number of vehicle axles excluding trailer axles. Applicable for toll cost calculation and country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: trailerNumberAxles
+        in: query
+        description: Number of trailer axles. Applicable for toll cost calculation and for country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: hybrid
+        in: query
+        description: 'Type of hybrid vehicle. Supported values: 1 - fuel+electric, 0 - otherwise (Default). Applicable for toll cost calculation.'
+        required: false
+        schema:
+          type: string
+      - name: emissionType
+        in: query
+        description: 'Emission type category of the vehicle. supported values: 1 - EURO I, 2 - EURO II, 3 - EURO III, 4 - EURO IV, 5 - EURO V, 6 - EURO VI, 7 - EURO EEV, 8 - Electric Vehicles, 9 - EURO II with PRC (deprecated), 10 - EURO III with PRC (deprecated), 11 - EURO VII.
+
+          * Applicable for toll cost calculation and environmental zone restrictions.
+
+          * When emissionType is not specified it defaults to 5.'
+        required: false
+        schema:
+          type: string
+      - name: co2EmissionClass
+        in: query
+        description: 'CO2 emission class of the vehicle. Supported values: 1 - Emission class 1, 2 - Emission class 2, 3 - Emission class 3, 4 - Emission class 4, 5 - Emission class 5.
+
+          * Applicable for toll cost calculation only. When co2EmissionClass is not specified then it defaults to 1.
+
+          * Providing invalid combination of emissionType and co2EmissionClass in request may result in incorrect toll costs.'
+        required: false
+        schema:
+          type: string
+      - name: trailerHeight
+        in: query
+        description: 'Actual height of the trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. For toll cost calculation only, not considered for route path creation (use height parameter).'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload, but not trailers'' weight or payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also limitedWeight. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeightClass
+        in: query
+        description: 'Used in routeMatch=0|1|2. Legal maximum weight limit of vehicle incl. payload and trailers. Also including their payload as a total. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. Applicable for truck restrictions and requests for APPLICABLE_SPEED_LIMIT only.'
+        required: false
+        schema:
+          type: string
+      - name: disabledEquipped
+        in: query
+        description: 'Vehicle is signposted to to carry disabled people. Accepted values are: 1 - vehicle equipped to carry disabled people, 0 - otherwise (default). Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: passengersCount
+        in: query
+        description: Actual number of passengers in vehicle. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: tiresCount
+        in: query
+        description: Total number of tires from vehicle, including tires on the base vehicle and any attached trailers. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: commercial
+        in: query
+        description: 'Vehicle use has commercial purpose. Accepted values are: 1 - vehicle registered for commercial use, 0 - no commercial use (Default: not specified). Applicable for toll cost calculation, environmental zone regulations and delivery-only zones.'
+        required: false
+        schema:
+          type: string
+      - name: heightAbove1stAxle
+        in: query
+        description: 'Height of the vehicle above its first axle. Example: `350cm` or `3.5m` or `138in`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: fuelType
+        in: query
+        description: 'Defines the fuel powering the vehicle. Supported values: Diesel, Petrol, LPG, LNG, CNG, Ethanol, Propane, Hydrogen, Electric, LPG - Liquefied Petroleum Gas,  LNG - Liquefied Natural Gas).
+
+          Applicable for environmental zone restrictions, toll cost calculation and consumption based routing for Electric vehicles.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxleGroup
+        in: query
+        description: 'Semicolon separated list of vehicle weight [tons] per axle group. Each item is a tuple (name,value). Supported values: drive, single, tandem, triple, quad, quint. Example: `&weightPerAxleGroup=drive:12;single:11;tandem:18` .'
+        required: false
+        schema:
+          type: string
+      - name: trailerWeight
+        in: query
+        description: 'Actual total weight of trailers with their payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also parameter `limitedWeight`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: trailersCount
+        in: query
+        description: 'Number of trailers or semi-trailers. For toll cost and truck restrictions.
+
+          * Supported values: 0 - no trailer (default), 1 - one or more trailers, 2 - two or more trailers, 3 - three or more trailers, 4 - one or more semi-trailers.
+
+          * `&trailersCount=4` is not supported for Waypoint Sequencing.'
+        required: false
+        schema:
+          type: string
+      - name: height
+        in: query
+        description: 'Actual height of the overall rigid/semi truck including trailers. Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions and toll cost.'
+        required: false
+        schema:
+          type: string
+      - name: limitedWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload and trailers/caravan including their payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * Applicable for truck restrictions, speed profile selection, toll cost calculation and environmental zone restrictions. See also parameter `vehicleWeight`.
+
+          * Note that country wide weight restrictions depend on the length, width, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: shippedHazardousGoods
+        in: query
+        description: 'Comma separated list from supported values: `explosive`, `gas`, `flammable`, `combustible`, `organic`, `poison`, `radioActive`, `corrosive`, `poisonousInhalation`, `harmfulToWater`, `other`, `allhazardousGoods`, `explosiveFlammable`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * For toll cost only values `explosive` and `other` are supported.
+
+          * For Waypoints Sequence values `allhazardousGoods` and `explosiveFlammable` are not supported.'
+        required: false
+        schema:
+          type: string
+      - name: length
+        in: query
+        description: 'Length of the vehicle (including potential trailers).
+
+          * Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `1250cm` or `12.5m` or `492in`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * Note that country wide length restrictions depend on the limitedWeight, width, number of axles and trailers as well, so it might be necessary to specify these parameters  as well.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxle
+        in: query
+        description: 'Actual total weight per axle, incl. payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * For Waypoints Sequence only supported unit is kg, without explicitly specifying unit.
+
+          * Applicable for toll cost calculation and truck restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: width
+        in: query
+        description: 'Width of the vehicle and trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions. Note that country wide width restrictions depend on the limitedWeight, length, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: tunnelCategory
+        in: query
+        description: 'Defines the tunnel categories the truck must NOT use. Supported values: `B`, `C`, `D` or `E`.
+
+          * `A` tunnels have no restrictions.
+
+          * `E` tunnels have most restrictions.
+
+          * Example: If `&tunnelCategory=C` is specified, then route will use `A` and `B` tunnels but not `C`, `D` or `E`.'
+        required: false
+        schema:
+          type: string
+      - name: region
+        in: query
+        description: Optional (default=whole world excl. JPN, CHN, SK). Map coverage region, e.g. APAC, AUS, WEU, IND, MEA, NA, SAM, TWN, JPN. The region may contain hints to distinguish specific content. E.g. there can be an WEU and PCBEU, where the 2nd map contains only Postal Code Boundary layers. If not specified, the service will find the region(s) automatically, that cover the request. The parameter can contain a comma separated list of regions (f.e. WEU,MEA). If the region parameter is specified, the service will use these region(s) and skip region(s) that may also cover the response (f.e. EEU). Except of JPN, specifying a region is strongly discouraged, because regions might change and hence applications that specify a region might stop working when the region gets discontinued, renamed, split or changed otherwise. As the APAC region contains a simplified entry map content of JPN, JPN needs to be specified as region to access the full JPN content.
+        required: false
+        schema:
+          type: string
+      - name: language
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Map within to look for the layer. Default: Look into the default map.'
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: linkAttributes
+        in: query
+        description: 'Define optional attributes to be returned for each link. Currently supported: cost.'
+        required: false
+        schema:
+          type: string
+      - name: searchInterval
+        in: query
+        description: Specifies in which intervals route isoline POIs are requested. Defined as from/to elapsed time on the route &searchInterval=fromSeconds,ToSeconds,FromSeconds,ToSeconds,...
+        required: false
+        schema:
+          type: string
+      - name: mode
+        in: query
+        description: The routing mode (e.g. fastest;car;traffic:disabled) that determines how the route is calculated.
+        required: false
+        schema:
+          type: string
+      - name: waypoint0 ... waypointN
+        in: query
+        description: 'Either waypoints or route_id must be specified. Comma separated waypoint latitude, longitude in WGS-84 degree. A route must consist of at least 2
+
+          waypoints (start and destination). The maximum number of waypoints is limited. However, this limit is
+
+          not a fixed number but is a result of the limit for the overall processing time. To define a loading/delay
+
+          time at a waypoint, use stopOver[,timeInSeconds]!. Example: &waypoint1=stopOver,300!50.12,8.65.
+
+          None of the optional specifications geo!, stopOver!, passThrough!, altitude,
+
+          transitRadius, custom label, heading, !StreetPosition, !LinkPosition are currently supported.'
+        required: true
+        schema:
+          type: string
+      - name: apikey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/GeometrySearchResponse'
+  /v8/maps/list:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List available map (public/private/both) regions/releases available to the app
+      operationId: Map Attributes API v8MapsListJSON
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If specified, all versions of specified map is retrieved
+        required: false
+        schema:
+          type: string
+      - name: mapType
+        in: query
+        description: 'Option to filter maps to be listed based on whether they are public, private or both, default value 0: both private and public maps, 1: only public maps, 2: only private maps'
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapDocResponse'
+  /v8/maps/list.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List all maps (public/private/both) available to the app in HTML format
+      operationId: Map Attributes API v8MapsListHTML
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If specified, all versions of specified map is retrieved
+        required: false
+        schema:
+          type: string
+      - name: mapType
+        in: query
+        description: 'Option to filter maps to be listed based on whether they are public, private or both, default value 0: both private and public maps, 1: only public maps, 2: only private maps'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/layers/list:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List the available map layers (public/private/both) in JSON format.
+      operationId: Map Attributes API v8LayersListJSON
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the layers of all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: layerType
+        in: query
+        description: 'Option to filter layers to be listed based on whether they are public, private or both, default value 0: both private and public layers, 1: only public layers, 2: only private layers'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LayerDocBean'
+  /v8/maps/layers/list.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List the available map layers (public/private/both) in HTML format.
+      operationId: Map Attributes API v8LayersListHTML
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the layers of all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: layerType
+        in: query
+        description: 'Option to filter layers to be listed based on whether they are public, private or both, default value 0: both private and public layers, 1: only public layers, 2: only private layers'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/layers/doc:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Show the layer documentation for a specific layer (public/private) in JSON…
+      operationId: Map Attributes API v8LayerDocJSON
+      parameters:
+      - name: layer
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the layer doc available in all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LayerDetailDocBean'
+  /v8/maps/layers/doc.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Show the layer documentation for a specific layer (public/private) in HTML…
+      operationId: Map Attributes API v8LayerDocHTML
+      parameters:
+      - name: layer
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the layer doc available in all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/layers/attributes:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List the layer attributes across all layers
+      description: List the map layer attributes across all layers
+      operationId: Map Attributes API v8LayerAttributesJSON
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not given, the layer attributes of all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: mapType
+        in: query
+        description: 'Option to filter maps to be listed based on whether they are public, private or both, default value 0: both private and public maps, 1: only public maps, 2: only private maps'
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeDocBean'
+  /v8/maps/layers/attributes.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List the layer attributes across all layers
+      description: List the layer attributes across all layers in basic HTML format
+      operationId: Map Attributes API v8LayerAttributesHTML
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not given, the layer attributes of all maps are retrieved
+        required: false
+        schema:
+          type: string
+      - name: mapType
+        in: query
+        description: 'Option to filter maps to be listed based on whether they are public, private or both, default value 0: both private and public maps, 1: only public maps, 2: only private maps'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/indexes:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List available layer indexes
+      description: List the available indexes of custom and public layers.
+      operationId: Map Attributes API v8MapIndexesJSON
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not given, the content from all maps is retrieved
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IndexDocBean'
+  /v8/maps/indexes.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: List available layer indexes
+      description: List the available indexes of custom and public layers.
+      operationId: Map Attributes API v8MapIndexesHTML
+      parameters:
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not given, the content from all maps is retrieved
+        required: false
+        schema:
+          type: string
+      - name: mapType
+        in: query
+        description: 'Option to filter maps to be listed based on whether they are public, private or both, default value 0: both private and public maps, 1: only public maps, 2: only private maps'
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/index:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Tile IDs containing a given value
+      description: Retrieve the IDs of tiles that contain a given (set of) attribute value(s). Does not work for custom layers.
+      operationId: Map Attributes API v8Index
+      parameters:
+      - name: layer
+        in: query
+        description: layer name
+        required: true
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: map name. Optional for public HERE maps and for private BYOD maps. If not specified, the content of all maps is retrieved
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: comma separated list of the index attribute names
+        required: false
+        schema:
+          type: string
+      - name: values
+        in: query
+        description: comma separated list of index attribute values, corresponding to the attribute names
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/IndexResponseV8'
+  /v8/maps/delete:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Delete some of my Geometry Layers.
+      operationId: Map Attributes API v8DeleteMapsLayers
+      parameters:
+      - name: layerId
+        in: query
+        description: 'Unique identifier for the layer in the format {app_id}.{mapName}.{layerNames}. app_id: app_id of the project under which the layers exit; mapName: delete the layers within this map, default = delete the layers in app_id''s default map; layerNames:  Comma separated name of layers to delete. The maximum length of a layer name and the permitted characters can be looked up up in the service via /serviceconfiguration.json.'
+        required: true
+        schema:
+          type: string
+      - name: storage
+        in: query
+        description: Either updatable or readonly. Default = updatable. Only updatable layers can be deleted, for readonly layers and overlays complete map containing the layer should be deleted.
+        required: false
+        schema:
+          type: string
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: arg6
+        in: query
+        required: true
+        schema:
+          type: string
+          format: byte
+      - name: apikey
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteLayersResponse'
+  /v8/maps/content.html:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Landing page for inline documentation
+      description: Landing page for inline documentation in HTML format
+      operationId: Map Attributes API v8ContentHTML
+      parameters:
+      - name: apikey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html;charset=UTF-8:
+              schema:
+                type: string
+  /v8/maps/serviceconfiguration:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Service parameter boundary values
+      description: Numeric constants and limits for the service calls. Will never become more strict, but can become more relaxed in future releases.
+      operationId: Map Attributes API v8GetServiceConfiguration
+      parameters:
+      - name: callback
+        in: query
+        description: Specifies the function used to wrap the JSON response.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceConfigurationResponseV8'
+  /v8/maps/attributes/path:
+    get:
+      tags:
+      - Map Attributes V8
+      summary: Map Attributes along a route path
+      description: 'The path endpoint can be used to enrich a given continuous route path with HERE Map content attributes.
+
+
+        Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
+      operationId: Map Attributes API v8GetMapAttributesForAPath
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Default: For public HERE maps all maps/regions containing the layer are returned, for private BYOD maps the layers from the DEFAULT map are returned'
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: 'Comma separated list of PDE layer names, to get link attributes along the route. Only link attribute layers (roughly those ending in _FC1, _FC2 ... ) are supported. Specify FCn to get the layers of all functional classes. Behind each layer name attributes can be listed, or (*) to get all. Example: &attributes=ROAD_GEOM_FCn(TUNNEL), SPEED_LIMITS_FCn (FROM_REF_SPEED_LIMIT, TO_REF_SPEED_LIMIT), ADAS_ATTRIB_FCn (SLOPES). A maximum of 32 layers can be requested per request.'
+        required: false
+        schema:
+          type: string
+      - name: segmentRefs
+        in: query
+        description: 'Semicolon separated list of consecutive topology segment references. Supported segment reference input are: Segment References in shortened or full notation, links or flexiblePolyline. The input is typically retrieved from the Route Matching, Routing v8 API. A shortened segment reference looks like: $1:864623000#+0..1 where $1 the provider part. A full segment reference looks like: here:cm:segment:92174667#0.517718..0.785. Input methods like links, flexiblePolyline or segment input cannot be mixed with each other.'
+        required: false
+        schema:
+          type: string
+      - name: links
+        in: query
+        description: Link IDs or Full notation to define the path. Cannot be mixed with parameter segments, flexiblePolyline.
+        required: false
+        schema:
+          type: string
+      - name: flexiblePolyline
+        in: query
+        description: Line string in [Flexible Polyline](https://github.com/heremaps/flexible-polyline) format. Cannot be mixed with parameter segments, links.
+        required: false
+        schema:
+          type: string
+        example: A05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e
+      - name: transportMode
+        in: query
+        description: 'Optional, default=car. Relevant if ''applicable speed limits layer''. Supported vehicle types: bdouble, bicycle, bus, car, carHOV, emergency, motorcycle, pedestrian, roadtrain, taxi, truck, motorhome'
+        required: false
+        schema:
+          type: string
+      - name: departure
+        in: query
+        description: 'Format: now, yyyy-MM-dd''T''HH:mm:ss or yyyy-MM-dd''T''HH:mm:ssX. If no timezone is specified, then the local timezone at the route start link is used. Default: Ignore all time dependent access restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: trailerType
+        in: query
+        description: 'Trailer type in a vehicle + trailer combination. Supported values: 0 - None (Default), 1 - Caravan, 2 - Trailer, 3 - RVTrailer, 4 - BoatTrailer. Applicable for toll cost calculation and recreational vehicle restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleNumberAxles
+        in: query
+        description: Number of vehicle axles excluding trailer axles. Applicable for toll cost calculation and country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: trailerNumberAxles
+        in: query
+        description: Number of trailer axles. Applicable for toll cost calculation and for country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: hybrid
+        in: query
+        description: 'Type of hybrid vehicle. Supported values: 1 - fuel+electric, 0 - otherwise (Default). Applicable for toll cost calculation.'
+        required: false
+        schema:
+          type: string
+      - name: emissionType
+        in: query
+        description: 'Emission type category of the vehicle. supported values: 1 - EURO I, 2 - EURO II, 3 - EURO III, 4 - EURO IV, 5 - EURO V, 6 - EURO VI, 7 - EURO EEV, 8 - Electric Vehicles, 9 - EURO II with PRC (deprecated), 10 - EURO III with PRC (deprecated), 11 - EURO VII.
+
+          * Applicable for toll cost calculation and environmental zone restrictions.
+
+          * When emissionType is not specified it defaults to 5.'
+        required: false
+        schema:
+          type: string
+      - name: co2EmissionClass
+        in: query
+        description: 'CO2 emission class of the vehicle. Supported values: 1 - Emission class 1, 2 - Emission class 2, 3 - Emission class 3, 4 - Emission class 4, 5 - Emission class 5.
+
+          * Applicable for toll cost calculation only. When co2EmissionClass is not specified then it defaults to 1.
+
+          * Providing invalid combination of emissionType and co2EmissionClass in request may result in incorrect toll costs.'
+        required: false
+        schema:
+          type: string
+      - name: trailerHeight
+        in: query
+        description: 'Actual height of the trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. For toll cost calculation only, not considered for route path creation (use height parameter).'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload, but not trailers'' weight or payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also limitedWeight. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeightClass
+        in: query
+        description: 'Used in routeMatch=0|1|2. Legal maximum weight limit of vehicle incl. payload and trailers. Also including their payload as a total. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. Applicable for truck restrictions and requests for APPLICABLE_SPEED_LIMIT only.'
+        required: false
+        schema:
+          type: string
+      - name: disabledEquipped
+        in: query
+        description: 'Vehicle is signposted to to carry disabled people. Accepted values are: 1 - vehicle equipped to carry disabled people, 0 - otherwise (default). Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: passengersCount
+        in: query
+        description: Actual number of passengers in vehicle. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: tiresCount
+        in: query
+        description: Total number of tires from vehicle, including tires on the base vehicle and any attached trailers. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: commercial
+        in: query
+        description: 'Vehicle use has commercial purpose. Accepted values are: 1 - vehicle registered for commercial use, 0 - no commercial use (Default: not specified). Applicable for toll cost calculation, environmental zone regulations and delivery-only zones.'
+        required: false
+        schema:
+          type: string
+      - name: heightAbove1stAxle
+        in: query
+        description: 'Height of the vehicle above its first axle. Example: `350cm` or `3.5m` or `138in`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: fuelType
+        in: query
+        description: 'Defines the fuel powering the vehicle. Supported values: Diesel, Petrol, LPG, LNG, CNG, Ethanol, Propane, Hydrogen, Electric, LPG - Liquefied Petroleum Gas,  LNG - Liquefied Natural Gas).
+
+          Applicable for environmental zone restrictions, toll cost calculation and consumption based routing for Electric vehicles.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxleGroup
+        in: query
+        description: 'Semicolon separated list of vehicle weight [tons] per axle group. Each item is a tuple (name,value). Supported values: drive, single, tandem, triple, quad, quint. Example: `&weightPerAxleGroup=drive:12;single:11;tandem:18` .'
+        required: false
+        schema:
+          type: string
+      - name: trailerWeight
+        in: query
+        description: 'Actual total weight of trailers with their payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also parameter `limitedWeight`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: trailersCount
+        in: query
+        description: 'Number of trailers or semi-trailers. For toll cost and truck restrictions.
+
+          * Supported values: 0 - no trailer (default), 1 - one or more trailers, 2 - two or more trailers, 3 - three or more trailers, 4 - one or more semi-trailers.
+
+          * `&trailersCount=4` is not supported for Waypoint Sequencing.'
+        required: false
+        schema:
+          type: string
+      - name: height
+        in: query
+        description: 'Actual height of the overall rigid/semi truck including trailers. Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions and toll cost.'
+        required: false
+        schema:
+          type: string
+      - name: limitedWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload and trailers/caravan including their payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * Applicable for truck restrictions, speed profile selection, toll cost calculation and environmental zone restrictions. See also parameter `vehicleWeight`.
+
+          * Note that country wide weight restrictions depend on the length, width, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: shippedHazardousGoods
+        in: query
+        description: 'Comma separated list from supported values: `explosive`, `gas`, `flammable`, `combustible`, `organic`, `poison`, `radioActive`, `corrosive`, `poisonousInhalation`, `harmfulToWater`, `other`, `allhazardousGoods`, `explosiveFlammable`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * For toll cost only values `explosive` and `other` are supported.
+
+          * For Waypoints Sequence values `allhazardousGoods` and `explosiveFlammable` are not supported.'
+        required: false
+        schema:
+          type: string
+      - name: length
+        in: query
+        description: 'Length of the vehicle (including potential trailers).
+
+          * Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `1250cm` or `12.5m` or `492in`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * Note that country wide length restrictions depend on the limitedWeight, width, number of axles and trailers as well, so it might be necessary to specify these parameters  as well.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxle
+        in: query
+        description: 'Actual total weight per axle, incl. payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * For Waypoints Sequence only supported unit is kg, without explicitly specifying unit.
+
+          * Applicable for toll cost calculation and truck restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: width
+        in: query
+        description: 'Width of the vehicle and trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions. Note that country wide width restrictions depend on the limitedWeight, length, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: tunnelCategory
+        in: query
+        description: 'Defines the tunnel categories the truck must NOT use. Supported values: `B`, `C`, `D` or `E`.
+
+          * `A` tunnels have no restrictions.
+
+          * `E` tunnels have most restrictions.
+
+          * Example: If `&tunnelCategory=C` is specified, then route will use `A` and `B` tunnels but not `C`, `D` or `E`.'
+        required: false
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        description: Operation must be finished within this amount of milliseconds. Default 50000. Maximum 50000.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+    post:
+      tags:
+      - Map Attributes V8
+      summary: Map Attributes along a route path (POST)
+      description: The path endpoint can be used to enrich a given continuous route path with HERE Map content attributes. For POST requests, send the large path parameters (segmentRefs, segments, links or flexiblePolyline) in an application/x-www-form-urlencoded request body instead of the query string. Authentication `apiKey` must - and basic configuration parameters can remain in the query string.
+      operationId: Map Attributes API v8GetMapAttributesForAPathPost
+      parameters:
+      - name: app_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: app_code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mapName
+        in: query
+        description: 'Optional. Default: For public HERE maps all maps/regions containing the layer are returned, for private BYOD maps the layers from the DEFAULT map are returned'
+        required: false
+        schema:
+          type: string
+      - name: attributes
+        in: query
+        description: 'Comma separated list of PDE layer names, to get link attributes along the route. Only link attribute layers (roughly those ending in _FC1, _FC2 ... ) are supported. Specify FCn to get the layers of all functional classes. Behind each layer name attributes can be listed, or (*) to get all. Example: &attributes=ROAD_GEOM_FCn(TUNNEL), SPEED_LIMITS_FCn (FROM_REF_SPEED_LIMIT, TO_REF_SPEED_LIMIT), ADAS_ATTRIB_FCn (SLOPES). A maximum of 32 layers can be requested per request.'
+        required: false
+        schema:
+          type: string
+      - name: transportMode
+        in: query
+        description: 'Optional, default=car. Relevant if ''applicable speed limits layer''. Supported vehicle types: bdouble, bicycle, bus, car, carHOV, emergency, motorcycle, pedestrian, roadtrain, taxi, truck, motorhome'
+        required: false
+        schema:
+          type: string
+      - name: departure
+        in: query
+        description: 'Format: now, yyyy-MM-dd''T''HH:mm:ss or yyyy-MM-dd''T''HH:mm:ssX. If no timezone is specified, then the local timezone at the route start link is used. Default: Ignore all time dependent access restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: trailerType
+        in: query
+        description: 'Trailer type in a vehicle + trailer combination. Supported values: 0 - None (Default), 1 - Caravan, 2 - Trailer, 3 - RVTrailer, 4 - BoatTrailer. Applicable for toll cost calculation and recreational vehicle restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleNumberAxles
+        in: query
+        description: Number of vehicle axles excluding trailer axles. Applicable for toll cost calculation and country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: trailerNumberAxles
+        in: query
+        description: Number of trailer axles. Applicable for toll cost calculation and for country wide truck restrictions.
+        required: false
+        schema:
+          type: string
+      - name: hybrid
+        in: query
+        description: 'Type of hybrid vehicle. Supported values: 1 - fuel+electric, 0 - otherwise (Default). Applicable for toll cost calculation.'
+        required: false
+        schema:
+          type: string
+      - name: emissionType
+        in: query
+        description: 'Emission type category of the vehicle. supported values: 1 - EURO I, 2 - EURO II, 3 - EURO III, 4 - EURO IV, 5 - EURO V, 6 - EURO VI, 7 - EURO EEV, 8 - Electric Vehicles, 9 - EURO II with PRC (deprecated), 10 - EURO III with PRC (deprecated), 11 - EURO VII.
+
+          * Applicable for toll cost calculation and environmental zone restrictions.
+
+          * When emissionType is not specified it defaults to 5.'
+        required: false
+        schema:
+          type: string
+      - name: co2EmissionClass
+        in: query
+        description: 'CO2 emission class of the vehicle. Supported values: 1 - Emission class 1, 2 - Emission class 2, 3 - Emission class 3, 4 - Emission class 4, 5 - Emission class 5.
+
+          * Applicable for toll cost calculation only. When co2EmissionClass is not specified then it defaults to 1.
+
+          * Providing invalid combination of emissionType and co2EmissionClass in request may result in incorrect toll costs.'
+        required: false
+        schema:
+          type: string
+      - name: trailerHeight
+        in: query
+        description: 'Actual height of the trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. For toll cost calculation only, not considered for route path creation (use height parameter).'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload, but not trailers'' weight or payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also limitedWeight. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: vehicleWeightClass
+        in: query
+        description: 'Used in routeMatch=0|1|2. Legal maximum weight limit of vehicle incl. payload and trailers. Also including their payload as a total. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. Applicable for truck restrictions and requests for APPLICABLE_SPEED_LIMIT only.'
+        required: false
+        schema:
+          type: string
+      - name: disabledEquipped
+        in: query
+        description: 'Vehicle is signposted to to carry disabled people. Accepted values are: 1 - vehicle equipped to carry disabled people, 0 - otherwise (default). Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: passengersCount
+        in: query
+        description: Actual number of passengers in vehicle. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: tiresCount
+        in: query
+        description: Total number of tires from vehicle, including tires on the base vehicle and any attached trailers. Applicable for toll cost calculation only.
+        required: false
+        schema:
+          type: string
+      - name: commercial
+        in: query
+        description: 'Vehicle use has commercial purpose. Accepted values are: 1 - vehicle registered for commercial use, 0 - no commercial use (Default: not specified). Applicable for toll cost calculation, environmental zone regulations and delivery-only zones.'
+        required: false
+        schema:
+          type: string
+      - name: heightAbove1stAxle
+        in: query
+        description: 'Height of the vehicle above its first axle. Example: `350cm` or `3.5m` or `138in`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: fuelType
+        in: query
+        description: 'Defines the fuel powering the vehicle. Supported values: Diesel, Petrol, LPG, LNG, CNG, Ethanol, Propane, Hydrogen, Electric, LPG - Liquefied Petroleum Gas,  LNG - Liquefied Natural Gas).
+
+          Applicable for environmental zone restrictions, toll cost calculation and consumption based routing for Electric vehicles.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxleGroup
+        in: query
+        description: 'Semicolon separated list of vehicle weight [tons] per axle group. Each item is a tuple (name,value). Supported values: drive, single, tandem, triple, quad, quint. Example: `&weightPerAxleGroup=drive:12;single:11;tandem:18` .'
+        required: false
+        schema:
+          type: string
+      - name: trailerWeight
+        in: query
+        description: 'Actual total weight of trailers with their payload. Accepted value units are t (tons), kg (kilograms) or lbs (pounds). Example: `7.5t` or `7500kg` or `16500lbs`. See also parameter `limitedWeight`. Applicable for toll cost calculation only.'
+        required: false
+        schema:
+          type: string
+      - name: trailersCount
+        in: query
+        description: 'Number of trailers or semi-trailers. For toll cost and truck restrictions.
+
+          * Supported values: 0 - no trailer (default), 1 - one or more trailers, 2 - two or more trailers, 3 - three or more trailers, 4 - one or more semi-trailers.
+
+          * `&trailersCount=4` is not supported for Waypoint Sequencing.'
+        required: false
+        schema:
+          type: string
+      - name: height
+        in: query
+        description: 'Actual height of the overall rigid/semi truck including trailers. Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions and toll cost.'
+        required: false
+        schema:
+          type: string
+      - name: limitedWeight
+        in: query
+        description: 'Actual total weight of vehicle incl. payload and trailers/caravan including their payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * Applicable for truck restrictions, speed profile selection, toll cost calculation and environmental zone restrictions. See also parameter `vehicleWeight`.
+
+          * Note that country wide weight restrictions depend on the length, width, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: shippedHazardousGoods
+        in: query
+        description: 'Comma separated list from supported values: `explosive`, `gas`, `flammable`, `combustible`, `organic`, `poison`, `radioActive`, `corrosive`, `poisonousInhalation`, `harmfulToWater`, `other`, `allhazardousGoods`, `explosiveFlammable`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * For toll cost only values `explosive` and `other` are supported.
+
+          * For Waypoints Sequence values `allhazardousGoods` and `explosiveFlammable` are not supported.'
+        required: false
+        schema:
+          type: string
+      - name: length
+        in: query
+        description: 'Length of the vehicle (including potential trailers).
+
+          * Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `1250cm` or `12.5m` or `492in`.
+
+          * Applicable for toll cost calculation and truck restrictions.
+
+          * Note that country wide length restrictions depend on the limitedWeight, width, number of axles and trailers as well, so it might be necessary to specify these parameters  as well.'
+        required: false
+        schema:
+          type: string
+      - name: weightPerAxle
+        in: query
+        description: 'Actual total weight per axle, incl. payload.
+
+          * Accepted value units are t (tons), kg (kilograms) or lbs (pounds).
+
+          * Example: `7.5t` or `7500kg` or `16500lbs`.
+
+          * For Waypoints Sequence only supported unit is kg, without explicitly specifying unit.
+
+          * Applicable for toll cost calculation and truck restrictions.'
+        required: false
+        schema:
+          type: string
+      - name: width
+        in: query
+        description: 'Width of the vehicle and trailer(s). Accepted value units are cm (centimeter), m (meter) or in (inch). Example: `350cm` or `3.5m` or `138in`. Applicable for truck restrictions. Note that country wide width restrictions depend on the limitedWeight, length, number of axles and trailers as well, so it might be necessary to specify these parameters as well.'
+        required: false
+        schema:
+          type: string
+      - name: tunnelCategory
+        in: query
+        description: 'Defines the tunnel categories the truck must NOT use. Supported values: `B`, `C`, `D` or `E`.
+
+          * `A` tunnels have no restrictions.
+
+          * `E` tunnels have most restrictions.
+
+          * Example: If `&tunnelCategory=C` is specified, then route will use `A` and `B` tunnels but not `C`, `D` or `E`.'
+        required: false
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        description: Operation must be finished within this amount of milliseconds. Default 50000. Maximum 50000.
+        required: false
+        schema:
+          type: string
+      - name: apiKey
+        in: query
+        description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html .
+
+          Other authentication options are Bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html or app_id with app_code for backward compatibility.'
+        schema:
+          type: string
+      requestBody:
+        description: Large path parameters sent as application/x-www-form-urlencoded form fields instead of query parameters, to keep the request line within length limits. Use one of segmentRefs, segments, links or flexiblePolyline.
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                segmentRefs:
+                  type: string
+                  description: 'Semicolon separated list of consecutive topology segment references. Supported segment reference input are: Segment References in shortened or full notation, links or flexiblePolyline. The input is typically retrieved from the Route Matching, Routing v8 API. A shortened segment reference looks like: $1:864623000#+0..1 where $1 the provider part. A full segment reference looks like: here:cm:segment:92174667#0.517718..0.785. Input methods like links, flexiblePolyline or segment input cannot be mixed with each other.'
+                segments:
+                  type: string
+                  description: Deprecated alias for segmentRefs, kept for backward compatibility.
+                links:
+                  type: string
+                  description: Link IDs or Full notation to define the path. Cannot be mixed with parameter segments, flexiblePolyline.
+                flexiblePolyline:
+                  type: string
+                  description: Line string in [Flexible Polyline](https://github.com/heremaps/flexible-polyline) format. Cannot be mixed with parameter segments, links.
+            examples:
+              segmentRefs:
+                description: segmentRefs
+                value: segmentRefs=here:cm:segment:851632317#-0..1;here:cm:segment:106914355#-0..1;here:cm:segment:213328810#+0..1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+components:
+  schemas:
+    MapDocResponse:
+      type: object
+      properties:
+        maps:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapDocBean'
+    IndexResponseLayerV8:
+      type: object
+      properties:
+        layer:
+          type: string
+          example: ROAD_GEOM_FC3
+        level:
+          type: integer
+          description: Tiling level of the layer
+          format: int32
+          example: 11
+        tileIDs:
+          type: array
+          description: tile IDs
+          example:
+          - 6297686
+          - 6297687
+          items:
+            type: integer
+            description: tile IDs
+            format: int32
+      description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
+    MapDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        coverage:
+          type: string
+        version:
+          type: integer
+          format: int64
+        releaseYearAndQuarter:
+          type: string
+        size:
+          type: integer
+          format: int64
+        isLatest:
+          type: boolean
+        layerNames:
+          type: array
+          items:
+            type: string
+        mapType:
+          type: string
+        storage:
+          type: string
+      example:
+        name: PCBWORLD
+        coverage: PCBWORLD
+        version: 1740384962856
+        releaseYearAndQuarter: 241H0
+        size: 5837578240
+        isLatest: true
+        layerNames:
+        - PSTLCB_MP
+        - PSTLCB_GEN
+        - PSTLCB_UNGEN
+        mapType: public
+        storage: readonly
+    AttributeDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        layers:
+          type: array
+          items:
+            type: string
+      example:
+        name: TRANSPORT_SPEED_LIMIT
+        description: 'Defines a speed limit applicable to trucks. Unit: km/h.'
+        layers:
+        - TRUCK_RESTR_FC1
+        - TRUCK_RESTR_FC2
+        - TRUCK_RESTR_FC3
+        - TRUCK_RESTR_FC4
+        - TRUCK_RESTR_FC5
+    IndexResponseV8:
+      type: object
+      properties:
+        Layers:
+          type: array
+          description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
+          items:
+            $ref: '#/components/schemas/IndexResponseLayerV8'
+    LayerModifyResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
+    LayerUploadResponse:
+      type: object
+      properties:
+        storedTilesCount:
+          type: integer
+          description: Number of tiles that were created to store the uploaded layer content
+          format: int32
+          example: 20
+    ServiceConfigurationResponseV8:
+      type: object
+      properties:
+        Configuration:
+          $ref: '#/components/schemas/ServiceConfigurationContentV8'
+    DeleteLayersResponse:
+      type: object
+      properties:
+        deletedLayers:
+          type: array
+          description: List of deleted layers.
+          example:
+          - SAMPLE_LAYER
+          items:
+            type: string
+            description: List of deleted layers.
+            example: '["SAMPLE_LAYER"]'
+    TileResponseV8:
+      type: object
+      properties:
+        rows:
+          type: array
+          description: List of Attribute/value map from a specific layer.
+          items:
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
+    SegmentRefAttributes:
+      type: object
+      properties:
+        segmentRef:
+          type: string
+          description: SegmentRef in the shortened notation:<br> $0:{layerId}?:partitionId:$1:segmentId#{dir}startOffset..endOffset <br>Content of placeholders $0, $1 provided by refReplacements. layerId is not defined and omitted partitionId is always calculated for level 12, and might differ from notations using different levels. Dir can be '+' or '-' indicates the direction of the segmentRef.
+          example: $0:23595470:$1:152298623#+0..0.73396
+        attributeDirection:
+          type: string
+          description: Direction of attribute represented by either '+' (from reference node) or '-' (to reference node).
+          example: +
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            description: Requested attributes for the `segmentRef` grouped by layers.
+            items:
+              type: object
+          example:
+            ROAD_GEOM_FCN:
+            - LONG_HAUL: N
+              NAME: Boulevard Garibaldi
+              TUNNEL: N
+              BRIDGE: N
+              LAT: 4884600,40,9
+              LON: 230859,-144,-33
+              ZLEVEL: ',,'
+              ELEVATION: ',,'
+      description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
+    IndexDocBean:
+      type: object
+      properties:
+        indexedLayerName:
+          type: string
+        indexedColumnNames:
+          type: string
+        indexType:
+          type: string
+        exampleNames:
+          type: string
+        exampleUrlParams:
+          type: string
+        mapName:
+          type: string
+      example:
+        indexedLayerName: ADMIN_PLACE_0
+        indexedColumnNames: ADMIN_PLACE_ID
+        indexType: INDEX
+        exampleNames: JSON
+        exampleUrlParams: maps/index?layer=ADMIN_PLACE_0&attributes=ADMIN_PLACE_ID&values=23060936%2C4711
+        mapName: WEU
+    ServiceConfigurationContentV8:
+      type: object
+      properties:
+        maxTilesPerRequest:
+          type: integer
+          format: int32
+        maxSearchLayers:
+          type: integer
+          format: int32
+        maxProximityLayers:
+          type: integer
+          format: int32
+        maxSearchResults:
+          type: integer
+          format: int32
+        maxNoOfRecordsSearchAll:
+          type: integer
+          format: int32
+        maxIndexValuesPerRequest:
+          type: integer
+          format: int32
+        maxGetLinkInfoLinkIdsPerRequest:
+          type: integer
+          format: int32
+        maxBboxSideLengthPerItem:
+          type: integer
+          format: int32
+        maxLayerNameSize:
+          type: integer
+          format: int32
+        layerNamePattern:
+          type: string
+        maxVerticesPerLayer:
+          type: integer
+          format: int32
+        maxVerticesPerItem:
+          type: integer
+          format: int32
+        maxItemsPerPointLayer:
+          type: integer
+          format: int32
+        maxItemsPerLineLayer:
+          type: integer
+          format: int32
+        maxItemsPerPolygonLayer:
+          type: integer
+          format: int32
+        maxLengthFilterExpression:
+          type: integer
+          format: int32
+        overlayMaxCustomRestrTypes:
+          type: integer
+          format: int32
+        overlayMaxInputGeometriesPerMap:
+          type: integer
+          format: int32
+        minUploadLevel:
+          type: integer
+          format: int32
+        maxUploadLevel:
+          type: integer
+          format: int32
+        assetIdPattern:
+          type: string
+        maxAssetIdSize:
+          type: integer
+          format: int32
+      description: Service configuration constants and limits.
+      example:
+        maxTilesPerRequest: 64
+        maxSearchLayers: 16
+        maxProximityLayers: 16
+        maxSearchResults: 1000
+        maxNoOfRecordsSearchAll: 500
+        maxIndexValuesPerRequest: 100
+        maxGetLinkInfoLinkIdsPerRequest: 100
+        maxBboxSideLengthPerItem: 100000
+        maxLayerNameSize: 20
+        layerNamePattern: '[A-Za-z0-9][A-Za-z0-9_]*'
+        maxVerticesPerLayer: 5000000
+        maxVerticesPerItem: 100000
+        maxItemsPerPointLayer: 200000
+        maxItemsPerLineLayer: 20000
+        maxItemsPerPolygonLayer: 60000
+        maxLengthFilterExpression: 100
+        overlayMaxCustomRestrTypes: 5
+        overlayMaxInputGeometriesPerMap: 60000
+        minUploadLevel: 3
+        maxUploadLevel: 14
+        assetIdPattern: '[a-zA-Z0-9_\-\*\(\)]+'
+        maxAssetIdSize: 36
+    SearchMetaResponse:
+      type: object
+      properties:
+        searchParameter:
+          type: string
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
+          type: integer
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
+    MapAttributesV8Response:
+      type: object
+      properties:
+        geometries:
+          type: array
+          description: List of geometries for spatial search response.
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          description: List of Meta info for spatial search response.
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+        Tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TileResponseV8'
+    Geometry:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+            description: Map of attributes and values.
+            example: '{"VERTICAL_FLAGS":"1","START_OFFSET":"0","LINK_ACCURACY":"3","TOPOLOGY_ID":"84266553","CURVATURES":"320","NREFNODE_LINKCURVHEADS":"1:323:37748","HPY":"419003000,1153,1647","BUA_ROAD_VERIFIED":"Y","HPX":"124992600,1153,1647","HPZ":"10429,90,122","END_OFFSET":"63636","LINK_ID":"1211034601","BUA_ROAD":"1","SLOPES":"2987,291,-655","REFNODE_LINKCURVHEADS":"-1155506340:318:38460","HEADINGS":"38168"}'
+          description: Map of attributes and values.
+          example:
+            VERTICAL_FLAGS: '1'
+            START_OFFSET: '0'
+            LINK_ACCURACY: '3'
+            TOPOLOGY_ID: '84266553'
+            CURVATURES: '320'
+            NREFNODE_LINKCURVHEADS: 1:323:37748
+            HPY: 419003000,1153,1647
+            BUA_ROAD_VERIFIED: Y
+            HPX: 124992600,1153,1647
+            HPZ: 10429,90,122
+            END_OFFSET: '63636'
+            LINK_ID: '1211034601'
+            BUA_ROAD: '1'
+            SLOPES: 2987,291,-655
+            REFNODE_LINKCURVHEADS: -1155506340:318:38460
+            HEADINGS: '38168'
+        distance:
+          type: number
+          description: Straight line distance calculated to the closest geometry shape point (nearestLat, nearestLong) from the search point/polygon.
+          format: double
+          example: 69.13
+        nearestLat:
+          type: number
+          description: Nearest latitude on this geometry from the search point/polygon.
+          format: double
+          example: 41.90037
+        nearestLon:
+          type: number
+          description: Nearest longitude on this geometry from the search point/polygon.
+          format: double
+          example: 12.49933
+        layerId:
+          type: string
+          description: Layer name that this geometry belongs to.
+          writeOnly: true
+          example: ADAS_ATTRIB_FC4
+        geometry:
+          type: string
+          description: WKT string representing the geometry item.
+          example: MULTILINESTRING((4.80498 43.95174,4.80522 43.95196,4.80525 43.95201))
+        originalLat:
+          type: number
+          description: Original latitude of the asset position.
+          format: double
+          example: 41.9
+        originalLon:
+          type: number
+          description: Original longitude of the asset position.
+          format: double
+          example: 12.5
+        assetId:
+          type: string
+          description: Optional identifier of the asset.
+          example: asset1
+        geometryOverride:
+          type: string
+          writeOnly: true
+        geometryMode:
+          type: string
+          writeOnly: true
+          enum:
+          - NONE
+          - TILED
+          - FULL
+    MapAttributesAlongPathResponse:
+      type: object
+      properties:
+        refReplacements:
+          type: object
+          additionalProperties:
+            type: string
+            description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
+            example: '{"0":":1755533878934:","1":"here:cm:segment"}'
+          description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
+          example:
+            '0': ':1755533878934:'
+            '1': here:cm:segment
+        segments:
+          type: array
+          description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
+          items:
+            $ref: '#/components/schemas/SegmentRefAttributes'
+    LayerDetailDocBean:
+      type: object
+      properties:
+        description:
+          type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+        attributesType:
+          type: array
+          items:
+            type: string
+        referencedStaticContents:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        tileRequestsLevel:
+          type: integer
+          format: int32
+        tileX:
+          type: integer
+          format: int32
+        tileY:
+          type: integer
+          format: int32
+        isStaticContent:
+          type: boolean
+        indexes:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexDocBean'
+        staticContent:
+          type: boolean
+        dynamicLayerAttributeDocDescription:
+          type: boolean
+          writeOnly: true
+      example:
+        description: Topology Segment IDs for roads.
+        attributes:
+          LINK_ID: Permanent link ID.
+          TOPOLOGY_ID: Topology segment unique ID.
+          START_OFFSET: Indicating the relative start position of the link inside the topology.
+        attributesType:
+        - NUMBER
+        - NUMBER
+        - NUMBER
+        referencedStaticContents: []
+        tileRequestsLevel: 9
+        tileX: 854
+        tileY: 320
+        isStaticContent: false
+        indexes: []
+        staticContent: false
+    TileRow:
+      type: object
+      properties:
+        columns:
+          type: array
+          description: Map of attributes and values.
+          example:
+            LINK_ID: '113421120'
+            LONG_HAUL: N
+            NAME: SR-33 / Commonwealth Ave N
+            NAMES: ''
+            TUNNEL: N
+            BRIDGE: N
+            LAT: 2831248,47,72,46,50,47,21,42,33,31
+            LON: -8183529,6,10,5,7,5,2,5,3,3
+            ZLEVEL: ',,,,,,,,,'
+            ELEVATION: null
+            TOPOLOGY_ID: '399791974'
+            START_OFFSET: '0'
+            END_OFFSET: '100000'
+          items:
+            type: string
+            description: Map of attributes and values.
+            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
+      description: List of Attribute/value map from a specific layer.
+    MetaResponseV8:
+      type: object
+      properties:
+        layerName:
+          type: string
+          description: Name of layer returned in this tile response.
+          example: ROAD_GEOM_FC4
+        tileId:
+          type: integer
+          description: Tile ID for the tile returned in this response.
+          format: int32
+          example: 22055097
+        level:
+          type: integer
+          description: Level for layer returned in this tile response.
+          format: int32
+          example: 12
+        mapRegion:
+          type: string
+          description: Map region for layer returned in this tile response.
+          example: WEU
+        mapRelease:
+          type: string
+          description: Specific map release that this layer content belongs to.
+          example: '25122'
+      description: Meta info for a specific layer.
+    LayerDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        tileLevel:
+          type: integer
+          format: int32
+        level:
+          type: integer
+          format: int32
+        attributes:
+          type: array
+          items:
+            type: string
+        layerType:
+          type: string
+        storage:
+          type: string
+        mapName:
+          type: string
+        lastUpdateTimestamp:
+          type: integer
+          format: int64
+        featureMapping:
+          type: string
+        dynamicLayerAttribute:
+          type: boolean
+          writeOnly: true
+        source:
+          type: string
+        version:
+          type: string
+      example:
+        name: SIGNPOST
+        type: geom
+        level: 10
+        attributes:
+        - ZLEVEL
+        - SIGN_ID
+        - ORIGINATING_LINK_ID
+        - DEST_LINK_IDS
+        - STRAIGHT_ON_SIGNS
+        - EXIT_NUMBERS
+        - TEXTS
+        - LAT
+        - LON
+        layerType: public
+        storage: readonly
+        mapName: SAM
+        lastUpdateTimestamp: 1754820593739
+        featureMapping: PDE-Premium-Traffic-Signs
+    GeometrySearchResponse:
+      type: object
+      properties:
+        geometries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      description: A key generated specifically to authenticate API requests. For more information on how to get an API key, see [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide).
+      name: apiKey
+      in: query
+    bearerTokenAuth:
+      type: http
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see the [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide).
+      scheme: bearer
+      bearerFormat: JWT
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/category/map-attributes

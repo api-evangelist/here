@@ -1,0 +1,595 @@
+openapi: 3.2.0
+info:
+  title: Interactive Map API v1 Manage Changesets API
+  description: Interactive Map API v1 is a REST API for simple access to geo data.
+  contact: {}
+  version: 1.22.2
+  x-olp-service:
+    name: interactive
+    version: v1
+servers:
+- url: https://use.apilookup.for.a.base.url/
+security:
+- Bearer: []
+tags:
+- name: Manage Changesets
+paths:
+  /layers/{layerId}/changesets:
+    get:
+      tags:
+      - Manage Changesets
+      summary: Get Changesets
+      description: 'Retrieves a subset of existing Changesets from the space''s history.
+
+        The subset can be defined by providing a version ref that references a version range
+
+        e.g., "5..6" or "0..HEAD"
+
+
+        The version range can be specified using the `versionRef` query-parameter as follows:
+
+        `..`
+
+
+        Where `` is the start of the range (exclusive) and `` is the end of the range
+
+        (inclusive). (`5..10` points to the versions in the interval `]5, 10]`)
+
+
+        Each successful write transaction to the space is stored as one single Changeset,
+
+        which can contain modifications applied to one or more features.
+
+
+        The response payload may be split in multiple pages. The next page token is written in the
+
+        property ''nextPageToken'', which then can be used to retrieve the next page using the
+
+        ''pageToken'' parameter on the next call.'
+      operationId: Interactive Map API v1 getChangesets
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Author'
+      - $ref: '#/components/parameters/StartTime'
+      - $ref: '#/components/parameters/EndTime'
+      responses:
+        '200':
+          $ref: '#/components/responses/ChangesetCollectionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      x-olp-access-type: resource
+    delete:
+      tags:
+      - Manage Changesets
+      summary: Delete Changesets
+      description: 'Deletes one or more changesets where the version number can be specified by the query parameter ''version'', where the value must be an integer, bigger than 0 and the comparator should be one of the below list:
+
+        - <
+
+        - =lt=
+
+
+        Example: To remove changesets older than version number 10, a DELETE /layers/{layerId}/changesets?version=lt=10 could be executed.
+
+
+        The service will begin the process to remove the versions from version 9 until the version 0. During the deletion process, newer versions can be created and won''t be affected.'
+      operationId: Interactive Map API v1 deleteChangesets
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/VersionLowerThan'
+      responses:
+        '204':
+          $ref: '#/components/responses/EmptyResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+      x-olp-access-type: resource
+  /layers/{layerId}/changesets/{version}:
+    get:
+      tags:
+      - Manage Changesets
+      summary: Get Changeset
+      description: 'Retrieves one Changeset from the layer by version.
+
+        Each successful write transaction to the layer is stored as one single Changeset, which can contain modifications applied to one or more features.
+
+        The response payload may be split in multiple pages, next page is written in the property ''nextPageToken'', which then, can be retrieved by using the ''pageToken'' parameter.'
+      operationId: Interactive Map API v1 getChangeset
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/VersionPath'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/ChangesetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      x-olp-access-type: resource
+components:
+  schemas:
+    ChangesetCollection:
+      description: A ChangesetCollection JSON object.
+      properties:
+        type:
+          type: string
+        startVersion:
+          type: integer
+          description: The version of the newest included Changeset.
+        endVersion:
+          type: integer
+          description: The version of the oldest included Changeset.
+        versions:
+          type: object
+          description: The map of Changesets where the key is the version of each Changeset.
+          additionalProperties:
+            $ref: '#/components/schemas/Changeset'
+        nextPageToken:
+          type: string
+          description: The handle of the next batch.
+      example:
+        type: ChangesetCollection
+        startVersion: 1
+        endVersion: 2
+        versions:
+          '1':
+            type: Changeset
+            inserted:
+              type: FeatureCollection
+              features:
+              - type: Feature
+                id: Q1369587
+                geometry:
+                  type: Point
+                  coordinates:
+                  - -62.696667
+                  - 8.3125
+                properties:
+                  name: Polideportivo Cachamay
+                  '@ns:com:here:xyz':
+                    version: 1
+                  sport: association football
+                  capacity: 41600
+            updated:
+              type: FeatureCollection
+              features:
+              - type: Feature
+                id: Q947065
+                geometry:
+                  type: Point
+                  coordinates:
+                  - -110.948889
+                  - 32.228889
+                properties:
+                  name: Arizona Stadium
+                  '@ns:com:here:xyz':
+                    version: 1
+                  sport: American football
+                  capacity: 56037
+            deleted:
+              type: FeatureCollection
+              features: []
+        nextPageToken: 1000
+    FeatureCollection:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A FeatureCollection GeoJSON object.
+        required:
+        - features
+        discriminator:
+          propertyName: type
+          mapping:
+            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
+            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
+        properties:
+          features:
+            type: array
+            description: Features included in the collection.
+            items:
+              $ref: '#/components/schemas/Feature'
+        example:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
+    Feature:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Feature object represents a spatially bounded thing.
+        properties:
+          id:
+            description: The unique identifier of the feature.
+            type: string
+          geometry:
+            $ref: '#/components/schemas/Geometry'
+          properties:
+            type: object
+            description: The properties of the feature.
+            additionalProperties: true
+        example:
+          type: Feature
+          id: BfiimUxHjj
+          geometry:
+            type: Point
+            coordinates:
+            - -2.960847
+            - 53.430828
+          properties:
+            name: Anfield
+            amenity: Football Stadium
+            capacity: 54074
+            description: Home of the Liverpool Football Club.
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
+    Error:
+      type: object
+      description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Bad Request
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+    Changeset:
+      type: object
+      description: A Changeset includes three FeatureCollection objects grouped by the operations inserted, updated, deleted.
+      properties:
+        type:
+          type: string
+        author:
+          type: string
+          description: The author who performed the changes.
+        inserted:
+          type: array
+          description: FeatureCollection of inserted features.
+          items:
+            $ref: '#/components/schemas/FeatureCollection'
+        updated:
+          type: array
+          description: FeatureCollection of updated features.
+          items:
+            $ref: '#/components/schemas/FeatureCollection'
+        deleted:
+          type: array
+          description: FeatureCollection of deleted features.
+          items:
+            $ref: '#/components/schemas/FeatureCollection'
+        createdAt:
+          description: The UNIX Epoch time of when this object has been created (in milliseconds since 01.01.1970).
+          example: 1234567890123
+          format: int64
+          readOnly: true
+          type: integer
+      example:
+        type: Changeset
+        inserted:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: Q1369587
+            geometry:
+              type: Point
+              coordinates:
+              - -62.696667
+              - 8.3125
+            properties:
+              name: Polideportivo Cachamay
+              sport: association football
+              capacity: 41600
+        updated:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: Q947065
+            geometry:
+              type: Point
+              coordinates:
+              - -110.948889
+              - 32.228889
+            properties:
+              name: Arizona Stadium
+              sport: American football
+              capacity: 56037
+        deleted:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: Q1369587
+            geometry:
+              type: Point
+              coordinates:
+              - -62.696667
+              - 8.3125
+            properties:
+              name: Murrayfield Stadium
+              sport: rugby union
+              capacity: 67144
+    GeoJSON:
+      type: object
+      description: The base type for all possible GeoJSON objects.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        bbox:
+          type: array
+          description: Describes the coordinate range of the GeoJSON object.
+          items:
+            type: number
+      discriminator:
+        propertyName: type
+        mapping:
+          Feature: '#/components/schemas/Feature'
+          FeatureCollection: '#/components/schemas/FeatureCollection'
+          Geometry: '#/components/schemas/Geometry'
+      additionalProperties: true
+  headers:
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: The maximum number of features in the response. Default is _30000_. Hard limit is _100000_.
+      schema:
+        type: integer
+    Author:
+      name: author
+      in: query
+      description: Filter the results per author.
+      required: false
+      schema:
+        type: string
+    PageToken:
+      name: pageToken
+      in: query
+      description: The page token where the iteration will continue.
+      schema:
+        type: string
+    VersionRef:
+      name: versionRef
+      in: query
+      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
+      required: false
+      schema:
+        type: string
+        default: HEAD
+    EndTime:
+      name: endTime
+      in: query
+      description: 'Filter changesets by creation time. End time in milliseconds since the UNIX epoch (inclusive).
+
+        '
+      required: false
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+    VersionLowerThan:
+      name: version
+      in: query
+      description: "The query parameter used to specify the versions to be deleted. The value must be an integer, bigger than 1, and the comparator should be one of the below list:\n  - <\n  - =lt="
+      required: true
+      schema:
+        type: string
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
+    StartTime:
+      name: startTime
+      in: query
+      description: 'Filter changesets by creation time. Start time in milliseconds since the UNIX epoch (exclusive).
+
+        '
+      required: false
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+    VersionPath:
+      name: version
+      in: path
+      description: The version of a Changeset.
+      required: true
+      schema:
+        type: string
+  responses:
+    ChangesetResponse:
+      description: One Changeset which contains FeatureCollections grouped by operation.
+      content:
+        application/vnd.here.changeset:
+          schema:
+            $ref: '#/components/schemas/Changeset'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse400:
+      description: Malformed or Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: Insufficient rights + <Request specific access error details>
+    EmptyResponse:
+      description: An empty response as a result of a user-request with accepted MIME type application/x-empty.
+      content:
+        application/x-empty:
+          schema:
+            type: string
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ChangesetCollectionResponse:
+      description: A collection of Changesets which contains FeatureCollections grouped by operation.
+      content:
+        application/vnd.here.changeset-collection:
+          schema:
+            $ref: '#/components/schemas/ChangesetCollection'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse513:
+      description: Response payload too large.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse404:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/data-api

@@ -1,0 +1,1921 @@
+openapi: 3.2.0
+info:
+  title: Pipeline Management API v2 Pipeline Versions API
+  description: 'The Pipelines API enables programmatic access and control over
+
+    data processing pipelines.'
+  version: 2.17.10
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Pipeline Versions
+paths:
+  /v2/pipelines/{pipelineId}/versions:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: Get the list of PipelineVersions for a Pipeline
+      description: This endpoint returns a list of all PipelinesVersions currently defined for a given Pipeline.
+      operationId: listPipelineVersions
+      parameters:
+      - $ref: '#/components/parameters/PipelineVersionVerboseQueryParam'
+      responses:
+        '200':
+          description: List retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PipelineVersion'
+        '500':
+          description: Internal error while retrieving the list of PipelineVersions.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Create a new PipelineVersion
+      description: Defines a new version for the given Pipeline. This includes all the information to run actual processing, including the Pipeline Template, actual input & output catalogs and configurations. This endpoint instantiates the PipelineVersion and returns its metadata, that includes the id assigned to it.
+      operationId: createPipelineVersion
+      requestBody:
+        description: PipelineVersion to be created, with PipelineTemplate id and HRNs of input and output catalogs.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineVersion'
+        required: true
+      responses:
+        '201':
+          description: PipelineVersion successfully created.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineVersion'
+        '400':
+          description: Required parameters are missing or invalid values were provided.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while instantiating the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}/versions/{versionId}:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: Get a PipelineVersion
+      description: This endpoint returns the details about the PipelineVersion identified by the versionId path parameter.
+      operationId: getPipelineVersion
+      parameters:
+      - $ref: '#/components/parameters/PipelineVersionVerboseQueryParam'
+      responses:
+        '200':
+          description: PipelineVersion retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineVersion'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      tags:
+      - Pipeline Versions
+      summary: Delete a PipelineVersion
+      description: This endpoint deletes a PipelineVersion. The API will throw an error if the Pipeline Version is in any state other than Ready, or if there are any pending operations.
+      operationId: deletePipelineVersion
+      responses:
+        '204':
+          description: PipelineVersion deleted successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content: {}
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '412':
+          description: Can't delete a PipelineVersion that is not in READY state or has active operations.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while deleting the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/jobs:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: List Jobs of a PipelineVersion
+      description: This endpoint returns a list of the Jobs a PipelineVersion ran or is currently running.
+      operationId: listPipelineVersionJobs
+      responses:
+        '200':
+          description: List retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the list of Jobs.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/logging-configuration:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: The logging configuration
+      description: This endpoint returns the current logging configuration that is set for the PipelineVersion.
+      operationId: getLoggingConfiguration
+      responses:
+        '200':
+          description: Logging configuration retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoggingConfiguration'
+        '404':
+          description: Logging configuration was not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the logging configuration.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      tags:
+      - Pipeline Versions
+      summary: Update logging configuration for pipeline version
+      description: Updates the logging configuration for the pipeline version. If there is a job currently running, the logging configuration will be applied to that job, and will be applied to the future jobs.
+      operationId: updateLoggingConfiguration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoggingConfiguration'
+        required: false
+      responses:
+        '200':
+          description: Logging configuration updated successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoggingConfiguration'
+        '307':
+          description: To update Logging configuration, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: Cannot update logging configuration from current region.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while updating the pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: List Operations of a PipelineVersion
+      description: This endpoint returns a list of all Operations completed or pending on a PipelineVersion.
+      operationId: listOperations
+      responses:
+        '200':
+          description: List retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Operation'
+        '404':
+          description: Combination of Pipeline and PipelineVersion ids not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the list of Operations.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/activate:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Schedules a PipelineVersion
+      description: This endpoint updates the state of a PipelineVersion to Scheduled.
+      operationId: schedulePipelineVersion
+      requestBody:
+        description: Optional CatalogVersions to use when running the pipeline;  when CatalogVersions is passed the Version Resolver library will not be used. This becomes a one-time, 'run-now' scenario. If the ScheduledConfiguration of this Pipeline Version was 'version_resolver', this is automatically reset (to empty) to indicate the one-time, 'run-now' scenario and match the fact that CatalogVersions was passed in. The Pipeline Version will be automatically deactivated after this run attempt (whether the run is successful or not) so that this Pipeline Version will not be run automatically again in the future. The JobCatalogVersions (whether passed, or calculated by the Version Resolver) will be stored in the resulting Job record, which will be available via the 'List Jobs' API - after the job starts running on the Spark / Flink cluster.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCatalogVersions'
+        required: false
+      responses:
+        '202':
+          description: The PipelineVersion has been scheduled.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '307':
+          description: To activate the PipelineVersion, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: 'Cannot schedule a PipelineVersion given its current state, or the state of related data. Pre-requisites to scheduling a PipelineVersion include:
+
+            a) the parent Template must have reached a state of ''created''
+
+            b) there can be no other sibling PipelineVersion that is already ''active'' (has any State other than ''ready'').'
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline id or PipelineVersion id provided was not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while scheduling the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/cancel:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Cancel a PipelineVersion
+      description: This endpoint cancels a running or paused PipelineVersion. The cancel operation does not save the state of the pipeline version.
+      operationId: cancelPipelineVersion
+      responses:
+        '202':
+          description: Request to cancel the PipelineVersion is created and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '307':
+          description: To cancel the PipelineVersion, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: Cannot cancel a PipelineVersion given its current state.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while submitting the request to cancel the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/deactivate:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Deactivate a PipelineVersion
+      description: This endpoint deactivates a scheduled PipelineVersion.
+      operationId: deactivatePipelineVersion
+      responses:
+        '202':
+          description: Request to deactivate the PipelineVersion is created and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          description: Cannot activate a PipelineVersion given its current state.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while submitting the request to activate the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/pause:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Pause a running PipelineVersion
+      description: This endpoint pauses a running PipelineVersion. For a pipeline version using template created for Streaming runtime environment, the pause operation saves a snapshot of the current state of processing. When the pipeline is resumed or upgraded, the pipeline starts from the last saved state. For a pipeline version using template create for Batch runtime environment, the pause operation pauses the future scheduled runs. If a pipeline is currently running then that run will continue until it is successful or failed. For a non scheduled batch pipeline this will return an HTTP status code of 400
+      operationId: pausePipelineVersion
+      responses:
+        '202':
+          description: Request to pause the PipelineVersion is created and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '307':
+          description: To pause the PipelineVersion, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: Cannot pause a PipelineVersion given its current state.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while submitting the request to pause the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/resume:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Resume a paused PipelineVersion
+      description: This endpoint resumes a paused PipelineVersion. For a PipelineVersion using template created for Streaming runtime environment, it restarts from the state previously saved when paused. For a pipeline version using template with created for Batch runtime environment, it activates the scheduled runs. For non scheduled batch pipelines this will return a HTTP status code of 400
+      operationId: resumePipeline
+      requestBody:
+        description: Resume request options containing the request details of PipelineVersion to resume.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeRequest'
+        required: false
+      responses:
+        '202':
+          description: Request to resume the PipelineVersion is created and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '307':
+          description: To resume the PipelineVersion, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: Cannot pause a PipelineVersion given its current state.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while submitting the request to resume the PipelineVersion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/upgrade:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    post:
+      tags:
+      - Pipeline Versions
+      summary: Upgrade a PipelineVersion
+      description: This endpoint upgrades this PipelineVersion to a different pipeline version as provided in the request. For a pipeline version using template created for Streaming runtime environment, the framework saves the snapshot of the current state of processing and uses the saved state to run the new pipeline version. For pipeline version using template created for Batch runtime environment, the current running job for the version is not stopped, however, the future scheduled runs are canceled. The new pipeline version is scheduled.
+      operationId: upgradePipelineVersion
+      requestBody:
+        description: Upgrade request options containing system generated identifier (UUID) of the PipelineVersion to upgrade to.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpgradeRequest'
+        required: true
+      responses:
+        '202':
+          description: Request to upgrade the PipelineVersion is created and returned with its id.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '307':
+          description: To upgrade the PipelineVersion, please follow the redirect or use URL in the Location header.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            Location:
+              description: To proceed with the operation please follow the URL.
+              example: https://xxx.yyy.zzz/operation
+              schema:
+                type: string
+        '400':
+          description: Cannot upgrade a PipelineVersion given its current state.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while submitting the request to upgrade the PipelineVersion.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+  /v2/pipelines/{pipelineId}/versions/{versionId}/operations/{operationId}:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/OperationIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: Get an Operation of a PipelineVersion
+      description: This endpoint returns the Operation specified.
+      operationId: getPipelineVersionOperation
+      responses:
+        '200':
+          description: Operation retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '404':
+          description: Specified Pipeline, PipelineVersion or Operation not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the Operation.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /v2/pipelines/{pipelineId}/versions/{versionId}/scheduler-configuration:
+    parameters:
+    - $ref: '#/components/parameters/PipelineIdPathParam'
+    - $ref: '#/components/parameters/PipelineVersionIdPathParam'
+    - $ref: '#/components/parameters/RequestIdHeaderParam'
+    - $ref: '#/components/parameters/CorrelationIdHeaderParam'
+    get:
+      tags:
+      - Pipeline Versions
+      summary: The scheduler configuration
+      description: This endpoint returns the current scheduler configuration that is set for the PipelineVersion.
+      operationId: getSchedulerConfiguration
+      responses:
+        '200':
+          description: Scheduler configuration retrieved successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulerConfiguration'
+        '404':
+          description: Pipeline, PipelineVersion or Scheduler configuration was not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while retrieving the scheduler configuration.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      tags:
+      - Pipeline Versions
+      summary: Update scheduler configuration for PipelineVersion
+      description: Updates the scheduler configuration for the PipelineVersion. This can only be applied to PipelineVersions that are in the READY state.
+      operationId: updateSchedulerConfiguration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchedulerConfiguration'
+        required: false
+      responses:
+        '200':
+          description: Scheduler configuration updated successfully.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulerConfiguration'
+        '404':
+          description: Pipeline or PipelineVersion with provided id not found.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal error while updating the pipeline.
+          headers:
+            X-Request-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+            X-Correlation-ID:
+              description: value of the request header or generated value.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+      x-codegen-request-body-name: body
+components:
+  parameters:
+    OperationIdPathParam:
+      name: operationId
+      in: path
+      description: System generated identifier for the Operation.
+      required: true
+      schema:
+        type: string
+    PipelineVersionVerboseQueryParam:
+      name: verbose
+      in: query
+      description: Include the latest Job and Operation status
+      schema:
+        type: boolean
+    PipelineVersionIdPathParam:
+      name: versionId
+      in: path
+      description: System generated identifier for the PipelineVersion.
+      required: true
+      schema:
+        type: string
+    PipelineIdPathParam:
+      name: pipelineId
+      in: path
+      description: System generated identifier for the Pipeline.
+      required: true
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    JobCatalogVersions:
+      description: Versions of the input and output catalog submitted to be passed to the Job when it is run.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - type: object
+        properties:
+          inputCatalogs:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/InputCatalogVersion'
+            description: Versions of the input catalogs the Job processes, identified by symbolic catalog name.
+          outputCatalog:
+            $ref: '#/components/schemas/OutputCatalogVersion'
+          runAsId:
+            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
+            type: string
+            description: RunAsId Id to run the pipeline
+            example: hrn:here-dev:account::HERE:app/test-runas-id
+          snapshotId:
+            type: string
+            format: uuid
+            description: Optional snapshot id to activate pipeline with
+            example: 183f9bcc-c86e-11e9-1836-2a2ae2d83743
+          useLatestCheckpoint:
+            description: True if the latest available checkpoint should be used to activate this pipeline.  Activation will fail if no checkpoint is found (e.g., the checkpoint has expired).
+            example: false
+            type: boolean
+    RootLogger:
+      required:
+      - level
+      type: object
+      properties:
+        level:
+          type: string
+          description: Logger level.
+          example: debug
+          enum:
+          - error
+          - warn
+          - info
+          - debug
+      description: The Root logger. The level set here will apply to all classes and loggers that don't have a logger configured in the logging configuration.
+    ResumeRequest:
+      description: Resume request options containing the request details of PipelineVersion to resume.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - type: object
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+    SchedulerConfiguration:
+      type: object
+      properties:
+        catalogTriggerOptions:
+          type: string
+          description: The CatalogTriggerOptions support running the pipeline version based on changes detected on the input catalogs. Either `catalogTriggerOptions` or `timeTriggerOptions` must be present.
+          example: version_resolver
+          enum:
+          - version_resolver
+        timeTriggerOptions:
+          required:
+          - cronJobExpression
+          - processingType
+          type: object
+          properties:
+            cronJobExpression:
+              type: string
+              description: Schedule of when to attempt to trigger pipeline version, in the Linux crontab format.
+              example: 0 4 * * *
+            processingType:
+              type: string
+              description: Whether to wait for catalog changes, or to run without checking for changes.
+              example: force
+              enum:
+              - changes
+              - force
+          description: The TimeTriggerOptions support running the pipeline version on a window-bounded frequency, optionally based on changes detected on the input catalogs by the version resolver. Either `catalogTriggerOptions` or `timeTriggerOptions` must be present.
+      description: The configuration of the scheduler for running the Jobs based on the provided criteria. If scheduler configuration is not provided then the platform runs the version immediately.
+    ClusterConfiguration:
+      required:
+      - supervisorUnits
+      - workerUnits
+      - workers
+      type: object
+      properties:
+        workers:
+          minimum: 1
+          type: integer
+          description: Number of workers.
+          format: int32
+          example: 4
+        workerUnits:
+          maximum: 15
+          minimum: 1
+          type: integer
+          description: Number of resource units per worker.
+          format: int32
+          example: 2
+        workerResourceProfileId:
+          type: string
+          description: Identifier of the resource profile requested for workers.
+          example: HS1
+        workerAdditionalOverheadMemory:
+          multipleOf: 0.01
+          minimum: 0
+          type: number
+          description: The factor of proportionality of additional overhead memory per worker unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
+          format: float
+          example: 0.02
+        supervisorUnits:
+          maximum: 15
+          minimum: 1
+          type: integer
+          description: Number of resource units per supervisor.
+          format: int32
+          example: 3
+        supervisorResourceProfileId:
+          type: string
+          description: Identifier of the resource profile requested for the supervisor.
+          example: HS1
+        supervisorAdditionalOverheadMemory:
+          multipleOf: 0.01
+          minimum: 0
+          type: number
+          description: The factor of proportionality of additional overhead memory per supervisor unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
+          format: float
+          example: 0.02
+        gcProfile:
+          type: string
+          description: GC selected for this PipelineVersion. Refer to the GcProfileDefinition component for details.
+          example: g1gc
+      description: Configuration for the cluster when submitting a pipeline version.
+    Operation:
+      required:
+      - requestType
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Operation.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        pipelineVersionId:
+          deprecated: true
+          description: System generated identifier (UUID) for the Pipeline Version of the Operation.
+          example: 00112233-4455-6677-8899-aabbccddeeff
+          format: uuid
+          readOnly: true
+          type: string
+        requestType:
+          type: string
+          description: The type of the Operation requested.
+          example: activate
+          enum:
+          - activate
+          - deactivate
+          - pause
+          - resume
+          - cancel
+          - upgrade
+          - restart
+          - run
+          - job_terminate
+          - job_terminate_to_ready
+          - maintenance
+        state:
+          type: string
+          description: Current state of the Operation.
+          readOnly: true
+          example: accepted
+          enum:
+          - accepted
+          - being_processed
+          - succeeded
+          - failed
+        message:
+          type: string
+          description: Message related to the state of the Operation.
+          readOnly: true
+          example: Operation failed with error - Main class not found
+        userId:
+          type: string
+          description: HERE System generated identifier (UUID) for the user that requested the Operation.
+          readOnly: true
+          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
+        clientId:
+          type: string
+          description: HERE Client identifier for the app used by the user that requested the Operation.
+          readOnly: true
+        runAsId:
+          type: string
+          description: RunAsId that the pipeline will run as.
+          readOnly: true
+        created:
+          type: string
+          description: Time when the Operation event was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        options:
+          $ref: '#/components/schemas/OperationOptions'
+      description: An Operation represents a request to control, and change state, submitted by the user for a PipelineVersion.
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Job.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        state:
+          type: string
+          description: The current state of the Job. Immediately after creation, Job has state 'starting'
+          readOnly: true
+          example: running
+          enum:
+          - starting
+          - running
+          - completed
+          - failed
+          - canceled
+        catalogVersions:
+          $ref: '#/components/schemas/JobCatalogVersions'
+        created:
+          type: string
+          description: Time when this Job was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2017-12-03T10:15:30+01:00'
+        updated:
+          type: string
+          description: Time when this Job last updated. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2017-12-03T10:15:30+01:00'
+        runAsId:
+          type: string
+          description: RunAsId Id that the job was run with.
+          readOnly: true
+        runtimeEnvironmentPatch:
+          description: This field describes the internal runtime environment in format x.y.z
+          example: batch-3.0.0
+          readOnly: true
+          type: string
+        loggingUrl:
+          type: string
+          description: URL pointing to the logs of the running Job.
+          readOnly: true
+          example: https://splunk.metrics.platform.here.com/en-US/app/olp-realm/search?q=search+index%3Dolp-realm+source%3D%22*%2Fapplication_1122334455667_8899%2F*%22+
+        pipelineUIUrl:
+          type: string
+          description: URL pointing to pipeline UI endpoint of running Job.
+          readOnly: true
+          example: https://pipelines.platform.here.com/jobs/bd03d684-3371-40ba-81f8-3ffbede12506/sparkui
+        executionMode:
+          type: string
+          description: 'How this Job was started: ''on-demand'' (i.e. ''run now''), ''scheduled'', or based on a time-based schedule'
+          readOnly: true
+          example: scheduled
+          enum:
+          - on-demand
+          - scheduled
+          - time-schedule
+        highAvailability:
+          type: boolean
+          description: Is High Availability enabled or disabled (true/false) using standby master.
+          readOnly: true
+          example: true
+        actualRegionId:
+          type: string
+          description: This field describes the region where this Pipeline Job is executing or was executed.
+          readOnly: true
+          example: eu-ireland
+        pipelineVersionId:
+          deprecated: true
+          description: System generated identifier (UUID) of the parent PipelineVersion.
+          example: 00112233-4455-6677-8899-aabbccddeeff
+          format: uuid
+          readOnly: true
+          type: string
+      description: Description of one processing Job submitted to the processing cluster by an active PipelineVersion.
+    Loggers:
+      required:
+      - root
+      type: object
+      properties:
+        logger:
+          type: array
+          description: List of Loggers.
+          items:
+            $ref: '#/components/schemas/Logger'
+        root:
+          $ref: '#/components/schemas/RootLogger'
+    OperationOptions:
+      type: object
+      properties:
+        highAvailability:
+          type: boolean
+          description: Defines if the pipeline is highly available using a standby master
+          example: true
+      description: Common options for an operation.
+    UpgradeRequest:
+      description: Upgrade request options containing the request details of PipelineVersion to upgrade to.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - required:
+        - toVersionId
+        type: object
+        properties:
+          runAsId:
+            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
+            type: string
+            description: RunAsId Id to run the pipeline
+            example: hrn:here-dev:account::HERE:app/test-runas-id
+          toVersionId:
+            type: string
+            description: System generated identifier (UUID) for the PipelineVersion to upgrade to.
+            format: uuid
+            example: 00112233-4455-6677-8899-aabbccddeeff
+    PipelineVersion:
+      required:
+      - inputCatalogs
+      - name
+      - outputCatalogHRN
+      - pipelineTemplateId
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for this PipelineVersion.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        pipelineId:
+          deprecated: true
+          description: System generated identifier (UUID) for the parent Pipeline.
+          example: 00112233-4455-6677-8899-aabbccddeeff
+          format: uuid
+          readOnly: true
+          type: string
+        name:
+          maxLength: 64
+          minLength: 3
+          type: string
+          description: Name of this PipelineVersion, provided by the user.
+          example: Northern Europe Weather Analysis
+        state:
+          type: string
+          description: Current state of the PipelineVersion.
+          readOnly: true
+          example: ready
+          enum:
+          - ready
+          - scheduled
+          - running
+          - paused
+        pipelineTemplateId:
+          type: string
+          description: System generated identifier (UUID) for the Pipeline Template that specifies implementation and relative metadata to run the Pipeline Version.
+          format: uuid
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        inputCatalogs:
+          type: object
+          additionalProperties:
+            type: string
+          description: Input catalogs for the PipelineVersion as key, HRN pairs. Each key is an alpha-numeric string (_- are also allowed) identifying the catalog.
+        outputCatalogHRN:
+          pattern: hrn:(here|here-dev):data:::[a-z][a-z0-9\-]{2,62}
+          type: string
+          description: Unique HERE Resource Name of the output catalog.
+          example: hrn:here:data:::my-output
+        schedulerConfiguration:
+          $ref: '#/components/schemas/SchedulerConfiguration'
+        nextJobAttempt:
+          type: string
+          description: Time when this PipelineVersion is set to be triggered next, or empty if not applicable. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+        versionNumber:
+          type: integer
+          description: The version number of this PipelineVersion for a given Pipeline.  Starts with 1, incrementing for each new PipelineVersion associated with a given Pipeline.
+          format: int32
+          readOnly: true
+          example: 2
+        clusterConfiguration:
+          $ref: '#/components/schemas/ClusterConfiguration'
+        customRuntimeConfiguration:
+          type: string
+          description: 'The custom runtime configuration for this Pipeline Version. Runtime configuration settings supplied here will be added to any default runtime configuration settings from the parent Pipeline Template. Any runtime configuration settings here will over-ride any defaults from the parent Pipeline Template which are using the same key. The configuration settings are combined and applied dynamically whenever this Pipeline Version is run.   The combined configuration values are made available in a resource file named `application.properties` on the runtime classpath. When a particular Pipeline Version is retrieved, only the runtime configuration settings that were stored directly as part of the PipelineVersion will be returned; any runtime configuration settings from the parent Pipeline Template are visible only in the Template. For more information, see the "Configuration File Reference" section of the developer documentation.
+
+
+            The maximum property ''name'' size is 2048 characters, the maximum property ''value'' size is 8192 characters, and the maximum total size of this customRuntimeConfiguration string is 10243 characters.'
+          example: 'processing.type=live
+
+            overwrite=enabled
+
+            skipDuplicates=disabled
+
+            '
+        streamConfiguration:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+            description: Allows overriding of the Flink Configuration. The properties that are allowed are limited.
+            example:
+              taskmanager.numberOfTaskSlots: 2
+          description: Allows overriding of the Flink Configuration. The properties that are allowed are limited.
+          example:
+            taskmanager.numberOfTaskSlots: 2
+        runAsId:
+          type: string
+          description: RunAsId Id to run the pipeline
+          example: hrn:here-dev:account::HERE:app/test-runas-id
+        runtimeEnvironmentPatch:
+          description: This field describes the internal runtime environment in format x.y.z
+          example: batch-3.0.0
+          readOnly: true
+          type: string
+        billingTag:
+          maxLength: 16
+          minLength: 4
+          pattern: '[0-9a-zA-Z_-]*'
+          type: string
+          description: Billing tag for this Pipeline Version. Might be required for a realm.
+          example: dataProcessing
+        loggingUrl:
+          type: string
+          description: URL pointing to the logs of the running PipelineVersion.
+          readOnly: true
+          example: https://splunk.metrics.platform.here.com/en-US/app/olp-realm/search?q=search+index%3Dolp-realm+source%3D%22*%2Fapplication_1122334455667_8899%2F*%22+
+        pipelineUIUrl:
+          type: string
+          description: URL pointing to pipeline UI endpoint of running PipelineVersion.
+          readOnly: true
+          example: https://pipelines.platform.here.com/jobs/bd03d684-3371-40ba-81f8-3ffbede12506/sparkui
+        latestOperation:
+          $ref: '#/components/schemas/Operation'
+        latestJob:
+          $ref: '#/components/schemas/Job'
+        multiRegionEnabled:
+          type: boolean
+          description: This field determines whether the Multi-Region Failover feature is enabled for this Pipeline Version.
+          example: true
+        targetRegionId:
+          type: string
+          description: This field describes the region where this Pipeline Version would run, if started at this point of time. Its value is either the primary or secondary region, depending on which is considered active for this pipeline version.
+          readOnly: true
+          example: eu-ireland
+        created:
+          type: string
+          description: Time when this PipelineVersion was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        updated:
+          type: string
+          description: Time when this PipelineVersion was last updated. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+      description: Model representing a configured PipelineVersion. This includes all the configuration to run actual processing, in particular the PipelineTemplate to be used, that contains the implementation and provides metadata to instantiate and run it, and actual input and output catalog instances, identified via HRNs.
+    OutputCatalogVersion:
+      required:
+      - baseVersion
+      type: object
+      properties:
+        baseVersion:
+          type: integer
+          description: Latest version available in the output catalog when the Job is submitted. The Job commits new data on top of this version.
+          format: int64
+          example: 3
+    Logger:
+      required:
+      - level
+      - name
+      type: object
+      properties:
+        level:
+          type: string
+          description: Logger level.
+          example: debug
+          enum:
+          - error
+          - warn
+          - info
+          - debug
+        name:
+          type: string
+          description: The logging name that ws set in the Logger for the class.
+          example: com.some.package.MyPipeline
+      description: Logger.
+    InputCatalogVersion:
+      required:
+      - processingType
+      - version
+      type: object
+      properties:
+        processingType:
+          type: string
+          description: How the input catalog should be processed.
+          example: changes
+          enum:
+          - changes
+          - reprocess
+          - no_changes
+        version:
+          type: integer
+          description: Version of the input catalog to process.
+          format: int64
+          example: 2
+        sinceVersion:
+          type: integer
+          description: Changes should be processed since this given version.
+          format: int64
+          example: 1
+    LoggingConfigurationWrapper:
+      required:
+      - loggers
+      type: object
+      properties:
+        loggers:
+          $ref: '#/components/schemas/Loggers'
+    LoggingConfiguration:
+      required:
+      - configuration
+      type: object
+      properties:
+        configuration:
+          $ref: '#/components/schemas/LoggingConfigurationWrapper'
+      description: A logging configuration. This supports the JSON format for Log4j 2. It will only support the configurable options that are supported by pipeline management. This setting the root logger level as well as adding individual loggers and their respective levels.
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. For more information on how to get a bearer token, see https://developer.here.com/documentation/identity-access-management/dev_guide/index.html.
+externalDocs:
+  description: The developer guide and changelogs are available here.
+  url: https://www.here.com/docs/category/pipelines-api

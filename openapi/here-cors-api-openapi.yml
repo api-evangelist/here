@@ -1,0 +1,314 @@
+openapi: 3.2.0
+info:
+  title: Here CORS API
+  x-refined-note:
+  - x-olp-service differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged CORS across 2 of this provider''s published API definitions: here-data-ingest-v1-openapi.yml, here-tour-planning-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://use.apilookup.for.a.base.url/
+- url: https://tourplanning.hereapi.com/v3
+  description: Production environment base url.
+tags:
+- name: CORS
+  description: Endpoints for Cross-Origin Resource Sharing (CORS)
+paths:
+  /layers/{layerId}:
+    options:
+      tags:
+      - CORS
+      summary: CORS support for the endpoint for ingesting generic data
+      description: Enable CORS by returning correct headers
+      operationId: Ingest API v1 ingestDataCors
+      parameters:
+      - name: layerId
+        in: path
+        description: The ID of the layer where you want the data ingested.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/partitions:
+    options:
+      tags:
+      - CORS
+      summary: CORS support for sending a list of partitions to a stream layer
+      description: Enable CORS by returning correct headers
+      operationId: Ingest API v1 ingestPartitionsCors
+      parameters:
+      - name: layerId
+        in: path
+        description: The ID of the layer where you want the data ingested.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/sdiiMessageList:
+    options:
+      tags:
+      - CORS
+      summary: CORS support for sending a list of SDII messages to a stream layer
+      description: Enable CORS by returning correct headers
+      operationId: Ingest API v1 ingestSDIICors
+      parameters:
+      - name: layerId
+        in: path
+        description: The ID of the layer where you want the data ingested.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /problems:
+    options:
+      summary: CORS support
+      description: Enable Cross-Origin Resource Sharing (CORS) by returning the appropriate headers.
+      tags:
+      - CORS
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsProblems
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+  /problems/async:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers.
+      tags:
+      - CORS
+      responses:
+        '200':
+          description: Default response for the CORS method.
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsProblemsAsync
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+  /status/{statusId}:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers.
+      tags:
+      - CORS
+      parameters:
+      - in: path
+        name: statusId
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProblemId'
+      responses:
+        '200':
+          description: Default response for the CORS method.
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsStatusByStatusId
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+  /problems/{problemId}/solution:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers.
+      tags:
+      - CORS
+      parameters:
+      - in: path
+        name: problemId
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProblemId'
+      responses:
+        '200':
+          description: Default response for the CORS method.
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsProblemsByProblemIdSolution
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+  /problems/{problemId}/cancel:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers.
+      tags:
+      - CORS
+      parameters:
+      - in: path
+        name: problemId
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProblemId'
+      responses:
+        '200':
+          description: Default response for the CORS method.
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsProblemsByProblemIdCancel
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+  /matrices:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers.
+      tags:
+      - CORS
+      responses:
+        '200':
+          description: Default response for the CORS method.
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+      security:
+      - Bearer: []
+      - ApiKey: []
+      operationId: optionsMatrices
+      x-operation-id-source: derived
+    servers:
+    - url: https://tourplanning.hereapi.com/v3
+      description: Production environment base url.
+components:
+  schemas:
+    ProblemId:
+      description: A unique identifier for the problem.
+      example: 87aec2ce-b697-11e8-96f8-529269fb1459
+      format: uuid
+      type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    ApiKey:
+      type: apiKey
+      name: apikey
+      in: query
+      description: "The API authentication key. For more information on how to get an API key, \nsee [Identity and Access Management - Developer Guide](https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys).\n"
+x-refined-from:
+- here-data-ingest-v1-openapi.yml
+- here-tour-planning-v3-openapi.yml

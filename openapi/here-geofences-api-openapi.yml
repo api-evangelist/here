@@ -1,0 +1,3746 @@
+openapi: 3.2.0
+info:
+  version: 2.6.11
+  title: HERE Tracking Geofences API
+  description: 'HERE Tracking is a cloud product designed to address location tracking problems for a wide range of Location IoT industry verticals.
+
+
+    HERE Tracking also includes end-user mobile and web applications that can be used to demonstrate the product.'
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://tracking.hereapi.com/
+- url: https://tracking.api.here.com/
+tags:
+- description: The Geofences service creates and manages geofences.
+  name: Geofences
+paths:
+  /geofences/v2/health:
+    get:
+      summary: Gets service health
+      security: []
+      responses:
+        '200':
+          description: 'OK
+
+
+            The service is performing as expected
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Health status
+                example:
+                  message: healthy
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Geofences
+      operationId: getGeofencesV2Health
+      x-operation-id-source: derived
+  /geofences/v2/version:
+    get:
+      summary: Gets service version
+      security: []
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                description: "OK\nService returns its current version number\nschema:\n    type: object\n    properties:\n        \"service-name\":\n            type: string\n            description: Version of service\n    example:\n        servicename: \"1.0.0\"\n"
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Geofences
+      operationId: getGeofencesV2Version
+      x-operation-id-source: derived
+  /geofences/v2:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: projectId
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: 'Project ID.
+
+          Any HERE Tracking user must be a member of a Tracking project.
+
+          The project ID can be implicitly resolved if the user calling the API is a member of a single project.
+
+          If the user is a member of multiple projects, the `projectId` query parameter needs to be specified explicitly.
+
+          '
+      in: query
+      required: false
+    post:
+      summary: Creates a geofence
+      description: 'One can specify a geofence as a circle, as a polygon or as POI (Point of Interest). One can also
+
+        assign a name and a description to each geofence to help identify them.
+
+
+        Circle
+
+        ---
+
+
+        Specify coordinates of the center point of the circle and a radius in
+
+        meters.
+
+
+        ```json
+
+        {
+
+        "name": "Home",
+
+        "type": "circle",
+
+        "definition": {
+
+        "center": {
+
+        "lat": 52.5308398,
+
+        "lng": 13.38490035
+
+        },
+
+        "radius": 100
+
+        },
+
+        "description": "Small area around my house."
+
+        }
+
+        ```
+
+
+        Polygon
+
+        ---
+
+
+        Specify an array of points. A minimum of three points is required.
+
+
+        *NOTE: If the array of points does not describe a closed polygon, the polygon is
+
+        automatically closed between the last and first points.*
+
+
+        ```json
+
+        {
+
+        "name": "Work",
+
+        "type": "polygon",
+
+        "definition": {
+
+        "points": [{
+
+        "lat": 52.5308398,
+
+        "lng": 13.38490035
+
+        }, {
+
+        "lat": 52.530443,
+
+        "lng": 13.38482003
+
+        }, {
+
+        "lat": 52.5308298,
+
+        "lng": 13.38492235
+
+        }]
+
+        },
+
+        "description": "The area around work."
+
+        }
+
+        ```
+
+
+        Indoor geofence
+
+        ---
+
+
+        Circular and polygonal geofences can be both outdoors and indoors.
+
+        To create a `circular` `indoor` geofence, add the `floor` property to the request body.
+
+
+        ```json
+
+        {
+
+        "name": "Office indoor",
+
+        "type": "circle",
+
+        "definition": {
+
+        "center": {
+
+        "lat": 52.5308398,
+
+        "lng": 13.38490035
+
+        },
+
+        "radius": 20,
+
+        "floor": {
+
+        "level": 2,
+
+        "id": "DM_1234",
+
+        "name": "Office floor 2"
+
+        }
+
+        },
+
+        "description": "Floor 2 of the office."
+
+        }
+
+
+        ```
+
+
+        POI geofence
+
+        ---
+
+
+        Specify location details of a POI geofence for its initial creation.
+
+
+        After the POI geofence has been created, it will need to be trained.
+
+        The POI geofence boundary is defined using radio measurements.
+
+        The POI geofence is trained using a telemetry
+
+        that a device has ingested while being at this desired point of interest.
+
+
+        For a trained POI geofence, an associated device is considered to be inside the
+
+        geofence when the radio measurements of the device-ingested telemetry and
+
+        the training data match.
+
+
+        ```json
+
+        {
+
+        "name": "POI room in the office",
+
+        "type": "poi",
+
+        "definition": {
+
+        "location": {
+
+        "room": ROOM_201,
+
+        "address": Invalidenstrasse 116,
+
+        "country": Germany,
+
+        "position": {
+
+        "lat": 52.5308398,
+
+        "lng": 13.38490035
+
+        }
+
+        },
+
+        "floor": {
+
+        "level": 2,
+
+        "id": "DM_1234",
+
+        "name": "Office floor 2"
+
+        }
+
+        },
+
+        "description": "A room where goods should be delivered."
+
+        }
+
+        ```
+
+
+        Successful requests have the HTTP status 201 and the response body provides
+
+        the ID of the created geofence.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - title: Circle
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - circle
+                  definition:
+                    type: object
+                    description: An object that defines the area of a circular geofence
+                    properties:
+                      center:
+                        description: The coordinates of the center point of the circle.
+                        type: object
+                        properties:
+                          lat:
+                            description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                            type: number
+                            minimum: -90
+                            maximum: 90
+                          lng:
+                            description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                            type: number
+                            minimum: -180
+                            maximum: 180
+                        required:
+                        - lat
+                        - lng
+                      radius:
+                        type: number
+                        description: The radius of the circle in meters.
+                        minimum: 0
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                    required:
+                    - center
+                    - radius
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+                - definition
+              - title: Polygon
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - polygon
+                  definition:
+                    type: object
+                    description: An object that defines the area of a polygonal geofence.
+                    properties:
+                      points:
+                        type: array
+                        description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                        minItems: 3
+                        maxItems: 500
+                        items:
+                          type: object
+                          properties:
+                            lat:
+                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                              type: number
+                              minimum: -90
+                              maximum: 90
+                            lng:
+                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                              type: number
+                              minimum: -180
+                              maximum: 180
+                          required:
+                          - lat
+                          - lng
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                    required:
+                    - points
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+                - definition
+              - title: POI
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - poi
+                  definition:
+                    type: object
+                    description: An object that defines the area of a POI geofence.
+                    properties:
+                      location:
+                        type: object
+                        description: Details of the geofence location
+                        properties:
+                          room:
+                            description: The room ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          address:
+                            description: Address
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                          country:
+                            description: Country
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                          position:
+                            type: object
+                            properties:
+                              lat:
+                                description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                type: number
+                                minimum: -90
+                                maximum: 90
+                              lng:
+                                description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                type: number
+                                minimum: -180
+                                maximum: 180
+                            required:
+                            - lat
+                            - lng
+                            description: Coordinates for visualization purposes
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+      tags:
+      - Geofences
+      responses:
+        '201':
+          description: 'Created
+
+
+            The geofence was successfully created.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+                required:
+                - id
+              example:
+                id: 0d994f31-ceea-42e4-96a5-4484585c3802
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '413':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Payload Too Large
+                code: 413
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request size exceeds the maximum size limit for payloads.
+                details:
+                  hereErrorCode: 413306
+          description: 'Payload Too Large
+
+
+            The request size exceeds the maximum size limit for payloads.
+
+            '
+      operationId: postGeofencesV2
+      x-operation-id-source: derived
+    get:
+      summary: Gets all geofences
+      description: 'Gets all geofences of a project.
+
+        Results can be filtered by using the query parameters.
+
+        Indoor geofences with the `floor` properties
+
+        may be filtered by `floor[id]`, which specifies the ID of the venue associated with the geofence.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      - DeviceToken: []
+      parameters:
+      - name: pageToken
+        description: A token from the previously returned response to retrieve the specified page.
+        schema:
+          type: string
+        in: query
+        required: false
+      - name: count
+        description: The number of items to return per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        in: query
+        required: false
+      - in: query
+        schema:
+          anyOf:
+          - type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+                maxLength: 100
+                description: ID of the venue, which is associated with the geofence
+            title: Floor ID
+          - type: string
+            enum:
+            - 'null'
+            description: Null option can be used to query for geofences without a floor property
+            title: No `floor` property
+        name: floor
+        description: The floor of the indoor geofence
+        example:
+          id: DM_1234
+        style: deepObject
+        explode: true
+      - name: type
+        description: Type of a geofence
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - circle
+            - polygon
+            - poi
+      - in: query
+        schema:
+          type: array
+          maxItems: 4
+          minItems: 4
+          items:
+            type: number
+            minimum: -180
+            maximum: 180
+            description: Latitude and longitude of Northwest and Southeast corners.
+        name: bbox
+        description: Limit search to geofences intersecting the given bounding box.
+        style: form
+      - name: fields
+        description: 'Field names to filter a result object.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+      tags:
+      - Geofences
+      responses:
+        '200':
+          description: 'Response body contains an array of geofence objects, `count` specifies the number of returned geofences,
+
+            and `pageToken` indicates the next available page in the matching result set.
+
+
+            If no geofences are found, an object with empty data array is returned.
+
+            Response content type can be either JSON or protobuf depending on the ''Content-Type'' request header.
+
+            '
+          content:
+            application/json:
+              example:
+                data:
+                - id: d0c29690-5d26-4cf1-a37e-b7816e72cb99
+                  geofence:
+                    definition:
+                      points:
+                      - lng: 13.38490035
+                        lat: 52.5308398
+                      - lng: 14.38490035
+                        lat: 52.5408398
+                      - lng: 13.39490035
+                        lat: 53.5308398
+                    type: polygon
+                - id: ff92eda0-3114-4640-b7e6-4ba641ae1124
+                  geofence:
+                    name: 16fbc82c-88d1-4219-bfad-6e5de52688a2
+                    description: This is a circular geofence
+                    type: circle
+                    definition:
+                      center:
+                        lat: 52.5308398
+                        lng: 13.38490035
+                      radius: 100
+                      floor:
+                        id: DM_82228
+                        name: House 3
+                pageToken: 027ffffea253d79fc
+                count: 2
+              schema:
+                type: object
+                description: Response body contains an array of geofence objects. `count` indicates the number of returned geofences, and `pageToken` indicates the next available page in the matching result set. If no geofences are found, an object with empty data array is returned.
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        description: Single geofence object
+                        type: object
+                        properties:
+                          id:
+                            description: Geofence ID
+                            type: string
+                            format: uuid
+                          version:
+                            description: Geofence version
+                            type: integer
+                          createdAt:
+                            description: Timestamp indicating when the geofence has been created
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            description: Timestamp indicating when the geofence has been updated
+                            type: string
+                            format: date-time
+                          geofence:
+                            oneOf:
+                            - title: Circle
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - circle
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a circular geofence
+                                  properties:
+                                    center:
+                                      description: The coordinates of the center point of the circle.
+                                      type: object
+                                      properties:
+                                        lat:
+                                          description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                          type: number
+                                          minimum: -90
+                                          maximum: 90
+                                        lng:
+                                          description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                          type: number
+                                          minimum: -180
+                                          maximum: 180
+                                      required:
+                                      - lat
+                                      - lng
+                                    radius:
+                                      type: number
+                                      description: The radius of the circle in meters.
+                                      minimum: 0
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                  required:
+                                  - center
+                                  - radius
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - definition
+                            - title: Polygon
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - polygon
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a polygonal geofence.
+                                  properties:
+                                    points:
+                                      type: array
+                                      description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                                      minItems: 3
+                                      maxItems: 500
+                                      items:
+                                        type: object
+                                        properties:
+                                          lat:
+                                            description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                            type: number
+                                            minimum: -90
+                                            maximum: 90
+                                          lng:
+                                            description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                            type: number
+                                            minimum: -180
+                                            maximum: 180
+                                        required:
+                                        - lat
+                                        - lng
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                  required:
+                                  - points
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - definition
+                            - title: POI
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The geofence type.
+                                  enum:
+                                  - poi
+                                definition:
+                                  type: object
+                                  description: An object that defines the area of a POI geofence.
+                                  properties:
+                                    location:
+                                      type: object
+                                      description: Details of the geofence location
+                                      properties:
+                                        room:
+                                          description: The room ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        address:
+                                          description: Address
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                        country:
+                                          description: Country
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                        position:
+                                          type: object
+                                          properties:
+                                            lat:
+                                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                              type: number
+                                              minimum: -90
+                                              maximum: 90
+                                            lng:
+                                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                              type: number
+                                              minimum: -180
+                                              maximum: 180
+                                          required:
+                                          - lat
+                                          - lng
+                                          description: Coordinates for visualization purposes
+                                    floor:
+                                      description: The building associated with the geofence
+                                      type: object
+                                      required:
+                                      - id
+                                      - name
+                                      properties:
+                                        level:
+                                          description: The floor of the geofence in integer format
+                                          type: number
+                                          minimum: -999
+                                          maximum: 999
+                                        id:
+                                          description: The building ID
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 100
+                                        name:
+                                          description: The building name
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 255
+                                metadata:
+                                  description: 'Metadata JSON object may contain additional customer specific information
+
+                                    '
+                                  type: object
+                                trainingStatus:
+                                  type: object
+                                  properties:
+                                    trained:
+                                      description: True if the POI geofence is trained
+                                      type: boolean
+                                    metadata:
+                                      type: object
+                                      properties:
+                                        usedWlanApCount:
+                                          description: The number of WLAN access point used in training
+                                          type: number
+                                        trackingId:
+                                          type: string
+                                          minLength: 1
+                                          maxLength: 50
+                                          description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                                        timestamp:
+                                          description: Training data timestamp
+                                          type: integer
+                                          minimum: 2
+                                          maximum: 4102448400000
+                                        coordinate:
+                                          type: object
+                                          properties:
+                                            lat:
+                                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                              type: number
+                                              minimum: -90
+                                              maximum: 90
+                                            lng:
+                                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                              type: number
+                                              minimum: -180
+                                              maximum: 180
+                                          required:
+                                          - lat
+                                          - lng
+                                          description: Training data position
+                                      required:
+                                      - usedWlanApCount
+                                  required:
+                                  - trained
+                                name:
+                                  type: string
+                                  maxLength: 50
+                                  description: A human-readable name of the geofence.
+                                description:
+                                  type: string
+                                  maxLength: 1000
+                                  description: A description of the area that the geofence encloses and the purpose of the geofence.
+                              required:
+                              - type
+                              - trainingStatus
+                        required:
+                        - id
+                        - geofence
+            application/octet-stream:
+              example: 34 56 18 93 45 29 54 62 77 28 23 79 22
+              schema:
+                type: array
+                items: {}
+                description: 'Response body contains an array of geofence objects, `count` specifies the number of returned geofences,
+
+                  and `pageToken` indicates the next available page in the matching result set.
+
+
+                  If no geofences are found, an object with empty data array is returned.
+
+                  '
+                example:
+                  response data as Protobuf binary, format as follows: "message GeofenceMsg {\n  message GeofenceCircular {\n    //Latitude value\n    float lat = 1;\n    //Longitude value\n    float lng = 2;\n    //Center radius value\n    uint32 radius = 3;\n    //Geofence ID\n    string id = 4;\n  }\n  message GeofencePolygonal {\n    //Latitude value array\n    repeated float lat = 1;\n    //Longitude value array\n    repeated float lng = 2;\n    //Geofence ID\n    string id = 3;\n  }\n  //Circular geofence array\n  repeated GeofenceCircular circulars = 1;\n  //Polygonal geofence array\n  repeated GeofencePolygonal polygonals = 2;\n  //Page token\n  string pageToken = 3;\n}\n"
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+      operationId: getGeofencesV2
+      x-operation-id-source: derived
+    delete:
+      summary: Deletes all geofences
+      description: 'Deletes all geofences of a project.
+
+
+        If a geofence is associated with a stock rule, the rule will also be deleted.
+
+
+        Note that one needs to supply an HTTP header `x-confirm` with the value `true` to force the deletion.
+
+        If the header is not provided, the request will fail.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Geofences
+      parameters:
+      - schema:
+          type: string
+          enum:
+          - 'true'
+        in: header
+        name: x-confirm
+        required: true
+        description: 'A safety measure that prevents one from accidentally deleting data.
+
+
+          To confirm that all entries should be deleted, set the value to `true`.
+
+          '
+      responses:
+        '204':
+          description: 'Successful (no content)
+
+
+            All geofence definitions were successfully deleted.
+
+            '
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+      operationId: deleteGeofencesV2
+      x-operation-id-source: derived
+  /geofences/v2/{geofenceId}:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+      name: geofenceId
+      description: ID of the geofence
+      required: true
+    get:
+      summary: Gets a single geofence
+      description: Gets details of a single geofence identified by the `geofenceId`.
+      security:
+      - ClientToken: []
+      - UserToken: []
+      - DeviceToken: []
+      parameters:
+      - name: fields
+        description: 'Field names to filter a result object.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+      tags:
+      - Geofences
+      responses:
+        '200':
+          description: 'Response body contains a single geofence object.
+
+            Response content type can be either JSON or protobuf depending on the ''Content-Type'' request header.
+
+            '
+          content:
+            application/json:
+              example:
+                id: d0c29690-5d26-4cf1-a37e-b7816e72cb99
+                geofence:
+                  definition:
+                    points:
+                    - lng: 13.38490035
+                      lat: 52.5308398
+                    - lng: 14.38490035
+                      lat: 52.5408398
+                    - lng: 13.39490035
+                      lat: 53.5308398
+                    floor:
+                      id: DM_82228
+                      name: House 3
+                      level: 2
+                  type: polygon
+              schema:
+                description: Single geofence object
+                type: object
+                properties:
+                  id:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+                  version:
+                    description: Geofence version
+                    type: integer
+                  createdAt:
+                    description: Timestamp indicating when the geofence has been created
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    description: Timestamp indicating when the geofence has been updated
+                    type: string
+                    format: date-time
+                  geofence:
+                    oneOf:
+                    - title: Circle
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - circle
+                        definition:
+                          type: object
+                          description: An object that defines the area of a circular geofence
+                          properties:
+                            center:
+                              description: The coordinates of the center point of the circle.
+                              type: object
+                              properties:
+                                lat:
+                                  description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                  type: number
+                                  minimum: -90
+                                  maximum: 90
+                                lng:
+                                  description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                  type: number
+                                  minimum: -180
+                                  maximum: 180
+                              required:
+                              - lat
+                              - lng
+                            radius:
+                              type: number
+                              description: The radius of the circle in meters.
+                              minimum: 0
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                          required:
+                          - center
+                          - radius
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - definition
+                    - title: Polygon
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - polygon
+                        definition:
+                          type: object
+                          description: An object that defines the area of a polygonal geofence.
+                          properties:
+                            points:
+                              type: array
+                              description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                              minItems: 3
+                              maxItems: 500
+                              items:
+                                type: object
+                                properties:
+                                  lat:
+                                    description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                    type: number
+                                    minimum: -90
+                                    maximum: 90
+                                  lng:
+                                    description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                    type: number
+                                    minimum: -180
+                                    maximum: 180
+                                required:
+                                - lat
+                                - lng
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                          required:
+                          - points
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - definition
+                    - title: POI
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - poi
+                        definition:
+                          type: object
+                          description: An object that defines the area of a POI geofence.
+                          properties:
+                            location:
+                              type: object
+                              description: Details of the geofence location
+                              properties:
+                                room:
+                                  description: The room ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                address:
+                                  description: Address
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                                country:
+                                  description: Country
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                                position:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                      type: number
+                                      minimum: -90
+                                      maximum: 90
+                                    lng:
+                                      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                      type: number
+                                      minimum: -180
+                                      maximum: 180
+                                  required:
+                                  - lat
+                                  - lng
+                                  description: Coordinates for visualization purposes
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        trainingStatus:
+                          type: object
+                          properties:
+                            trained:
+                              description: True if the POI geofence is trained
+                              type: boolean
+                            metadata:
+                              type: object
+                              properties:
+                                usedWlanApCount:
+                                  description: The number of WLAN access point used in training
+                                  type: number
+                                trackingId:
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 50
+                                  description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                                timestamp:
+                                  description: Training data timestamp
+                                  type: integer
+                                  minimum: 2
+                                  maximum: 4102448400000
+                                coordinate:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                      type: number
+                                      minimum: -90
+                                      maximum: 90
+                                    lng:
+                                      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                      type: number
+                                      minimum: -180
+                                      maximum: 180
+                                  required:
+                                  - lat
+                                  - lng
+                                  description: Training data position
+                              required:
+                              - usedWlanApCount
+                          required:
+                          - trained
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - trainingStatus
+                required:
+                - id
+                - geofence
+            application/octet-stream:
+              example: 34 56 18 93 45 29 54 62 77 28 23 79 22
+              schema:
+                type: array
+                items: {}
+                description: 'Response body contains a single geofence object.
+
+                  '
+                example:
+                  response data as Protobuf binary, format as follows: "message GeofenceMsg {\n  message GeofenceCircular {\n    //Latitude value\n    float lat = 1;\n    //Longitude value\n    float lng = 2;\n    //Center radius value\n    uint32 radius = 3;\n    //Geofence ID\n    string id = 4;\n  }\n  message GeofencePolygonal {\n    //Latitude value array\n    repeated float lat = 1;\n    //Longitude value array\n    repeated float lng = 2;\n    //Geofence ID\n    string id = 3;\n  }\n  //Circular geofence array\n  repeated GeofenceCircular circulars = 1;\n  //Polygonal geofence array\n  repeated GeofencePolygonal polygonals = 2;\n  //Page token\n  string pageToken = 3;\n}\n"
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee
+                message: The Geofence ID was not found.
+          description: Geofence ID not found
+      operationId: getGeofencesV2ByGeofenceId
+      x-operation-id-source: derived
+    put:
+      summary: Updates a single geofence
+      description: 'Updates the geofence `type`, `name`, `description`, `metadata` or `definition` property.
+
+        The old geofence will be replaced by the new one, and hence the full set of the
+
+        geofence properties must be provided in the request body.
+
+        `POI` geofence type cannot be changed to `circle` or `polygon` and vice versa.
+
+
+        If the update was successful, the response will contain the updated geofence details.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Geofences
+      parameters:
+      - name: force
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          description: 'Tracking offers Geofence Refinement service for some customers.
+
+            Geofences which have been refined by Tracking cannot be updated
+
+            without ''force=true'' query parameter.
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - title: Circle
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - circle
+                  definition:
+                    type: object
+                    description: An object that defines the area of a circular geofence
+                    properties:
+                      center:
+                        description: The coordinates of the center point of the circle.
+                        type: object
+                        properties:
+                          lat:
+                            description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                            type: number
+                            minimum: -90
+                            maximum: 90
+                          lng:
+                            description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                            type: number
+                            minimum: -180
+                            maximum: 180
+                        required:
+                        - lat
+                        - lng
+                      radius:
+                        type: number
+                        description: The radius of the circle in meters.
+                        minimum: 0
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                    required:
+                    - center
+                    - radius
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+                - definition
+              - title: Polygon
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - polygon
+                  definition:
+                    type: object
+                    description: An object that defines the area of a polygonal geofence.
+                    properties:
+                      points:
+                        type: array
+                        description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                        minItems: 3
+                        maxItems: 500
+                        items:
+                          type: object
+                          properties:
+                            lat:
+                              description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                              type: number
+                              minimum: -90
+                              maximum: 90
+                            lng:
+                              description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                              type: number
+                              minimum: -180
+                              maximum: 180
+                          required:
+                          - lat
+                          - lng
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                    required:
+                    - points
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+                - definition
+              - title: POI
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: The geofence type.
+                    enum:
+                    - poi
+                  definition:
+                    type: object
+                    description: An object that defines the area of a POI geofence.
+                    properties:
+                      location:
+                        type: object
+                        description: Details of the geofence location
+                        properties:
+                          room:
+                            description: The room ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          address:
+                            description: Address
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                          country:
+                            description: Country
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                          position:
+                            type: object
+                            properties:
+                              lat:
+                                description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                type: number
+                                minimum: -90
+                                maximum: 90
+                              lng:
+                                description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                type: number
+                                minimum: -180
+                                maximum: 180
+                            required:
+                            - lat
+                            - lng
+                            description: Coordinates for visualization purposes
+                      floor:
+                        description: The building associated with the geofence
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          level:
+                            description: The floor of the geofence in integer format
+                            type: number
+                            minimum: -999
+                            maximum: 999
+                          id:
+                            description: The building ID
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                          name:
+                            description: The building name
+                            type: string
+                            minLength: 1
+                            maxLength: 255
+                  metadata:
+                    description: 'Metadata JSON object may contain additional customer specific information
+
+                      '
+                    type: object
+                  name:
+                    type: string
+                    maxLength: 50
+                    description: A human-readable name of the geofence.
+                  description:
+                    type: string
+                    maxLength: 1000
+                    description: A description of the area that the geofence encloses and the purpose of the geofence.
+                required:
+                - type
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The geofence definition was updated.
+
+            '
+          content:
+            application/json:
+              schema:
+                description: Response body contains a single geofence object
+                type: object
+                properties:
+                  id:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+                  version:
+                    description: Geofence version
+                    type: integer
+                  createdAt:
+                    description: Timestamp indicating when the geofence has been created
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    description: Timestamp indicating when the geofence has been updated
+                    type: string
+                    format: date-time
+                  geofence:
+                    oneOf:
+                    - title: Circle
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - circle
+                        definition:
+                          type: object
+                          description: An object that defines the area of a circular geofence
+                          properties:
+                            center:
+                              description: The coordinates of the center point of the circle.
+                              type: object
+                              properties:
+                                lat:
+                                  description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                  type: number
+                                  minimum: -90
+                                  maximum: 90
+                                lng:
+                                  description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                  type: number
+                                  minimum: -180
+                                  maximum: 180
+                              required:
+                              - lat
+                              - lng
+                            radius:
+                              type: number
+                              description: The radius of the circle in meters.
+                              minimum: 0
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                          required:
+                          - center
+                          - radius
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - definition
+                    - title: Polygon
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - polygon
+                        definition:
+                          type: object
+                          description: An object that defines the area of a polygonal geofence.
+                          properties:
+                            points:
+                              type: array
+                              description: An array of points that define the polygon. A minimum of three and a maximum of five hundred points is required.
+                              minItems: 3
+                              maxItems: 500
+                              items:
+                                type: object
+                                properties:
+                                  lat:
+                                    description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                    type: number
+                                    minimum: -90
+                                    maximum: 90
+                                  lng:
+                                    description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                    type: number
+                                    minimum: -180
+                                    maximum: 180
+                                required:
+                                - lat
+                                - lng
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                          required:
+                          - points
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - definition
+                    - title: POI
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: The geofence type.
+                          enum:
+                          - poi
+                        definition:
+                          type: object
+                          description: An object that defines the area of a POI geofence.
+                          properties:
+                            location:
+                              type: object
+                              description: Details of the geofence location
+                              properties:
+                                room:
+                                  description: The room ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                address:
+                                  description: Address
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                                country:
+                                  description: Country
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                                position:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                      type: number
+                                      minimum: -90
+                                      maximum: 90
+                                    lng:
+                                      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                      type: number
+                                      minimum: -180
+                                      maximum: 180
+                                  required:
+                                  - lat
+                                  - lng
+                                  description: Coordinates for visualization purposes
+                            floor:
+                              description: The building associated with the geofence
+                              type: object
+                              required:
+                              - id
+                              - name
+                              properties:
+                                level:
+                                  description: The floor of the geofence in integer format
+                                  type: number
+                                  minimum: -999
+                                  maximum: 999
+                                id:
+                                  description: The building ID
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 100
+                                name:
+                                  description: The building name
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 255
+                        metadata:
+                          description: 'Metadata JSON object may contain additional customer specific information
+
+                            '
+                          type: object
+                        trainingStatus:
+                          type: object
+                          properties:
+                            trained:
+                              description: True if the POI geofence is trained
+                              type: boolean
+                            metadata:
+                              type: object
+                              properties:
+                                usedWlanApCount:
+                                  description: The number of WLAN access point used in training
+                                  type: number
+                                trackingId:
+                                  type: string
+                                  minLength: 1
+                                  maxLength: 50
+                                  description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                                timestamp:
+                                  description: Training data timestamp
+                                  type: integer
+                                  minimum: 2
+                                  maximum: 4102448400000
+                                coordinate:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                      type: number
+                                      minimum: -90
+                                      maximum: 90
+                                    lng:
+                                      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                      type: number
+                                      minimum: -180
+                                      maximum: 180
+                                  required:
+                                  - lat
+                                  - lng
+                                  description: Training data position
+                              required:
+                              - usedWlanApCount
+                          required:
+                          - trained
+                        name:
+                          type: string
+                          maxLength: 50
+                          description: A human-readable name of the geofence.
+                        description:
+                          type: string
+                          maxLength: 1000
+                          description: A description of the area that the geofence encloses and the purpose of the geofence.
+                      required:
+                      - type
+                      - trainingStatus
+                required:
+                - id
+                - geofence
+            application/octet-stream:
+              schema:
+                type: array
+                items: {}
+                description: 'Response body contains a single geofence object.
+
+                  '
+                example:
+                  response data as Protobuf binary, format as follows: "message GeofenceMsg {\n  message GeofenceCircular {\n    //Latitude value\n    float lat = 1;\n    //Longitude value\n    float lng = 2;\n    //Center radius value\n    uint32 radius = 3;\n    //Geofence ID\n    string id = 4;\n  }\n  message GeofencePolygonal {\n    //Latitude value array\n    repeated float lat = 1;\n    //Longitude value array\n    repeated float lng = 2;\n    //Geofence ID\n    string id = 3;\n  }\n  //Circular geofence array\n  repeated GeofenceCircular circulars = 1;\n  //Polygonal geofence array\n  repeated GeofencePolygonal polygonals = 2;\n  //Page token\n  string pageToken = 3;\n}\n"
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee
+                message: The Geofence ID was not found.
+          description: Geofence ID not found
+        '413':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Payload Too Large
+                code: 413
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request size exceeds the maximum size limit for payloads.
+                details:
+                  hereErrorCode: 413306
+          description: 'Payload Too Large
+
+
+            The request size exceeds the maximum size limit for payloads.
+
+            '
+      operationId: putGeofencesV2ByGeofenceId
+      x-operation-id-source: derived
+    delete:
+      summary: Deletes a geofence
+      description: Deletes a single geofence identified by the `geofenceId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Geofences
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee
+                message: The Geofence ID was not found.
+          description: Geofence ID not found
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Conflict
+                code: 409
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource already exists.
+                details:
+                  hereErrorCode: 404306
+          description: 'Conflict
+
+
+            The specified resource already exists
+
+            '
+      operationId: deleteGeofencesV2ByGeofenceId
+      x-operation-id-source: derived
+  /geofences/v2/{geofenceId}/poiTraining:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - in: path
+      schema:
+        type: string
+        format: uuid
+      name: geofenceId
+      description: ID of the geofence
+      required: true
+    post:
+      summary: Trains a POI geofence
+      description: 'Trains the POI geofence `geofenceId` using a device telemetry.
+
+        The POI geofence boundary is defined using radio measurements.
+
+        The geofence is trained using a telemetry that the device with `trackingId` has ingested
+
+        during the specified time range, while being at this point of interest.
+
+        Only telemetries that have been ingested during the last 24 hours can be used in the training.
+
+
+        Optionally, a WLAN scan be used for the training.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                  after:
+                    type: integer
+                    description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                      The value must be within the past 24 hours from the current timestamp
+
+                      '
+                  before:
+                    type: integer
+                    description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                      The value must not be greater than current timestamp
+
+                      '
+                required:
+                - id
+                - after
+                - before
+                additionalProperties: false
+              - type: object
+                properties:
+                  wlan:
+                    description: WLAN access points
+                    type: array
+                    maxItems: 128
+                    minItems: 2
+                    items:
+                      description: WLAN measurement
+                      type: object
+                      required:
+                      - mac
+                      - powrx
+                      properties:
+                        mac:
+                          description: The MAC address of the WLAN access point. MAC-48 address with colon (:) or hyphen (-) separators, upper or lower case hex digits. Note that if the SSID contains postfix '_nomap', the AP should not be used for positioning. For privacy reasons positioning based on a single WLAN AP is not possible; there has to be at least one other matching wlan or cell.
+                          type: string
+                          pattern: ^(([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})|(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2})$
+                        powrx:
+                          description: Received signal level (dBm) at the terminal (Optional)
+                          type: integer
+                          minimum: -128
+                          maximum: 0
+                        band:
+                          description: Frequency range (GHz). Allowed values are 2.4, 3.65, and 5. (Possible future values include 4.9, 5.9, 60, and 900.)
+                          type: number
+                          enum:
+                          - 2.4
+                          - 3.65
+                          - 5
+                        timestamp:
+                          description: Time of the wlan measurement (UTC) (Optional)
+                          type: string
+                          format: date-time
+                      additionalProperties: false
+                required:
+                - wlan
+                additionalProperties: false
+      tags:
+      - Geofences
+      responses:
+        '200':
+          description: 'The POI geofence was trained successfully
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trainingStatus:
+                    type: object
+                    properties:
+                      trained:
+                        description: True if the POI geofence is trained
+                        type: boolean
+                      metadata:
+                        type: object
+                        properties:
+                          usedWlanApCount:
+                            description: The number of WLAN access point used in training
+                            type: number
+                          trackingId:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                          timestamp:
+                            description: Training data timestamp
+                            type: integer
+                            minimum: 2
+                            maximum: 4102448400000
+                          coordinate:
+                            type: object
+                            properties:
+                              lat:
+                                description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                                type: number
+                                minimum: -90
+                                maximum: 90
+                              lng:
+                                description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                                type: number
+                                minimum: -180
+                                maximum: 180
+                            required:
+                            - lat
+                            - lng
+                            description: Training data position
+                        required:
+                        - usedWlanApCount
+                    required:
+                    - trained
+                required:
+                - trainingStatus
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+        '422':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unprocessable Entity
+                code: 422
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request was well-formed but was unable to be followed due to semantic errors.
+                details:
+                  hereErrorCode: 422306
+          description: 'Unprocessable Entity
+
+
+            The request was well-formed but was unable to be followed due to semantic errors.
+
+            '
+      operationId: postGeofencesV2ByGeofenceIdPoiTraining
+      x-operation-id-source: derived
+  /geofences/v2/trainingTest:
+    parameters:
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      summary: Checks if a POI geofence training is possible with the given parameters
+      description: 'Checks if a POI geofence training is possible with the given request parameters.
+
+
+        The request body contains a training data sample in form of either a device tracking ID
+
+        along with a specific time range for the ingested device telemetry or a WLAN scan.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                  after:
+                    type: integer
+                    description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                      The value must be within the past 24 hours from the current timestamp
+
+                      '
+                  before:
+                    type: integer
+                    description: 'Milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+
+
+                      The value must not be greater than current timestamp
+
+                      '
+                required:
+                - id
+                - after
+                - before
+                additionalProperties: false
+              - type: object
+                properties:
+                  wlan:
+                    description: WLAN access points
+                    type: array
+                    maxItems: 128
+                    minItems: 2
+                    items:
+                      description: WLAN measurement
+                      type: object
+                      required:
+                      - mac
+                      - powrx
+                      properties:
+                        mac:
+                          description: The MAC address of the WLAN access point. MAC-48 address with colon (:) or hyphen (-) separators, upper or lower case hex digits. Note that if the SSID contains postfix '_nomap', the AP should not be used for positioning. For privacy reasons positioning based on a single WLAN AP is not possible; there has to be at least one other matching wlan or cell.
+                          type: string
+                          pattern: ^(([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})|(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2})$
+                        powrx:
+                          description: Received signal level (dBm) at the terminal (Optional)
+                          type: integer
+                          minimum: -128
+                          maximum: 0
+                        band:
+                          description: Frequency range (GHz). Allowed values are 2.4, 3.65, and 5. (Possible future values include 4.9, 5.9, 60, and 900.)
+                          type: number
+                          enum:
+                          - 2.4
+                          - 3.65
+                          - 5
+                        timestamp:
+                          description: Time of the wlan measurement (UTC) (Optional)
+                          type: string
+                          format: date-time
+                      additionalProperties: false
+                required:
+                - wlan
+                additionalProperties: false
+      tags:
+      - Geofences
+      responses:
+        '200':
+          description: 'Returns an object indicating if the training is possible with the given parameters
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  reason:
+                    type: string
+                  metadata:
+                    type: object
+                    properties:
+                      usedWlanApCount:
+                        description: The number of WLAN access point used in training
+                        type: number
+                      trackingId:
+                        type: string
+                        minLength: 1
+                        maxLength: 50
+                        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user.
+                      timestamp:
+                        description: Training data timestamp
+                        type: integer
+                        minimum: 2
+                        maximum: 4102448400000
+                      coordinate:
+                        type: object
+                        properties:
+                          lat:
+                            description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+                            type: number
+                            minimum: -90
+                            maximum: 90
+                          lng:
+                            description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+                            type: number
+                            minimum: -180
+                            maximum: 180
+                        required:
+                        - lat
+                        - lng
+                        description: Training data position
+                    required:
+                    - usedWlanApCount
+                required:
+                - success
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+        '422':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unprocessable Entity
+                code: 422
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request was well-formed but was unable to be followed due to semantic errors.
+                details:
+                  hereErrorCode: 422306
+          description: 'Unprocessable Entity
+
+
+            The request was well-formed but was unable to be followed due to semantic errors.
+
+            '
+      operationId: postGeofencesV2TrainingTest
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests.
+
+
+        For more information on how to get an API key, see the
+
+        [Identity & Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n\nUsers are authenticated using an OAuth 1.0 bearer token obtained using the `/users/v2/login` endpoint.\n\nDevices are authenticated using an OAuth 1.0 bearer token obtained using the `/v2/token` endpoint.\n\n**Make a request using the bearer token for authentication**\n\nMake a request with an `Authorization` header containing the obtained bearer token.\n\nExample:\n\n```\n    Authorization: Bearer h1.yxPIksZ0ViLq77f1Nh-9cg.NVgGBZVlCU8G7kjV_...\n```\n\n> **Note:** For the available authentication options, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).\n"
+    UserToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using user's realm, username and password and then further scoped to a specific project.\n\nFirst obtain access token from [/users/v2/login endpoint](#tag/Users/paths/~1users~1v2~1login/post).\nThen use [/users/v2/tokenExchange endpoint](#tag/Users/paths/~1users~1v2~1tokenExchange/post) to convert\nyour user access token into a project-scoped user access token.\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.xikjhDyJsE17VLhPXiu.fm3WsNOunstXH78RvU8_...\n```\n"
+    ClientToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using application's OAuth 2.0 credentials (key + secret) and then scoped to a specific project.\n\nFollow [instructions here](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/topics/plat-token.html)\nto create your application credentials and obtain the token using OLP CLI. With an exception\nthat when getting the token you need to provide also project's HRN value:\n\n```\n    olp api token get --scope {PROJECT_HRN}\n```\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.PGEVzQmaoW5pyBYUlWu.SQoSCF7qpToEFMHgSlJ_...\n```\n"
+    DeviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This access token is obtained from [/v2/token endpoint](#tag/Ingestion/paths/~1v2~1token/post) using a signed request.
+
+
+        > **Note:** Only a small subset of our endpoints support this token type and is only useful for hardware devices.
+
+        > You probably won''t need this.
+
+        '
+    signedRequest:
+      type: http
+      scheme: oauth
+      description: "HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.\n\n> **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.\n\n**Create the Signature Base String**\n\nThe first step in creating a signature is to create the signature base string. This string contains the parameters to use when generating the signature.\n\n*1. To begin, make sure you have the information listed in the following table.*\n\n| Parameter                | Description                              |\n| ------------------------ | -----------------------------------------|\n| oauth\\_consumer\\_key     | The device ID for which you want to generate a token. |\n| oauth\\_signature\\_method | Always use \"HMAC-SHA256\".                 |\n| oauth\\_timestamp         | The number of seconds since the Unix epoch at the point the request is generated. This must be within 10 seconds of the timestamp returned by the `/v2/timestamp` endpoint. |\n| oauth\\_nonce             | A unique string for this signature. The string cannot have been used in a previous signature. Each token generation request to HERE Tracking must have a unique signature, and the value in this parameter is what is used to ensure the signature is unique. |\n| oauth\\_version           | Always use \"1.0\".                         |\n\n*2. Combine these values into a single string by following these steps:*\n\n   1. URL encode every key and value.\n   2. Sort the list of key-value pairs alphabetically by key.\n   3. Concatenate each key/value pair, separating each with an ampersand character (\"&\").\n\nThe result is a parameter string that looks like this (line breaks are added for legibility):\n\n   ```\n   oauth_consumer_key=47164fb0-b7b3-49e8-891b-650270b82cf2\n   &oauth_nonce=LIIpk4\n   &oauth_signature_method=HMAC-SHA256\n   &oauth_timestamp=1513634609\n   &oauth_version=1.0\n   ```\n\n*3. Combine the HTTP method, base URL, and parameter string into a single string called the \"base string\". This will be the string from which the signature is generated. The base string is in this format:*\n\n   ```\n   POST&https://tracking.api.here.com/v2/token&<URL encoded parameter string>\n   ```\n\n   The base string consists of:\n\n   1. The HTTP method in caps (POST) followed by an ampersand (\"&\")\n   2. The URL of the HERE Tracking token endpoint followed by an ampersand (\"&\")\n   3. The URL-encoded parameter string.\n\n   For example (line breaks are added for legibility):\n\n   ```\n   POST\n    &https%3A%2F%2Ftracking.api.here.com%2Fv2%2Ftoken\n    &oauth_consumer_key%3D47164fb0-b7b3-49e8-891b-650270b82cf2%26\n    oauth_nonce%3DLIIpk4%26oauth_signature_method%3DHMAC-SHA256%26\n    oauth_timestamp%3D1513634609%26oauth_version%3D1.0\n   ```\n\n   > **Note:** The URL-encoded base string should contain exactly two ampersands (\"&\").\n\n**Create the signature**\n\nThe signing key used to sign the base string is the `deviceSecret` followed by an ampersand (\"&\").\n\nCreate the signature by passing the signature base string and the signing key to the `HMAC-SHA256` hashing algorithm and converting the result to a `base64` string. Then, use the signature to request a token.\n\n**Request the token**\n\nMake a `POST` request to this endpoint with an `Authorization` header constructed from the above parameters and the generated signature.\n\nExample:\n\n```\n    Authorization: OAuth oauth_consumer_key=\"47164fb0-b7b3-49e8-891b-650270b82cf2\",\n        oauth_signature_method=\"HMAC-SHA256\",\n        oauth_timestamp=\"1513634609\",\n        oauth_nonce=\"LIIpk4\",\n        oauth_version=\"1.0\",\n        oauth_signature=\"pQ9EJX14L736B%2Br7uZl4yQlO6Xw%3D\"\n```\n"
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://www.here.com/docs/bundle/tracking-api-developer-guide

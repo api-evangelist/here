@@ -1,0 +1,1259 @@
+openapi: 3.2.0
+info:
+  title: Authentication API v1.1 Manage Identity Providers for a…
+  version: 1.1.x
+  description: 'This specification describes the Authentication v1.1 APIs.
+
+    NOTE: Swagger UI automatically URL encodes parameters when required.
+
+    If/when the APIs are called elsewhere make sure to URL encode the parameters when required.'
+servers:
+- url: Use API Lookup for a base URL
+tags:
+- name: Manage Identity Providers for a Realm
+  description: APIs to manage Identity Providers trusted in a Realm.
+paths:
+  /realms/{realm}/identityProviders:
+    parameters:
+    - $ref: '#/components/parameters/Realm'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Add a new trusted OpenID Connect Identity Provider to a Realm
+      operationId: addIdentityProvider
+      description: 'Add a new trusted Identity Provider to a Realm.
+
+        Currently, only OAuth 2.0/OpenID Connect Providers can be used.
+
+
+        **NOTE:** You can create a maximum of 5 Identity Providers in a Realm.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddIdentityProviderRequest'
+            example:
+              id: example-op
+              name: Example OP
+              issuers:
+              - issuer: https://op.example.com
+              accountType: device
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProvider'
+              example:
+                id: example-op
+                name: Example OP
+                hrn: hrn:here:account::org123456789:identityProviders/example-op
+                issuers:
+                - issuer: https://op.example.com
+                  enabled: true
+                accountType: device
+                realm: hrn:here:account::org123456789:realm/org123456789
+                created: '2023-01-21T17:32:28Z'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "manageIdentityProviders" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '422':
+          description: 'An error has occurred.
+
+            * E110000 - Maximum number of Identity Providers exceeded for the Realm.  The maximum is 10.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    get:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: List trusted OpenID Connect Identity Providers for a Realm
+      operationId: listIdentityProviders
+      description: 'List trusted OpenID Connect Providers for a Realm.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      parameters:
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderList'
+              example:
+                count: 1
+                total: 1
+                items:
+                - id: example-op
+                  hrn: hrn:here:account::org123456789:identityProviders/example-op
+                  name: Example OP
+                  description: Use the Example OP when integrating new cars.
+                  accountType: device
+                  realm: hrn:here:account::org123456789:realm/org123456789
+                  created: '2023-01-21T17:32:28Z'
+                  issuers:
+                  - issuer: https://op.example.com
+                    enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "readIdentityProviders" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /realms/{realm}/identityProviders/{identityProvider}:
+    parameters:
+    - $ref: '#/components/parameters/Realm'
+    - $ref: '#/components/parameters/IdentityProvider'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Get a trusted Identity Provider for a Realm
+      operationId: getIdentityProvider
+      description: 'Get a trusted Identity Provider for a Realm.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProvider'
+              example:
+                id: example-op
+                hrn: hrn:here:account::org123456789:identityProviders/example-op
+                name: Example OP
+                description: Use the Example OP when integrating new cars.
+                accountType: device
+                realm: hrn:here:account::org123456789:realm/org123456789
+                created: '2023-01-21T17:32:28Z'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "readIdentityProviders" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Realm or IdentityProvider does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    patch:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Update a trusted Identity Provider for a Realm
+      operationId: updateIdentityProvider
+      description: 'Update a trusted Identity Provider for a Realm.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIdentityProviderRequest'
+            example:
+              name: Updated OP
+              description: Update to the Example OP when integrating new cars.
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProvider'
+              example:
+                id: example-op
+                hrn: hrn:here:account::org123456789:identityProviders/example-op
+                name: Updated OP
+                description: Update to the Example OP when integrating new cars.
+                accountType: device
+                realm: hrn:here:account::org123456789:realm/org123456789
+                created: '2023-01-21T17:32:28Z'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "manage" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    delete:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Delete a trusted Identity Provider for a Realm
+      operationId: deleteIdentityProvider
+      description: 'Delete a trusted Identity Provider for a Realm.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing or invalid Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required "manageIdentityProviders" access to the Realm.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Realm or IdentityProvider does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '409':
+          description: "An error has occurred.\n* E110000 - The specified Identity Provider still has Apps attached to it.  \n    See [List Apps for an Identity Provider](#/List%20Apps%20for%20an%20Identity%20Provider) for more details.\n"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /realms/{realm}/identityProviders/{identityProvider}/issuers:
+    parameters:
+    - $ref: '#/components/parameters/Realm'
+    - $ref: '#/components/parameters/IdentityProvider'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/PageToken'
+    - $ref: '#/components/parameters/Limit'
+    get:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: List Issuers for an Identity Provider
+      operationId: listIdentityProviderIssuerAttachments
+      description: 'Get a list of Issuers for an Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderIssuerAttachmentList'
+              example:
+                count: 1
+                total: 1
+                items:
+                - identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                  issuer: https://op.example.com
+                  enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"readIdentityProviders"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Issuer Attachment and/or Identity Provider does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+  /realms/{realm}/identityProviders/{identityProvider}/issuers/{issuer}:
+    parameters:
+    - $ref: '#/components/parameters/Realm'
+    - $ref: '#/components/parameters/IdentityProvider'
+    - $ref: '#/components/parameters/Issuer'
+    - $ref: '#/components/parameters/XRequestId'
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Attach an Issuer URL to an Identity Provider
+      operationId: createIdentityProviderIssuerAttachment
+      description: 'Attach a new Issuer URL to an Identity Provider.
+
+
+        **NOTE:** The maximum number of Issuers for an Identity Provider is 2.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIdentityProviderIssuerAttachment'
+            example:
+              enabled: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
+              example:
+                identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                issuer: https://op.example.com
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            * E110000 - Maximum number of Issuers configured per IdentityProvider was exceeded.  The maximum is 2.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"manageIdentityProviders"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    get:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Get an Issuer URL for an Identity Provider
+      operationId: getIdentityProviderIssuerAttachment
+      description: 'Get an Issuer URL to an Identity Provider.
+
+
+        **NOTE:** The maximum number of Issuers for an Identity Provider is 2.
+
+
+        Access Control:
+
+        * The calling principal must have either **"readIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
+              example:
+                identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                issuer: https://op.example.com
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            * E110000 - Maximum number of Issuers configured per IdentityProvider was exceeded.  The maximum is 2.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"manageIdentityProviders"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    patch:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Update an Issuer for an App
+      operationId: updateIdentityProviderIssuerAttachment
+      description: 'Update an Issuer for an Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIdentityProviderIssuerAttachmentRequest'
+            example:
+              enabled: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
+              example:
+                identityProvider: hrn:here:account::org123456789:identityProviders/example-op
+                issuer: https://op.example.com
+                enabled: true
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"manageIdentityProviders"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+    delete:
+      tags:
+      - Manage Identity Providers for a Realm
+      summary: Detach an Issuer from an Identity Provider
+      operationId: deleteIdentityProviderIssuerAttachment
+      description: 'Detaches an Issuer from an Identity Provider.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageIdentityProviders"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '400':
+          description: 'Bad Request.
+
+            * E110000 - Missing required field, etc.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '401':
+          description: 'Missing Authorization header.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '403':
+          description: 'An error has occurred.
+
+            * E110000 - Subject does not have the required *"manageIdentityProviders"* access to the *realm*.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+        '404':
+          description: 'An error has occurred.
+
+            * E110000 - The requested Identity Provider and/or Identity Provider Issuer Attachment does not exist.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+      security:
+      - Bearer: []
+components:
+  schemas:
+    IdentityProviderList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of IdentityProviders in this page of the List.
+        total:
+          type: integer
+          description: The total number of IdentityProviders in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityProvider'
+          description: List of IdentityProviders.
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    AddIdentityProviderRequest:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Unique identifier the Identity Provider within a Realm
+          example: widgets-op
+        name:
+          type: string
+          description: User-friendly name for the Identity Provider
+          example: Widgets Provider
+        description:
+          type: string
+          description: Detailed text description of the Identity Provider
+          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
+        issuers:
+          type: array
+          minLength: 1
+          maxLength: 2
+          items:
+            type: object
+            required:
+            - issuer
+            properties:
+              issuer:
+                type: string
+                description: OpenID Connect Provider Issuer URL.
+                example: https://op.example.com
+        accountType:
+          type: string
+          description: Always "device" for now.  Reserved for future use, new account types may be added in the future.
+          enum:
+          - device
+          default: device
+          example: device
+        enabled:
+          type: boolean
+          description: Defines if the Identity Provider is enabled
+          example: true
+    UpdateIdentityProviderIssuerAttachmentRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
+          default: true
+          example: true
+    UpdateIdentityProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User-friendly name for the Identity Provider
+          example: Widgets Provider
+        description:
+          type: string
+          description: Detailed text description of the Identity Provider
+          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
+    IdentityProvider:
+      type: object
+      required:
+      - id
+      - accountType
+      - realm
+      properties:
+        id:
+          type: string
+          description: Unique identifier the OpenID Connect Provider within the Realm.
+          example: example-op
+        hrn:
+          type: string
+          description: HRN for the Realm Provider
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        name:
+          type: string
+          description: User-friendly name for the OpenID Connect Provider
+          example: Example OP
+        description:
+          type: string
+          description: Detailed text description of the Identity Provider
+          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
+        accountType:
+          type: string
+          description: Always "device" for now.  Reserved for future use, new account types may be added in the future.
+          enum:
+          - device
+          default: device
+          example: device
+        realm:
+          type: string
+          description: HRN of the Realm within which the OpenID Connect Provider is trusted.
+        created:
+          type: string
+          format: date-time
+          example: '2023-01-21T17:32:28Z'
+        issuers:
+          type: array
+          maxLength: 2
+          items:
+            type: object
+            required:
+            - issuer
+            properties:
+              issuer:
+                type: string
+                description: OpenID Connect Provider Issuer URL.
+                example: https://op.example.com
+              enabled:
+                type: boolean
+                description: true to enable an individual issuer URL.
+                default: true
+    IdentityProviderIssuerAttachmentList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of IdentityProviderIssuerAttachments in this page of the List.
+        total:
+          type: integer
+          description: The total number of IdentityProviderIssuerAttachments in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
+          description: List of IdentityProvider Issuer Attachments.
+          maxItems: 2
+        pageToken:
+          type: string
+          description: 'A pointer to the next page of results, if any.
+
+            Not present if there are no more results after the current page.
+
+            '
+    IdentityProviderIssuerAttachment:
+      type: object
+      required:
+      - identityProvider
+      - issuer
+      - enabled
+      properties:
+        identityProvider:
+          type: string
+          description: IdentityProvider HRN
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        issuer:
+          type: string
+          description: OIDC Issuer URL
+          example: https://op.example.com
+        enabled:
+          type: boolean
+          description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
+          default: true
+          example: true
+    CreateIdentityProviderIssuerAttachment:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
+          default: true
+          example: true
+  parameters:
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Issuer:
+      in: path
+      required: true
+      name: issuer
+      schema:
+        type: string
+      description: 'OIDC Issuer URL.
+
+        '
+      example: https://op.example.com
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+  securitySchemes:
+    UserOrClientBearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer Token issued to either User or Client.
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A HERE access token obtained from one of the supported OAuth 2.0 authorization flows.
+
+        For more information on how to get a bearer token, see the
+
+        [https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html](Identity & Access Management Guide).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

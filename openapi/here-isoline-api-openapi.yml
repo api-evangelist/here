@@ -1,0 +1,2879 @@
+openapi: 3.2.0
+info:
+  title: Routing API v8 Isoline API
+  version: 8.47.1
+  description: 'Isoline Routing is a service that offers to answer the question,
+
+    "What area is within the approximate reachable range of a given location?",
+
+    where range can be defined either in time, distance or consumption.'
+  termsOfService: https://legal.here.com/en-gb/terms
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://isoline.router.hereapi.com/v8
+  description: Isoline Routing Service
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Isoline
+paths:
+  /isolines:
+    parameters:
+    - $ref: '#/components/parameters/range'
+    - $ref: '#/components/parameters/transportMode'
+    - $ref: '#/components/parameters/origin'
+    - $ref: '#/components/parameters/departureTime'
+    - $ref: '#/components/parameters/destination'
+    - $ref: '#/components/parameters/arrivalTime'
+    - $ref: '#/components/parameters/routingMode'
+    - $ref: '#/components/parameters/shape'
+    - $ref: '#/components/parameters/optimizeFor'
+    - $ref: '#/components/parameters/avoid'
+    - $ref: '#/components/parameters/exclude'
+    - $ref: '#/components/parameters/allow'
+    - $ref: '#/components/parameters/truck'
+    - $ref: '#/components/parameters/vehicle'
+    - $ref: '#/components/parameters/consumptionModel'
+    - $ref: '#/components/parameters/ev'
+    - $ref: '#/components/parameters/fuel'
+    - $ref: '#/components/parameters/maxSpeedOnSegment'
+    - $ref: '#/components/parameters/taxi'
+    - $ref: '#/components/parameters/traffic'
+    - $ref: '#/components/parameters/billingTag'
+    - $ref: '#/components/parameters/xRequestId'
+    get:
+      operationId: Isoline Routing API v8 calculateIsolines
+      summary: Get Isolines for specified ranges around a center point
+      tags:
+      - Isoline
+      description: 'Retrieves a list of polylines that captures the approximate reachable area
+
+        from the specified center point constrained by the provided parameters.'
+      responses:
+        '200':
+          $ref: '#/components/responses/IsolineResponseOk'
+        '400':
+          $ref: '#/components/responses/IsolineErrorResponse'
+        '401':
+          $ref: '#/components/responses/401ErrorResponseWithRequestID'
+        '403':
+          $ref: '#/components/responses/Isoline403ErrorResponse'
+        '500':
+          $ref: '#/components/responses/IsolineResponseServerInternalError'
+    post:
+      operationId: Isoline Routing API v8 calculateIsolinesPost
+      summary: Calculate isolines via POST
+      tags:
+      - Isoline
+      description: 'Retrieves a list of polylines that captures the approximate reachable area
+
+        from the specified center point constrained by the provided parameters.
+
+
+        At the moment, only select parameters are permitted in the POST payload. In particular, those parameters
+
+        that due to request size may be limited in the query string. See the request body section below. These
+
+        parameters can be provided either in the query string or in the POST body.
+
+        All other parameters can only be provided in the query string at the moment.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculateIsolinesPostParameters'
+      responses:
+        '200':
+          $ref: '#/components/responses/IsolineResponseOk'
+        '400':
+          $ref: '#/components/responses/IsolineErrorResponse'
+        '401':
+          $ref: '#/components/responses/401ErrorResponseWithRequestID'
+        '403':
+          $ref: '#/components/responses/Isoline403ErrorResponse'
+        '500':
+          $ref: '#/components/responses/IsolineResponseServerInternalError'
+components:
+  schemas:
+    Shape:
+      description: A struct used to control the shape of the returned isolines.
+      type: object
+      properties:
+        maxPoints:
+          description: "Limits the number of points in the resulting isoline geometry.\n\nIf the isoline consists of multiple components, the sum of points from all components is considered.\nThis parameter doesn't affect performance. Look at `optimizeFor` parameter to optimize for performance.\n\nNotes:\n  Quality of isolines degrades as maxPoints value is decreased,\n  It is Recommended use `maxPoints` value greater than 100 for optimal quality isolines.\n"
+          type: integer
+          example: 150
+          exclusiveMinimum: 30
+        maxResolution:
+          description: 'Defines the minimum granularity at which the isoline is created. User can ask for a lower resolution by setting a larger value for this parameter. Unit is meters.
+
+            For example, a max resolution of 400m causes the service to gloss over detailed geometry of less than 400m. This parameter is useful if the maximum detail of the isoline should be limited, e.g., based on the screen resolution, or the use case.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Distance'
+          default: 0
+    Traffic:
+      type: object
+      description: Traffic specific parameters.
+      properties:
+        overrideFlowDuration:
+          description: 'Duration in seconds for which flow traffic event would be considered valid. While flow
+
+            traffic event is valid it will be used over the historical traffic data.
+
+
+            **Note**: Flow traffic represents congestion not caused by any long-term incidents.
+
+            State of the flow traffic often changes fast. The farther away from the current time we
+
+            move, the less precise current flow traffic data will be and the more precise historical
+
+            traffic data becomes. That''s why it''s advised not to use this parameter unless you know
+
+            what you want to achieve and use the default behavior which is almost always better.
+
+            '
+          type: integer
+        mode:
+          description: 'Defines what traffic data should be used for route shape and travel duration calculation.
+
+
+            * `default`: Traffic data is considered.
+
+            *    - If `departureTime=any` then only long-term closures will be considered.
+
+            *    - If `departureTime` is not equal to `any` then all traffic data will be taken into account.
+
+            * `disabled`: All traffic data, including long term closures, is ignored.
+
+            '
+          type: string
+          default: default
+          enum:
+          - default
+          - disabled
+    BaseEVEmpiricalModel:
+      description: Specifies parameters required for calculation of energy consumption for electric vehicles using Empirical model.
+      type: object
+      properties:
+        freeFlowSpeedTable:
+          allOf:
+          - $ref: '#/components/schemas/ConsumptionSpeedTable'
+        trafficSpeedTable:
+          description: 'Function curve specifying consumption rate at a given traffic-reduced speed on a flat stretch of road.
+
+
+            See `freeFlowSpeedTable` for a description of the string format.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/ConsumptionSpeedTable'
+        ascent:
+          description: 'Rate of energy consumed per meter rise in elevation (in Wh/m, i.e., Watt-hours per meter).
+
+            '
+          type: number
+          minimum: 0
+        descent:
+          description: 'Rate of energy recovered per meter fall in elevation (in Wh/m, i.e., Watt-hours per meter).
+
+            '
+          type: number
+          minimum: 0
+        auxiliaryConsumption:
+          description: 'Rate of energy (in Wh/s) consumed by the vehicle''s auxiliary systems (for example, air conditioning, lights).
+
+            The value represents the number of Watt-hours consumed per second of travel.
+
+
+            Auxiliary consumption applies during stops, including charging stops.
+
+            At charging stops, power used for charging is reduced by the amount used for auxiliary consumption.
+
+            '
+          type: number
+          minimum: 0
+      required:
+      - freeFlowSpeedTable
+    Avoid:
+      type: object
+      properties:
+        features:
+          description: 'A comma-separated list of features that routes should avoid.
+
+
+            * `seasonalClosure`
+
+            * `tollRoad`: This option avoids roads that have an applicable toll.
+
+            * `controlledAccessHighway`
+
+            * `ferry`
+
+            * `carShuttleTrain`
+
+            * `tunnel`
+
+            * `dirtRoad`
+
+            * `difficultTurns`: **Deprecated** (see Notes for details). This option avoids difficult turns, sharp turns and U-turns on multi-digitized roads, intersections and stopover-type waypoints. It is only supported for the `truck` transport mode.
+
+            * `uTurns`: This option avoids U-turns on multi-digitized roads, intersections, stopover-type waypoints. U-turns on mini roundabouts (roundabouts with a small turn radius, which are difficult for long vehicles to navigate) are avoided when `transportMode = truck`. This option is not supported for pedestrian, bicycle and scooter transport modes.
+
+
+            **Notes**
+
+            - It may not always be possible to find a route which avoids the requested feature. A route may not be returned, or one may be returned with a critical notice.
+
+            - Using `avoid[features]=tollRoad` does not optimize the route to reduce the overall toll costs.
+
+            - Using `avoid[features]=tollRoad` is not recommended for large vehicles, e.g., trucks or buses. Even if a route is suggested, it may use smaller roads, where driving such vehicles is not convenient or safe.
+
+            - `avoid[features]=difficultTurns` is currently deprecated and will be ignored in the future. Using `avoid[features]=difficultTurns` together with `avoid[features]=controlledAccessHighway` or `avoid[features]=tollRoads` is not recommended, as it may lead to routes which could include difficult turns.
+
+            '
+          type: string
+        areas:
+          $ref: '#/components/schemas/Areas'
+        segments:
+          description: "A comma separated list of segment identifiers that routes should avoid going through.\n\nEach entry has the following structure:\n`{segmentId}(#{direction})?`\n\nThe individual parts are:\n* segmentId: The identifier of the referenced topology segment inside the catalog, example: `here:cm:segment:207551710`\n* direction (optional): Either '*' for bidirectional (default), '+' for positive direction, or '-' for negative direction\n\nExample of a parameter value excluding two segments:\n`here:cm:segment:207551710#+,here:cm:segment:76771992#*`\n\n**Note**: Maximum number of penalized segments in one request should not be greater than 1000.\n          \"Penalized segments\" refers to segments that either have a restriction on maximum baseSpeed with `maxSpeedOnSegment`\n          or avoided with `avoid[segments]`\n"
+          type: string
+        zoneCategories:
+          description: "Specifies a list of categories of zones which routes should avoid going through.\n\nFormat: `Categories[ZoneCategoryOptions]`\n\n* Categories: `{cat1},{cat2}...`\n  A comma separated list of zone categories.\n* ZoneCategoriesOptions (optional): `;option1=value1;options2=value2...`\n  A list of options for zone categories in `KEY=VALUE` form.\n\nSupported zone category options:\n  * exceptZoneIds: A comma-separated list of zone identifiers, which should not be taken into account for evaluation of zone categories to avoid.\n\nSupported zone categories:\n  * `vignette`\n  * `congestionPricing`\n  * `environmental`\n\n**Note**: Zones that don't apply to the current vehicle aren't avoided.\nTime-dependent zones are avoided only during the validity period.\n\nExample of zone categories avoidance:\n`avoid[zoneCategories]=environmental,vignette`\n\nExample of zone categories avoidance with exceptions:\n`avoid[zoneCategories]=environmental,vignette;exceptZoneIds=here:cm:envzone:3`\n"
+          type: string
+        zoneIdentifiers:
+          description: 'A comma separated list containing identifiers of zones that routes should avoid going through.
+
+
+            **Note**: Zones specified by id in this manner are avoided even if their conditions don''t apply to the current vehicle.
+
+            Time-dependent zones are avoided by id even outside of the validity period.
+
+
+            Example of an identifier referencing an environmental zone:
+
+            `here:cm:envzone:2`
+
+            '
+          type: string
+        truckRoadTypes:
+          description: 'A comma-separated list of truck road type identifiers to be avoided.
+
+
+            A truck road type is an identifier associated with roads that have additional regulations applied by local administration for traversal by heavy vehicles like trucks.
+
+            For example, the BK Bearing Class regulations in Sweden, and ET categories in Mexico.
+
+            Identifiers for supported truck road types are specified in HERE Map Content
+
+            [TruckRoadType](https://docs.here.com/map-content/docs/truckroadtypeattribute).
+
+
+            Example: `avoid[truckRoadTypes]=BK1,BK2,BK3,BK4`
+
+            '
+          type: string
+          example: BK1,BK2,BK3,BK4
+        tollTransponders:
+          description: 'Specifies that routes should avoid roads where the specified toll transponders are the only payment method.
+
+
+            The value of the parameter is a comma-separated list of transponder systems that the user has. Alternatively,
+
+            the user can also specify `all` as a list element to state they have all required transponders along any potential route.
+
+
+            **Note**: Currently, the only valid value is `all`.
+
+            Example: `avoid[tollTransponders]=all`
+
+            '
+          type: string
+    LinearRing:
+      type: string
+      description: A special case of a Polyline where the first and last elements in the coordinates array are equivalent. Encoded as a string in [Flexible Polyline](https://github.com/heremaps/flexible-polyline) format. Coordinates are in the WGS84 coordinate system, including `Elevation` (if present).
+      example: BGk0owkBggpgrE1K6algB4KlgB3K3KlgB4KlgBmgB1KmgBqF2KkQA6a
+    BoundingBoxArea:
+      type: object
+      description: A bounding box defined by two longitudes and two latitudes.
+      required:
+      - type
+      - north
+      - south
+      - west
+      - east
+      properties:
+        type:
+          type: string
+          example: boundingBox
+        north:
+          description: Latitude in WGS-84 degrees of the northern boundary of the box.
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 30
+        south:
+          description: Latitude in WGS-84 degrees of the southern boundary of the box.
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 30
+        east:
+          description: Longitude in WGS-84 degrees of the eastern boundary of the box
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 30
+        west:
+          description: Longitude in WGS-84 degrees of the western boundary of the box.
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 30
+    Allow:
+      type: object
+      description: Explicitly allow features that require users to opt in.
+      properties:
+        hov:
+          description: 'This parameter specifies whether HOV lanes can be used in the calculation.
+
+
+            An HOV (High occupancy Vehicle) lane or carpool lane is reserved for carpool usage.
+
+            Carpool lane requires a minimum number of passengers in order for the car to use the
+
+            carpool lane.
+
+
+            **Notes**:
+
+            - This parameter can''t be used with ''vehicle[hovOccupancy]''.
+
+            - This parameter should be used with `vehicle[occupancy]`. If `vehicle[occupancy]` is set, then only HOV lanes allowing this number of occupants will be allowed. If `vehicle[occupancy]` is not set, occupancy requirements are always considered fulfilled.
+
+            - In case of violation, `violatedCarpool` notice will be returned.
+
+            '
+          type: boolean
+          default: false
+        hot:
+          description: 'This parameter specifies whether HOT lanes can be used in the calculation.
+
+
+            HOT (high-occupancy toll) lanes are HOV lanes where vehicles that do not qualify as high-occupancy are allowed to pass by paying a toll.
+
+
+            **Notes**:
+
+            - This parameter can''t be used with ''vehicle[hovOccupancy]''.
+
+            - This parameter can be used with `allow[hov]`.
+
+            - In case of violation, `violatedCarpool` notice will be returned.
+
+            - No toll information is returned for HOT lanes since it is dynamic information.
+
+            '
+          type: boolean
+          default: false
+    Coordinate:
+      type: object
+      required:
+      - lat
+      - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: Latitude in WGS-84 degrees.
+        lng:
+          type: number
+          format: double
+          description: Longitude in WGS-84 degrees.
+      example:
+        lat: 52.53787
+        lng: 13.40896
+    NotAllowed:
+      description: Not Allowed, actions not permitted by server.
+      type: object
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: 'Machine-readable service error code.
+
+
+            All error codes of this service start with "`E605`". The last three digits describe a specific error. Provide this error code when contacting support.
+
+
+            **NOTE:** The list of possible error codes could be extended in the future. The client application is expected to handle such a case gracefully.
+
+
+            | Code      | Reason  |
+
+            | --------- | ------- |
+
+            | `E605101` | Credentials not allowed for calculating routes in Japan. |
+
+            '
+          example: E600101
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that univocally identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    ResponseRange:
+      description: Range specified in terms of distance, travel time or energy consumption.
+      type: object
+      properties:
+        type:
+          description: 'Specifies the type of range.
+
+
+            Possible Values:
+
+            - `distance` with units in meters
+
+            - `time` with units in seconds
+
+            - `consumption` with units in Watt-hours (Wh) for EV, or milliliters(ml) or grams(gms) for fuel-based vehicles, depending on `consumptionType`
+
+            '
+          type: string
+        consumptionType:
+          description: "Specifies the consumption type. Returned only if range `type` is `consumption`.\n\nPossible Values:\n  - `electric` : electric consumption type with units in Wh.\n  - `diesel` : Diesel consumption type with units in ml.\n  - `petrol` : Petrol/Gasoline consumption type with units in ml.\n  - `lpg` : LPG consumption type with units in ml.\n  - `cng` : CNG consumption type with units in gm.\n"
+          type: string
+        value:
+          description: Range value. The unit is defined by the `type` parameter.
+          type: integer
+      required:
+      - type
+      - values
+    Location:
+      type: object
+      description: Location on the Earth
+      properties:
+        lat:
+          description: Location of a point on the Earth north or south of the equator in decimal degrees.
+          type: number
+          format: double
+          example: 52.531677
+        lng:
+          description: Location of a place on the Earth east or west of the prime meridian in decimal degrees.
+          type: number
+          format: double
+          example: 13.381777
+        elv:
+          description: 'Ellipsoid(geodetic) height in meters. Difference between the WGS84 ellipsoid and a point on the Earth’s surface.
+
+            Note: Similar elevation can be obtained from a GPS receiver.
+
+            '
+          type: number
+          example: 512.5
+      example:
+        lat: 52.531677
+        lng: 13.381777
+      required:
+      - lat
+      - lng
+    Polyline:
+      type: string
+      description: Line string in [Flexible Polyline](https://github.com/heremaps/flexible-polyline) format. Coordinates are in the WGS84 coordinate system, including `Elevation` (if present).
+      example: A05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e
+    Exclude:
+      type: object
+      description: Options to exclude strictly during the route calculation.
+      properties:
+        countries:
+          description: "A comma separated list of three-letter country codes (ISO-3166-1 alpha-3 code) that\nroutes will exclude.\n- Format: `{country1}[,country2][,country...]`\n  + `{country}` - Country code according to (ISO-3166-1 alpha-3)\n- Example: `CZE,SVK` - exclude Czechia and Slovakia from routing.\n\nNote - Exclude countries guarantees exclusion, but doesn't guarantee finding a route.\n"
+          type: string
+        states:
+          description: "A pipe separated list of country-aggregated state codes.\n\n- Format: `{country1}:{state1.1}[,state1.2][,state1.3]...[|{country2}:{state2.1}[,state2.2]]...`\n  + `{country}` - Country code according to (ISO-3166-1 alpha-3)\n  + `{state}`   - State code part according to (ISO 3166-2)\n- Examples:\n  + `USA:NY,PA`       - exclude USA's New York and Pennsylvania states\n  + `USA:NY,PA|CAN:QC`- exclude USA's New York, Pennsylvania states and Canada's Quebec province\n- Notes:\n  + Exclude states guarantees exclusion, but doesn't guarantee finding a route.\n  + Some countries don't have the state code data available for them, so the states in those countries won't be excluded.\n"
+          type: string
+        areas:
+          $ref: '#/components/schemas/Areas'
+    Departure:
+      type: object
+      description: Describe a departure or arrival location and time.
+      properties:
+        time:
+          description: Expected time of departure of the event. Format is **RFC 3339**, section 5.6 as defined by `date-time`.
+          allOf:
+          - $ref: '#/components/schemas/Time'
+        place:
+          $ref: '#/components/schemas/BasePlace'
+      required:
+      - place
+    Vehicle:
+      type: object
+      description: Vehicle-specific parameters
+      properties:
+        shippedHazardousGoods:
+          description: 'Hazardous goods restrictions refer to the limitations and regulations imposed on the transportation of specific types of hazardous materials during a trip.
+
+
+            A comma-separated list of hazardous goods being shipped in the vehicle. The following values are possible:
+
+
+            * `explosive`: Materials that are capable of causing an explosion.
+
+            * `gas`: Gas (definition varies from country to country). For details, check [here](https://en.wikipedia.org/wiki/HAZMAT_Class_2_Gases).
+
+            * `flammable`: Materials that are easily ignited and capable of catching fire.
+
+            * `combustible`: Materials that have the potential to burn or catch fire.
+
+            * `organic`: Materials derived from living organisms or containing carbon compounds.
+
+            * `poison`: Substances that can cause harm or death when ingested, inhaled, or absorbed.
+
+            * `radioactive`: Materials that emit radiation and pose potential health risks.
+
+            * `corrosive`: Substances that can cause damage or destruction through chemical reactions.
+
+            * `poisonousInhalation`: Materials that are toxic when inhaled.
+
+            * `harmfulToWater`: Materials that can cause pollution or harm to water bodies.
+
+            * `other`: Other types of hazardous materials not covered by the above categories.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: string
+          example: explosive,gas,flammable
+        grossWeight:
+          description: 'Gross vehicle weight, including trailers and shipped goods when loaded at capacity, specified in kilograms.
+
+
+            If unspecified, it will default to currentWeight. If neither parameter has a value specified, it will default to 0.
+
+
+            **Notes:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 4250 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 7550 kg.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        currentWeight:
+          description: 'Current vehicle weight, including trailers and shipped goods currently loaded, specified in kilograms.
+
+
+            If unspecified, it will default to grossWeight. If neither parameter has a value specified, it will default to 0.
+
+
+            **Notes:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 5000 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 8500 kg.
+
+            * A route request with `currentWeight` above `grossWeight` may result in non-compliant or invalid routes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        emptyWeight:
+          description: 'Empty weight of the vehicle combination ready to be driven, including necessary fluids and equipment
+
+            determined by the local regulations, specified in kilograms.
+
+
+            **Note:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 4250 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 7550 kg.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        weightPerAxle:
+          description: 'Heaviest vehicle weight-per-axle, specified in kilograms.
+
+
+            Heaviest weight-per-axle, regardless of axle-type or axle-group. It is evaluated against
+
+            all axle-weight restrictions, including single-axle and tandem-axle weight restrictions.
+
+            It is useful if differences between axle types, like tandem and triple axles, are not
+
+            relevant. This is the case in many countries, since they don''t distinguish between these
+
+            different axle groups on signs and in regulations.
+
+
+            More fine-grained axle weight input is possible with `weightPerAxleGroup`.
+
+
+            **Note:** `weightPerAxleGroup` and `weightPerAxle` are incompatible.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        weightPerAxleGroup:
+          $ref: '#/components/schemas/WeightPerAxleGroup'
+        height:
+          description: 'Vehicle height, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 5000
+        width:
+          description: 'Vehicle width, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 5000
+        length:
+          description: 'Total vehicle length, including all trailers, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 30000
+        kpraLength:
+          description: 'Kingpin to rear axle length, in centimeters.
+
+
+            **NOTE:** Currently, the KPRA restrictions are only present in California and Idaho.
+
+
+            **Note:** Supported in `truck`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        trailerLength:
+          description: 'Length of the longest trailer, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2000
+        payloadCapacity:
+          description: 'Allowed payload capacity, including trailers, specified in kilograms.
+
+
+            **Note:** Supported in `truck`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        tunnelCategory:
+          description: 'Specifies the [cargo tunnel restriction code](https://adrbook.com/en/2017/ADR/8.6.3). Route will pass only through tunnels of less restrictive categories.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/TunnelCategory'
+        axleCount:
+          description: 'Specifies the total number of axles the vehicle has, i.e., axles on the base vehicle and any attached trailers.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 2
+          maximum: 255
+        tiresCount:
+          description: 'Specifies the total number of tires the vehicle has, i.e., the tires on the base vehicle and any attached trailers.
+
+            '
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 255
+        category:
+          description: "Specifies the category of the vehicle. The supported values are:\n\n* `undefined`: The vehicle category is undefined, and no special considerations are taken into\n  account. Vehicle routing will proceed as normal.\n* `lightTruck`: The vehicle is a truck light enough to be classified more as a car than as a truck.\n  This exempts it from many legal restrictions for normal trucks. However, restrictions related to the physical dimensions of the truck or its cargo still apply.\n\n  For more details, refer to [Truck categories](https://docs.here.com/routing/docs/routing-v8-truck-routing#truck-categories).\n\n  **Note:** Supported only in `truck` transport mode.\n"
+          type: string
+          enum:
+          - undefined
+          - lightTruck
+          default: undefined
+        trailerCount:
+          description: 'The number of trailers attached to the vehicle.
+
+
+            Maximum value when used with `transportMode=car` or `transportMode=taxi` is 1.
+
+
+            **Limitations:** Considered for route calculation when `transportMode` is one of (`truck`, `bus`, `privateBus`). Considered for route calculation for restrictions, but not for speed limits, when `transportMode` is `car` or `taxi`.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 255
+          default: 0
+        hovOccupancy:
+          description: "**Note**: This parameter is deprecated, `vehicle[occupancy]` and `allow[hov]` should be used instead.\nThe number of occupants in the vehicle, defined as individuals occupying a seat with a restraint device.\nThis value affects the ability of the router to use HOV (High-Occupancy Vehicles) restricted lanes.\n\nLimitations:\n  * Any value over 1 is interpreted as the ability to use any HOV lane, including those restricted to 3+ passengers.\n"
+          type: integer
+          minimum: 1
+          default: 1
+          deprecated: true
+        licensePlate:
+          description: 'Specifies the information about the vehicle''s license plate number.
+
+            This information is used to evaluate whether certain vehicle restrictions in environmental zones apply.
+
+            Currently, only the last character of the license plate can be provided.
+
+
+            Format: `lastCharacter:{character}`
+
+
+            Example: `lastCharacter:2`
+
+            '
+          type: string
+        speedCap:
+          description: "Specifies the maximum speed, in meters per second (m/s), that the user wishes not to exceed.\nThis parameter affects the route's estimated time of arrival (ETA) and consumption calculation.\n\nLimitations:\n  * valid for following transport modes: `car`, `truck`, `scooter`, `taxi`, `bus`, and `privateBus`\n\nNotes:\n  * Car and Truck mode updates route ETA.\n  * Scooter mode updates route optimization and ETA.\n  * Resulting ETA can not be decreased by this parameter.\n"
+          type: number
+          minimum: 1
+          maximum: 70
+        speedCapPerFc:
+          description: "A comma separated list of speeds in meters per second (m/s) specifying the maximum speed per FC (Functional Class, as defined in the `FunctionalClass` schema) that the user wishes not to exceed.\nThe list can have up to 5 entries, corresponding to FC 1 to FC 5. Empty entries indicate that no speed cap is specified for the corresponding FC.\nThis parameter affects the route's estimated time of arrival (ETA) and consumption calculation.\n\nLimitations:\n  * valid for following transport modes: `car`, `truck`\n\nValues limitations:\n  * minimum: 1.00\n  * maximum: 70.00\n\nExamples:\n  * `vehicle[speedCapPerFc]=20,16.7,14,11,8` - specify limits for all FCs\n  * `vehicle[speedCapPerFc]=20,16.7,,11,8` - specify limits for all FCs except for FC 3\n  * `vehicle[speedCapPerFc]=20,16.7,14` - specify limits for FC 1, 2 and 3\n\nNotes:\n  * Resulting ETA can not be decreased by this parameter.\n  * vehicle[speedCapPerFc] and vehicle[speedCap] may be used in combination. For FCs where both values are specified, the minimum value is used.\n"
+          type: string
+        engineSizeCc:
+          description: 'Specifies the engine size of the vehicle in cubic centimeters.
+
+            Currently, the value is used only in scooter mode.
+
+            This parameter is utilized to determine if the scooter can be classified as a moped.
+
+            Scooters with an engine size less than 51cc are considered mopeds.
+
+            **Alpha**: This API is in development. It may not be stable and is subject to change. It may have no impact on response.
+
+            '
+          type: integer
+          minimum: 0
+          maximum: 2000
+        occupancy:
+          description: 'The number of occupants on the vehicle, defined as individuals occupying a seat.
+
+            This value affects the ability of the router to use HOV (High-Occupancy Vehicles) restricted lanes. If not set and `allow[hov]=true` is set, then occupancy requirements for all HOV conditions are considered to be met.
+
+            This parameter also affects scooter occupancy restrictions. If not set, occupancy restrictions for scooters are ignored.
+
+
+            The parameter is also used for calculating the toll cost, in cases where the toll-cost for the vehicle depends on the passenger count. If not set, occupancy of 1 is assumed for toll calculation.
+
+
+            **Note:**: This parameter can''t be used with ''vehicle[hovOccupancy]''.
+
+            '
+          type: integer
+          minimum: 1
+        engineType:
+          description: "Specifies the engine type of the vehicle.\n\n**Limitations:**  Currently this parameter is used only for toll calculation. It may be used at any point for route calculation (for example, to automatically avoid environmental zones).\n\n**Note:**\n  * If engineType is specified as `internalCombustion`, valid `fuel[type]` should also be provided to get fuel specific toll. If `fuel[type]` is not provided, default toll without considering `fuel[type]` will be returned.\n  * If `ev` or `fuel` namespace parameters are provided with an incompatible `engineType` (e.g. engineType=internalCombustion is provided along with `ev` namespace parameters) then `ev` namespace will override `engineType` and incompatible `engineType` will be ignored for toll, consumption, and emission computations.\n"
+          type: string
+          enum:
+          - electric
+          - pluginHybrid
+          - internalCombustion
+        frontalArea:
+          description: 'Frontal area represents the total cross section area of the vehicle as viewed from the front, specified in square meters. Physical consumption model is using this value in combination with `airDragCoefficient` to calculate the consumption caused by air resistance.
+
+            **Note:** This attribute, or both `width` and `height`, is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          minimum: 0.5
+          maximum: 50
+        rollingResistanceCoefficient:
+          description: 'Rolling resistance refers to the resistance experienced by your vehicle tire as it rolls over a surface. The main causes of this resistance are tire deformation, wing drag, and friction with the ground. The coefficient of rolling resistance is a numerical value indicating the severity of this factor.
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          maximum: 0.5
+          exclusiveMinimum: 0.001
+        airDragCoefficient:
+          description: 'The drag coefficient of an vehicle defines the way the vehicle is expected to pass through the surrounding air. More streamlined vehicles are more aerodynamic and therefore have smaller drag coefficient.
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          maximum: 1
+          exclusiveMinimum: 0.1
+        commercial:
+          description: 'Specifies whether the vehicle is a commercial or a non-commercial vehicle.
+
+
+            Used for toll costs, speed limits and accessing delivery areas.
+
+
+            * By default, trucks are considered commercial vehicles, while all other transport modes are considered non-commercial. Though, if left unspecified, the toll cost best fitting the vehicle profile is reported, irrespective of commercial use.
+
+            * For commercial cars, commercial speed limits apply, which may differ from speed limits for passenger cars.
+
+            * Commercial cars can enter delivery areas, similarly to trucks.
+
+            * For examples and limitations see [Developer Guide](https://docs.here.com/routing/docs/routing-v8-light-commercial-vehicle-routing)
+
+
+            **Note:** supported in `car`, `truck`, `bus`, `privateBus` and `taxi`.
+
+            '
+          type: boolean
+        type:
+          $ref: '#/components/schemas/VehicleType'
+    IsolineResponseNotice:
+      type: object
+      description: A notice contains important notifications.
+      properties:
+        title:
+          type: string
+          description: Human-readable notice description.
+          example: No route found
+        code:
+          type: string
+          description: "Extensible enum: `avoidSegmentsInvalidId` `avoidSegmentsInvalidPrefix` `avoidZonesInvalidId` `avoidTruckRoadTypesInvalidId` `cancelled` `couldNotMatchOrigin` `couldNotMatchDestination` `isolineCalculationFailed` `isolineCalculationBlocked` `unknownParameter` `...`  \nCurrently known codes (non-exhaustive: this list will be extended for new error situations):\n\n| Code      | Description  | Severity |\n| --------- | ------- | ------- |\n| avoidSegmentsInvalidId | Avoid segments: The provided segment ID was not found | info |\n| avoidSegmentsInvalidPrefix | Avoid segments: The provided domain prefix was not found | info |\n| avoidZonesInvalidId | Avoid zones: The provided zone ID was not found | info |\n| avoidTruckRoadTypesInvalidId | The provided truck road type id was not found | info |\n| cancelled | Calculation took too long and was cancelled | critical |\n| couldNotMatchOrigin | Origin waypoint could not be matched | critical |\n| couldNotMatchDestination | Destination waypoint could not be matched | critical |\n| isolineCalculationFailed | Isolines could not be calculated. | critical |\n| isolineCalculationBlocked | Isolines calculation was blocked by restrictions or traffic at the requested origin or destination | critical |\n| unknownParameter | The provided parameter is unknown | info |\n"
+          example: noRouteFound
+          x-extensible-enum:
+          - avoidSegmentsInvalidId
+          - avoidSegmentsInvalidPrefix
+          - avoidZonesInvalidId
+          - avoidTruckRoadTypesInvalidId
+          - cancelled
+          - couldNotMatchOrigin
+          - couldNotMatchDestination
+          - isolineCalculationFailed
+          - isolineCalculationBlocked
+          - unknownParameter
+        severity:
+          $ref: '#/components/schemas/NoticeSeverity'
+        details:
+          type: array
+          description: Additional details about the notice
+          items:
+            $ref: '#/components/schemas/BaseNoticeDetail'
+      required:
+      - code
+    Isoline:
+      type: object
+      description: An isoline for the specified range parameter.
+      properties:
+        range:
+          description: The range parameter used to calculate the Isoline
+          allOf:
+          - $ref: '#/components/schemas/ResponseRange'
+        polygons:
+          description: 'The polygons defining the approximate reachable area.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/MultiPolygon'
+        connections:
+          description: 'Connections represent the geometry of special links that were reached but not included in the components.
+
+            These links are connections like ferries.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Connection'
+      required:
+      - range
+      - polygons
+    Taxi:
+      type: object
+      description: Taxi-specific parameters
+      properties:
+        allowDriveThroughTaxiRoads:
+          description: 'Specifies if a vehicle is allowed to drive through taxi-only roads and lanes. Even if
+
+            this option is set to `false`, the vehicle is still allowed on taxi-only roads at the
+
+            start of the route and at the destination.
+
+            '
+          type: boolean
+          default: true
+    FuelType:
+      description: "Extensible enum: `diesel` `petrol` `lpg` `cng` `lng` `ethanol` `propane` `hydrogen` `...`  \nVehicle fuel type. It is mandatory for calculation of consumption and CO2 emission.\n"
+      type: string
+      x-extensible-enum:
+      - diesel
+      - petrol
+      - lpg
+      - cng
+      - lng
+      - ethanol
+      - propane
+      - hydrogen
+    NoticeSeverity:
+      description: 'Describes the impact a notice has on the resource to which the notice is attached.
+
+        * critical - The notice must not be ignored, even if the type of notice is not known to the user. Any associated resource (e.g., route section) must not be used without further evaluation.
+
+        * info - The notice is for informative purposes, but does not affect usability of the route.
+
+        '
+      type: string
+      enum:
+      - critical
+      - info
+    Area:
+      oneOf:
+      - $ref: '#/components/schemas/BoundingBoxArea'
+      - $ref: '#/components/schemas/PolygonArea'
+      - $ref: '#/components/schemas/EncodedPolygonArea'
+      - $ref: '#/components/schemas/CorridorArea'
+      - $ref: '#/components/schemas/EncodedCorridorArea'
+      discriminator:
+        propertyName: type
+        mapping:
+          boundingBox: '#/components/schemas/BoundingBoxArea'
+          polygon: '#/components/schemas/PolygonArea'
+          encodedPolygon: '#/components/schemas/EncodedPolygonArea'
+          corridor: '#/components/schemas/CorridorArea'
+          encodedCorridor: '#/components/schemas/EncodedCorridorArea'
+      description: 'Area specified by boundingBoxes or polygons (as encoded polyline or as list of geopts ) or corridor area.
+
+
+        Notes:
+
+        * Maximum count of avoided and excluded polygons and corridors is 20.
+
+        * Maximum total count of avoided and excluded bounding boxes, polygons, corridors, including exceptions, is 250.
+
+        '
+    ServerInternal:
+      description: Errors internal to server.
+      type: object
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: 'Machine-readable service error code.
+
+
+            All error codes of this service start with "`E605`". The last three digits describe a specific error. Provide this error code when contacting support.
+
+
+            **NOTE:** The list of possible error codes could be extended in the future. The client application is expected to handle such a case gracefully.
+
+
+            | Code      | Reason  |
+
+            | --------- | ------- |
+
+            | `E6055XX` | Internal server error. |
+
+            '
+          example: E600101
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that univocally identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    Distance:
+      type: integer
+      minimum: 0
+      description: Distance in meters.
+      example: 189
+    Range:
+      description: Ranges specified in terms of distance, travel time or energy consumption.
+      type: object
+      properties:
+        type:
+          description: "Specifies the type of range.\n\nPossible Values:\n- `distance` with units in meters with maximum value 1000000\n- `time` with units in seconds with maximum value 32400\n- `consumption` For fuel-based Vehicles : Static maximum value of 40000 with units in milliliters(ml) or grams(gms)\n                For EV : Maximum value of 650000 with units in Watt-hours (Wh). Dynamic limit up to the maximum value that allows the vehicle to travel a maximum of 900kms.\n"
+          type: string
+          example: distance
+        values:
+          type: string
+          description: A comma-separated list of ranges. The unit is defined by the `type` parameter.
+          example: 1000,2000
+      required:
+      - type
+      - values
+    EncodedCorridorArea:
+      type: object
+      description: 'A polygon defined as a [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string
+
+        and with a specified radius that defines an area.
+
+        '
+      required:
+      - type
+      - polyline
+      - radius
+      properties:
+        type:
+          type: string
+          example: encodedCorridor
+        polyline:
+          type: string
+          description: '[Flexible Polyline](https://github.com/heremaps/flexible-polyline) that defines a supporting structure for a corridor.
+
+            Notes:
+
+            * Support only 2D polyline (without `elevation` specified).
+
+            * Minimum count of vertices in polyline is 2.
+
+            * Maximum count of vertices in polyline is 100.
+
+            '
+          example: BFoz5xJ67i1B1B7PzIhaxL7Y
+        radius:
+          type: integer
+          description: The width in meters of the corridor determines the outline of the polygon.
+          minimum: 1
+          maximum: 1000
+    IsolineResponse:
+      type: object
+      properties:
+        notices:
+          description: 'Contains a list of issues related to this isoline calculation.
+
+            Please refer to the `code` attribute for possible values.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/IsolineResponseNotice'
+        departure:
+          description: 'Departure point for the resulting isolines. This parameter is returned only if `origin` parameter was provided in the request. '
+          allOf:
+          - $ref: '#/components/schemas/Departure'
+        arrival:
+          description: Arrival point for the resulting isolines. This parameter is returned only if the `destination` parameters was provided in the request
+          allOf:
+          - $ref: '#/components/schemas/Departure'
+        isolines:
+          description: List of polygons calculated per specified range.
+          type: array
+          items:
+            $ref: '#/components/schemas/Isoline'
+      required:
+      - isolines
+    ExcludePost:
+      type: object
+      description: 'User-specified properties that need to be strictly excluded during route calculation.
+
+
+        For the general description of the functionality please refer to the `exclude` parameter of the
+
+        query string.
+
+
+        Passing parameters in the POST body is suggested when the length of the parameters exceeds the
+
+        limitation of the GET request.
+
+        '
+      properties:
+        areas:
+          $ref: '#/components/schemas/AreasPost'
+    BasePlace:
+      type: object
+      properties:
+        name:
+          description: Location name
+          type: string
+        type:
+          description: 'Place type. Each place type can have extra attributes.
+
+
+            **NOTE:** The list of possible place types could be extended in the future.
+
+            The client application is expected to handle such a case gracefully.
+
+            '
+          type: string
+        location:
+          description: 'The position of this location
+
+
+            This position was used in route calculation. It may be different to the original position provided in the request.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Location'
+        originalLocation:
+          description: If present, the original position of this location provided in the request.
+          allOf:
+          - $ref: '#/components/schemas/Location'
+        displayLocation:
+          description: If present, the display position of this location provided in the request or that of the auto-added waypoint. This is different from the originalLocation and location which are generally expected to be on the navigable road network, i.e., on segments. This coordinate, for example, is the location of the POI as shown by the pin on a map.
+          allOf:
+          - $ref: '#/components/schemas/Location'
+        sideOfStreet:
+          description: "Location of the waypoint or destination, relative to the driving direction on the street/road.\n\n**NOTE:** Based on the original waypoint position and `sideOfStreetHint` waypoint property.\n - If `sideOfStreetHint` property is specified, it takes priority in determining the side of street in the response.\n - Nothing is returned in the response in case the side of street is ambiguous (too close to the street),\n   or if the position is too far from the street.\n\n* 'left`: The left side of the street in relation to the driving direction of the route.\n* `right`: The right side of the street in relation to the driving direction of the route.\n"
+          type: string
+          enum:
+          - left
+          - right
+      required:
+      - type
+      - location
+      example:
+        type: place
+        location:
+          lat: 50.339167
+          lng: 18.93
+    ConsumptionModel:
+      description: "Extensible enum: `empirical` `physical` `...`  \nSpecifies which of the EV consumption models is being used. See the `ev` parameter for details on the models.\n\n* `empirical`\n* `physical`\n"
+      type: string
+      default: empirical
+      x-extensible-enum:
+      - empirical
+      - physical
+    RouterMode:
+      description: Mode of transport to be used for route calculation.
+      type: string
+      enum:
+      - car
+      - truck
+      - pedestrian
+      - taxi
+      - bus
+      - privateBus
+      - scooter
+      - bicycle
+    RoutingMode:
+      description: "Specifies which optimization is applied during the calculation.\n\n* `fast`: Route calculation from start to destination optimized by travel time. In many\n  cases, the route returned by `fast` mode may not be the route with the fastest\n  possible travel time. For example, the routing service may favor a route that remains on\n  a highway, even if a faster travel time can be achieved by taking a detour or shortcut\n  through an inconvenient side road.\n* `short`: Route calculation from start to destination disregarding any speed information.\n  In this mode, the distance of the route is minimized, while keeping the route sensible.\n  This includes, for example, penalizing turns. Because of that, the resulting route will\n  not necessarily be the one with minimal distance.\n\nNotes:\n* The following Transport modes only support `fast` routingMode\n  - `bicycle`\n  - `bus`\n  - `pedestrian`\n  - `privateBus`\n  - `scooter`\n  - `taxi`\n  - `networkRestrictedTruck`\n"
+      type: string
+      enum:
+      - fast
+      - short
+      default: fast
+    Connection:
+      type: object
+      description: 'Connection represents the geometry of special links that were reached but not included in the components.
+
+        These links are connections like ferries.
+
+        '
+      properties:
+        fromPolygonIndex:
+          description: Index of start component of the connection
+          type: integer
+        toPolygonIndex:
+          description: Index of end component of the connection
+          type: integer
+        polyline:
+          $ref: '#/components/schemas/Polyline'
+      required:
+      - fromPolygonIndex
+      - toPolygonIndex
+      - polyline
+    EncodedPolygonArea:
+      type: object
+      description: 'A polygon defined as a [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string.
+
+
+        The polygon is automatically closed, so repeating the first vertex is not required.
+
+        '
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          example: encodedPolygon
+        outer:
+          type: string
+          description: '[Flexible Polyline](https://github.com/heremaps/flexible-polyline) that defines the outline of the polygon.
+
+            Notes:
+
+            * Support only 2D polyline (without `elevation` specified).
+
+            * Minimum count of vertices in polygon is 3.
+
+            * Maximum count of vertices in polygon is 16.
+
+            '
+          example: BFoz5xJ67i1B1B7PzIhaxL7Y
+    EV:
+      type: object
+      description: 'EV parameters to be used for calculating consumption and for calculating isolines for EV.
+
+
+        There are two consumption models (`empirical`, `physical`). Set the `consumptionModel` parameter to choose which model to use.
+
+
+        Required `empirical` model properties:
+
+        * `freeFlowSpeedTable`
+
+
+        Required `physical` model properties:
+
+        * `driveEfficiency`
+
+        * `recuperationEfficiency`
+
+
+        When using the physical model, certain properties of the `vehicle` parameter are also required (see documentation for the `vehicle` parameter for more details):
+
+        * `rollingResistanceCoefficient`
+
+        * `airDragCoefficient`
+
+        * `currentWeight`
+
+        * `frontalArea` or combination of `width` and `height`
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/BaseEVEmpiricalModel'
+      - $ref: '#/components/schemas/BaseEVPhysicalModel'
+    CorridorArea:
+      type: object
+      description: A polyline with a specified radius in meters that defines an area.
+      required:
+      - type
+      - polyline
+      - radius
+      properties:
+        type:
+          type: string
+          example: corridor
+        polyline:
+          type: array
+          description: List of coordinates defining polyline.
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          minItems: 2
+          maxItems: 100
+        radius:
+          type: integer
+          description: The width in meters of the corridor determines the outline of the polygon.
+          minimum: 1
+          maximum: 1000
+    AreasPost:
+      description: 'List of user-defined areas that routes should avoid/exclude going through.
+
+
+        Notes:
+
+        * Maximum count of avoided and excluded polygons and corridors is 20.
+
+        * Maximum total count of avoided and excluded bounding boxes, polygons, corridors, including exceptions, is 250.
+
+        '
+      type: array
+      maxItems: 250
+      items:
+        $ref: '#/components/schemas/AreaPost'
+      example:
+        areas:
+        - type: polygon
+          outer:
+          - lat: 52.514414
+            lng: 13.384685
+          - lat: 52.514414
+            lng: 13.393568
+          - lat: 52.512403
+            lng: 13.393568
+          - lat: 52.512403
+            lng: 13.384685
+        - type: encodedPolygon
+          outer: BG8mnlkD6-9wZAmrR19DAAlrR
+        - type: boundingBox
+          west: 1.1
+          south: 2.2
+          east: 3.3
+          north: 4.4
+          exceptions:
+          - type: polygon
+            outer:
+            - lat: 52.514414
+              lng: 13.384685
+            - lat: 52.514414
+              lng: 13.393568
+            - lat: 52.512403
+              lng: 13.393568
+            - lat: 52.512403
+              lng: 13.384685
+          - type: encodedPolygon
+            outer: BG8mnlkD6-9wZAmrR19DAAlrR
+    TunnelCategory:
+      description: 'Specifies the tunnel category used to restrict the transport of specific goods.
+
+        '
+      type: string
+      enum:
+      - B
+      - C
+      - D
+      - E
+    ConsumptionSpeedTable:
+      type: string
+      description: 'Function curve specifying consumption rate at a given speed.
+
+
+        The format of the string is a comma-separated list of numbers, as follows:
+
+
+        ```
+
+        <SPEED_0>,<CONSUMPTION_0>,<SPEED_1>,<CONSUMPTION_1>,...,<SPEED_N>,<CONSUMPTION_N>
+
+        ```
+
+
+        where speed values are strictly increasing, non-negative integers in units of (km/h), and
+
+        consumption values are non-negative floating point values.
+
+
+        * Unit for EV:
+
+        | Vehicle Type | Unit |
+
+        |--------------|------|
+
+        | Electric | Wh/m i.e., Watt-hours per meter|
+
+
+        * Units for Fuel-based vehicles:
+
+        | Vehicle Type | Unit |
+
+        |--------------|------|
+
+        | Diesel, Petrol & LPG | ml/m i.e., milliliters per meter|
+
+        | CNG | gm/m i.e., grams per meter|
+
+
+        The function is linearly interpolated between data points. For speeds less than `SPEED_0`
+
+        the value of the function is `CONSUMPTION_0`, and for speeds greater than `SPEED_N` the
+
+        value of the function is `CONSUMPTION_N`.
+
+        '
+      example: 0,0.2394,14,0.2394,36,0.2586,52,0.196,68,0.2074,83,0.238,95,0.2597,105,0.2597,115,0.2964,125,0.3367,135,0.3508
+    MaxSpeedOnSegmentPost:
+      type: array
+      items:
+        type: object
+        properties:
+          segment:
+            type: string
+            description: 'Identifier of the segment with restrictions on maximum `baseSpeed`.
+
+
+              Each entry has the following structure:
+
+              `{segmentId}(#{direction})?`
+
+              '
+          speed:
+            type: number
+            minimum: 1
+            maximum: 70
+            description: 'Maximum `baseSpeed` on segment in m/s.
+
+              '
+      description: "Segments with restrictions on maximum `baseSpeed`.\n\nFor the general description of the functionality please refer to the `maxSpeedOnSegment` parameter of the\nquery string.\n\nPassing parameters in the POST body is suggested when the length of the parameters exceeds the\nlimitation of the GET request.\n\nExample of a parameter value excluding two segments:\n```\n[\n  {\n    \"segment\": \"here:cm:segment:207551710#+\",\n    \"speed\": 10\n  },\n  {\n    \"segment\": \"here:cm:segment:76771992\",\n    \"speed\": 1\n  }\n]\n```\n\n**Notes**:\n- Maximum number of penalized segments in one request cannot be greater than 1000.\n  \"penalized segments\" refer to segments that have a restrictions on maximum baseSpeed with `maxSpeedOnSegment`\n  or avoided with `avoid[segments]`.\n- In case the same segment is penalized multiple times through values provided in the query string and/or the POST body,\n  then the most restrictive value will be applied.\n"
+    Truck:
+      type: object
+      description: Vehicle-specific parameters
+      properties:
+        shippedHazardousGoods:
+          description: 'Hazardous goods restrictions refer to the limitations and regulations imposed on the transportation of specific types of hazardous materials during a trip.
+
+
+            A comma-separated list of hazardous goods being shipped in the vehicle. The following values are possible:
+
+
+            * `explosive`: Materials that are capable of causing an explosion.
+
+            * `gas`: Gas (definition varies from country to country). For details, check [here](https://en.wikipedia.org/wiki/HAZMAT_Class_2_Gases).
+
+            * `flammable`: Materials that are easily ignited and capable of catching fire.
+
+            * `combustible`: Materials that have the potential to burn or catch fire.
+
+            * `organic`: Materials derived from living organisms or containing carbon compounds.
+
+            * `poison`: Substances that can cause harm or death when ingested, inhaled, or absorbed.
+
+            * `radioactive`: Materials that emit radiation and pose potential health risks.
+
+            * `corrosive`: Substances that can cause damage or destruction through chemical reactions.
+
+            * `poisonousInhalation`: Materials that are toxic when inhaled.
+
+            * `harmfulToWater`: Materials that can cause pollution or harm to water bodies.
+
+            * `other`: Other types of hazardous materials not covered by the above categories.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: string
+          example: explosive,gas,flammable
+        grossWeight:
+          description: 'Gross vehicle weight, including trailers and shipped goods when loaded at capacity, specified in kilograms.
+
+
+            If unspecified, it will default to currentWeight. If neither parameter has a value specified, it will default to 0.
+
+
+            **Notes:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 4250 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 7550 kg.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        currentWeight:
+          description: 'Current vehicle weight, including trailers and shipped goods currently loaded, specified in kilograms.
+
+
+            If unspecified, it will default to grossWeight. If neither parameter has a value specified, it will default to 0.
+
+
+            **Notes:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 5000 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 8500 kg.
+
+            * A route request with `currentWeight` above `grossWeight` may result in non-compliant or invalid routes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        emptyWeight:
+          description: 'Empty weight of the vehicle combination ready to be driven, including necessary fluids and equipment
+
+            determined by the local regulations, specified in kilograms.
+
+
+            **Note:**
+
+            * Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            * Maximum weight for a car or taxi _without_ a trailer is 4250 kg.
+
+            * Maximum weight for a car or taxi _with_ a trailer is 7550 kg.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        weightPerAxle:
+          description: 'Heaviest vehicle weight-per-axle, specified in kilograms.
+
+
+            Heaviest weight-per-axle, regardless of axle-type or axle-group. It is evaluated against
+
+            all axle-weight restrictions, including single-axle and tandem-axle weight restrictions.
+
+            It is useful if differences between axle types, like tandem and triple axles, are not
+
+            relevant. This is the case in many countries, since they don''t distinguish between these
+
+            different axle groups on signs and in regulations.
+
+
+            More fine-grained axle weight input is possible with `weightPerAxleGroup`.
+
+
+            **Note:** `weightPerAxleGroup` and `weightPerAxle` are incompatible.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        weightPerAxleGroup:
+          $ref: '#/components/schemas/WeightPerAxleGroup'
+        height:
+          description: 'Vehicle height, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 5000
+        width:
+          description: 'Vehicle width, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 5000
+        length:
+          description: 'Total vehicle length, including all trailers, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 30000
+        kpraLength:
+          description: 'Kingpin to rear axle length, in centimeters.
+
+
+            **NOTE:** Currently, the KPRA restrictions are only present in California and Idaho.
+
+
+            **Note:** Supported in `truck`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        trailerLength:
+          description: 'Length of the longest trailer, specified in centimeters.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2000
+        payloadCapacity:
+          description: 'Allowed payload capacity, including trailers, specified in kilograms.
+
+
+            **Note:** Supported in `truck`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+        tunnelCategory:
+          description: 'Specifies the [cargo tunnel restriction code](https://adrbook.com/en/2017/ADR/8.6.3). Route will pass only through tunnels of less restrictive categories.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/TunnelCategory'
+        axleCount:
+          description: 'Specifies the total number of axles the vehicle has, i.e., axles on the base vehicle and any attached trailers.
+
+
+            **Note:** Supported in `truck`, `bus`, `privateBus`, `car` (Beta), `taxi` (Beta) transport modes.
+
+            '
+          type: integer
+          format: int32
+          minimum: 2
+          maximum: 255
+        tiresCount:
+          description: 'Specifies the total number of tires the vehicle has, i.e., the tires on the base vehicle and any attached trailers.
+
+            '
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 255
+        category:
+          description: "Specifies the category of the vehicle. The supported values are:\n\n* `undefined`: The vehicle category is undefined, and no special considerations are taken into\n  account. Vehicle routing will proceed as normal.\n* `lightTruck`: The vehicle is a truck light enough to be classified more as a car than as a truck.\n  This exempts it from many legal restrictions for normal trucks. However, restrictions related to the physical dimensions of the truck or its cargo still apply.\n\n  For more details, refer to [Truck categories](https://docs.here.com/routing/docs/routing-v8-truck-routing#truck-categories).\n\n  **Note:** Supported only in `truck` transport mode.\n"
+          type: string
+          enum:
+          - undefined
+          - lightTruck
+          default: undefined
+        trailerCount:
+          description: 'The number of trailers attached to the vehicle.
+
+
+            Maximum value when used with `transportMode=car` or `transportMode=taxi` is 1.
+
+
+            **Limitations:** Considered for route calculation when `transportMode` is one of (`truck`, `bus`, `privateBus`). Considered for route calculation for restrictions, but not for speed limits, when `transportMode` is `car` or `taxi`.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 255
+          default: 0
+        hovOccupancy:
+          description: "**Note**: This parameter is deprecated, `vehicle[occupancy]` and `allow[hov]` should be used instead.\nThe number of occupants in the vehicle, defined as individuals occupying a seat with a restraint device.\nThis value affects the ability of the router to use HOV (High-Occupancy Vehicles) restricted lanes.\n\nLimitations:\n  * Any value over 1 is interpreted as the ability to use any HOV lane, including those restricted to 3+ passengers.\n"
+          type: integer
+          minimum: 1
+          default: 1
+          deprecated: true
+        licensePlate:
+          description: 'Specifies the information about the vehicle''s license plate number.
+
+            This information is used to evaluate whether certain vehicle restrictions in environmental zones apply.
+
+            Currently, only the last character of the license plate can be provided.
+
+
+            Format: `lastCharacter:{character}`
+
+
+            Example: `lastCharacter:2`
+
+            '
+          type: string
+        speedCap:
+          description: "Specifies the maximum speed, in meters per second (m/s), that the user wishes not to exceed.\nThis parameter affects the route's estimated time of arrival (ETA) and consumption calculation.\n\nLimitations:\n  * valid for following transport modes: `car`, `truck`, `scooter`, `taxi`, `bus`, and `privateBus`\n\nNotes:\n  * Car and Truck mode updates route ETA.\n  * Scooter mode updates route optimization and ETA.\n  * Resulting ETA can not be decreased by this parameter.\n"
+          type: number
+          minimum: 1
+          maximum: 70
+        speedCapPerFc:
+          description: "A comma separated list of speeds in meters per second (m/s) specifying the maximum speed per FC (Functional Class, as defined in the `FunctionalClass` schema) that the user wishes not to exceed.\nThe list can have up to 5 entries, corresponding to FC 1 to FC 5. Empty entries indicate that no speed cap is specified for the corresponding FC.\nThis parameter affects the route's estimated time of arrival (ETA) and consumption calculation.\n\nLimitations:\n  * valid for following transport modes: `car`, `truck`\n\nValues limitations:\n  * minimum: 1.00\n  * maximum: 70.00\n\nExamples:\n  * `vehicle[speedCapPerFc]=20,16.7,14,11,8` - specify limits for all FCs\n  * `vehicle[speedCapPerFc]=20,16.7,,11,8` - specify limits for all FCs except for FC 3\n  * `vehicle[speedCapPerFc]=20,16.7,14` - specify limits for FC 1, 2 and 3\n\nNotes:\n  * Resulting ETA can not be decreased by this parameter.\n  * vehicle[speedCapPerFc] and vehicle[speedCap] may be used in combination. For FCs where both values are specified, the minimum value is used.\n"
+          type: string
+        engineSizeCc:
+          description: 'Specifies the engine size of the vehicle in cubic centimeters.
+
+            Currently, the value is used only in scooter mode.
+
+            This parameter is utilized to determine if the scooter can be classified as a moped.
+
+            Scooters with an engine size less than 51cc are considered mopeds.
+
+            **Alpha**: This API is in development. It may not be stable and is subject to change. It may have no impact on response.
+
+            '
+          type: integer
+          minimum: 0
+          maximum: 2000
+        occupancy:
+          description: 'The number of occupants on the vehicle, defined as individuals occupying a seat.
+
+            This value affects the ability of the router to use HOV (High-Occupancy Vehicles) restricted lanes. If not set and `allow[hov]=true` is set, then occupancy requirements for all HOV conditions are considered to be met.
+
+            This parameter also affects scooter occupancy restrictions. If not set, occupancy restrictions for scooters are ignored.
+
+
+            The parameter is also used for calculating the toll cost, in cases where the toll-cost for the vehicle depends on the passenger count. If not set, occupancy of 1 is assumed for toll calculation.
+
+
+            **Note:**: This parameter can''t be used with ''vehicle[hovOccupancy]''.
+
+            '
+          type: integer
+          minimum: 1
+        engineType:
+          description: "Specifies the engine type of the vehicle.\n\n**Limitations:**  Currently this parameter is used only for toll calculation. It may be used at any point for route calculation (for example, to automatically avoid environmental zones).\n\n**Note:**\n  * If engineType is specified as `internalCombustion`, valid `fuel[type]` should also be provided to get fuel specific toll. If `fuel[type]` is not provided, default toll without considering `fuel[type]` will be returned.\n  * If `ev` or `fuel` namespace parameters are provided with an incompatible `engineType` (e.g. engineType=internalCombustion is provided along with `ev` namespace parameters) then `ev` namespace will override `engineType` and incompatible `engineType` will be ignored for toll, consumption, and emission computations.\n"
+          type: string
+          enum:
+          - electric
+          - pluginHybrid
+          - internalCombustion
+        frontalArea:
+          description: 'Frontal area represents the total cross section area of the vehicle as viewed from the front, specified in square meters. Physical consumption model is using this value in combination with `airDragCoefficient` to calculate the consumption caused by air resistance.
+
+            **Note:** This attribute, or both `width` and `height`, is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          minimum: 0.5
+          maximum: 50
+        rollingResistanceCoefficient:
+          description: 'Rolling resistance refers to the resistance experienced by your vehicle tire as it rolls over a surface. The main causes of this resistance are tire deformation, wing drag, and friction with the ground. The coefficient of rolling resistance is a numerical value indicating the severity of this factor.
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          maximum: 0.5
+          exclusiveMinimum: 0.001
+        airDragCoefficient:
+          description: 'The drag coefficient of an vehicle defines the way the vehicle is expected to pass through the surrounding air. More streamlined vehicles are more aerodynamic and therefore have smaller drag coefficient.
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          maximum: 1
+          exclusiveMinimum: 0.1
+        commercial:
+          description: 'Specifies whether the vehicle is a commercial or a non-commercial vehicle.
+
+
+            Used for toll costs, speed limits and accessing delivery areas.
+
+
+            * By default, trucks are considered commercial vehicles, while all other transport modes are considered non-commercial. Though, if left unspecified, the toll cost best fitting the vehicle profile is reported, irrespective of commercial use.
+
+            * For commercial cars, commercial speed limits apply, which may differ from speed limits for passenger cars.
+
+            * Commercial cars can enter delivery areas, similarly to trucks.
+
+            * For examples and limitations see [Developer Guide](https://docs.here.com/routing/docs/routing-v8-light-commercial-vehicle-routing)
+
+
+            **Note:** supported in `car`, `truck`, `bus`, `privateBus` and `taxi`.
+
+            '
+          type: boolean
+        type:
+          $ref: '#/components/schemas/TruckTypeWithDefault'
+      deprecated: true
+    WeightPerAxleGroup:
+      description: "Specifies the weights of different axle groups, such as single and tandem axles.\n\nThis allows specification of axle weights in a more fine-grained way than `weightPerAxle`. This\nis relevant in countries with signs and regulations that specify different limits for different\naxle groups, such as the USA and Sweden.\n\nAll axle group weights are evaluated against their respective axle group restrictions and against\ngeneric axle weight restrictions. This means that the provided tandem axle group weight is\ncompared with all tandem axle group weight restrictions and all generic axle weight restrictions.\nThe same is true for single, triple, quad, and quint axle groups.\n\nFormat: `AxleGroup:Weight[,AxleGroup2:Weight2]...`\n\nCurrently, allowed axle-groups are:\n  * `single`\n  * `tandem`\n  * `triple`\n  * `quad`\n  * `quint`\n\nWeights are specified in kilograms (kg) and represent the total weight of the axle-group.\n\n**Note:** `weightPerAxleGroup` and `weightPerAxle` are incompatible.\n\n**Limitations:** only valid when `transportMode` is one of (`truck`, `bus`, `privateBus`).\n"
+      type: string
+      example: single:11000,tandem:18000
+    EncodedCorridorAreaWithExceptions:
+      description: 'A polygon defined as a [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string
+
+        and with a specified radius that defines an area.
+
+        Can be expanded to include excepted areas that are excluded from the current corridor area.
+
+        '
+      type: object
+      required:
+      - type
+      - polyline
+      - radius
+      properties:
+        type:
+          type: string
+          example: encodedCorridor
+        polyline:
+          type: string
+          description: '[Flexible Polyline](https://github.com/heremaps/flexible-polyline) that defines a supporting structure for a corridor.
+
+            Notes:
+
+            * Support only 2D polyline (without `elevation` specified).
+
+            * Minimum count of vertices in polyline is 2.
+
+            * Maximum count of vertices in polyline is 100.
+
+            '
+          example: BFoz5xJ67i1B1B7PzIhaxL7Y
+        radius:
+          type: integer
+          description: The width in meters of the corridor determines the outline of the polygon.
+          minimum: 1
+          maximum: 1000
+        exceptions:
+          type: array
+          description: Optional list of areas to exclude from avoidance.
+          items:
+            $ref: '#/components/schemas/Area'
+          minItems: 0
+    MultiPolygon:
+      description: A set of multiple polygons.
+      type: array
+      items:
+        $ref: '#/components/schemas/Polygon'
+    Areas:
+      description: "A pipe separated list of user-defined areas that routes should avoid/exclude going through.\n\nNotes:\n* Maximum count of avoided and excluded polygons and corridors is 20.\n* Maximum total count of avoided and excluded bounding boxes, polygons, corridors, including exceptions, is 250.\n\nFormat: `{area1}[!exception1.1[!exception1.2...]]|{area2}[!exception2.1[!exception2.2...]]|{area3}[!exception3.1[!exception3.2...]]...`\n\nSupported areas:\n* Bounding box - A rectangular area on earth defined by a comma separated list of two latitude and two longitude values.\n  - Format: `bbox:{west},{south},{east},{north}`\n    + `{west}`  - Longitude value of the westernmost point of the area.\n    + `{south}` - Latitude value of the southernmost point of the area.\n    + `{east}`  - Longitude value of the easternmost point of the area.\n    + `{north}` - Latitude value of the northernmost point of the area.\n  - Example: `bbox:13.082,52.416,13.628,52.626` - Bounding box of Berlin\n* Polygon - A polygon on earth which defines area.\n  Possible formats:\n  1) As list of geopoints.\n    - Format: `polygon:{lat},{lon};{lat},{lon};{lat},{lon}...`\n      + `{lat}` - Latitude\n      + `{lon}` - Longitude\n    - Example: `polygon:52.416,13.082;52.626,13.628;52.916,13.482` - Polygon in Berlin\n  2) As [Flexible Polyline](https://github.com/heremaps/flexible-polyline) Encoding.\n    - Support only 2D polyline (without `elevation` specified).\n    - Format: `polygon:{encoded_polyline}`\n      + `{encoded_polyline}` - encoded [Flexible Polyline](https://github.com/heremaps/flexible-polyline)\n    - Example: `polygon:BF05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e`\n* Corridor - A polyline with a specified radius (integer, in meters) that defines width of corridor area.\n  Possible formats:\n  1) As a list of geopoints that defines a polyline and a radius that defines an area around the polyline.\n    - Format: `corridor:{lat},{lon};{lat},{lon};{lat},{lon}...;r={radius}`\n    - Example: `corridor:52.416,13.082;52.626,13.628;52.916,13.482;r=1000`\n  2) As [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoding and a radius that defines an area around the polyline.\n    - Supports only 2D polyline (without `elevation` specified).\n    - Format: `corridor:{encoded_polyline};r={radius}`\n      + `{encoded_polyline}` - encoded [Flexible Polyline](https://github.com/heremaps/flexible-polyline)\n    - Example: `corridor:BF05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e;r=1000`\n\n* Exception - area to exclude from avoidance. Any area type can be specified. Any area type can be used as an exception. Multiple exceptions can be specified for each area.\n  - Format: `{area to avoid/exclude}!exception={area}`\n  - Example: `bbox:13.082,52.416,13.628,52.626!exception=polygon:BF05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e!exception=bbox:13.082,52.416,13.628,52.626`\n\n  Notes:\n  * Maximum count of avoided and excluded polygons and corridors is 20.\n  * Maximum total count of avoided and excluded bounding boxes, polygons, corridors, including exceptions, is 250.\n  * Minimum count of coordinates in one polygon is 3\n  * Minimum count of coordinates in any single corridor is 2.\n  * Maximum count of coordinates in one polygon or in one corridor is 100\n  * The polygon is closed automatically, there is no need to duplicate the first point as the last one.\n  * Self-intersecting polygons are not supported.\n"
+      type: string
+    Isoline403ErrorResponseSchema:
+      anyOf:
+      - $ref: '#/components/schemas/SimpleErrorResponseSchema'
+      - $ref: '#/components/schemas/NotAllowed'
+    CorridorAreaWithExceptions:
+      description: 'A polyline with a specified radius in meters that defines an area.
+
+        Can be expanded to include excepted areas that are excluded from the current corridor area.
+
+        '
+      type: object
+      required:
+      - type
+      - polyline
+      - radius
+      properties:
+        type:
+          type: string
+          example: corridor
+        polyline:
+          type: array
+          description: List of coordinates defining polyline.
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          minItems: 2
+          maxItems: 100
+        radius:
+          type: integer
+          description: The width in meters of the corridor determines the outline of the polygon.
+          minimum: 1
+          maximum: 1000
+        exceptions:
+          type: array
+          description: Optional list of areas to exclude from avoidance.
+          items:
+            $ref: '#/components/schemas/Area'
+          minItems: 0
+    Fuel:
+      description: 'Fuel parameters to be used for calculating consumption and consumption-based isolines for fuel-based vehicles
+
+        using empirical consumption model.
+
+
+        Attributes:
+
+        * `type`
+
+        * `freeFlowSpeedTable`
+
+        * `trafficSpeedTable`
+
+        * `additionalConsumption`
+
+        * `ascent`
+
+        '
+      type: object
+      properties:
+        type:
+          description: 'Vehicle fuel type (diesel, petrol, lpg, etc.) required for calculation of consumption and CO2 emission for fuel-based vehicles. Also used for toll calculation (if provided) when `vehicle[engineType] is internalCombustion`
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/FuelType'
+        freeFlowSpeedTable:
+          allOf:
+          - $ref: '#/components/schemas/ConsumptionSpeedTable'
+        trafficSpeedTable:
+          description: 'Function curve specifying consumption rate at a given traffic-reduced speed on a flat stretch of road.
+
+
+            See `freeFlowSpeedTable` for a description of the string format.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/ConsumptionSpeedTable'
+        additionalConsumption:
+          description: 'Rate of fuel (in ml/s for diesel, petrol & LPG, gm/s for CNG) consumed by the vehicle for any other reason
+
+            additional to fuel consumption for speed.
+
+            '
+          type: number
+          minimum: 0
+        ascent:
+          description: 'Rate of fuel consumed per meter rise in elevation (in ml/m for diesel, petrol & LPG, gm/m for CNG).
+
+            '
+          type: number
+          minimum: 0
+      required:
+      - type
+      - freeFlowSpeedTable
+    IsolineErrorResponse:
+      description: Response in case of error
+      type: object
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: 'Machine-readable service error code.
+
+
+            All error codes of this service start with "`E605`". The last three digits describe a specific error. Provide this error code when contacting support.
+
+
+            **NOTE:** The list of possible error codes could be extended in the future. The client application is expected to handle such a case gracefully.
+
+
+            | Code      | Reason  |
+
+            | --------- | ------- |
+
+            | `E605010` | Invalid combination of truck and transport mode. Check `truck` for valid truck transport modes. |
+
+            | `E605011` | Invalid combination of avoid feature `difficultTurns` or `uTurns` and transport mode. Check `avoid` for details. |
+
+            | `E605012` | Invalid combination of transport mode and routing mode. Check `routingMode` for a list of supported combinations. |
+
+            | `E605019` | `truck[weightPerAxle]` and `truck[weightPerAxleGroup]` are incompatible |
+
+            | `E605020` | Invalid combination of `radius` and `snapRadius`  |
+
+            | `E605030` | Invalid EV options. Check `ev` for details. |
+
+            | `E605038` | Range based on consumption requires either ev or fuel parameters. Provide one as both parameters are missing. |
+
+            | `E605040` | Invalid combination of EV and transport mode. Check `ev` for details. |
+
+            | `E605041` | Invalid combination of EV and routing mode. Check `ev` for details. |
+
+            | `E605048` | Invalid combination of avoid feature `difficultTurns` and truck category `lightTruck`. |
+
+            | `E605070` | Invalid Range Type. |
+
+            | `E605071` | Invalid Range for Range Type - Distance. |
+
+            | `E605072` | Invalid Range for Range Type - Time. |
+
+            | `E605073` | Invalid Shape Max Points. |
+
+            | `E605074` | Invalid Range for Range Type - Consumption.  |
+
+            '
+          example: E605001
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that univocally identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    MaxSpeedOnSegment:
+      type: string
+      description: "A comma separated list of segments with restrictions on maximum baseSpeed.\n\nEach entry has the following structure:\n`{segmentId}(#{direction})?;speed={maxBaseSpeed}`\n\nThe individual parts are:\n* segmentId: The identifier of the referenced topology segment inside the catalog, example: `here:cm:segment:207551710`\n* direction (optional): Either '*' for bidirectional (default), '+' for positive direction, or '-' for negative direction\n* maxBaseSpeed: New value in m/s of baseSpeed on segment\n\nExample of a parameter value excluding two segments:\n`here:cm:segment:207551710#+;speed=10,here:cm:segment:76771992;speed=1`\n\n**Notes**:\n- It does not increase default baseSpeed on segment. If the value is greater than the default base speed, then such penalty will have no effect.\n- Minimum valid value for speed is 1\n- Using segments with a modified base speed does not trigger any notifications\n- Maximum number of penalized segments in one request cannot be greater than 1000.\n  \"penalized segments\" refer to segments that have a restrictions on maximum baseSpeed with `maxSpeedOnSegment`\n  or avoided with `avoid[segments]`\n- In case the same segment is penalized multiple times through values provided in the query string and/or the POST body,\n  then the most restrictive value will be applied.\n"
+    PolygonArea:
+      type: object
+      description: 'A polygon defined as a list of coordinates.
+
+
+        The polygon is automatically closed, so repeating the first vertex is not required. Self-intersecting polygons are not supported.
+
+        '
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          example: polygon
+        outer:
+          type: array
+          description: List of coordinates defining the outline of the polygon.
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          minItems: 3
+          maxItems: 100
+    EncodedPolygonAreaWithExceptions:
+      description: 'A polygon defined as a [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string.
+
+        Can be expanded to include excepted areas that are excluded from the current polygon area.
+
+        '
+      type: object
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          example: encodedPolygon
+        outer:
+          type: string
+          description: '[Flexible Polyline](https://github.com/heremaps/flexible-polyline) that defines the outline of the polygon.
+
+            Notes:
+
+            * Support only 2D polyline (without `elevation` specified).
+
+            * Minimum count of vertices in polygon is 3.
+
+            * Maximum count of vertices in polygon is 16.
+
+            '
+          example: BFoz5xJ67i1B1B7PzIhaxL7Y
+        exceptions:
+          type: array
+          description: Optional list of areas to exclude from avoidance.
+          items:
+            $ref: '#/components/schemas/Area'
+          minItems: 0
+    Waypoint:
+      description: "A location defining an origin, destination or via point for a route or an isoline.\n\nFormat: `Place[WaypointOptions]`\n\n* Place: `{lat},{lng}[PlaceOptions]`\n* PlaceOptions: `;option1=value1;option2=value2...`\n* WaypointOptions: `!option1=value1!option2=value2...`\n\nA waypoint consists of:\n* Exactly one place\n* Optional settings for the place\n* Optional settings for the waypoint itself\n\nSupported place options:\n* `course`: int, degrees clock-wise from north. Indicates the desired direction from the place. For example, `90` indicating `east`. Often combined with `radius` and/or `minCourseDistance`. This parameter takes preference over `matchSideOfStreet`.\n* `sideOfStreetHint`: `{lat},{lng}`. Indicates the side of the street that should be used. For example, if the location is to the left of the street, the router will prefer using that side in case the street has dividers. For example, `52.511496,13.304140;sideOfStreetHint=52.512149,13.304076` indicates that the `north` side of the street should be preferred. This options is required, if `matchSideOfStreet` is set to `always`. Option cannot be combined with `radius`, `radiusPenalty` or `snapRadius`.\n* `displayLocation`: `{lat},{lng}`. Indicates the physical location of the POI. It is different from the originalLocation and location which are generally expected to be on the navigable road network, i.e., on segments.\n* `uTurnPermission`: enum `[allow, avoid]`. Specifies the U-Turn Permission mode at the stop-over waypoint. If unspecified, the permission will be determined by the global setting, avoid[features]=uTurns. This feature is not supported for pass-through waypoints and U-Turns are generally avoided in that case.\n  + `allow` : Allow making a U-Turn at this stop-over waypoint\n  + `avoid` : Avoid making a U-Turn at this stop-over waypoint\n* `matchSideOfStreet`: enum `[always, onlyIfDivided]`. Specifies how the location set by `sideOfStreetHint` should be handled. Requires `sideOfStreetHint` to be specified as well. Note the exception above when combined with `course`.\n  + `always` : Always prefer the given side of street.\n  + `onlyIfDivided`: Only prefer using side of street set by `sideOfStreetHint` in case the street has dividers. This is the default behavior.\n* `nameHint`: string. Causes the router to look for the place with the most similar name. The typical examples include: `North` being used to differentiate between interstates `I66 North` and `I66 South`, `Downtown Avenue` being used to correctly select a residental street.\n* `radius`: int, meters. Sets the radius within which all locations are considered equally eligible for selection as waypoints. Typical use cases include scenarios with imprecise coordinates or user input provided on low resolution map displays. The value is capped at 200 meters. Setting a higher value doesn't return an error. Can't be used with `snapRadius`.\n* `snapRadius`: int, meters. Sets the radius within which waypoints are matched to the most \"significant\" place. Candidates for matching are sorted in the order of significance which is based on the visibility on a zoomed-out map. A highway is considered more significant than a national road, while a national road is more significant than a city road. Typical use case - selecting waypoints on a  zoomed-out view of a map on a drag-and-drop interface, where only significant roads are visible. A big enough radius allows to match waypoints to such roads. Can't be used with `radius` or `radiusPenalty` parameters.\n* `radiusPenalty`: int, percentage 0-10000. Penalty as percentage: Used in conjunction with the `radius` parameter. Router will match the waypoint within the specified radius and apply a penalty to candidates based on their air distance to the waypoint. This penalty is proportional to the given percentage, where 100 is just the cost of the air distance, and 200 is twice the cost of the air distance. The penalty must be chosen so that, when multiplied by the radius, the result is less than or equal to 7200. Regardless, only values up to and including 10000 will be accepted. This means that a maximum penalty of 3600% is allowed for a radius of 200m, 7200% for 100m and 10000% for 72m and less. Higher values will result in an error response. `radiusPenalty` cannot be combined with `snapRadius`. **Alpha**: This parameter is in development. It may not be stable and is subject to change.\n\n* `minCourseDistance`: int, meters. Instructs the routing service to try to find a route that avoids actions for the indicated distance. For example, if the origin is determined by a moving vehicle, the user might not have time to react to early actions. Values greater than 2000 meters will be capped at 2000 meters.\n* `segmentIdHint`: string. Causes the router to try and match to the specified segment. Waypoint coordinates need to be on the segment, otherwise waypoint will be matched ignoring the segment hint. This parameter can be used when the waypoint is too close to more than one segment to force matching to a specific one.\n* `onRoadThreshold`: int, meters. allows specifying a distance within which the waypoint could be considered as being on a highway/bridge/tunnel/sliproad. Within this threshold, the attributes of the segments do not impact the matching. Outside the threshold only segments which aren't one of highway/bridge/tunnel/sliproad can be matched.\n\nSupported waypoint options:\n* `stopDuration`: desired duration for the stop, in seconds.\n   `stopDuration` must be less than 50000.\n* `passThrough`: boolean. Asks the router to avoid the following during route calculation:\n  + Introducing a stop at the waypoint.\n  + Splitting the route into sections.\n  + Changing the direction of travel.\n\nFollowing scenarios are not supported for `passThrough` parameter:\n  + Setting both `stopDuration` to a value greater than 0 and `passThrough=true`.\n  + Setting `passThrough=true` for `origin` or `destination` of a route.\n  The default value is `false`.\n"
+      type: string
+    VehicleType:
+      description: 'Specifies the type of the vehicle
+
+
+        * `StraightTruck`: A truck on a single frame with a permanently attached cargo area. **Note:**
+
+        default value when truck routing mode is used.
+
+        * `Tractor`: A towing vehicle that can pull one or more semi-trailers (also known as a semi-truck).
+
+
+        **Limitations:** only valid for `transportMode=truck`.
+
+        '
+      type: string
+      enum:
+      - StraightTruck
+      - Tractor
+    Polygon:
+      type: object
+      description: A polygon is described by a boundary outer ring and a possible set of inner rings or holes.
+      properties:
+        outer:
+          description: 'Describes the outer ring of the polygon in the form of a LinearRing.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/LinearRing'
+        inner:
+          description: 'A list of inner rings or holes for the polygon in the form of a list of LinearRings.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/LinearRing'
+    AvoidPost:
+      type: object
+      description: 'Avoid routes that violate certain features of road network or that go through
+
+        user-specified geographical bounding boxes.
+
+
+        For the general description of the functionality please refer to the `avoid` parameter of the
+
+        query string.
+
+
+        Passing parameters in the POST body is suggested when the length of the parameters exceeds the
+
+        limitation of the GET request.
+
+        '
+      properties:
+        segments:
+          description: "An array of segment identifiers that routes will avoid going through.\n\nEach entry has the following structure:\n`{segmentId}(#{direction})?`\n\nThe individual parts are:\n* segmentId: The identifier of the referenced topology segment inside the catalog, example: `here:cm:segment:207551710`\n* direction (optional): Either '*' for bidirectional (default), '+' for positive direction, or '-' for negative direction\n\nExample of a parameter value excluding two segments:\n`[\"here:cm:segment:207551710#+\", \"here:cm:segment:76771992#*\"]`\n\n**Note**: Maximum number of penalized segments in one request should not be greater than 1000.\n          \"Penalized segments\" refers to segments that have a restriction on maximum baseSpeed with `maxSpeedOnSegment`\n          or avoided with `avoid[segments]`\n"
+          type: array
+          items:
+            type: string
+        areas:
+          $ref: '#/components/schemas/AreasPost'
+    BaseNoticeDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Detail title
+        cause:
+          type: string
+          description: Cause of the notice
+        type:
+          type: string
+          description: 'Detail type. Each type of detail might contain extra attributes.
+
+
+            **NOTE:** The list of possible detail types may be extended in the future.
+
+            The client application is expected to handle such a case gracefully.
+
+            '
+      required:
+      - type
+    Time:
+      type: string
+      description: '**RFC 3339**, section 5.6 as defined by either `date-time` or `date-only` ''T'' `partial-time` (ie no time-offset).'
+      format: date-time
+    CalculateIsolinesPostParameters:
+      description: Parameters of the POST body for isoline calculation
+      type: object
+      properties:
+        avoid:
+          $ref: '#/components/schemas/AvoidPost'
+        exclude:
+          $ref: '#/components/schemas/ExcludePost'
+        maxSpeedOnSegment:
+          $ref: '#/components/schemas/MaxSpeedOnSegmentPost'
+    PolygonAreaWithExceptions:
+      description: 'A polygon defined as a list of coordinates.
+
+        Self-intersecting polygons are not supported.
+
+        Can be expanded to include excepted areas that are excluded from the current polygon area.
+
+        '
+      type: object
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          example: polygon
+        outer:
+          type: array
+          description: List of coordinates defining the outline of the polygon.
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          minItems: 3
+          maxItems: 100
+        exceptions:
+          type: array
+          description: Optional list of areas to exclude from avoidance.
+          items:
+            $ref: '#/components/schemas/Area'
+          minItems: 0
+    BaseEVPhysicalModel:
+      description: Specifies parameters required for calculation of energy consumption for electric vehicles using physical model.
+      type: object
+      properties:
+        driveEfficiency:
+          description: 'The proportion of the energy drawn from the battery that is used to move the vehicle. (This is to factor in energy losses through heat in the motors, for example.)
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          minimum: 0.1
+          maximum: 1
+        recuperationEfficiency:
+          description: 'The proportion of the energy gained when braking or going downhill that can be recuperated and restored as battery charge.
+
+            **Note:** This attribute is required when using the physical model `consumptionModel=physical` for EV consumption.
+
+            '
+          type: number
+          minimum: 0
+          maximum: 1
+        auxiliaryPowerConsumption:
+          description: 'Power (in W) consumed by the vehicle''s auxiliary systems (for example, air conditioning, lights).
+
+
+            Auxiliary power consumption applies during stops, including charging stops.
+
+            At charging stops, power used for charging is reduced by the amount used for auxiliary consumption.
+
+            '
+          type: number
+          minimum: 0
+        airDensity:
+          description: 'The density of air (in kg/m³) used for calculating aerodynamic drag.
+
+            '
+          type: number
+          minimum: 0.5
+          maximum: 2
+          default: 1.225
+      required:
+      - driveEfficiency
+      - recuperationEfficiency
+    TruckTypeWithDefault:
+      description: 'Specifies the type of the truck
+
+
+        * `Straight`: A truck on a single frame with a permanently attached cargo area.
+
+        * `Tractor`: A towing vehicle that can pull one or more semi-trailers (also known as a semi-truck).
+
+        '
+      deprecated: true
+      type: string
+      enum:
+      - Straight
+      - Tractor
+      default: Straight
+    AreaPost:
+      oneOf:
+      - $ref: '#/components/schemas/BoundingBoxAreaWithExceptions'
+      - $ref: '#/components/schemas/PolygonAreaWithExceptions'
+      - $ref: '#/components/schemas/EncodedPolygonAreaWithExceptions'
+      - $ref: '#/components/schemas/CorridorAreaWithExceptions'
+      - $ref: '#/components/schemas/EncodedCorridorAreaWithExceptions'
+      discriminator:
+        propertyName: type
+        mapping:
+          boundingBox: '#/components/schemas/BoundingBoxAreaWithExceptions'
+          polygon: '#/components/schemas/PolygonAreaWithExceptions'
+          encodedPolygon: '#/components/schemas/EncodedPolygonAreaWithExceptions'
+          corridor: '#/components/schemas/CorridorAreaWithExceptions'
+          encodedCorridor: '#/components/schemas/EncodedCorridorAreaWithExceptions'
+      description: 'Defines an explicit area to avoid/exclude when calculating the routes.
+
+        Area specified by boundingBoxes or polygons (as encoded polyline or as list of geopoints) or corridor area.
+
+        Can be expanded to include excepted areas that are excluded from the current avoidance.
+
+
+        Notes:
+
+        * Maximum count of avoided and excluded polygons and corridors is 20.
+
+        * Maximum total count of avoided and excluded bounding boxes, polygons, corridors, including exceptions, is 250.
+
+        '
+    BoundingBoxAreaWithExceptions:
+      description: 'A bounding box defined by two longitudes and two latitudes.
+
+        Can be expanded to include excepted areas that are excluded from the current bounding box area.
+
+        '
+      type: object
+      required:
+      - type
+      - north
+      - south
+      - west
+      - east
+      properties:
+        type:
+          type: string
+          example: boundingBox
+        north:
+          description: Latitude in WGS-84 degrees of the northern boundary of the box.
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 30
+        south:
+          description: Latitude in WGS-84 degrees of the southern boundary of the box.
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 30
+        east:
+          description: Longitude in WGS-84 degrees of the eastern boundary of the box
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 30
+        west:
+          description: Longitude in WGS-84 degrees of the western boundary of the box.
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 30
+        exceptions:
+          type: array
+          description: Optional list of areas to exclude from avoidance.
+          items:
+            $ref: '#/components/schemas/Area'
+          minItems: 0
+    SimpleErrorResponseSchema:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+  parameters:
+    vehicle:
+      name: vehicle
+      description: 'Vehicle-specific parameters.
+
+        '
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Vehicle'
+    allow:
+      name: allow
+      description: Explicitly allow features that require users to opt in.
+      in: query
+      required: false
+      explode: true
+      style: deepObject
+      schema:
+        $ref: '#/components/schemas/Allow'
+    departureTime:
+      name: departureTime
+      description: 'Specifies the time of departure as defined by either `date-time` or `full-date` `T` `partial-time` in `RFC 3339`, section 5.6 (for example, `2019-06-24T01:23:45`).
+
+        The requested time is converted to the local time at origin. When the optional timezone offset is
+
+        not specified, time is assumed to be local.
+
+        If neither `departureTime` or `arrivalTime` are specified, current time at departure location will be used if `origin` is specified.
+
+        It cannot be used in combination with `destination` parameter. All `Time` values in the response are returned in the timezone of each location.
+
+        '
+      in: query
+      allowReserved: true
+      required: false
+      schema:
+        $ref: '#/components/schemas/Time'
+    billingTag:
+      name: billingTag
+      in: query
+      description: 'A list of up to six billing tags, separated by the `+` sign.
+
+
+        This parameter provides a way to track your platform usage.
+
+        For details, refer to the Cost Management Developer Guide section on [Billing Tags](https://docs.here.com/usage/docs/tutorial-billing-tags)
+
+        '
+      schema:
+        type: string
+        pattern: ^(?![_-])[A-Za-z0-9_-]{4,16}(?<![_-])(\+(?![_-])[A-Za-z0-9_-]{4,16}(?<![_-])){0,5}$
+        example: ABCD+EFGH
+    taxi:
+      name: taxi
+      description: "Taxi-specific parameters.\n  * `allowDriveThroughTaxiRoads`: Specifies if a vehicle is allowed to drive through\n    taxi-only roads and lanes. Even if this option is set to `false`, the vehicle is still\n    allowed on taxi-only roads at the start of the route and at the destination.\n"
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Taxi'
+    destination:
+      name: destination
+      description: 'Center of the isoline request. The Isoline(s) will cover the region within the specified range that can reach this point.
+
+        It cannot be used in combination with `origin` or `departureTime` parameter.
+
+
+        For a description of the format and options for this parameter, please refer to the description of
+
+        the `origin` parameter.
+
+        '
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Waypoint'
+      examples:
+        coordinate:
+          value: 51.611571,11.351608
+          summary: A simple WGS84 coordinate
+        side:
+          value: 52.531052,13.384872;sideOfStreetHint=52.530941,13.384939;matchSideOfStreet=always
+          summary: Populating sideOfStreetHint in addition to location to avoid ending on the wrong side of the street
+        course:
+          value: 51.611571,11.351608;course=170;radius=20;minCourseDistance=500
+          summary: Setting course/radius/minCourseDistance an uncertain GPS coordinate of a moving vehicle
+        name:
+          value: 52.510319,13.285616;nameHint=Kaiserdamm
+          summary: Setting nameHint to avoid matching to the wrong location
+    range:
+      name: range
+      in: query
+      description: "Specifies the range of values to be included in the isoline.\n* `Range[type]`   : Specifies the type of range.\n    Possible Values:\n    - `distance` with units in meters\n    - `time` with units in seconds\n    - `consumption` with units in Watt-hours (Wh) for EV, or milliliters(ml) or grams(gms) for fuel-based vehicles, depending on `fuel[type]`\n* `Range[values]` : A comma-separated list of ranges. The unit is defined by the `type` parameter.\n"
+      required: true
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Range'
+    maxSpeedOnSegment:
+      name: maxSpeedOnSegment
+      description: 'Specify new base speed for segment by value. Affects route selection and the ETA. Cannot increase base speed on segment.
+
+        '
+      in: query
+      allowReserved: true
+      style: form
+      required: false
+      schema:
+        $ref: '#/components/schemas/MaxSpeedOnSegment'
+      examples:
+        speed:
+          summary: Setting new base speed on segment
+          value:
+            speed: here:cm:segment:76771992#*;speed=42
+    transportMode:
+      name: transportMode
+      description: 'Mode of transport to be used for the calculation of the isolines.
+
+
+        Note:
+
+        `bicycle`, `bus` and `privateBus` modes are currently provided as Beta, with limited functionality.
+
+        Please refer to the Developer Guide for more details [here](https://docs.here.com/routing/docs/routing-v8-transport-modes-overview).
+
+        '
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/RouterMode'
+    fuel:
+      name: fuel
+      description: '**Disclaimer: This parameter is currently in beta release, and is therefore subject to breaking changes.**
+
+
+        Fuel parameters to be used for calculating consumption and consumption-based isolines for fuel-based vehicles.
+
+
+        Attributes:
+
+        * `type`
+
+        * `freeFlowSpeedTable`
+
+        * `trafficSpeedTable`
+
+        * `additionalConsumption`
+
+        * `ascent`
+
+        '
+      in: query
+      allowReserved: true
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Fuel'
+    arrivalTime:
+      name: arrivalTime
+      description: 'Specifies the time of arrival as defined by either `date-time` or `full-date` `T` `partial-time` in `RFC 3339`, section 5.6 (for example, `2019-06-24T01:23:45`).
+
+        The requested time is converted to the local time at destination. When the optional timezone offset is
+
+        not specified, time is assumed to be local.
+
+        If neither `departureTime` or `arrivalTime` are specified, current time at arrival location will be used if `destination` is specified.
+
+        It cannot be used in combination with `origin` parameter. All `Time` values in the response are returned in the timezone of each location.
+
+        '
+      in: query
+      allowReserved: true
+      required: false
+      schema:
+        $ref: '#/components/schemas/Time'
+    optimizeFor:
+      name: optimizeFor
+      in: query
+      description: "Specifies how isoline calculation is optimized.\n\n* `quality`: calculation of isoline focuses on quality,\n  that is, the graph used for isoline calculation has higher granularity generating an isoline that\n  is more precise.\n* `performance`: calculation of isoline is performance-centric, quality of isoline is reduced\n  to provide better performance.\n* `balanced`: calculation of isoline takes a balanced approach averaging between quality\n  and performance.\n"
+      required: false
+      schema:
+        type: string
+        enum:
+        - quality
+        - performance
+        - balanced
+        default: balanced
+    traffic:
+      name: traffic
+      description: Traffic specific parameters.
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Traffic'
+    exclude:
+      name: exclude
+      description: 'User-specified properties that need to be strictly excluded during route calculation.
+
+        '
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Exclude'
+    truck:
+      name: truck
+      description: 'Truck-specific parameters.
+
+
+        **NOTE:** The attribute `truck` is deprecated and should be replaced with `vehicle`.
+
+        '
+      deprecated: true
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Truck'
+    origin:
+      name: origin
+      description: "Center of the isoline request. The Isoline(s) will cover the region which can be reached from this point within given range.\nIt cannot be used in combination with `destination` or `arrivalTime` parameter.\n## Format\n\nFormat: `Place[WaypointOptions]`\n\n* Place: `{lat},{lng}[PlaceOptions]`\n* PlaceOptions: `;option1=value1;option2=value2...`\n* WaypointOptions: `!option1=value1!option2=value2...`\n\nA waypoint consists of:\n\n* Exactly one place\n* Optional settings for the place\n* Optional settings for the waypoint itself\n\n## Supported place options\n\n* `course`: int, degrees clock-wise from the north. Indicates the desired direction from the place.\n  For example, `90` indicating `east`. Often combined with `radius` and/or `minCourseDistance`\n* `sideOfStreetHint`: `{lat},{lng}`. Indicates the side of the street that should be\n  used. For example, if the location is to the left of the street, the router will prefer using\n  that side in case the street has dividers. For example,\n  `52.511496,13.304140;sideOfStreetHint=52.512149,13.304076` indicates that the `north`\n  side of the street should be preferred. This option is required, if `matchSideOfStreet`\n  is set to `always`.\n  Option cannot be combined with `radius`, `radiusPenalty` or `snapRadius`.\n* `displayLocation`: `{lat},{lng}`. Indicates the physical location of the POI. It is different from the\n    originalLocation and location which are generally expected to be on the navigable road network, i.e., on segments.\n* `matchSideOfStreet`: enum `[always, onlyIfDivided]`. Specifies how the location set by\n  `sideOfStreetHint` should be handled. Requires `sideOfStreetHint` to be specified as\n  well.\n  + `always` : Always prefer the given side of street.\n  + `onlyIfDivided`: Only prefer using the side of street set by `sideOfStreetHint` in case\n    the street has dividers. This is the default behavior.\n* `nameHint`: string. Causes the router to look for the place with the most similar name.\n  The typical examples include: `North` being used to differentiate between\n  interstates `I66 North` and `I66 South`, `Downtown Avenue` being used to correctly\n  select a residental street.\n\n  Empty string values are ignored.\n* `radius`: int, meters. Sets the radius within which all locations are considered equally eligible for selection as\n  waypoints. Typical use cases include scenarios with imprecise coordinates or user input provided on low resolution\n  map displays. The value is capped at 200 meters. Setting a higher value doesn't return an error.\n  Can't be used with `snapRadius`.\n* `radiusPenalty`: int, percentage 0-1000. Used in conjunction of `radius` parameter.\n  Router will match the waypoint, within the specified radius and penalize candidates according to air distance\n  to the waypoint. Penalty is proportional to given percentage, 100 being just cost of air distance and 200 double.\n  Currently works only for pedestrian/bicycle routes.\n  **Alpha**: This parameter is in development. It may not be stable and is subject to change.\n* `snapRadius`: int, meters. Sets the radius within which waypoints are matched to the most \"significant\" place.\n  Candidates for matching are sorted in the order of significance which is based on the visibility on a zoomed-out map.\n  A highway is considered more significant than a national road, while a national road is more significant than\n  a city road. Typical use case - selecting waypoints on a  zoomed-out view of a map on a drag-and-drop interface,\n  where only significant roads are visible. A big enough radius allows to match waypoints to such roads.\n  Can't be used with `radius` or `radiusPenalty` parameters.\n* `minCourseDistance`: int, meters. Instructs the routing service to try to find a route that avoids actions for\n  the indicated distance. For example, if the origin is determined by a moving vehicle, the user\n  might not have time to react to early actions. Values greater than 2000 meters will be capped at 2000 meters.\n* `segmentIdHint`: string. Causes the router to try and match to the specified segment.\n  Waypoint coordinates need to be on the segment, otherwise waypoint will be matched ignoring the segment hint\n  This parameter can be used when the waypoint is too close to more than one segment to force matching to a specific one.\n* `onRoadThreshold`: int, meters. allows specifying a distance within which\n  the waypoint could be considered as being on a highway/bridge/tunnel/sliproad.\n  Within this threshold, the attributes of the segments do not impact the matching.\n  Outside the threshold only segments which aren't one of highway/bridge/tunnel/sliproad can be matched.\n\n## Notes\n\n* Non-structural reserved characters in options' values need to be properly percent-encoded.\n  Please refer to the developers' guide for more details.\n"
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Waypoint'
+      examples:
+        coordinate:
+          value: 51.611571,11.351608
+          summary: A simple WGS84 coordinate
+        side:
+          value: 52.531052,13.384872;sideOfStreetHint=52.530941,13.384939;matchSideOfStreet=always
+          summary: Populating sideOfStreetHint in addition to location to avoid ending on the wrong side of the street
+        course:
+          value: 51.611571,11.351608;course=170;radius=20;minCourseDistance=500
+          summary: Setting course/radius/minCourseDistance an uncertain GPS coordinate of a moving vehicle
+        name:
+          value: 52.510319,13.285616;nameHint=Kaiserdamm
+          summary: Setting nameHint to avoid matching to the wrong location
+    ev:
+      name: ev
+      description: 'EV parameters to be used for calculating consumption and for calculating isolines for EV.
+
+
+        There are two consumption models (`empirical`, `physical`). Set the `consumptionModel` parameter to choose which model to use.
+
+
+        Required `empirical` model properties:
+
+        * `freeFlowSpeedTable`
+
+
+        Required `physical` model properties:
+
+        * `driveEfficiency`
+
+        * `recuperationEfficiency`
+
+
+        When using the physical model, certain properties of the `vehicle` parameter are also required (see documentation for the `vehicle` parameter for more details):
+
+        * `rollingResistanceCoefficient`
+
+        * `airDragCoefficient`
+
+        * `currentWeight`
+
+        * `frontalArea` or combination of `width` and `height`
+
+        '
+      in: query
+      allowReserved: true
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/EV'
+    avoid:
+      name: avoid
+      description: 'Avoid roads that violate certain features of road network or that go through
+
+        user-specified areas, segments, or zones.
+
+        '
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      schema:
+        $ref: '#/components/schemas/Avoid'
+    shape:
+      name: shape
+      in: query
+      required: false
+      style: deepObject
+      explode: true
+      description: "A struct used to control the shape of the returned isolines.\n* `shape[maxPoints]`: Limits the number of points in the resulting isoline geometry.\n    If the isoline consists of multiple components, the sum of points from all components is considered.\n    This parameter doesn't affect performance. Look at `optimizeFor` parameter to optimize for performance.\n"
+      schema:
+        $ref: '#/components/schemas/Shape'
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    routingMode:
+      name: routingMode
+      description: "Specifies which optimization is applied during the calculation.\n\n* `fast`: Route calculation from start to destination optimized by travel time. In many\n  cases, the route returned by `fast` mode may not be the route with the fastest\n  possible travel time. For example, the routing service may favor a route that remains on\n  a highway, even if a faster travel time can be achieved by taking a detour or shortcut\n  through an inconvenient side road.\n* `short`: Route calculation from start to destination disregarding any speed information.\n  In this mode, the distance of the route is minimized, while keeping the route sensible.\n  This includes, for example, penalizing turns. Because of that, the resulting route will\n  not necessarily be the one with minimal distance.\n\nNotes:\n* The following Transport modes only support `fast` routingMode\n  - `bicycle`\n  - `bus`\n  - `pedestrian`\n  - `privateBus`\n  - `scooter`\n  - `taxi`\n  - `networkRestrictedTruck`\n"
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/RoutingMode'
+    consumptionModel:
+      name: consumptionModel
+      description: 'Specifies which of the EV consumption models is being used. See the `ev` parameter for details on the models.
+
+
+        * `empirical`
+
+        * `physical`
+
+        '
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ConsumptionModel'
+  responses:
+    Isoline403ErrorResponse:
+      description: 'Not allowed, such as trying to calculate isolines in Japan without having necessary
+
+        permissions.
+
+        '
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Isoline403ErrorResponseSchema'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/403ResponseNotAllowedExample'
+    IsolineErrorResponse:
+      description: 'Failure to parse the request, caused by invalid field values, or invalid field combinations.
+
+        '
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IsolineErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/400IsolineErrorResponseExample'
+    401ErrorResponseWithRequestID:
+      description: API response in case of unauthorized access.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SimpleErrorResponseSchema'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/401errorResponseExample'
+    IsolineResponseServerInternalError:
+      description: 'Server Internal Error
+
+        '
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerInternal'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/500ServerInternalErrorExample'
+    IsolineResponseOk:
+      description: Isoline response in case of success
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IsolineResponse'
+          examples:
+            isolineResponseExample:
+              $ref: '#/components/examples/isolineResponseExample'
+  examples:
+    isolineResponseExample:
+      value:
+        departure:
+          place:
+            type: place
+            location:
+              lat: 38.0202568
+              lng: 24.0068924
+            originalLocation:
+              lat: 38.02026
+              lng: 24.0068899
+        isolines:
+        - range:
+            type: distance
+            value: 40000
+          polygons:
+          - outer: BGkln1oC09phtB2rF4gE61CuhIAs3K51CwhI1rF0rF51CwhI61CwhI0uV0uVgjQ2rFq3Kq3K81CwhIA-lgB71CwhIzrF2rF71CwhIA-lgB81CwhI-iQ2rF2rF-iQ2rFA0rFzrF2rFAq3Kq3K2rFgjQ0rF0rFA2rFzrF0rF71CwhI81CwhI0rF2rFA0rFzrF2rFA0rF0rF2rF61CwhIAq3K51CwhIzrF2rFA0rF0rF2rF61CwhIA-lgB51CwhIvhI61Cp3KAvhI81Cp3Kq3K51CwhI61CuhIgjQ2rFq6aq6a0rFA2rF1rFgjQzrFq3Kp3K0rF_iQs3Kp3KuhI71Cs3KAuhI81C2rF0rF2rFA0rFzrFwhI71CwhI81Cq3Kq3K61CwhIA0uV81CwhI-iQ0rFgjQgjQgjQ2rF61CwhIA0uV61CwhIwhI61Cs3KAuhI61C2rFgjQgjQ2rF61CwhIAq3K61CwhI2rF0rFA2rF1rF0rF51CwhI61CwhI2rF2rF61CwhI51CwhI1rF0rF51CwhI61CwhIgjQ0rF61CwhIAq3K51CwhI1rF2rFzrFgjQ1rF0rFzrFgjQ_iQ2rF1rF-iQzrF2rF1rFgjQ_iQ0rF51CwhIAq3K51CwhI_iQ2rFzrF0rF_iQ2rF1rFgjQzrF0rF71CwhIAq3K51CwhIvhI61CvhI51CzrFzrF1rFA51CuhIAgmgB51CwhIvhI61CvhI51C_iQ_iQzrFAr3Kq3KzrFgjQvhI61Cp3KAvhI51C51CvhIAp3K71CvhI9iQ1rFr3Kp3K51CvhIA9lgB51CvhI1rF1rF51CthIAr3K51CthI1rF1rF1rF_iQ9iQzrFp3Kr3K1rF9iQp3Kp3K1rFAzrF0rF_iQ2rF1rF0rF9iQ2rF_iQgjQvhI61CvhI51C1rF1rFzrFA1rF2rFvhI61CzuVAvhI61C9iQgjQ_iQ2rF_iQ-iQ_iQ2rFzrF0rFvhI81Cp3KAvhI71C1rF9iQp3Kp3KvhI71C9lgBAvhI81C1rF0rFvhI61Cp3KAvhI51CzrFzrFvhI71CvhI81C51CuhIA2uV71CwhIp3Kq3KvhI61Cp3KAvhI61CzrF2rFvhI61CvhI51C1rF_iQzrFzrF51CvhIAp3K71CvhIvhI71CthI81C71CwhI81CuhI0rF2rF61CwhI51CwhIvhI61Cp3KAvhI61CzrF2rF_iQ2rF1rF-iQvhI81CthI71C1rFzrFvhI71CzuVAvhI81C1rF0rFvhI81CthI71C1rFzrF_iQ1rFzrF_iQr3Kp3K9iQzrF1rF_iQzrF1rF1rF9iQ_iQ1rFp3Kp3K51CvhI61CvhIgjQ_iQ0rF9iQgjQ1rF61CvhIAp3K81CvhIq3Kp3K0rFA2rF2rF2rFA0rF_iQ0xlBzxlB81CvhIAp3K71CvhIp3Kp3K_iQ1rFzrF_iQ1rFzrF51CvhIAp3K61CvhIgjQ_iQ2rF_iQ0rFzrF61CvhIAp9qB81CvhIwhI51Cq3KAwhI61C0rF2rFwhI61CwhI51C61CvhI51CvhIp3Kp3K_iQ1rFzuVzuV71CvhI81CvhIq6ap6a0rF9iQwhI71CwhI81Cq3Kq3K61CwhIAq3K81CwhIwhI61Cq3KAwhI51C0rF1rFgjQzrF2rF_iQ-iQ_iQAzrFvhI71C9lgBAvhI51C1rF1rF9iQzrF71CvhIAzuV81CvhI0rF1rF2rF_iQq6ap6a0rF9iQwhI71Cq3KAwhI51CgjQ_iQ2rFA0rF2rF2rFA61CvhIAp3K61CvhIgjQ1rF0uVzuV2rF_iQ2rFzrF61CvhIA_lgB61CthIq3Kr3KwhI51Cq3KAwhI51C2rF1rFwhI51C0uVAwhI61Cq6aq6agjQ2rF0rF0rFwhI81CwhI71C0rFzrFwhI71CwhI81CgjQ-iQ2rFA0rFzrFwhI51Cq3KAwhI71CAzrF_iQ_iQ51CvhIAp3K61CvhI2rFA0rF2rFgjQ0rF2rF2rF0rFA2rF_iQq3Kp3KwhI51CwhI61C0rF2rFwhI61CwhI51CA1rFzrF1rF71CvhIAp3K81CvhIuhI51Cs3KAuhI-qB2rFwhI
+          - outer: BGu8x1oCsgxnuB2rF4gE61CwhI51CwhI1rF2rF51CwhIAq3K61CwhI2rF0rF61CwhIAq3K61CwhI2rF2rF61CuhI51CwhIvhI81Cp3KAvhI61Cp3Kq3K51CwhI61CwhIwhI61Cq3KAwhI51C0rF1rFwhI51CwhI61Cq3Kq3K81CwhI71CwhIzrF2rF71CwhIAq3K51CwhI_iQ-iQA2rFwhI61Cq3KAwhI81Cq3Kq3KA0rFp3Kq3KzrFA1rFzrFzrFA1rF0rFvhI81Cp3KAvhI61C1rFgjQ9iQ0rF71CwhIAq3K51CwhIvhI81CvhI71CzrFzrFvhI71CvhI81C1rF0rF9iQ2rFp3Kq3K1rFgjQ_iQ0rFzrF2rFvhI61Cp3KAvhI51C71CvhIAzuV51CvhIzrF1rF71CvhIAp3K51CvhI1rFzrFzrF_iQvhI51Cp3KAvhI71C51CthI61CvhI2rF1rFAzrF_iQ_iQ71CvhI81CvhIq3Kp3KwhI51Cq3KAwhI71Cq3Kp3K61CvhIAp3K81CvhIq3Kp3KwhI51C0uVAwhI61C0rFgjQwhI61CwhI51C2rF1rF-iQzrFs3Kp3KA1rF1rF1rF51CvhI61CthIq3Kr3KgjQzrFq3Kp3K61CvhIAp3K81CvhI0rF1rF81CvhIAzuV61CvhIwhI51CwhI8qB0rFwhI
+          connections:
+          - fromPolygonIndex: 0
+            toPolygonIndex: 1
+            polyline: BGqy2woCu2v5tBrL0uDsPgqH83Cq9qB63Cq9qBm3Co9qB83Cq9qB63Cq9qB83Co9qB63Cq9qB83Cq9qBq6B0ycwd0qO6xCkkoBgCm5Cmc08qBAWy_Eo9qBgCkQouImtqB6_FyjeusCwfosB_B
+    500ServerInternalErrorExample:
+      value:
+        title: Internal server error
+        status: 500
+        code: E605500
+        cause: ''
+        action: ''
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    400IsolineErrorResponseExample:
+      value:
+        title: Malformed request
+        status: 400
+        code: E605001
+        cause: missing field `destination`
+        action: ''
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    403ResponseNotAllowedExample:
+      value:
+        title: Not allowed
+        status: 403
+        code: E605101
+        cause: Your credentials do not allow to calculate isoline in Japan
+        action: Obtain credentials that allow you to calculate isoline in Japan
+        correlationId: 4d42580e-117f-4249-be35-3fcfc9f8aa01
+    401errorResponseExample:
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+  headers:
+    X-Request-Id:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-Id:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information
+
+        on how to get an API key, see [Identity and Access Management Developer Guide](https://docs.here.com/identity-and-access-management/docs/readme).
+
+        '
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see the [Identity and Access Management Developer Guide](https://docs.here.com/identity-and-access-management/docs/readme).
+
+        '
+externalDocs:
+  description: The Developer guide, Migration guide and Release notes are available here.
+  url: https://www.here.com/docs/category/isoline-routing-api-v8

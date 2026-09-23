@@ -1,0 +1,1109 @@
+openapi: 3.2.0
+info:
+  title: Interactive Map API v1 Read Features API
+  description: Interactive Map API v1 is a REST API for simple access to geo data.
+  contact: {}
+  version: 1.22.2
+  x-olp-service:
+    name: interactive
+    version: v1
+servers:
+- url: https://use.apilookup.for.a.base.url/
+security:
+- Bearer: []
+tags:
+- name: Read Features
+  description: Read only endpoints for features.
+paths:
+  /layers/{layerId}/features:
+    get:
+      tags:
+      - Read Features
+      summary: Get features by ID
+      description: Returns all the features found for the provided list of IDs. The response is always a FeatureCollection, even if there are no features with the provided IDs.
+      operationId: Interactive Map API v1 getFeatures
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/Author'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureCollectionResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/features/{featureId}:
+    get:
+      tags:
+      - Read Features
+      summary: Get a feature by ID
+      description: Retrieves the feature with the provided identifier.
+      operationId: Interactive Map API v1 getFeature
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/FeatureId'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/Author'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/statistics:
+    get:
+      tags:
+      - Read Features
+      summary: Get statistics
+      description: Returns statistical information about this layer.
+      operationId: Interactive Map API v1 getStatistics
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/SkipCache'
+      responses:
+        '200':
+          $ref: '#/components/responses/StatisticsResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/bbox:
+    get:
+      tags:
+      - Read Features
+      summary: Get features by bounding box
+      description: Return the features which are inside a bounding box stipulated by bbox parameter.
+      operationId: Interactive Map API v1 getFeaturesByBBox
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Clip'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PropertiesQuery'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Clustering'
+      - $ref: '#/components/parameters/ClusteringParams'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/BBox'
+      - $ref: '#/components/parameters/VersionRef'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureCollectionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/tile/{tileType}/{tileId}:
+    get:
+      tags:
+      - Read Features
+      summary: Get features in tile
+      description: List the features selected by tile type and tile id.
+      operationId: Interactive Map API v1 getFeaturesByTile
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/TileType'
+      - $ref: '#/components/parameters/TileId'
+      - $ref: '#/components/parameters/Clip'
+      - $ref: '#/components/parameters/PropertiesQuery'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Clustering'
+      - $ref: '#/components/parameters/ClusteringParams'
+      - $ref: '#/components/parameters/Margin'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Mode'
+      - $ref: '#/components/parameters/VizSampling'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/VersionRef'
+      responses:
+        '200':
+          $ref: '#/components/responses/TileResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/spatial:
+    get:
+      tags:
+      - Read Features
+      summary: Get features with radius search
+      description: 'List the features which are inside the specified radius.
+
+        The origin radius point is calculated based either on latitude & longitude or by
+
+        specifying a features geometry. As third option it is possible to use a H3 index
+
+        as input geometry.'
+      operationId: Interactive Map API v1 getFeaturesBySpatial
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Latitude'
+      - $ref: '#/components/parameters/Longitude'
+      - $ref: '#/components/parameters/RefLayerId'
+      - $ref: '#/components/parameters/RefFeatureId'
+      - $ref: '#/components/parameters/H3Index'
+      - $ref: '#/components/parameters/Radius'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Clip'
+      - $ref: '#/components/parameters/PropertiesQuery'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/RefCatalogHrn'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureCollectionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+    post:
+      tags:
+      - Read Features
+      summary: Get features which intersects the provided geometry
+      description: 'List the features which are inside the specified radius.
+
+        The origin point is calculated based on the geometry provided as payload.'
+      operationId: Interactive Map API v1 getFeaturesBySpatialPost
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Radius'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Clip'
+      - $ref: '#/components/parameters/PropertiesQuery'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/VersionRef'
+      requestBody:
+        $ref: '#/components/requestBodies/GeometryRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureCollectionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/search:
+    get:
+      tags:
+      - Read Features
+      summary: Search for features
+      description: Searches for features in the layer. The results are unordered and the request does not allow continuation of the search, which is the main difference when compared to the _iterate_ request.
+      operationId: Interactive Map API v1 searchFeatures
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PropertiesQuery'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/Author'
+      responses:
+        '200':
+          $ref: '#/components/responses/FeatureCollectionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+  /layers/{layerId}/iterate:
+    get:
+      tags:
+      - Read Features
+      summary: Iterate features in the layer
+      description: Iterates all of the features in the layer. The features in the response are ordered so that no feature is returned twice. If there are more features which could be loaded, the response FeatureCollection contains the root attribute _nextPageToken_. The value of this attribute can be passed as a query parameter for the following request in order to continue the iteration from the marked position.
+      operationId: Interactive Map API v1 iterateFeatures
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PropertiesSelection'
+      - $ref: '#/components/parameters/SkipCache'
+      - $ref: '#/components/parameters/Force2D'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/VersionRef'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          $ref: '#/components/responses/IterateResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '513':
+          $ref: '#/components/responses/ErrorResponse513'
+      security:
+      - ApiKey: []
+      - Bearer: []
+      x-olp-access-type: resource
+components:
+  parameters:
+    Latitude:
+      name: lat
+      in: query
+      description: The latitude in WGS'84 decimal degree (-90 to +90) of the center Point.
+      schema:
+        type: number
+        minimum: -90
+        maximum: 90
+    Radius:
+      name: radius
+      in: query
+      description: Radius in meters which defines the diameter of the search request.
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: The maximum number of features in the response. Default is _30000_. Hard limit is _100000_.
+      schema:
+        type: integer
+    SkipCache:
+      name: skipCache
+      in: query
+      description: If set to _true_ the response is not returned from cache. Default is _false_.
+      schema:
+        type: boolean
+    Author:
+      name: author
+      in: query
+      description: Filter the results per author.
+      required: false
+      schema:
+        type: string
+    PageToken:
+      name: pageToken
+      in: query
+      description: The page token where the iteration will continue.
+      schema:
+        type: string
+    BBox:
+      name: bbox
+      in: query
+      description: 'A Bounding Box defined by west, south, east and north coordinates separated by comma.
+
+        Example: bbox=13.082,52.416,13.628,52.626 - Bounding box of Berlin'
+      required: false
+      schema:
+        type: string
+    VersionRef:
+      name: versionRef
+      in: query
+      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
+      required: false
+      schema:
+        type: string
+        default: HEAD
+    RefFeatureId:
+      name: refFeatureId
+      in: query
+      description: 'The unique identifier of a feature in the referenced layer.
+
+        The feature''s geometry is used as a reference in the spatial search.'
+      schema:
+        type: string
+    RefLayerId:
+      name: refLayerId
+      in: query
+      description: 'The layer where the feature, referenced by refFeatureId, is stored.
+
+        Required if refFeatureId is used.'
+      schema:
+        type: string
+    H3Index:
+      name: h3Index
+      in: query
+      description: H3 index
+      schema:
+        type: string
+    PropertiesQuery:
+      name: params
+      in: query
+      description: "Additional feature filters which compare the feature's property value with the one specified in the query, resulting in a subset of features.\n\nThe usage of multiple property names represents an AND operation. The usage of a comma (,) separating the properties values, represents an OR operation.\n\nProperties initiated with 'f.' are used to access values which are added by default in the stored feature. The possible values are: 'f.id', 'f.createdAt', 'f.updatedAt'.\n\nProperties initiated with 'p.' are used to access values in the stored feature which are under the 'properties' property. Use it as a shorthand accessor for 'properties' values.\n\nThe format should follow the specification below\n  * ?p.property_name_1=property_value_1&f.special_property_name_1=special_property_value_1\n\n\nFor example, the above query, the Features are filtered by 'property' AND 'special property' equals to their respective values.\n\nWhile in the following example\n  * ?p.property_name_1=value_1,value_2\n\n\nThe resulting Features list contains all elements having value_1 OR value_2.\n\nAdditionally, to the operators used in the examples above, the query can be written, with the same semantic, by using the long operators: \"=gte=\", \"=lte=\", \"=gt=\", \"=lt=\" and \"=cs=\". The following queries yield the same result:\n  * ?p.property_name_1>=10\n  * ?p.property_name_1=gte=10\n\n\nThe available operators are:\n  - \"=\" - equals\n  - \"!=\" - not equals\n  - \"=.null\" - is null\n  - \"!=.null\" - is not null\n  - \">=\" or \"=gte=\" - greater than or equals\n  - \"<=\" or \"=lte=\" - less than or equals\n  - \">\" or \"=gt=\" - greater than\n  - \"<\" or \"=lt=\" - less than\n  - \"@>\" or \"=cs=\" - Array contains\n"
+      explode: true
+      style: form
+      allowReserved: true
+      schema:
+        type: object
+        example:
+          p.myProperty: someValue
+          p.otherProperty: 5
+        additionalProperties:
+          type: string
+    TileType:
+      name: tileType
+      in: path
+      description: The type of tile identifier. "quadkey" - Virtual Earth, "web" - Web Mercator, "tms" - OSGEO Tile Map Service, "here" - Here Tile Schema.
+      required: true
+      schema:
+        type: string
+        enum:
+        - quadkey
+        - web
+        - tms
+        - here
+    Clip:
+      name: clip
+      in: query
+      description: If set to _true_ the features' geometries are clipped to the geometry of the tile, bounding box or input geometry. Default is _false_.
+      required: false
+      schema:
+        type: boolean
+    Mode:
+      name: mode
+      in: query
+      description: 'Optimize resultset and geometries for dispaly. mode = [raw|viz]
+
+
+        Note: when using mode=viz, the value of "limit" parameter will be set to its max value (100000) if not specified otherwise.'
+      required: false
+      schema:
+        type: string
+        enum:
+        - raw
+        - viz
+    PropertiesSelection:
+      name: selection
+      in: query
+      description: "A list of properties to be returned in the features result list. Multiple attributes can be\nspecified by using comma(,).\n\nExample: ?selection=p.name,p.capacity,p.color,rootpropertyname\n  - !geometry : special value to omit geometries\n"
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    VizSampling:
+      name: vizSampling
+      in: query
+      description: 'Choose sampling strength in case of mode = viz.
+
+        vizSampling = [low|med|high|off] - default: med.'
+      required: false
+      schema:
+        type: string
+        enum:
+        - low
+        - med
+        - high
+        - 'off'
+    ClusteringParams:
+      name: clusteringParams
+      in: query
+      required: false
+      description: 'Some parameters for the chosen clustering algorithm.
+
+
+        Depending on the chosen clustering algorithm, there could be different mandatory and/or
+
+        optional parameters to specify the behavior of the algorithm.
+
+
+        ### Clustering-Parameter reference
+
+
+        NOTE: The actual query parameters in the URL look like: `?clustering.aParameterName=aValue`
+
+
+        **Clustering-type: "hexbin":**
+
+
+        There are several parameters needed by the H3 based hexbin algorithm.
+
+        For more information on this topic see: https://eng.uber.com/h3/
+
+
+        | Parameter   | Type    | Mandatory | Meaning                                                               |
+
+        |-------------|---------|-----------|-----------------------------------------------------------------------|
+
+        | absoluteResolution  | Number  | NO        | integer, The H3 hexagon resolution [0,13]                      |
+
+        | resolution  | Number  | NO        | deprecated, renamed to absoluteResolution                             |
+
+        | relativeResolution | Number  | NO        | integer value [-2,2] to be added to current used resolution  |
+
+        | property    | String  | NO        | A property of the original features for which to calculate statistics |
+
+        | pointmode   | Boolean | NO        | retuns the centroid of hexagons as geojson feature                    |
+
+        | singlecoord | Boolean | NO        | force to evaluate the first object coordinate only (default: false)   |
+
+        | sampling    | String  | NO        | samplingratio of underlying dataset  |
+
+        |             |         |           | string value [off (1/1), low (1/8), lowmed (1/32), med (1/128), medhigh (1/1024), high (1/4096)] (default: off) |
+
+
+        **Clustering-type: "quadbin":**
+
+
+        There are several parameters needed by the quadbin algorithm. You can use one property filter in combination.
+
+
+        | Parameter   | Type    | Mandatory | Meaning                                                               |
+
+        |-------------|---------|-----------|-----------------------------------------------------------------------|
+
+        | relativeResolution | Number  | NO        | integer, The quad resolution [0,4]                                             |
+
+        | noBuffer    | Boolean | NO        | do not place a buffer around quad polygons, default: false            |
+
+        | resolution  | Number  | NO        | deprecated, renamed to resolutionRelative             |
+
+        | countmode   | String  | NO        | [real, estimated, mixed, bool]                                    |
+
+        |             |         |           | real = real feature counts. Best accuracy, but slow.                  |
+
+        |             |         |           |     Not recommended for big result sets                       |
+
+        |             |         |           |                                                                       |
+
+        |             |         |           | estimated = estimated feature counts. Low accuracy, but very fast      |
+
+        |             |         |           |     Recommended for big result sets                           |
+
+        |             |         |           |                                                                       |
+
+        |             |         |           | mixed (default) = estimated feature counts combined with real ones.   |
+
+        |             |         |           |     If the estimation is low a real count gets applied. Fits to the |
+
+        |             |         |           |     most use cases                                        |
+
+        |             |         |           |                                                                       |
+
+        |             |         |           | bool = test if data exists in tile but does not count features  |
+
+        |             |         |           |     The returned count property set to 1, for non empty tiles |
+
+        '
+      style: form
+      explode: true
+      allowReserved: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          clustering.resolution: 3
+          clustering.property: a.nested.property
+    Version:
+      name: version
+      in: query
+      description: The query parameter used to specify the version of a feature or feature collection to be loaded.
+      required: false
+      schema:
+        type: string
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
+    Force2D:
+      name: force2D
+      in: query
+      description: If set to _true_ the features in the response have only X's and Y's as coordinates.
+      schema:
+        type: boolean
+    Ids:
+      name: id
+      in: query
+      description: "A comma separated list of unique feature identifiers. These are the acceptable formats for this field:\n  * id=value1,value2\n  * id=value1,id=value2\n\n\nnot required when eraseContent=true is used."
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    Margin:
+      name: margin
+      in: query
+      description: Margin in pixels on the respective projected level around the tile. Default is 0.
+      schema:
+        type: integer
+        minimum: 0
+    Clustering:
+      name: clustering
+      in: query
+      description: "The clustering algorithm to apply to the data within the result. Providing this query parameter, the data is returned in a clustered way. This means the data is not necessarily returned in its original shape or with its original properties.\nDepending on the chosen clustering algorithm, there could be different mandatory and/or optional parameters to specify the behavior of the algorithm.\nPossible values are:\n\n  * \"hexbin\"\n\n    The hexbin algorithm divides the world in hexagonal \"bins\" on a specified resolution.\n    Each hexagon has an address being described by the H3 addressing scheme.\n    For more information on this topic see: https://eng.uber.com/h3/\n\n  * \"quadbin\"\n\n    The quadbin algorithm takes the geometry input from the request (for example, quadkey / bbox..)\n    and count the features in it. This clustering mode works also for very large layers and\n    can be used for getting an overview where data is present in a given layer. Furthermore,\n    a property filter on one property is applicable."
+      required: false
+      schema:
+        type: string
+        enum:
+        - hexbin
+        - quadbin
+    Longitude:
+      name: lng
+      in: query
+      description: The longitude in WGS'84 decimal degree (-180 to +180) of the center Point.
+      schema:
+        type: number
+        minimum: -180
+        maximum: 180
+    TileId:
+      name: tileId
+      in: path
+      description: The tile identifier can be provided as quadkey (__1__), Web Mercator level,x,y coordinates (__1_1_0__) or OSGEO Tile Map Service level,x,y (__1_1_0__).
+      required: true
+      schema:
+        type: string
+    FeatureId:
+      name: featureId
+      in: path
+      description: The unique identifier of a feature in the layer.
+      required: true
+      schema:
+        type: string
+    RefCatalogHrn:
+      name: refCatalogHrn
+      in: query
+      description: Represents the catalog where the feature referenced by refFeatureId is present. Required if refFeatureId is used.
+      schema:
+        type: string
+  headers:
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  schemas:
+    Estimated:
+      type: boolean
+      description: True if the value is only an estimation; false otherwise.
+      example: true
+    FeatureCollection:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A FeatureCollection GeoJSON object.
+        required:
+        - features
+        discriminator:
+          propertyName: type
+          mapping:
+            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
+            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
+        properties:
+          features:
+            type: array
+            description: Features included in the collection.
+            items:
+              $ref: '#/components/schemas/Feature'
+        example:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
+    Feature:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Feature object represents a spatially bounded thing.
+        properties:
+          id:
+            description: The unique identifier of the feature.
+            type: string
+          geometry:
+            $ref: '#/components/schemas/Geometry'
+          properties:
+            type: object
+            description: The properties of the feature.
+            additionalProperties: true
+        example:
+          type: Feature
+          id: BfiimUxHjj
+          geometry:
+            type: Point
+            coordinates:
+            - -2.960847
+            - 53.430828
+          properties:
+            name: Anfield
+            amenity: Football Stadium
+            capacity: 54074
+            description: Home of the Liverpool Football Club.
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
+    Error:
+      type: object
+      description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Bad Request
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+    GeoJSON:
+      type: object
+      description: The base type for all possible GeoJSON objects.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        bbox:
+          type: array
+          description: Describes the coordinate range of the GeoJSON object.
+          items:
+            type: number
+      discriminator:
+        propertyName: type
+        mapping:
+          Feature: '#/components/schemas/Feature'
+          FeatureCollection: '#/components/schemas/FeatureCollection'
+          Geometry: '#/components/schemas/Geometry'
+      additionalProperties: true
+    Statistics:
+      type: object
+      description: The statistical information about the layer.
+      properties:
+        count:
+          type: object
+          description: The amount of features stored in the layer.
+          properties:
+            value:
+              type: integer
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        contentUpdatedAt:
+          type: object
+          description: The time when the content in the layer was last updated.
+          properties:
+            value:
+              type: integer
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        dataSize:
+          type: object
+          description: The amount of bytes that are allocated in the storage for this layer.
+          properties:
+            value:
+              type: integer
+              format: int64
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        bbox:
+          type: object
+          description: The most outer bounding box around all features being within the layer.
+          properties:
+            value:
+              type: array
+              items:
+                type: number
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        geometryTypes:
+          type: object
+          description: The types of geometries part of the layer.
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        minVersion:
+          type: object
+          description: The version number of the oldest available version of the features within the layer.
+          properties:
+            value:
+              type: integer
+              format: int64
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        maxVersion:
+          type: object
+          description: The version number of the newest available version of the features within the layer.
+          properties:
+            value:
+              type: integer
+              format: int64
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+        properties:
+          type: object
+          description: The properties of the features of the layer.
+          properties:
+            value:
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: Property key of the feature.
+                    example: Route
+                  count:
+                    type: number
+                    description: Count of the features with the property.
+                    example: 1202
+                  searchable:
+                    type: boolean
+                    description: Specifies if the property is searchable.
+                    example: false
+            estimated:
+              $ref: '#/components/schemas/Estimated'
+            searchable:
+              type: string
+              description: Specifies the scope of searchability of the properties. One of NONE, PARTIAL, ALL.
+              example: PARTIAL
+        searchable:
+          type: string
+          description: Specifies the scope of searchability of the properties. One of NONE, PARTIAL, ALL.
+          example: PARTIAL
+      example:
+        type: StatisticsResponse
+        count:
+          value: 29208
+          estimated: true
+        contentUpdatedAt:
+          value: 1692368695049
+          estimated: true
+        minVersion:
+          value: 0
+          estimated: false
+        maxVersion:
+          value: 27
+          estimated: false
+        dataSize:
+          value: 108364
+          estimated: true
+        bbox:
+          value:
+          - -10
+          - -10
+          - 10
+          - 10
+          estimated: true
+        geometryTypes:
+          value:
+          - Point
+          estimated: true
+        properties:
+          value:
+          - key: Route
+            count: 29208
+            searchable: true
+          - key: Route Type
+            count: 29208
+            searchable: true
+          estimated: true
+          searchable: PARTIAL
+        etag: 072d3ec0f881b4e7
+    FeatureCollectionIterable:
+      allOf:
+      - $ref: '#/components/schemas/FeatureCollection'
+      - type: object
+        properties:
+          handle:
+            type: string
+            description: The handle of the next batch.
+          nextPageToken:
+            type: string
+            description: The token of the next batch.
+        example:
+          type: FeatureCollection
+          handle: 1000
+          nextPageToken: 1000
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
+  responses:
+    StatisticsResponse:
+      description: Statistical information about a layer.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Statistics'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse400:
+      description: Malformed or Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    FeatureResponse:
+      description: A feature response.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/Feature'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: Insufficient rights + <Request specific access error details>
+    TileResponse:
+      description: A FeatureCollection in GeoJSON response format.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollection'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    FeatureCollectionResponse:
+      description: An array of features response.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollection'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse513:
+      description: Response payload too large.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse404:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    IterateResponse:
+      description: A FeatureCollection with handle response.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollectionIterable'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  requestBodies:
+    GeometryRequest:
+      description: A geometry request.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/Geometry'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/data-api

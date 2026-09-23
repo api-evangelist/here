@@ -1,0 +1,224 @@
+openapi: 3.2.0
+info:
+  title: Notification API v2 API
+  description: This covers all APIs for Data Service Notification
+  contact: {}
+  version: 2.0.1
+  x-olp-service:
+    name: notification
+    version: v2
+servers:
+- url: https://use.apilookup.for.a.base.url/
+security:
+- Bearer: []
+tags:
+- name: Notification API v2
+paths:
+  /subscriptions:
+    post:
+      tags:
+      - Notification API v2
+      summary: Subscribe for Catalog change notifications
+      operationId: Notification API subscribe
+      parameters:
+      - $ref: '#/components/parameters/billingTag'
+      - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        description: The subscription request object to create a subscription.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"3a7afa36-db1c-11e9-8a34-2a2ae2dbcce4"'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Bad Request
+        '403':
+          description: Forbidden - Access to target resource not available
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Forbidden - Access to target resource not available
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Internal Server Error
+      x-olp-access-type: resource
+  /layers/{notificationStreamLayerId}:
+    get:
+      tags:
+      - Notification API v2
+      summary: Get all subscriptions for target layer
+      operationId: Notification API getSubscriptions
+      parameters:
+      - $ref: '#/components/parameters/notificationStreamLayerId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                example: '[fc1f51c8-7de3-44aa-9949-aac922fc4601,4565f5bc-db1d-11e9-8a34-2a2ae2dbcce4]'
+                items:
+                  type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Not Found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Internal Server Error
+      x-olp-access-type: resource
+    delete:
+      tags:
+      - Notification API v2
+      summary: Delete subscriptions for provided catalogHRN and stream layer ID
+      operationId: Notification API deleteSubscriptions
+      parameters:
+      - $ref: '#/components/parameters/notificationStreamLayerId'
+      requestBody:
+        description: The subscription request object to create a subscription.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+      responses:
+        '200':
+          description: OK - Successfully deleted
+        '404':
+          description: Not Found - No provided subscriptions exist
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Not Found - No provided subscriptions exist
+        '409':
+          description: Some of the provided subscriptions does not exist. Returning subscriptions that do not exist.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Some of the provided subscriptions does not exist. Returning subscriptions that do not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Internal Server Error
+      x-olp-access-type: resource
+components:
+  parameters:
+    notificationStreamLayerId:
+      name: notificationStreamLayerId
+      in: path
+      description: Stream Layer ID for which we are retrieving subscriptions for.
+      required: true
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: User authorization token
+      required: false
+      schema:
+        type: string
+    billingTag:
+      name: billingTag
+      in: query
+      description: Billing Tag
+      schema:
+        type: string
+  schemas:
+    DeleteRequest:
+      type: object
+      properties:
+        deleteAll:
+          type: boolean
+        subscriptionIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+            example: 46d1ca2b-cad0-44d1-8a67-099dc08a0d40
+    Attribute:
+      type: object
+      properties:
+        layerIds:
+          type: array
+          items:
+            type: string
+            example: notification-layer
+        subscriptionArea:
+          $ref: '#/components/schemas/SubscriptionArea'
+        subscriptionResultType:
+          type: string
+          enum:
+          - SHORT
+          - LIST
+          - FULL
+    SubscriptionArea:
+      type: object
+      required:
+      - subscriptionType
+      properties:
+        subscriptionType:
+          type: string
+          example: WKT
+      discriminator:
+        propertyName: subscriptionType
+        mapping:
+          all: '#/components/schemas/SubscriptionAreaAll'
+          wkt: '#/components/schemas/SubscriptionAreaInWKT'
+          partitions: '#/components/schemas/SubscriptionAreaInPartitions'
+    SubscribeRequest:
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        notificationCatalogHRN:
+          type: string
+          example: hrn:here:data::realm:notification-catalog
+        notificationStreamLayerId:
+          type: string
+          example: notification-layer
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/data-api

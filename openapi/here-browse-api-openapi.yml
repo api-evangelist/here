@@ -1,0 +1,2573 @@
+openapi: 3.2.0
+info:
+  title: Geocoding and Search API v7 Browse API
+  version: '7.155'
+  description: This document describes the Geocoding and Search API.
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: Browse
+paths:
+  /browse:
+    servers:
+    - url: https://browse.search.hereapi.com/v1
+    get:
+      summary: Browse
+      description: 'This endpoint provides search results for places based on different filters, such as categories
+
+        or name, ranked by distance from a given search center. The only mandatory elements exposed in the response
+
+        are ID and position. The other elements shown in the response samples section are only dataset attributes
+
+        suggestions.'
+      parameters:
+      - $ref: '#/components/parameters/atBrowse'
+      - $ref: '#/components/parameters/categories'
+      - $ref: '#/components/parameters/chains'
+      - $ref: '#/components/parameters/foodTypes'
+      - $ref: '#/components/parameters/fuelStation'
+      - $ref: '#/components/parameters/inBrowse'
+      - $ref: '#/components/parameters/name'
+      - $ref: '#/components/parameters/rankingBrowse'
+      - $ref: '#/components/parameters/route'
+      - $ref: '#/components/parameters/evStation'
+      - $ref: '#/components/parameters/langAutosuggestBrowseDiscoverGeocodeLookupRevgeocode'
+      - $ref: '#/components/parameters/limitAutosuggestBrowseDiscover'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/politicalView'
+      - $ref: '#/components/parameters/showBrowseDiscover'
+      - $ref: '#/components/parameters/X-Request-ID'
+      responses:
+        '200':
+          description: The search results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenSearchBrowseResponse'
+        '400':
+          description: 'Client error: request failed validation.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          description: 'Client error: http method not supported.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 'Client error: Rate limit exceeded.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Temporary server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - Browse
+      operationId: getBrowse
+      x-operation-id-source: derived
+    post:
+      summary: Browse
+      description: '**BETA, RESTRICTED**
+
+
+        This endpoint provides search results for places based on different filters, such as categories
+
+        or name, ranked by distance from a given search center. The only mandatory elements exposed in the response
+
+        are ID and position. The other elements shown in the response samples section are only dataset attributes
+
+        suggestions.'
+      parameters:
+      - $ref: '#/components/parameters/atBrowse'
+      - $ref: '#/components/parameters/categories'
+      - $ref: '#/components/parameters/chains'
+      - $ref: '#/components/parameters/foodTypes'
+      - $ref: '#/components/parameters/fuelStation'
+      - $ref: '#/components/parameters/inBrowse'
+      - $ref: '#/components/parameters/name'
+      - $ref: '#/components/parameters/rankingBrowse'
+      - $ref: '#/components/parameters/route'
+      - $ref: '#/components/parameters/evStation'
+      - $ref: '#/components/parameters/langAutosuggestBrowseDiscoverGeocodeLookupRevgeocode'
+      - $ref: '#/components/parameters/limitAutosuggestBrowseDiscover'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/politicalView'
+      - $ref: '#/components/parameters/showBrowseDiscover'
+      - $ref: '#/components/parameters/X-Request-ID'
+      responses:
+        '200':
+          description: The search results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenSearchBrowseResponse'
+        '400':
+          description: 'Client error: request failed validation.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          description: 'Client error: http method not supported.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 'Client error: request body exceeds size limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 'Client error: request body has unsupported content type.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 'Client error: Rate limit exceeded.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Temporary server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        description: 'The request body must only contain those properties that are explicitly mentioned here.
+
+          In general, those are query parameter that might contain especially long values, e.g. `route`.
+
+          For POST requests those can alternatively still be supplied as query parameters. However, they
+
+          must never be provided in both URL and request body simultaneously.
+
+          '
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                route:
+                  type: string
+                  description: "**BETA**\n\nSelect within a geographic corridor. This is a hard filter. Results will be returned if they are located within the specified area.\n\nA `route` is defined by a [Flexible Polyline Encoding](https://github.com/heremaps/flexible-polyline),\n followed by an optional width, represented by a sub-parameter \"w\".\n\nFormat: `{route};w={width}`\n\nIn regular expression syntax, the values of `route` are formatted as follows:\n\n`[a-zA-Z0-9_-]+(;w=\\d+)?`\n\n\"[a-zA-Z0-9._-]+\" is the encoded flexible polyline.\n\n\"w=\\d+\" is the optional width. The width is specified in meters from the center of the path. If no width is provided, the default is 1000 meters.\n\nType: `{Flexible Polyline Encoding};w={integer}`\n\nThe following constraints apply:\n * A `route` MUST contain at least two points (one segment).\n * A `route` MUST NOT contain more than 2,000 points.\n * A `route` MUST NOT have a width of more than 50,000 meters.\n\nExamples:\n * `BFoz5xJ67i1B1B7PzIhaxL7Y`\n * `BFoz5xJ67i1B1B7PzIhaxL7Y;w=5000`\n * `BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC;w=2000`\n\nNote: The last example above can be decoded (using the Python class [here](https://github.com/heremaps/flexible-polyline/tree/master/python) as follows:\n\n```\n>>> import flexpolyline\n>>> polyline = 'BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC'\n>>> flexpolyline.decode(polyline)\n[(52.51994, 13.38663, 1.0), (52.51009, 13.28169, 2.0), (52.43518, 13.19352, 3.0), (52.41073, 13.19645, 4.0),\n (52.38871, 13.15578, 5.0), (52.37278, 13.1491, 6.0), (52.37375, 13.11546, 7.0), (52.38752, 13.08722, 8.0),\n (52.40294, 13.07062, 9.0), (52.41058, 13.07555, 10.0)]\n```\n"
+              type: object
+      tags:
+      - Browse
+      operationId: postBrowse
+      x-operation-id-source: derived
+components:
+  parameters:
+    fuelStation:
+      name: fuelStation
+      description: '**BETA**
+
+
+        Fuel Station attribute filters.
+
+
+        Combining multiple fuel type query parameters in a request constitutes requiring **at least one** of the specified filter conditions to be satisfied.
+
+
+        Example: `fuelStation[fuelTypes]=biodiesel,ethanol,gasoline`
+
+        '
+      in: query
+      explode: true
+      style: deepObject
+      required: false
+      schema:
+        type: object
+        properties:
+          minimumTruckClass:
+            type: string
+            enum:
+            - heavy
+            - medium
+            description: '**BETA, RESTRICTED**
+
+
+              All place results returned with a category `700-7600-0116`, `700-7600-0000`, `700-7600-0444`, or `700-7900-0132`
+
+              that serves truck fuel types with minimum supported truck class specified in this parameter.
+
+              See the related [Appendix](https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics-places/places-category-system-full.html#700-business-and-services)
+
+              for details about those place category IDs.
+
+
+              Caution: Note that this filter will be applied to place results regardless of the query intent.
+
+              For example Places with both a gas station and a grocery category will be returned to a "grocery" query
+
+              only if the place truck classes complies with the values of the query `fuelStation[minimumTruckClass]` values.
+
+
+              Description of supported values:
+
+
+              - **BETA, RESTRICTED** `heavy`: Medium and Heavy trucks are allowed to fuel in the gas station
+
+              - **BETA, RESTRICTED** `medium`: Only medium size truck is allowed to fuel in the gas station'
+            example: medium
+          fuelTypes:
+            type: array
+            items:
+              type: string
+              enum:
+              - biodiesel
+              - cng
+              - diesel
+              - diesel_with_additives
+              - e10
+              - e20
+              - e85
+              - ethanol
+              - ethanol_with_additives
+              - gasohol_95
+              - gasoline
+              - hvo
+              - hydrogen
+              - lng
+              - lpg
+              - midgrade
+              - octane_100
+              - octane_87
+              - octane_89
+              - octane_90
+              - octane_91
+              - octane_92
+              - octane_93
+              - octane_95
+              - octane_98
+              - premium
+              - premium_with_additives
+              - regular
+              - regular_with_additives
+              - truck_cng
+              - truck_diesel
+              - truck_hydrogen
+              - truck_lng
+            description: '**BETA, RESTRICTED**
+
+
+              All place results returned with a category `700-7600-0116`, `700-7600-0000`, `700-7600-0444`, or `700-7900-0132`
+
+              serve at least one fuel type specified in the comma-separated values of this parameter.
+
+              See the related [Appendix](https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics-places/places-category-system-full.html#700-business-and-services)
+
+              for details about those place category IDs.
+
+
+              Caution: Note that this filter will be applied to place results regardless of the query intent.
+
+              For example Places with both a gas station and a grocery category will be returned to a "grocery" query
+
+              only if the place fuel types complies with the values of the query `fuelStation[fuelTypes]` values.
+
+
+              Description of supported values:
+
+
+              - **BETA, RESTRICTED** `biodiesel`: bio-diesel
+
+              - **BETA, RESTRICTED** `cng`: compressed natural gas (CNG)
+
+              - **BETA, RESTRICTED** `diesel`: diesel
+
+              - **BETA, RESTRICTED** `diesel_with_additives`: diesel with additives
+
+              - **BETA, RESTRICTED** `e10`: E10 (10% ethanol)
+
+              - **BETA, RESTRICTED** `e20`: E20 (20% ethanol)
+
+              - **BETA, RESTRICTED** `e85`: E85 (minimum 70% ethanol blended gasoline)
+
+              - **BETA, RESTRICTED** `ethanol`: ethanol fuel (when specific type is not known, such as E10, E85)
+
+              - **BETA, RESTRICTED** `ethanol_with_additives`: ethanol with additives
+
+              - **BETA, RESTRICTED** `gasohol_95`: E10 (10% Ethanol) with octane 95
+
+              - **BETA, RESTRICTED** `gasoline`: gasoline
+
+              - **BETA, RESTRICTED** `hvo`: hydrotreated vegetable oil fuel
+
+              - **BETA, RESTRICTED** `hydrogen`: hydrogen
+
+              - **BETA, RESTRICTED** `lng`: liquefied natural gas (LNG)
+
+              - **BETA, RESTRICTED** `lpg`: liquefied petroleum gas (LPG)
+
+              - **BETA, RESTRICTED** `midgrade`: midgrade octane rating
+
+              - **BETA, RESTRICTED** `octane_100`: fuel that consists of 100% octane
+
+              - **BETA, RESTRICTED** `octane_87`: fuel that consists of an octane / gasoline blend with 87% octane / 13% gasoline
+
+              - **BETA, RESTRICTED** `octane_89`: fuel that consists of an octane / gasoline blend with 89% octane / 11% gasoline
+
+              - **BETA, RESTRICTED** `octane_90`: fuel that consists of an octane / gasoline blend with 90% octane / 10% gasoline
+
+              - **BETA, RESTRICTED** `octane_91`: fuel that consists of an octane / gasoline blend with 91% octane / 9% gasoline
+
+              - **BETA, RESTRICTED** `octane_92`: fuel that consists of an octane / gasoline blend with 92% octane / 8% gasoline
+
+              - **BETA, RESTRICTED** `octane_93`: fuel that consists of octane / gasoline blend with 93% octane / 7% gasoline
+
+              - **BETA, RESTRICTED** `octane_95`: fuel that consists of an octane / gasoline blend with 95% octane / 5% gasoline
+
+              - **BETA, RESTRICTED** `octane_98`:  fuel that consists of an octane / gasoline blend with 98% octane / 2% gasoline
+
+              - **BETA, RESTRICTED** `premium`: premium octane rating
+
+              - **BETA, RESTRICTED** `premium_with_additives`: premium octane rating with additives
+
+              - **BETA, RESTRICTED** `regular`: regular octane rating
+
+              - **BETA, RESTRICTED** `regular_with_additives`: regular octane rating with additives
+
+              - **BETA, RESTRICTED** `truck_cng`: compressed natural gas (CNG) fuel for truck
+
+              - **BETA, RESTRICTED** `truck_diesel`: diesel fuel for truck
+
+              - **BETA, RESTRICTED** `truck_hydrogen`: hydrogen fuel for truck
+
+              - **BETA, RESTRICTED** `truck_lng`: liquefied natural gas (LNG) fuel for truck'
+            example:
+            - biodiesel
+            - diesel
+            - truck_diesel
+    atBrowse:
+      name: at
+      description: "Specify the center of the search context expressed as coordinates\n\nRequired parameter for endpoints that are expected to rank results by distance from the explicitly\n specified search center\n\nFormat: `{latitude},{longitude}`\n\nType: `{decimal},{decimal}`\n\nExample: `-13.163068,-72.545128` (Machu Picchu Mountain, Peru)\n"
+      in: query
+      required: true
+      schema:
+        type: string
+        example: 52.5308,13.3856
+    categories:
+      name: categories
+      description: 'Category filter consisting of a comma-separated list of category-IDs for Categories defined in the HERE Places Category System, described
+
+        in the Appendix to the HERE Search Developer Guide. Places with any assigned categories that match any of the requested categories are
+
+        included in the response.
+
+
+        An exclamation mark "`!`" in front of a category ID causes that category to be excluded from the results.
+
+        It is possible to mix excluded and included categories in the request - e.g. searching for places that are restaurants but not fast food restaurants.
+
+        An exclusion will always win over an inclusion.
+
+        '
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    route:
+      name: route
+      description: "**BETA**\n\nSelect within a geographic corridor. This is a hard filter. Results will be returned if they are located within the specified area.\n\nA `route` is defined by a [Flexible Polyline Encoding](https://github.com/heremaps/flexible-polyline),\n followed by an optional width, represented by a sub-parameter \"w\".\n\nFormat: `{route};w={width}`\n\nIn regular expression syntax, the values of `route` are formatted as follows:\n\n`[a-zA-Z0-9_-]+(;w=\\d+)?`\n\n\"[a-zA-Z0-9._-]+\" is the encoded flexible polyline.\n\n\"w=\\d+\" is the optional width. The width is specified in meters from the center of the path. If no width is provided, the default is 1000 meters.\n\nType: `{Flexible Polyline Encoding};w={integer}`\n\nThe following constraints apply:\n * A `route` MUST contain at least two points (one segment).\n * A `route` MUST NOT contain more than 2,000 points.\n * A `route` MUST NOT have a width of more than 50,000 meters.\n\nExamples:\n * `BFoz5xJ67i1B1B7PzIhaxL7Y`\n * `BFoz5xJ67i1B1B7PzIhaxL7Y;w=5000`\n * `BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC;w=2000`\n\nNote: The last example above can be decoded (using the Python class [here](https://github.com/heremaps/flexible-polyline/tree/master/python) as follows:\n\n```\n>>> import flexpolyline\n>>> polyline = 'BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC'\n>>> flexpolyline.decode(polyline)\n[(52.51994, 13.38663, 1.0), (52.51009, 13.28169, 2.0), (52.43518, 13.19352, 3.0), (52.41073, 13.19645, 4.0),\n (52.38871, 13.15578, 5.0), (52.37278, 13.1491, 6.0), (52.37375, 13.11546, 7.0), (52.38752, 13.08722, 8.0),\n (52.40294, 13.07062, 9.0), (52.41058, 13.07555, 10.0)]\n```\n"
+      in: query
+      required: false
+      schema:
+        type: string
+    evStation:
+      name: evStation
+      description: "`evStation[<property>]`  deep object parameter allows adding constraints to the places results of category EV station (`700-7600-0322`, `700-7600-0323`, `700-7600-0324`).\nSearch results of other types or categories will be returned without these constraints applied. Each property describes a separate constraint.\n\nCurrently, the following properties are supported:\n\n* `evStation[minPower]`: Sets a constraint on the minimum power in kW delivered by at least one of the station EVSE. Accepted is a single decimal value.\n\n* `evStation[maxPower]`: Sets a constraint on the maximum power in kW delivered by at least one of the station EVSE. Accepted is a single decimal value.\n\n* `evStation[connectorTypeIds]`: Sets a constraint on the connector type ID that the EV station result should have for at least one of its EVSE.\n   Accepted are comma-separated integer values for non-deprecated connectors, listed in the [HERE EV Charge Points API v2 documentation](https://www.here.com/docs/bundle/ev-charge-points-api-developer-guide/page/topics/resource-type-connector-types.html)\n\n* `evStation[supplierNames]`: Sets a constraint on the charge point operator name operating of the EV station place result. Accepted are multiple comma-separated names.\n\n* `evStation[current]`: Sets a constraint on the current phase provided at one of the EVSE of the EV station result. Accepted is either AC or DC\n\n* `evStation[eMobilityServiceProviderPartnerIds]`: Sets a constraint on the e-Mobility Service Providers (eMSP) available at the EV station place result.\n\n* `evStation[paymentMethodIds]`: Sets a constraint on the payment methods that the EV station result should support.\n\nExample (line-breaks used for the sake of readability):\n```\nevStation[connectorTypeIds]=29,33&evStation[minPower]=50.0&evStation[supplierNames]=ChargePoint&\nevStation[eMobilityServiceProviderPartnerIds]=1f351b84-cca5-11ed-8155-42010aa40002&evStation[paymentMethodIds]=creditCard\n```\n"
+      in: query
+      explode: true
+      style: deepObject
+      required: false
+      schema:
+        type: object
+        properties:
+          paymentMethodIds:
+            type: array
+            items:
+              type: string
+              enum:
+              - authByCarPlugAndCharge
+              - creditCard
+              - debitCard
+              - onlineApplePay
+              - onlineGooglePay
+              - onlinePaypal
+              - operatorApp
+            description: 'Filter to retrieve Electric Vehicle charging stations by supported payment types
+
+
+              Description of supported values:
+
+
+              - `authByCarPlugAndCharge`: indicates whether this EV station supports Plug&Charge.ISO 15118 Plug&Charge enables drivers to plug in and charge up instantly using automatic EV-to-charging station authentication technology.
+
+              - `creditCard`: indicates if this EV station accepts credit card payment or not.
+
+              - `debitCard`: indicates if this EV station accepts debit card payment or not.
+
+              - `onlineApplePay`: indicates whether this EV station accepts Apple Pay (TM) authentication and payment method.
+
+              - `onlineGooglePay`:  indicates whether this EV station accepts Google Pay (TM) authentication and payment method.
+
+              - `onlinePaypal`: indicates whether this EV station accepts PayPal (TM) authentication and payment method.
+
+              - `operatorApp`: indicates whether this EV station support authentication and payment through an app from the Charging Point Operator.'
+          eMobilityServiceProviderPartnerIds:
+            type: array
+            items:
+              type: string
+            description: 'Filter to retrieve Electric Vehicle charging stations by value of e-Mobility Service Providers
+
+              (eMSP) partner ID. EV roaming enables EV drivers to be charged using subscription cards from eMSP.
+
+              Several partner IDs can be set as value this filter, separated with a comma.
+
+              The list of eMSP partner IDs supported by this filter can be retrieved using the EV Charge Points API
+
+              [`roaming`](https://www.here.com/docs/bundle/ev-charge-points-api-developer-guide/page/topics/resource-roamings.html)
+
+              resource.'
+            example:
+            - 1f351b84-cca5-11ed-8155-42010aa40002
+            - 1f39ad02-cca5-11ed-9d1a-42010aa40002
+          current:
+            type: string
+            enum:
+            - AC
+            - DC
+            description: 'Filter to retrieve Electric Vehicle charging stations by current type
+
+
+              Description of supported values:
+
+
+              - `AC`: Alternating current
+
+              - `DC`: Direct current'
+            example: AC
+          supplierNames:
+            type: array
+            items:
+              type: string
+            description: Filter to retrieve Electric Vehicle charging stations with at least one connector of supplier name in the filter
+          connectorTypeIds:
+            type: array
+            items:
+              type: string
+              enum:
+              - '10'
+              - '11'
+              - '12'
+              - '13'
+              - '14'
+              - '15'
+              - '20'
+              - '21'
+              - '22'
+              - '23'
+              - '24'
+              - '25'
+              - '29'
+              - '30'
+              - '31'
+              - '32'
+              - '33'
+              - '34'
+              - '35'
+              - '36'
+              - '37'
+              - '42'
+              - '43'
+              - '46'
+              - '48'
+              - '49'
+              - '5'
+              - '50'
+              - '52'
+              - '53'
+              - '6'
+              - '7'
+              - '8'
+              - '9'
+            description: 'Filter to retrieve Electric Vehicle charging stations with at least a connector type ID
+
+
+              Description of supported values:
+
+
+              - `10`: Domestic plug/socket type E+F (CEE 7/7)
+
+              - `11`: Domestic plug/socket type G (BS 1363, IS 401 & 411, MS 58)
+
+              - `12`: Domestic plug/socket type H (SI 32)
+
+              - `13`: Domestic plug/socket type I (AS/NZS 3112)
+
+              - `14`: Domestic plug/socket type I (CPCS-CCC)
+
+              - `15`: Domestic plug/socket type I (IRAM 2073)
+
+              - `20`: Domestic plug/socket type K (Section 107-2-D1)
+
+              - `21`: Domestic plug/socket type K (Thailand TIS 166 - 2549)
+
+              - `22`: Domestic plug/socket type L (CEI 23-16/VII)
+
+              - `23`: Domestic plug/socket type M (South African 15 A/250 V)
+
+              - `24`: Domestic plug/socket type IEC 60906-1 (3 pin)
+
+              - `25`: AVCON Connector
+
+              - `29`: JEVS G 105 (CHAdeMO)
+
+              - `30`: IEC 62196-2 type 1 (SAE J1772)
+
+              - `31`: IEC 62196-2 type 2 (Mennekes)
+
+              - `32`: IEC 62196-2 type 3c (SCAME)
+
+              - `33`: IEC 62196-3 type 1 combo (SAE J1772)
+
+              - `34`: IEC 62196-3 type 2 combo (Mennekes)
+
+              - `35`: IEC 60309 : industrial P + N + E (AC)
+
+              - `36`: IEC 60309 : industrial 3P + E + N (AC)
+
+              - `37`: IEC 60309 : industrial 2P + E (AC)
+
+              - `42`: Domestic plug/socket type J (SEV 1011) (T13, T23)
+
+              - `43`: Tesla Connector
+
+              - `46`: IEC 60309 : industrial 2P + E (DC)
+
+              - `48`: Domestic plug/socket type A (NEMA 1-15, 2 pins)
+
+              - `49`: Domestic plug/socket type C (CEE 7/17, 2 pins)
+
+              - `5`: Domestic plug/socket type B (NEMA 5-15)
+
+              - `50`: IEC 62196-2 type 3a (SCAME)
+
+              - `52`: GB/T (Chinese) AC connector
+
+              - `53`: GB/T (Chinese) DC connector
+
+              - `6`: Domestic plug/socket type B (NEMA 5-20)
+
+              - `7`: Domestic plug/socket type D (BS 546 (3 pin))
+
+              - `8`: Domestic plug/socket type E (CEE 7/5)
+
+              - `9`: Domestic plug/socket type F (CEE 7/4 (Schuko))'
+          maxPower:
+            type: number
+            format: double
+            description: Maximum charging power in kW that each returned EV station must at most support in one of its EVSEs
+            example: 100
+            exclusiveMinimum: 0
+          minPower:
+            type: number
+            format: double
+            description: Minimum charging power in kW that each returned EV station must at least support in one of its EVSEs
+            example: 6.6
+            exclusiveMinimum: 0
+    politicalView:
+      name: politicalView
+      description: 'Toggle the political view.
+
+
+        This parameter accepts a single ISO 3166-1 alpha-3 country code in all uppercase.
+
+
+        If a valid 3-letter country code is provided for which GS7 does not have a dedicated political view, it will fallback to the default view.
+
+
+        The following political views are currently supported:
+
+
+        - `ARG`: Argentina''s view on the Southern Patagonian Ice Field and Tierra Del Fuego, including the Falkland Islands, South Georgia, and South Sandwich Islands
+
+        - `EGY`: Egypt''s view on Bir Tawil
+
+        - `IND`: India''s view on Gilgit-Baltistan
+
+        - `KEN`: Kenya''s view on the Ilemi Triangle
+
+        - `MAR`: Morocco''s view on Western Sahara
+
+        - `PAK`: Pakistan''s view on Jammu and Kashmir and the Junagadh Area
+
+        - `RUS`: Russia''s view on Crimea
+
+        - `SDN`: Sudan''s view on the Halaib Triangle
+
+        - `SRB`: Serbia''s view on Kosovo, Vukovar, and Sarengrad Islands
+
+        - `SUR`: Suriname''s view on the Courantyne Headwaters and Lawa Headwaters
+
+        - `SYR`: Syria''s view on the Golan Heights
+
+        - `TUR`: Turkey''s view on Cyprus and Northern Cyprus
+
+        - `TZA`: Tanzania''s view on Lake Malawi
+
+        - `URY`: Uruguay''s view on Rincon de Artigas
+
+        - `VNM`: Vietnam''s view on the Paracel Islands and Spratly Islands'
+      in: query
+      required: false
+      schema:
+        type: string
+    name:
+      name: name
+      description: Full-text filter on POI names/titles. Results with a partial match on the name parameter are included in the response.
+      in: query
+      required: false
+      schema:
+        type: string
+    showBrowseDiscover:
+      name: show
+      description: "Select additional fields to be rendered in the response.\nPlease note that some of the fields involve additional webservice calls and can increase the overall response time.\n\nThe value is a comma-separated list of the sections to be enabled.\nFor some sections there is a long and a short ID.\n\nDescription of supported values:\n\n- `eMobilityServiceProviders`: Returns for each place of category EV station (`700-7600-0322`, `700-7600-0323`, `700-7600-0324`)\n  the list of e-Mobility Service Providers (eMSP) in `extended.evStation` field.\n- `ev`: Returns for each place of category EV station (`700-7600-0322`, `700-7600-0323`, `700-7600-0324`)\n\n  * connector groups details in `extended.evStation` field and\n  * detailed connectors availability in `extended.evAvailability` field.\n\n  Please note that the use of this option may impact latency.\n- `phonemes`: Renders phonemes for address and place names into the results.\n- `referenceCategories`: Renders the different place category identifiers associated with the reference information.\n  Example: category identifier `600-6600-0082` (Garden Center) for the Yelp (TM)\n  reference identifier `-w_eNjJYsHVkt2UHRc3PDQ`\n- `streetInfo`: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.\n- `tz`: Renders result items with additional time zone information.\n- **BETA, RESTRICTED** `fuel`: Fetches fuel station related information if available and puts them in the `extended.fuelStation` field.\n- **BETA, RESTRICTED** `fuelPrices`: Fetches fuel prices related information if available and puts them in the\n  `extended.fuelStation` field.\n\n  This option can only be used in combination with `fuel` or `truck`.\n  Can also be used with both `fuel` and `truck` altogether.\n- **BETA, RESTRICTED** `tripadvisor`: If available, adds images, ratings, and editorials from Tripadvisor (TM) in the `media` field of `place` results.\n- **BETA, RESTRICTED** `tripadvisorImageVariants`: If available, adds the different image variants from Tripadvisor (TM) in the `media`\n  field of `place` results. An image variants are details of the same image in various sizes\n  (`thumbnail`, `small`, `large`, …)\n- **BETA, RESTRICTED** `truck`: Fetches truck station related information if available and puts the amenities in the `extended.truckAmenities` field."
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - eMobilityServiceProviders
+          - ev
+          - fuel
+          - fuelPrices
+          - phonemes
+          - referenceCategories
+          - streetInfo
+          - tripadvisor
+          - tripadvisorImageVariants
+          - truck
+          - tz
+    inBrowse:
+      name: in
+      description: "Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.\n\nA geographic area can be\n\n * a country (or multiple countries), provided as comma-separated [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country codes\n\n   The country codes must be provided in uppercase.\n\n   Format: `countryCode:{countryCode}[,{countryCode}]*`\n\n   Examples:\n    * `countryCode:USA`\n    * `countryCode:CAN,MEX,USA`\n\n\n * a circular area, provided as latitude, longitude, and radius (in meters)\n\n   Format: `circle:{latitude},{longitude};r={radius}`\n\n   Type: `circle:{decimal},{decimal};r={integer}`\n\n   Example: `circle:52.53,13.38;r=10000`\n\n\n * a bounding box, provided as _west longitude_, _south latitude_, _east longitude_, _north latitude_\n\n   Format: `bbox:{west longitude},{south latitude},{east longitude},{north latitude}`\n\n   Example: `bbox:13.08836,52.33812,13.761,52.6755`\n\n\nThe following constraints apply:\n\n * Parameters \"in=circle\" and \"in=bbox\" are mutually exclusive. Only one of them is allowed.\n"
+      in: query
+      required: false
+      schema:
+        type: string
+    offset:
+      name: offset
+      description: '**ALPHA**
+
+
+        If set, the `offset` parameter switches on the pagination mode:
+
+
+        * The response element items is returned together with the 4 attributes: `limit`, `offset`, `count`, `nextOffset`.
+
+        * The response becomes a "page" of `<count>` results at a certain `offset`.
+
+        * If `offset` parameter is not set, there is no pagination and none of the 4 attributes is returned.
+
+
+        Note that if the `offset` value exceeds the total number of `items`, the response `items` list will be empty.
+
+        '
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 99
+    chains:
+      name: chains
+      description: 'Chain filter consisting of a comma-separated list of chain-IDs for Chains defined in the HERE Places Chain System, is described
+
+        in the HERE Search Developer Guide Appendix. Places with any assigned chains that match any of the requested chains are
+
+        included in the response.
+
+
+        An exclamation mark "`!`" in front of a chain ID causes that chain to be excluded from the results.
+
+        It is possible to mix excluded and included chains in the request. For example, searching for results that are Amazon but not Wholefoods.
+
+        An exclusion will always win over an inclusion.
+
+        '
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    limitAutosuggestBrowseDiscover:
+      name: limit
+      description: Maximum number of results to be returned. For paginated queries (`offset` parameter) it specifies the expected number of results per page.
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+    rankingBrowse:
+      name: ranking
+      description: "**BETA**\n\nSelects the ranking mode to be used.\nThis parameter only applies to places category, cuisine or chain search use cases (See [browse-category-filter](https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics/endpoint-browse-brief.html#multigranular-place-category-filter)\nand [browse-chain-filter](https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics/endpoint-browse-brief.html#place-chain-filter)).\nIt is ignored for other search use cases.\n\n\nDescription of supported values:\n\n- **BETA** `excursionDistance`: Rank results in along the route parameter by increasing distance\n  from the route polyline.\n\n  Constraint: `ranking=excursionDistance` returns a 400 status code if the `route` parameter is not specified."
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: string
+        enum:
+        - excursionDistance
+    X-Request-ID:
+      name: X-Request-ID
+      description: 'Used to correlate requests with their responses within a customer''s application, for logging and error reporting.
+
+
+        Format: Free string, but a valid UUIDv4 is recommended.'
+      in: header
+      required: false
+      schema:
+        type: string
+    foodTypes:
+      name: foodTypes
+      description: 'FoodType filter consisting of a comma-separated list of cuisine-IDs for FoodTypes defined in the HERE Places Cuisine System, is described
+
+        in the HERE Search Developer Guide appendix. Places with any assigned foodTypes that match any of the requested foodTypes are
+
+        included in the response.
+
+
+        An exclamation mark "`!`" in front of a cuisine ID causes that foodType to be excluded from the results.
+
+        It is possible to mix excluded and included foodTypes in the request. For example, searching for places that serve italian but not chinese.
+
+        An exclusion will always win over an inclusion.
+
+        '
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    langAutosuggestBrowseDiscoverGeocodeLookupRevgeocode:
+      name: lang
+      description: Select the language to be used for result rendering from a list of [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) compliant language codes.
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+  schemas:
+    Address:
+      type: object
+      properties:
+        label:
+          type: string
+          description: 'Assembled address value built out of the address components according to the regional postal rules.
+
+            These are the same rules for all endpoints. It may not include all the input terms. For example:
+
+            "Schulstraße 4, 32547 Bad Oeynhausen, Germany"'
+        countryCode:
+          type: string
+          description: 'A three-letter country code. For example: "DEU"'
+        countryName:
+          type: string
+          description: 'The localised country name. For example: "Deutschland"'
+        stateCode:
+          type: string
+          description: 'A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.'
+        state:
+          type: string
+          description: 'The state division of a country. For example: "North Rhine-Westphalia"'
+        countyCode:
+          type: string
+          description: 'A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.'
+        county:
+          type: string
+          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+        city:
+          type: string
+          description: 'The name of the primary locality of the place. For example: "Bad Oyenhausen"'
+        district:
+          type: string
+          description: 'A division of city; typically an administrative unit within a larger city or a customary name of a city''s neighborhood. For example: "Bad Oyenhausen"'
+        subdistrict:
+          type: string
+          description: 'A subdivision of a district. For example: "Minden-Lübbecke"'
+        street:
+          type: string
+          description: 'Name of street. For example: "Schulstrasse"'
+        streets:
+          type: array
+          items:
+            type: string
+          description: 'Names of streets in case of intersection result. For example: ["Friedrichstraße","Unter den Linden"]'
+        block:
+          type: string
+          description: Name of block.
+        subblock:
+          type: string
+          description: Name of sub-block.
+        postalCode:
+          type: string
+          description: 'An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"'
+        houseNumber:
+          type: string
+          description: 'House number. For example: "4"'
+        building:
+          type: string
+          description: Name of building.
+        unit:
+          type: string
+          description: Secondary unit information. It may include building, floor (level), and suite (unit) details. This field is returned by Geocode, Autocomplete, (Multi) Reverse Geocode and Lookup endpoints only.
+    EvNameId:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Any string value
+        id:
+          type: string
+          description: Unique ID
+    RatingMediaCollection:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Rating'
+          description: 'An array containing the ratings objects of the current place result.
+
+            If the place has no ratings, the parent element `ratings` is not present.'
+    ExtendedAccessPoint:
+      type: object
+      required:
+      - lat
+      - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: 'Latitude of the access position. For example: `"52.19404"`'
+        lng:
+          type: number
+          format: double
+          description: 'Longitude of the access position. For example: `"8.80135"`'
+        primary:
+          type: boolean
+          description: 'Only applies to response items of type `"place"`. Set to true for the primary access position when the place
+
+            result has more than one `access` position.
+
+            Only the first element in the access array can have a primary field set to `true`.
+
+            '
+        type:
+          type: string
+          enum:
+          - delivery
+          - emergency
+          - entrance
+          - loading
+          - other
+          - parking
+          - taxi
+          description: "Only applies to response items of type `\"place\"`\n\nDescription of supported values:\n\n- `delivery`: A designated access position for receiving goods and services, typically used by delivery personnel.\n- `emergency`: A position specifically designated for emergency access or services,\n  such as ambulance or fire vehicle entry points.\n- `entrance`: A designated access position for larger or complex places, such as shopping malls or sports centers,\n  where multiple entrances are located around the perimeter. Each entrance provides a specific\n  point of entry for visitors.\n- `loading`: An access position to a designated area for the loading and unloading of goods, typically used by delivery and service vehicles.\n- `other`: An access type that does not fit into predefined categories, used for unique or less common situations.\n- `parking`: An access position to a designated private area for vehicle parking, associated with the place.\n- `taxi`: A position specifically designated for taxi/ride-share pick-up and drop-off services."
+        label:
+          type: string
+          description: 'Only applies to response items of type `"place"`. The value is a short textual description of the access point. Example: "North Entrance"'
+    CarFuel:
+      type: object
+      required:
+      - type
+      - available
+      properties:
+        type:
+          type: string
+          enum:
+          - biodiesel
+          - cng
+          - diesel
+          - diesel_with_additives
+          - e10
+          - e20
+          - e85
+          - ethanol
+          - ethanol_with_additives
+          - gasohol_95
+          - gasoline
+          - hvo
+          - hydrogen
+          - lng
+          - lpg
+          - midgrade
+          - octane_100
+          - octane_87
+          - octane_89
+          - octane_90
+          - octane_91
+          - octane_92
+          - octane_93
+          - octane_95
+          - octane_98
+          - premium
+          - premium_with_additives
+          - regular
+          - regular_with_additives
+          description: '**BETA, RESTRICTED**
+
+
+            The type of car fuel
+
+
+            Description of supported values:
+
+
+            - **BETA, RESTRICTED** `biodiesel`: bio-diesel
+
+            - **BETA, RESTRICTED** `cng`: compressed natural gas (CNG)
+
+            - **BETA, RESTRICTED** `diesel`: diesel
+
+            - **BETA, RESTRICTED** `diesel_with_additives`: diesel with additives
+
+            - **BETA, RESTRICTED** `e10`: E10 (10% ethanol)
+
+            - **BETA, RESTRICTED** `e20`: E20 (20% ethanol)
+
+            - **BETA, RESTRICTED** `e85`: E85 (minimum 70% ethanol blended gasoline)
+
+            - **BETA, RESTRICTED** `ethanol`: ethanol fuel (when specific type is not known, such as E10, E85)
+
+            - **BETA, RESTRICTED** `ethanol_with_additives`: ethanol with additives
+
+            - **BETA, RESTRICTED** `gasohol_95`: E10 (10% Ethanol) with octane 95
+
+            - **BETA, RESTRICTED** `gasoline`: gasoline
+
+            - **BETA, RESTRICTED** `hvo`: hydrotreated vegetable oil fuel
+
+            - **BETA, RESTRICTED** `hydrogen`: hydrogen
+
+            - **BETA, RESTRICTED** `lng`: liquefied natural gas (LNG)
+
+            - **BETA, RESTRICTED** `lpg`: liquefied petroleum gas (LPG)
+
+            - **BETA, RESTRICTED** `midgrade`: midgrade octane rating
+
+            - **BETA, RESTRICTED** `octane_100`: fuel that consists of 100% octane
+
+            - **BETA, RESTRICTED** `octane_87`: fuel that consists of an octane / gasoline blend with 87% octane / 13% gasoline
+
+            - **BETA, RESTRICTED** `octane_89`: fuel that consists of an octane / gasoline blend with 89% octane / 11% gasoline
+
+            - **BETA, RESTRICTED** `octane_90`: fuel that consists of an octane / gasoline blend with 90% octane / 10% gasoline
+
+            - **BETA, RESTRICTED** `octane_91`: fuel that consists of an octane / gasoline blend with 91% octane / 9% gasoline
+
+            - **BETA, RESTRICTED** `octane_92`: fuel that consists of an octane / gasoline blend with 92% octane / 8% gasoline
+
+            - **BETA, RESTRICTED** `octane_93`: fuel that consists of octane / gasoline blend with 93% octane / 7% gasoline
+
+            - **BETA, RESTRICTED** `octane_95`: fuel that consists of an octane / gasoline blend with 95% octane / 5% gasoline
+
+            - **BETA, RESTRICTED** `octane_98`:  fuel that consists of an octane / gasoline blend with 98% octane / 2% gasoline
+
+            - **BETA, RESTRICTED** `premium`: premium octane rating
+
+            - **BETA, RESTRICTED** `premium_with_additives`: premium octane rating with additives
+
+            - **BETA, RESTRICTED** `regular`: regular octane rating
+
+            - **BETA, RESTRICTED** `regular_with_additives`: regular octane rating with additives'
+        available:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that this type of car fuel is available at this place
+
+            - `false` indicates that this type of car fuel is not available at this place
+
+            '
+        stockAvailable:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            If set to true, indicates that the fuel type is available for refuelling at the time indicated by `lastUpdateTimestamp`.
+
+            Stock availability is currently only provided for the fuel types `hydrogen` and `truck_hydrogen`.'
+        additives:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/FuelAdditive'
+          description: '**BETA, RESTRICTED**
+
+
+            A list of additional compound fluids sold at the location, related to the specific fuel type'
+        pressures:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: '**BETA, RESTRICTED**
+
+
+            Indicates the pressure values in bar for hydrogen fuel at the location'
+        price:
+          allOf:
+          - $ref: '#/components/schemas/FuelPrice'
+          description: '**BETA, RESTRICTED**
+
+
+            Information about the price of the related fuel'
+        lastUpdateTimestamp:
+          type: string
+          description: '**BETA, RESTRICTED**
+
+
+            Information about when the fuel price and stock availability information was last updated, in ISO 8601 format.
+
+            If the time is UTC, a Z is added. An example of this kind of timestamp value is 2013-12-31T12:00:00.000Z.
+
+            If the time is not UTC , then the offset is added as a ±[hh][mm] value (for example, 2014-01-14T10:00:00.000+0100).'
+    EvChargingPoint:
+      type: object
+      properties:
+        numberOfConnectors:
+          type: integer
+          format: int32
+          description: Number of physical connectors in the connectors group
+        voltsRange:
+          type: string
+          description: Voltage provided by the connectors group
+          example: 100-120V AC
+        phases:
+          type: integer
+          format: int32
+          description: Number of phases provided by the connectors group
+        ampsRange:
+          type: string
+          description: Amperage provided by the connectors group
+          example: 12A-80A
+        numberOfAvailable:
+          type: integer
+          format: int32
+          description: Number of available physical connectors in the connectors group (i.e not being used to charge a vehicle, out of service, etc)
+        numberOfInUse:
+          type: integer
+          format: int32
+          description: Number of occupied physical connectors in the connectors group.
+        numberOfOutOfService:
+          type: integer
+          format: int32
+          description: Number of physical connectors that are out of service at the charge point.
+        numberOfReserved:
+          type: integer
+          format: int32
+          description: Number of physical connectors that are reserved at the charge point.
+        lastUpdateTimestamp:
+          type: string
+          description: "\nInformation about when the `numberOfAvailable` and `numberOfInUse` fields were last updated, in ISO 8601 format.\nIf the time is UTC, a Z is added. \nIf the time is not UTC , then the offset is added as a ±[hh][mm] value.\n"
+          example: '2013-12-31T12:00:00.000Z'
+    ExtendedAttribute:
+      type: object
+      properties:
+        evStation:
+          allOf:
+          - $ref: '#/components/schemas/EvChargingAttributes'
+          description: 'EV charging pool information.
+
+            This element and its children are only rendered when `show=ev` is provided.'
+        evAvailability:
+          allOf:
+          - $ref: '#/components/schemas/EvAvailabilityAttributes'
+          description: 'EV charging pool detailed availability
+
+            Detailed information about the pool stations, EVSE and connectors.
+
+            This element and its children are only rendered when `show=ev` is provided.'
+        fuelStation:
+          allOf:
+          - $ref: '#/components/schemas/FuelStationAttributes'
+          description: '**BETA, RESTRICTED**
+
+
+            An object contain a listing of additional attributes specific to
+
+            place results for businesses that sell fuel for vehicles:
+
+            `700-7600-0000`, `700-7600-0116`, `700-7600-0444`, `700-7900-0132`
+
+
+            See the related [Appendix](https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics-places/places-category-system-full.html#700-business-and-services)
+
+            for details about those place category IDs.
+
+            '
+        truckAmenities:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TruckAmenityGeneric'
+            - $ref: '#/components/schemas/TruckAmenityShowers'
+          description: '**BETA, RESTRICTED**
+
+
+            This field contains a listing of acceptable key-value pairs for amenities at places useful for truck drivers.'
+    Chain:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: 'Identifier number for an associated chain. For example: `"1396"`'
+        name:
+          type: string
+          description: '
+
+            Name of the chain in the result item language. If the script is not available, fallback to latin.
+
+            For example: `"STARBUCKS"` is returned for the Greek language, while `"ستاربكس"` is returned for the arabic language.
+
+            '
+    TruckFuel:
+      type: object
+      required:
+      - type
+      - available
+      properties:
+        type:
+          type: string
+          enum:
+          - truck_cng
+          - truck_diesel
+          - truck_hydrogen
+          - truck_lng
+          description: '**BETA, RESTRICTED**
+
+
+            The type of truck fuel
+
+
+            Description of supported values:
+
+
+            - **BETA, RESTRICTED** `truck_cng`: compressed natural gas (CNG) fuel for truck
+
+            - **BETA, RESTRICTED** `truck_diesel`: diesel fuel for truck
+
+            - **BETA, RESTRICTED** `truck_hydrogen`: hydrogen fuel for truck
+
+            - **BETA, RESTRICTED** `truck_lng`: liquefied natural gas (LNG) fuel for truck'
+        available:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that this type of truck fuel is available at this place
+
+            - `false` indicates that this type of truck fuel is not available at this place
+
+            '
+        stockAvailable:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            If set to true, indicates that the fuel type is available for refuelling at the time indicated by `lastUpdateTimestamp`.
+
+            Stock availability is currently only provided for the fuel types `hydrogen` and `truck_hydrogen`.'
+        maximumTruckClass:
+          type: string
+          enum:
+          - heavy
+          - medium
+          description: '**BETA, RESTRICTED**
+
+
+            The truck classes
+
+
+            Description of supported values:
+
+
+            - **BETA, RESTRICTED** `heavy`: Medium and Heavy trucks are allowed to fuel in the gas station
+
+            - **BETA, RESTRICTED** `medium`: Only medium size truck is allowed to fuel in the gas station'
+        price:
+          allOf:
+          - $ref: '#/components/schemas/FuelPrice'
+          description: '**BETA, RESTRICTED**
+
+
+            Information about the price of the related fuel'
+        largeNozzle:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true`: indicates that this Place has Truck diesel pumps with large nozzles
+
+            - `false`: indicates that this Place does not have Truck diesel pumps with large nozzles
+
+            '
+        lastUpdateTimestamp:
+          type: string
+          description: '**BETA, RESTRICTED**
+
+
+            Information about when the fuel price and stock availability information was last updated, in ISO 8601 format.
+
+            If the time is UTC, a Z is added. An example of this kind of timestamp value is 2013-12-31T12:00:00.000Z.
+
+            If the time is not UTC , then the offset is added as a ±[hh][mm] value (for example, 2014-01-14T10:00:00.000+0100).'
+    EvAvailabilityEvse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: HERE ID of the EVSE
+        cpoId:
+          type: string
+          description: "The unique ID of an EVSE in the system of the CPO.\n This ID is unique in the system of the CPO but not necessarily globally unique.\n The format will differ between different CPOs. This ID is always provided."
+        cpoEvseEMI3Id:
+          type: string
+          description: 'Identifier in eMI3 format of the EVSE within the Charge Point Operator (CPO) platform.
+
+            This ID is not always present. Example of ID format: "`DE*ICT*E0001897`". '
+        state:
+          type: string
+          enum:
+          - AVAILABLE
+          - OCCUPIED
+          - OFFLINE
+          - OTHER
+          - OUT_OF_SERVICE
+          - RESERVED
+          - UNAVAILABLE
+          description: 'EVSE status
+
+
+            Description of supported values:
+
+
+            - `AVAILABLE`: The EVSE is able to start a new charging session.
+
+            - `OCCUPIED`: The EVSE is in use
+
+            - `OFFLINE`: No status information available. (Also used when offline)
+
+            - `OTHER`: No status information available. (Also used when offline)
+
+            - `OUT_OF_SERVICE`: The EVSE is currently out of order.
+
+            - `RESERVED`: The EVSE has been reserved for a particular EV driver and is unavailable for other drivers
+
+            - `UNAVAILABLE`: The EVSE is not available because of a physical barrier, for example a car'
+        last_updated:
+          type: string
+          description: 'Last update of the dynamic connector availability information reflected in the connectorStatus elements,
+
+            in ISO 8601 format. If the time is UTC, a Z is added.
+
+            An example of this kind of timestamp value is "`2013-12-31T12:00:00.000Z`". If the time is not UTC ,
+
+            then the offset is added as a ±[hh][mm] value (for example, "`2014-01-14T10:00:00.000+0100`").'
+        connectors:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvAvailabilityConnector'
+          description: List of connectors of this EVSE.
+    ErrorResponse:
+      type: object
+      required:
+      - status
+      - title
+      - correlationId
+      - requestId
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code
+        title:
+          type: string
+          description: Human-readable error description
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+        action:
+          type: string
+          description: Human-readable action for the user
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+        requestId:
+          type: string
+          description: Request identifier provided by the user
+    OpeningHours:
+      type: object
+      required:
+      - text
+      - structured
+      properties:
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CategoryRef'
+          description: The list of place categories, this set of opening hours refers to.
+        text:
+          type: array
+          items:
+            type: string
+        isOpen:
+          type: boolean
+        structured:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/StructuredOpeningHours'
+          description: List of iCalender-based structured representations of opening hours
+    BrowseResultItem:
+      type: object
+      required:
+      - title
+      - id
+      - address
+      properties:
+        title:
+          type: string
+          description: The localized display name of this result item.
+        id:
+          type: string
+          description: The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+        politicalView:
+          type: string
+          description: ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+        resultType:
+          type: string
+          enum:
+          - addressBlock
+          - administrativeArea
+          - locality
+          - place
+          - street
+          description: '
+
+            Type of the result item.
+
+
+            Note: `addressBlock` result item is either a block or subblock.
+
+
+            `resultType` values can get added to the list without further notice.
+
+            '
+        addressBlockType:
+          type: string
+          enum:
+          - block
+          - subblock
+          description: '
+
+            Type of the address block result if the `resultType` field is set to `addressBlock`.
+
+
+            `addressBlockType` values can get added to the list without further notice.
+
+            '
+        localityType:
+          type: string
+          enum:
+          - city
+          - district
+          - postalCode
+          - subdistrict
+          description: '
+
+            Type of the locality result if the `resultType` field is set to `locality`.
+
+
+            `localityType` values can get added to the list without further notice.
+
+            '
+        administrativeAreaType:
+          type: string
+          enum:
+          - country
+          - county
+          - state
+          description: '
+
+            Type of the administrative area result if the `resultType` field is set to `administrativeArea`.
+
+
+            `administrativeAreaType` values can get added to the list without further notice.
+
+            '
+        address:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          description: Postal address of the result item.
+        position:
+          allOf:
+          - $ref: '#/components/schemas/DisplayResponseCoordinate'
+          description: The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+        access:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ExtendedAccessPoint'
+          description: 'Coordinates of the response item on a HERE map navigable link (for example, for driving or walking).
+
+
+            When a response item is of type `"place"`, it can contain more than one access object.
+
+            Each access object contains a position (`lat`, `lng`), with potentially a type (field `type`),
+
+            a textual label (field `label`) and a `primary` boolean field set to true for the main access to the place.
+
+
+            The first object in the `access` array is the primary access to the place.
+
+
+            Response items of other types than `"place"` have a maximum of one access position.
+
+            '
+        driveThrough:
+          type: boolean
+          description: 'Set to `true` if the related business allows customers to purchase products
+
+            (or use the service provided by the business) without leaving their cars.'
+        distance:
+          type: integer
+          format: int64
+          description: 'The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+
+
+            When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.'
+          example: 172039
+        excursionDistance:
+          type: integer
+          format: int64
+          description: Two times the distance from the polyline to this result item in meters while searching along the route
+        mapView:
+          allOf:
+          - $ref: '#/components/schemas/MapView'
+          description: The bounding box enclosing the geometric shape (area or line) that an individual result covers. `place` typed results have no `mapView`.
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Category'
+          description: The list of categories assigned to this place.
+        chains:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Chain'
+          description: The list of chains assigned to this place.
+        references:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SupplierReference'
+          description: The list of supplier references available for this place.
+        foodTypes:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Category'
+          description: The list of food types assigned to this place.
+        contacts:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ContactInformation'
+          description: Contact information like phone, email, WWW.
+        openingHours:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/OpeningHours'
+          description: 'A list of hours during which the place is open for business.
+
+            This field is optional: When it is not present, it means that we are lacking data about the place opening hours.
+
+            Days without opening hours have to be considered as closed.'
+        timeZone:
+          allOf:
+          - $ref: '#/components/schemas/TimeZoneInfo'
+          description: Provides time zone information for this place. (rendered only if `show=tz` is provided.)
+        extended:
+          allOf:
+          - $ref: '#/components/schemas/ExtendedAttribute'
+          description: Extended attributes section to contain detailed information for specific result types.
+        phonemes:
+          allOf:
+          - $ref: '#/components/schemas/PhonemesSection'
+          description: Phonemes for address and place names. (rendered only if `show=phonemes` is provided.)
+        media:
+          allOf:
+          - $ref: '#/components/schemas/Media'
+          description: '**BETA, RESTRICTED**
+
+
+            A set of rich media types aggregated from multiple sources. When the current place has no ratings, description or images, this element is not present.'
+        streetInfo:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/StreetInfo'
+          description: Street Details (only rendered if `show=streetInfo` is provided.)
+        accessRestrictions:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AccessRestrictionAttributes'
+          description: 'A list of access restrictions related to a `place` result item.
+
+
+            A place response item has a restricted access when the place is not publicly accessible without a specific authorization, membership or customer relationship.
+
+            Examples: the place is for customers or visitors only.
+
+
+            This field is optional: When it is not present, it means that the place response item has no known access restriction.'
+          example:
+          - categories:
+            - id: 800-8500-0177
+            restricted: true
+    TruckAmenityGeneric:
+      type: object
+      required:
+      - type
+      - available
+      properties:
+        type:
+          type: string
+          enum:
+          - carWash
+          - chemicalToiletDisposal
+          - convenienceStore
+          - highCanopy
+          - idleReduction
+          - nightParkingOnly
+          - paidParking
+          - parking
+          - powerSupply
+          - reservableParking
+          - secureParking
+          - truckScales
+          - truckService
+          - truckStop
+          - truckWash
+          - wifi
+          description: '**BETA, RESTRICTED**
+
+
+            The kind of amenity
+
+
+            Description of supported values:
+
+
+            - **BETA, RESTRICTED** `carWash`: car washing and/or detailing services
+
+            - **BETA, RESTRICTED** `chemicalToiletDisposal`: a waste disposal station, for use in emptying and cleaning chemical toilets
+
+            - **BETA, RESTRICTED** `convenienceStore`: a convenience store can be found at the location
+
+            - **BETA, RESTRICTED** `highCanopy`: High canopy at fueling station/truck stop. This references the canopy height over the pumps being at a height for most trucks to enter.
+
+            - **BETA, RESTRICTED** `idleReduction`: idle reduction system onsite
+
+            - **BETA, RESTRICTED** `nightParkingOnly`: parking is restricted to night hours only
+
+            - **BETA, RESTRICTED** `paidParking`: A fee is required to use the truck parking space.
+
+            - **BETA, RESTRICTED** `parking`: truck parking onsite or nearby
+
+            - **BETA, RESTRICTED** `powerSupply`: power supply, for use in maintaining the temperature of refrigerated trucks
+
+            - **BETA, RESTRICTED** `reservableParking`: The truck parking space requires advance booking for a defined time interval.
+
+            - **BETA, RESTRICTED** `secureParking`: secure parking location
+
+            - **BETA, RESTRICTED** `truckScales`: truck scales onsite or nearby
+
+            - **BETA, RESTRICTED** `truckService`: truck service onsite or nearby
+
+            - **BETA, RESTRICTED** `truckStop`: a truck stop
+
+            - **BETA, RESTRICTED** `truckWash`: truck wash onsite or nearby
+
+            - **BETA, RESTRICTED** `wifi`: Wi-Fi access'
+        available:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that this amenity is available at this place
+
+            - `false` indicates that this amenity is not available at this place
+
+            '
+    StructuredOpeningHours:
+      type: object
+      required:
+      - start
+      - duration
+      - recurrence
+      properties:
+        start:
+          type: string
+          description: 'String with a modified [iCalendar DATE-TIME](https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.5) value.
+
+            The date part is omitted, values starts with the time section maker "T". Example: T132000'
+        duration:
+          type: string
+          description: 'String with an [iCalendar DURATION](https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.6) value.
+
+            A closed day has the value PT00:00M'
+        recurrence:
+          type: string
+          description: "String with a [RECUR](https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.10) rule. Note that,\n in contrast to the RFC, the assignment operator is a colon `:` and not an equal sign `=`."
+    StreetInfo:
+      type: object
+      properties:
+        baseName:
+          type: string
+          description: Base name part of the street name.
+        streetType:
+          type: string
+          description: Street type part of the street name.
+        streetTypePrecedes:
+          type: boolean
+          description: Defines if the street type is before or after the base name.
+        streetTypeAttached:
+          type: boolean
+          description: Defines if the street type is attached or unattached to the base name.
+        prefix:
+          type: string
+          description: A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+        suffix:
+          type: string
+          description: A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+        direction:
+          type: string
+          description: Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+        language:
+          type: string
+          description: BCP 47 compliant language code
+    CategoryRef:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: 'Identifier number for an associated category. For example: `"600-6600-0082"`'
+    PhonemesSection:
+      type: object
+      properties:
+        placeName:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the name of the place.
+        countryName:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the county name.
+        state:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the state name.
+        county:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the county name.
+        city:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the city name.
+        district:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the district name.
+        subdistrict:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the subdistrict name.
+        street:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the street name.
+        block:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the block.
+        subblock:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Phoneme'
+          description: Phonemes for the sub-block.
+    EvAvailabilityStation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: HERE ID of the station
+        cpoId:
+          type: string
+          description: The unique ID of the location in the system of the CPO.
+        evses:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvAvailabilityEvse'
+          description: List of EVSE (electric vehicle supply equipment) in the EV station
+    TripadvisorMediaSupplier:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          enum:
+          - tripadvisor
+          description: An identifier for the supplier.
+    Contact:
+      type: object
+      required:
+      - value
+      properties:
+        label:
+          type: string
+          description: Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+        value:
+          type: string
+          description: Contact information, as specified by the contact type.
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CategoryRef'
+          description: The list of place categories this contact refers to.
+    FuelPrice:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          description: '**BETA, RESTRICTED**
+
+
+            Real-time price value for a volume of 1 unit'
+        currency:
+          type: string
+          description: '**BETA, RESTRICTED**
+
+
+            Currency in which the amount is expressed'
+        unit:
+          type: string
+          description: '**BETA, RESTRICTED**
+
+
+            Unit of measurement for the fuel quantity:
+
+            - `l` litres
+
+            - `gal` gallons
+
+            - `bbl` barrels
+
+            - `kg` kilogram
+
+            - `m3` cubic meters
+
+            '
+    FuelAdditive:
+      type: object
+      required:
+      - type
+      - available
+      properties:
+        type:
+          type: string
+          enum:
+          - aus32
+          description: '**BETA, RESTRICTED**
+
+
+            Indicates the type or brand of Diesel Emission Fluid (DEF) available.'
+        available:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that Diesel Emission Fluid (DEF) is available at this place
+
+            - `false` indicates that Diesel Emission Fluid (DEF) is not available at this place
+
+            '
+        inCans:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that Diesel Emission Fluid (DEF) is available in cans.
+
+            - `false` indicates that Diesel Emission Fluid (DEF) is not available in cans.
+
+            '
+        atThePump:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that Diesel Emission Fluid (DEF) is available at the pump.
+
+            - `false` indicates that Diesel Emission Fluid (DEF) is not available at the pump.
+
+            '
+        price:
+          allOf:
+          - $ref: '#/components/schemas/FuelPrice'
+          description: '**BETA, RESTRICTED**
+
+
+            Information about the price of the related additive type'
+    EditorialMediaCollection:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Editorial'
+          description: 'An array containing the editorial objects of the current place result.
+
+            If the place has no editorials, the parent element `editorials` is not present.'
+    ReferenceSupplier:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          enum:
+          - booking.com
+          - core
+          - hereParking
+          - nsr
+          - parkopedia
+          - ryd
+          - tollCollect
+          - tripadvisor
+          - truckParkingClub
+          - venues
+          - vinfast
+          - yelp
+          description: An identifier for the supplier.
+    EvChargingAttributes:
+      type: object
+      properties:
+        connectors:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvConnector'
+          description: List of EV pool groups of connectors. Each group is defined by a common charging connector type and max power level. The numberOfConnectors field contains the number of connectors in the group.
+        totalNumberOfConnectors:
+          type: integer
+          format: int32
+          description: Total number of charging connectors in the EV charging pool
+        access:
+          type: string
+          enum:
+          - private
+          - public
+          - restricted
+          description: Information about accessibility
+        eMobilityServiceProviders:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EMobilityServiceProvider'
+          description: 'The list of eMSP (e-Mobility Service Provider) for which the EV station operator has EV roaming agreements.
+
+            Each element contains both the name and the partner ID of the eMSP.'
+        paymentMethods:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvPaymentSupport'
+          description: List of payment methods supported at the EV station
+    EvConnector:
+      type: object
+      properties:
+        supplierName:
+          type: string
+          description: The EV charge point operator
+        connectorType:
+          allOf:
+          - $ref: '#/components/schemas/EvNameId'
+          description: 'Id and name element pair representing the connector type in the EV pool group.
+
+            For more information on the current connector types, see the [connectorTypes](https://www.here.com/docs/bundle/ev-charge-points-api-developer-guide/page/topics/resource-type-connector-types.html) values in the HERE EV Charge Points API.'
+        fixedCable:
+          type: boolean
+          description: Boolean indicating if a cable is provided for the connector group.If true, then there is a cable for the connector group at the station.
+        maxPowerLevel:
+          type: number
+          format: double
+          description: Maximum charge power (in kilowatt) of connectors in connectors group.
+        chargingPoint:
+          allOf:
+          - $ref: '#/components/schemas/EvChargingPoint'
+          description: Connectors group additional charging information
+    SupplierReference:
+      type: object
+      required:
+      - supplier
+      - id
+      properties:
+        supplier:
+          allOf:
+          - $ref: '#/components/schemas/ReferenceSupplier'
+          description: Information about the supplier of this reference.
+        id:
+          type: string
+          description: Identifier of the place as provided by the supplier.
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CategoryRef'
+          description: The list of place category identifiers this supplier reference relates to.
+    TruckAmenityShowers:
+      type: object
+      required:
+      - type
+      - available
+      properties:
+        type:
+          type: string
+          enum:
+          - showers
+          description: '**BETA, RESTRICTED**
+
+
+            The kind of amenity
+
+
+            Description of supported values:
+
+
+            - **BETA, RESTRICTED** `showers`: showers onsite'
+        available:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that this amenity is available at this place
+
+            - `false` indicates that this amenity is not available at this place
+
+            '
+        numberOfShowers:
+          type: integer
+          format: int32
+          description: '**BETA, RESTRICTED**
+
+
+            Indicates the number of showers existing at the location.'
+    Rating:
+      type: object
+      required:
+      - count
+      - average
+      - supplier
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: The current count of user reviews in the supplier database.
+        average:
+          type: number
+          format: double
+          description: The current average of user ratings in the supplier database.
+        href:
+          type: string
+          description: An optional deep link to a 3rd party source providing the ratings information.
+        supplier:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorMediaSupplier'
+          description: Information about the supplier of this rating.
+    EMobilityServiceProvider:
+      type: object
+      required:
+      - name
+      - partnerId
+      properties:
+        name:
+          type: string
+          description: The name of the e-Mobility Service Provider. The eMSP name may change but the respective partner ID will remain stable.
+        partnerId:
+          type: string
+          description: 'The unique and stable ID for the e-Mobility Service Provider provided by HERE platform.
+
+            The partner ID can be used to display EV stations supported by eMSP for which drivers have a subscription.
+
+            The list of eMSP partner IDs can be retrieved using the EV Charge Points API
+
+            [`roaming`](https://www.here.com/docs/bundle/ev-charge-points-api-developer-guide/page/topics/resource-roamings.html) resource.'
+    DisplayResponseCoordinate:
+      type: object
+      required:
+      - lat
+      - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: 'Latitude of the address. For example: `"52.19404"`'
+        lng:
+          type: number
+          format: double
+          description: 'Longitude of the address. For example: `"8.80135"`'
+    OpenSearchBrowseResponse:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/BrowseResultItem'
+          description: 'If the `offset` request parameter is not set, `items` contains a *full list* of JSON objects with a payload relevant to the request.
+
+            The ranking order is from most to least relevant and is based on the matched location criteria.
+
+
+            If the `offset` request parameter is set, `items` contains a contiguous subset of objects from the *full list* described before: A page of `<count>` objects at a certain `<offset>` value from the beginning of the *full list*.
+
+            '
+        offset:
+          type: integer
+          format: int32
+          description: '**ALPHA**
+
+
+            The `offset` value from the full list from which the page is taken.
+
+
+            This is expected to reflect the `offset` request parameter value
+
+            '
+        nextOffset:
+          type: integer
+          format: int32
+          description: '**ALPHA**
+
+
+            The `offset` value of the next page. This element is omitted on the last page.
+
+
+            This response element is only set when in pagination mode (when the query parameter `offset` is set).
+
+            '
+        count:
+          type: integer
+          format: int32
+          description: '**ALPHA**
+
+
+            The actual page size: The number of objects returned in the `items` array.
+
+
+            This response element is only set when in pagination mode (when the query parameter `offset` is set).
+
+            '
+        limit:
+          type: integer
+          format: int32
+          description: '**ALPHA**
+
+
+            Maximum number of objects in `items` as specified in request.
+
+
+            This response element is only set when in pagination mode (when the query parameter `offset` is set).
+
+            '
+    EvAvailabilityAttributes:
+      type: object
+      properties:
+        stations:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvAvailabilityStation'
+          description: List of EV stations at the place (Currently only one is expected)
+    TimeZoneInfo:
+      type: object
+      required:
+      - name
+      - utcOffset
+      properties:
+        name:
+          type: string
+          description: 'The name of the time zone as defined in the [tz database](https://en.wikipedia.org/wiki/Tz_database). For example: "Europe/Berlin"'
+        utcOffset:
+          type: string
+          description: The UTC offset for this time zone at request time. For example "+02:00"
+    Editorial:
+      type: object
+      required:
+      - description
+      - language
+      - supplier
+      properties:
+        description:
+          type: string
+          description: The editorial content.
+        language:
+          type: string
+          description: A language code indicating what language the editorial is in, if known.
+        href:
+          type: string
+          description: An optional deep link to a 3rd party source providing the editorials.
+        supplier:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorMediaSupplier'
+          description: Information about the supplier of this editorial.
+    EvAvailabilityConnector:
+      type: object
+      properties:
+        id:
+          type: string
+          description: HERE ID of the connector.
+        cpoId:
+          type: string
+          description: CPO ID of the connector.
+        typeId:
+          type: string
+          description: 'Connector type ID. For more information on the current connector types,
+
+            see [resource-type-connector-types.html](https://www.here.com/docs/bundle/ev-charge-points-api-developer-guide/page/topics/resource-type-connector-types.html)'
+        maxPowerLevel:
+          type: number
+          format: double
+          description: Maximum charge power of connector in kilowatts.
+    ImageMediaCollection:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TripadvisorImage'
+          description: 'An array containing the image objects of the current place result.
+
+            If the place has no image, the parent element `images` is not present.'
+    Category:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: 'Identifier number for an associated category. For example: `"600-6600-0082"`'
+        name:
+          type: string
+          description: Name of the place category in the result item language.
+        primary:
+          type: boolean
+          description: Whether or not it is a primary category. This field is visible only when the value is `true`.
+    AccessRestrictionAttributes:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CategoryRef'
+          description: The list of place categories, this set of access restrictions refers to.
+        restricted:
+          type: boolean
+          description: 'When set to `true`, the place response item has a known access restriction.
+
+            When the place has no known access restriction, the `accessRestrictions` element is omitted, so `restricted` value is never set to `false`.'
+    EvPaymentSupport:
+      type: object
+      required:
+      - id
+      - accepted
+      properties:
+        id:
+          type: string
+          enum:
+          - authByCarPlugAndCharge
+          - creditCard
+          - debitCard
+          - onlineApplePay
+          - onlineGooglePay
+          - onlinePaypal
+          - operatorApp
+          description: 'payment method identifier.
+
+
+            Description of supported values:
+
+
+            - `authByCarPlugAndCharge`: indicates whether this EV station supports Plug&Charge.ISO 15118 Plug&Charge enables drivers to plug in and charge up instantly using automatic EV-to-charging station authentication technology.
+
+            - `creditCard`: indicates if this EV station accepts credit card payment or not.
+
+            - `debitCard`: indicates if this EV station accepts debit card payment or not.
+
+            - `onlineApplePay`: indicates whether this EV station accepts Apple Pay (TM) authentication and payment method.
+
+            - `onlineGooglePay`:  indicates whether this EV station accepts Google Pay (TM) authentication and payment method.
+
+            - `onlinePaypal`: indicates whether this EV station accepts PayPal (TM) authentication and payment method.
+
+            - `operatorApp`: indicates whether this EV station support authentication and payment through an app from the Charging Point Operator.'
+        accepted:
+          type: boolean
+          description: set to `true` if the related payment method is accepted at the EV station
+    Phoneme:
+      type: object
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: The actual phonetic transcription in the NT-SAMPA format.
+        language:
+          type: string
+          description: The [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) language code.
+        preferred:
+          type: boolean
+          description: Whether or not it is the preferred phoneme.
+    TripadvisorImageVariants:
+      type: object
+      properties:
+        thumbnail:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariant'
+          description: 'An object that provides access to Tripadvisor (TM) image variant of *thumbnail* size.
+
+
+            The object''s `href` value contains a URL linking to a 50x50px image that has been cropped, resized, and optimized by Tripadvisor.
+
+            '
+        small:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariant'
+          description: 'An object that provides access to Tripadvisor (TM) image variant of *small* size.
+
+
+            The object''s `href` value contains a URL linking to a 150x150px image that has been cropped, resized, and optimized by Tripadvisor.
+
+            '
+        medium:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariant'
+          description: 'An object that provides access to Tripadvisor (TM) image variant of *medium* size.
+
+
+            The object''s `href` value contains a URL pointing to an image with a maximum dimension of
+
+            250px (either height or width, depending on the photo''s orientation), with the other dimension scaled
+
+            proportionally to preserve the aspect ratio.
+
+
+            The `href` value matches that of the grandparent object.
+
+            '
+        large:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariant'
+          description: 'An object that provides access to Tripadvisor (TM) image variant of *large* size.
+
+
+            The object''s `href` `value contains a URL pointing to an image with a maximum dimension of
+
+            550px (either height or width, depending on the photo''s orientation), with the other dimension scaled proportionally to preserve the aspect ratio
+
+            '
+        original:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariant'
+          description: 'An object that provides access to Tripadvisor (TM) image variant in its *original* size.
+
+
+            The object’s `href` value contains a URL pointing to the photo in its original resolution and aspect ratio.
+
+            '
+    ContactInformation:
+      type: object
+      properties:
+        phone:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+        mobile:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+        tollFree:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+        fax:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+        www:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+        email:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Contact'
+    Media:
+      type: object
+      properties:
+        images:
+          allOf:
+          - $ref: '#/components/schemas/ImageMediaCollection'
+          description: 'This object enables access to images linked to the place result and is returned when the query
+
+            specifies either `show=tripadvisor` or `show=tripadvisorImageVariants` as a parameter.'
+        editorials:
+          allOf:
+          - $ref: '#/components/schemas/EditorialMediaCollection'
+          description: 'An object containing editorial content that describes the place result.
+
+            Returned when the query includes the parameter `show=tripadvisor`.'
+        ratings:
+          allOf:
+          - $ref: '#/components/schemas/RatingMediaCollection'
+          description: 'An object that provides 3rd party supplier ratings about the place result.
+
+            Currently only Tripadvisor (TM) ratings are provided.
+
+            This object is returned when the query includes the parameter `show=tripadvisor`.'
+    MapView:
+      type: object
+      required:
+      - west
+      - south
+      - east
+      - north
+      properties:
+        west:
+          type: number
+          format: double
+          description: 'Longitude of the western-side of the box. For example: "8.80068"'
+        south:
+          type: number
+          format: double
+          description: 'Latitude of the southern-side of the box. For example: "52.19333"'
+        east:
+          type: number
+          format: double
+          description: 'Longitude of the eastern-side of the box. For example: "8.8167"'
+        north:
+          type: number
+          format: double
+          description: 'Latitude of the northern-side of the box. For example: "52.19555"'
+    TripadvisorImage:
+      type: object
+      required:
+      - href
+      - supplier
+      properties:
+        href:
+          type: string
+          description: 'The URL points to the default image provided by Tripadvisor (TM). These default images are typically sized for the *medium* format used by Tripadvisor.
+
+            In rare cases, the image may be larger than expected. To ensure consistent rendering across all scenarios, we recommend enforcing maximum dimensions when displaying the image.'
+        supplier:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorMediaSupplier'
+          description: Information about the supplier of this image.
+        variants:
+          allOf:
+          - $ref: '#/components/schemas/TripadvisorImageVariants'
+          description: 'An object containing key-value pairs, where each key represents a specific image size
+
+            (e.g., `thumbnail`, `small`, `medium`, `large`, `original`) and the corresponding value is
+
+            an object containing the URL of that image variant.
+
+            This object is returned when the query includes the parameter `show=tripadvisorImageVariants`.
+
+            '
+    TripadvisorImageVariant:
+      type: object
+      required:
+      - href
+      properties:
+        href:
+          type: string
+          description: The URL to the actual image
+    FuelStationAttributes:
+      type: object
+      properties:
+        fuelTypes:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CarFuel'
+            - $ref: '#/components/schemas/TruckFuel'
+          description: '**BETA, RESTRICTED**
+
+
+            List of fuel types available or not available at this place'
+        payAtThePump:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that payment can be made at fuel pumps via credit card or other method at this place
+
+            - `false` indicates that payment can not be made at fuel pumps via credit card or other method at this place
+
+            '
+        highVolumePumps:
+          type: boolean
+          description: '**BETA, RESTRICTED**
+
+
+            When set to:
+
+            - `true` indicates that high volume pumps for commercial vehicles are available at this place
+
+            - `false` indicates that high volume pumps for commercial vehicles are not available at this place
+
+            '
+  securitySchemes:
+    Bearer:
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see the
+
+        [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/).
+
+        '
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKey:
+      description: 'A key generated specifically to authenticate API requests.
+
+        For more information on how to get an API key, see the
+
+        [Identity and Access Management Developer Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/).
+
+        '
+      type: apiKey
+      name: apiKey
+      in: query
+externalDocs:
+  description: The developer guide, release notes, and migration guide are available here.
+  url: https://www.here.com/docs/category/geocoding-search-v7

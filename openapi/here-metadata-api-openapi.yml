@@ -1,0 +1,4792 @@
+openapi: 3.2.0
+info:
+  title: Here Metadata API
+  x-refined-note:
+  - x-olp-service differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged metadata across 4 of this provider''s published API definitions: here-data-metadata-v1-openapi.yml, here-map-image-v3-openapi.yml, here-raster-tile-v3-openapi.yml, here-tracking-v2-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://use.apilookup.for.a.base.url/
+- url: https://image.maps.hereapi.com/mia/v3
+  description: Production
+- url: https://maps.hereapi.com/v3
+  description: Production
+- url: https://tracking.hereapi.com/
+- url: https://tracking.api.here.com/
+tags:
+- name: Metadata
+  description: Get information about catalogs, layers, and partitions
+paths:
+  /layerVersions:
+    get:
+      tags:
+      - Metadata
+      summary: Gets layer versions for catalog version
+      description: Returns information about layer versions for the catalog version. It will return an error if the catalog does not have any versions or if the version passed in the query parameter does not exist. If a layer does not have any data for the requested version it is excluded from the response.
+      operationId: Metadata API v1 getLayersVersion
+      parameters:
+      - name: version
+        in: query
+        description: Catalog version
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alphanumeric ASCII characters [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerVersions'
+        '400':
+          description: Required parameters are missing
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/changes:
+    get:
+      tags:
+      - Metadata
+      summary: Gets changes for the version range
+      description: Gets the latest partition metadata in a version range for a versioned layer or a time range for a volatile layer. For versioned layers the range is expressed as a start and end version and returns only the latest changes for the partitions which were added and removed inbetween the specified start and end versions. If a partition was created and deleted between the versions specified in the `startVersion` and `endVersion` parameters, the partition is included in the response with an empty `dataHandle` value. For example, if you request versions `0` to `10`, and a partition was created in version `3` and then deleted in version `7`, it is included in the response with an empty `dataHandle` value.
+      operationId: Metadata API v1 getChanges
+      parameters:
+      - name: layerId
+        in: path
+        description: Unique layer ID. Content of this parameter must refer to a valid layer ID.
+        required: true
+        schema:
+          type: string
+      - name: startVersion
+        in: query
+        description: Available/Required for versioned layers only; the beginning of the range of versions to get (exclusive). By convention -1 indicates the initial version before the first publication. After the first publication, the catalog version is 0.
+        schema:
+          type: integer
+          format: int64
+      - name: endVersion
+        in: query
+        description: Available/Required for versioned layers only; the end of the range of versions to get (inclusive). This must be a valid catalog version greater than the startVersion.
+        schema:
+          type: integer
+          format: int64
+      - name: sinceTime
+        in: query
+        description: Available/Required for volatile layers only; will return partitions whose data has been modified since this time, in milliseconds since epoch, inclusive.
+        schema:
+          type: integer
+          format: int64
+      - name: part
+        in: query
+        description: Available/Required for versioned layers only; indicates which part of the layer shall be queried.
+        required: false
+        schema:
+          type: string
+        x-example: 7a320ce9e4d04d749c7a19810f99a3a1
+      - $ref: '#/components/parameters/Context'
+      - name: additionalFields
+        in: query
+        description: Additional fields - `dataSize`, `checksum`, `compressedDataSize`, `crc`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalFieldsEnum'
+      - name: Range
+        in: header
+        description: 'Use this parameter to resume download of a large response for versioned layers when there is a connection issue between the client and server. Specify a single byte range offset like this: `Range: bytes=10-`. This parameter is compliant with [RFC 7233](https://tools.ietf.org/html/rfc7233), but note that this parameter only supports a single byte range. The `range` parameter can also be specified as a query parameter, i.e. `range=bytes=10-`. For volatile layers use the pagination links returned in the response body.'
+        schema:
+          type: string
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time at which the resource was last modified
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partitions'
+        '206':
+          description: Partial response in case the server provides and accepts range query parameter or Content-Range header
+          headers:
+            Last-Modified:
+              description: The date and time at which the resource was last modified
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partitions'
+        '400':
+          description: Required parameters are missing
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog or layer does not exist
+          content: {}
+        '416':
+          description: Range Not Satisfiable, invalid range query parameter or Content-Range header
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+        '503':
+          description: Service Unavailable
+          headers:
+            Retry-After:
+              description: Retry after the specified number of seconds
+              schema:
+                type: integer
+                format: int64
+          content: {}
+      x-olp-access-type: resource
+      x-fullurl-type: nextUrl
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/changes/parts:
+    get:
+      tags:
+      - Metadata
+      summary: Get partIds for parallel queries of changes for the version range
+      description: Returns a list of Part Ids which represent the parts that can be used to limit the scope of queries of changes for the version range. This allows to run parallel queries with multiple parts. The user has to provide the desired number of parts and the service will return a list of Part Ids. Please note in some cases the requested number of parts will make them too small and in this case the service might return lesser amount of the parts than requested.
+      operationId: Metadata API v1 getChangesParts
+      parameters:
+      - name: layerId
+        in: path
+        description: Unique layer ID. Content of this parameter must refer to a valid layer ID.
+        required: true
+        schema:
+          type: string
+      - name: numRequestedParts
+        in: query
+        description: Indicates requested number of parts.
+        required: true
+        schema:
+          type: integer
+        allowEmptyValue: false
+        x-example: 12
+      responses:
+        '200':
+          description: OK - Operation executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartsResponse'
+        '400':
+          description: Bad Request - The request is invalid. Verify number of requested parts and retry.
+        '401':
+          description: Unauthorized - The credentials provided do not authorize the user to perform this operation.
+        '403':
+          description: Forbidden - The user is not authorized to perform the query on the resource specified.
+        '404':
+          description: Not Found - A layer with the given name does not exist.
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/partitions:
+    get:
+      tags:
+      - Metadata
+      summary: Gets partitions
+      description: Gets the metadata for all partitions in a specific layer.
+      operationId: Metadata API v1 getPartitions
+      parameters:
+      - name: layerId
+        in: path
+        description: Unique layer ID. Content of this parameter must refer to a valid layer ID.
+        required: true
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: If metadata is being gotten from a versioned layer, specify the version of the target layer. This parameter is required for versioned layers. If metadata is being gotten from another layer type, do not specify this parameter.
+        schema:
+          type: integer
+          format: int64
+      - name: part
+        in: query
+        description: Available/Required for versioned layers only; indicates which part of the layer shall be queried.
+        required: false
+        schema:
+          type: string
+        x-example: 7a320ce9e4d04d749c7a19810f99a3a1
+      - $ref: '#/components/parameters/Context'
+      - name: additionalFields
+        in: query
+        description: Additional fields - `dataSize`, `checksum`, `compressedDataSize`, `crc`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalFieldsEnum'
+      - name: Range
+        in: header
+        description: 'Use this parameter to resume download of a large response for versioned layers when there is a connection issue between the client and server. Specify a single byte range offset like this: `Range: bytes=10-`. This parameter is compliant with [RFC 7233](https://tools.ietf.org/html/rfc7233), but note that this parameter only supports a single byte range. The `range` parameter can also be specified as a query parameter, i.e. `range=bytes=10-`. For volatile layers use the pagination links returned in the response body.'
+        schema:
+          type: string
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time at which the resource was last modified
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partitions'
+        '206':
+          description: Partial response in case the server provides and accepts range query parameter or Content-Range header
+          headers:
+            Last-Modified:
+              description: The date and time at which the resource was last modified
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partitions'
+        '400':
+          description: Required parameters are missing
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog or layer does not exist
+          content: {}
+        '416':
+          description: Range Not Satisfiable, invalid range query parameter or Content-Range header
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+        '503':
+          description: Service Unavailable
+          headers:
+            Retry-After:
+              description: Retry after the specified number of seconds
+              schema:
+                type: integer
+                format: int64
+          content: {}
+      x-olp-access-type: resource
+      x-fullurl-type: nextUrl
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /layers/{layerId}/partitions/parts:
+    get:
+      tags:
+      - Metadata
+      summary: Get partIds for parallel queries of the metadata for all partitions in a…
+      description: Returns a list of Part Ids which represent the parts that can be used to limit the scope of queries of the metadata for all partitions in a specific layer. This allows to run parallel queries with multiple parts. The user has to provide the desired number of parts and the service will return a list of Part Ids. Please note in some cases the requested number of parts will make them too small and in this case the service might return lesser amount of the parts than requested.
+      operationId: Metadata API v1 getPartitionsParts
+      parameters:
+      - name: layerId
+        in: path
+        description: Unique layer ID. Content of this parameter must refer to a valid layer ID.
+        required: true
+        schema:
+          type: string
+      - name: numRequestedParts
+        in: query
+        description: Indicates requested number of parts.
+        required: true
+        schema:
+          type: integer
+        allowEmptyValue: false
+        x-example: 12
+      responses:
+        '200':
+          description: OK - Operation executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartsResponse'
+        '400':
+          description: Bad Request - The request is invalid. Verify number of requested parts and retry.
+        '401':
+          description: Unauthorized - The credentials provided do not authorize the user to perform this operation.
+        '403':
+          description: Forbidden - The user is not authorized to perform the query on the resource specified.
+        '404':
+          description: Not Found - A layer with the given name does not exist.
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /versions:
+    get:
+      tags:
+      - Metadata
+      summary: Gets catalog versions
+      description: 'Returns information about specific catalog version(s). If the catalog doesn''t contain any versions 404 will be returned. Maximum number of versions to be returned per call is 1000 versions. If requested range is bigger than 1000 versions 400 Bad Request will be returned.
+
+        Expected either pair ''startVersion'' and ''endVersion'', or ''version'' query parameter, otherwise 400 Bad Request will be returned.'
+      operationId: Metadata API v1 listVersions
+      parameters:
+      - name: startVersion
+        in: query
+        description: The beginning of the range of versions to get (exclusive). By convention -1 indicates the initial version before the first publication. After the first publication, the catalog version is 0.
+        schema:
+          type: integer
+          format: int64
+      - name: endVersion
+        in: query
+        description: The end of the range of versions to get (inclusive). This must be a valid catalog version greater than the startVersion. The maximum value for this parameter is returned from the `/versions/latest` endpoint. If this version does not exist, 400 Bad Request is returned
+        schema:
+          type: integer
+          format: int64
+      - name: version
+        in: query
+        description: The array of catalogs versions to fetch. If provided version if out of range of the catalog existing versions, 400 Bad Request is returned.
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+            description: The version to get. This must be a valid catalog version.
+          minItems: 1
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Context'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionInfos'
+        '400':
+          description: Bad Request - indicates that request failed fast validation e.g. syntax, some logical errors or required parameters are missing
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist or the catalog doesn't contain any versions
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+        '503':
+          description: Service Unavailable
+          headers:
+            Retry-After:
+              description: Retry after the specified number of seconds
+              schema:
+                type: integer
+                format: int64
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /versions/compatibles:
+    post:
+      tags:
+      - Metadata
+      summary: Gets a list of available catalog versions that respect the given dependencies
+      description: Given a list of HRNs and versions provided by the user, returns a list of versions of this catalog for which the listed HRN are either present in the direct or indirect dependencies with the same version, or are not present. Depending on 'strict' flag versions that don't depend on any of the provided catalog HRNs, can also be considered compatible. The compatible versions are returned in reverse order, from the newest to the oldest. When there is no compatible version the service returns an empty list. When the catalog has no version a 404 is returned.
+      operationId: Metadata API v1 compatibleVersions
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 1
+        description: The numbers of items to return per page
+      - in: query
+        name: strict
+        schema:
+          type: boolean
+          default: false
+        description: if 'strict=true' versions to be considered compatible should depend on at least one of the provided catalog HRNs.
+      requestBody:
+        description: The catalog dependencies we want to search for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dependencies'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionsResponse'
+        '400':
+          description: Bad Request - indicates that request failed fast validation e.g. syntax, some logical errors or required parameters are missing
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist or the catalog doesn't contain any versions
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+        '503':
+          description: Service Unavailable
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /versions/latest:
+    get:
+      tags:
+      - Metadata
+      summary: Gets the latest available catalog version
+      description: Returns information about the latest version for the given catalog. If the catalog doesn't contain any versions a 404 will be returned.
+      operationId: Metadata API v1 latestVersion
+      parameters:
+      - name: startVersion
+        in: query
+        description: The catalog version returned from a prior request to `/versions/latest`. The version from each request should be saved so that it can be used in the `startVersion` parameter of subsequent requests. If there is no version from a prior request, set the parameter to -1.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+        '400':
+          description: Bad Request - indicates that the request failed the validation, e.g. syntax check is failing, logical errors exist or required parameters are missing.
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist or the catalog doesn't contain any versions.
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /versions/minimum:
+    get:
+      tags:
+      - Metadata
+      summary: Gets the earliest available catalog version
+      description: Returns minimum version for the given catalog. If the catalog doesn't contain any versions 404 will be returned.
+      operationId: Metadata API v1 minimumVersion
+      parameters:
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+        '400':
+          description: Bad Request - indicates that the request failed the validation, e.g. syntax check is failing, logical errors exist or required parameters are missing.
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist or the catalog doesn't contain any versions.
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    post:
+      tags:
+      - Metadata
+      summary: Sets the earliest available catalog version
+      description: Sets minimum version for the given catalog. All prior versions will be deleted. If the catalog doesn't contain any versions, a 404 will be returned.
+      operationId: Metadata API v1 setMinimumVersion
+      parameters:
+      - name: billingTag
+        in: query
+        description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+        schema:
+          type: string
+      requestBody:
+        description: A version object that contains new minimum version.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MinimumVersionInfo'
+      responses:
+        '204':
+          description: Minimum version was set successfully.
+          content: {}
+        '400':
+          description: Bad Request - indicates that the request failed the validation, e.g. syntax check is failing, logical errors exist or required parameters are missing.
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+          content: {}
+        '404':
+          description: Catalog does not exist or the catalog doesn't contain any versions.
+          content: {}
+      x-olp-access-type: resource
+      security:
+      - Bearer: []
+    servers:
+    - url: https://use.apilookup.for.a.base.url/
+  /info:
+    get:
+      description: Provides details on acceptable values for API parameters, such as PPI (Pixels Per Inch), styles, and other relevant parameters.
+      summary: Returns a list of accepted values for specific API parameters
+      operationId: getInfo
+      tags:
+      - Metadata
+      parameters:
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - Information about accepted values of specific API parameters returned.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            Cache-Control:
+              $ref: '#/components/headers/Cache-Control'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://image.maps.hereapi.com/mia/v3
+      description: Production
+  /politicalViews:
+    get:
+      description: Provides a catalog of available geopolitical views. These values enable the request of an image featuring a specific country view. For more information on geopolitical views, see Explore geopolitical views.
+      summary: Returns geopolitical views
+      operationId: getPoliticalViews
+      tags:
+      - Metadata
+      parameters:
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - List of geopolitical views
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticalViewsSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://image.maps.hereapi.com/mia/v3
+      description: Production
+  /features:
+    get:
+      description: Returns the list of available features per style. You can use these values to request an image with particular features specified as query parameters. Use only the features that are available for a particular style. For more information, see Customize map features.
+      summary: Returns features per style
+      operationId: getFeatures
+      tags:
+      - Metadata
+      parameters:
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - List of style mappings to it's features.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturesSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://image.maps.hereapi.com/mia/v3
+      description: Production
+  /languages:
+    get:
+      description: Returns the list of available map languages per resource. You can use these values to request an image with labels in a particular language. The values follow ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code. For more information, see Personalize the map language.
+      summary: Returns the available map languages
+      operationId: getLanguages
+      tags:
+      - Metadata
+      parameters:
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - List of languages per resource.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanguagesSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://image.maps.hereapi.com/mia/v3
+      description: Production
+  /copyright:
+    get:
+      description: Retrieves both the copyright information and the coordinates of the bounding box to which the text applies. If your products and/or services use map data that is made accessible using this service, you shall provide end-users of your products and/or services with notice, in a reasonably conspicuous manner. For more information, see Include the copyright notice.
+      summary: Returns copyright information
+      operationId: getCopyright
+      tags:
+      - Metadata
+      parameters:
+      - $ref: '#/components/parameters/XRequestIDParam'
+      responses:
+        '200':
+          description: OK - Information about the copyright.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            Content-Encoding:
+              description: Indicates that this API supports gzip-encoded responses to reduce payload size. The highest available compression level is used for optimal data transfer efficiency.
+              schema:
+                type: string
+                example: gzip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopyrightsSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+      - Bearer: []
+      - ApiKey: []
+    servers:
+    - url: https://image.maps.hereapi.com/mia/v3
+      description: Production
+  /metadata/v2/health:
+    get:
+      deprecated: true
+      summary: Gets service health
+      security: []
+      responses:
+        '200':
+          description: 'OK
+
+
+            The service is performing as expected
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Health status
+                example:
+                  message: healthy
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Metadata
+      operationId: getMetadataV2Health
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/version:
+    get:
+      deprecated: true
+      summary: Gets service version
+      security: []
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          content:
+            application/json:
+              schema:
+                description: "OK\nService returns its current version number\nschema:\n    type: object\n    properties:\n        \"service-name\":\n            type: string\n            description: Version of service\n    example:\n        servicename: \"1.0.0\"\n"
+        '500':
+          description: 'Service unavailable
+
+
+            The service is not performing as expected
+
+            '
+      tags:
+      - Metadata
+      operationId: getMetadataV2Version
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/devices/{trackingId}:
+    parameters:
+    - name: trackingId
+      in: path
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 50
+        description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    - name: appId
+      description: Application identifier. Used together with an external ID to identify a virtual device.
+      schema:
+        type: string
+        minLength: 8
+      in: query
+      required: false
+    get:
+      deprecated: true
+      summary: Gets metadata of a device or a shipment
+      description: Gets metadata of a device or a shipment identified by the `trackingId` or the `shipmentId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getMetadataV2DevicesByTrackingId
+      x-operation-id-source: derived
+    put:
+      deprecated: true
+      summary: Creates or updates metadata of a device or a shipment
+      description: 'Updates the metadata object of the device or a shipment identified by the `trackingId` or the `shipmentId`.
+
+        The metadata specified in the request body is merged with the existing metadata object
+
+        (or gets created if no metadata object exists);
+
+        new keys are added, and the values of the existing keys are updated with the new data.
+
+        Adding ''null'' value for a key deletes it from the metadata object.
+
+        Successful response body contains the updated metadata object.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              priority: high
+        description: Metadata object associated with the resource. Max size 1k.
+        required: true
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully updated.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putMetadataV2DevicesByTrackingId
+      x-operation-id-source: derived
+    delete:
+      deprecated: true
+      summary: Deletes all metadata of a device or a shipment
+      description: Deletes all the metadata of the device or a shipment identified by the `trackingId` or the `shipmentId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteMetadataV2DevicesByTrackingId
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/devices/batch:
+    parameters:
+    - name: pageToken
+      description: A token from the previously returned response to retrieve the specified page.
+      schema:
+        type: string
+      in: query
+      required: false
+    - name: count
+      description: The number of items to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      in: query
+      required: false
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      deprecated: true
+      summary: Gets a batch of metadata of multiple devices or shipments
+      description: Gets a batch of metadata of multiple devices or shipments. The device or shipment IDs are specified in the request body.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                minLength: 1
+                maxLength: 50
+                description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+              example:
+              - HERE-d0c29690-5d26-4cf1-a37e-b7816e72cb99
+              - SHP-ff92eda0-3114-4640-b7e6-4ba641ae1124
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            minLength: 1
+                            maxLength: 50
+                            description: This is a unique ID associated with the device data in HERE Tracking. The `trackingId` gets assigned to a device when the device is claimed by a user. Alternatively, a valid `shipmentId` may be used.
+                          data:
+                            type: object
+                            description: 'Metadata JSON object
+
+                              '
+                            example:
+                              priority: high
+                        required:
+                        - id
+                        - data
+                        additionalProperties: false
+                  required:
+                  - data
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: postMetadataV2DevicesBatch
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/geofences/{geofenceId}:
+    parameters:
+    - description: Geofence ID
+      in: path
+      schema:
+        type: string
+        format: uuid
+      name: geofenceId
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      deprecated: true
+      summary: Gets metadata of a geofence
+      description: Gets metadata of the geofence identified by the `geofenceId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getMetadataV2GeofencesByGeofenceId
+      x-operation-id-source: derived
+    put:
+      deprecated: true
+      summary: Creates or updates metadata of a geofence
+      description: 'Updates the metadata object of the geofence identified by the `geofenceId`.
+
+        The metadata specified in the request body is merged with the existing metadata object
+
+        (or gets created if no metadata object exists);
+
+        new keys are added, and the values of the existing keys are updated with the new data.
+
+        Adding ''null'' value for a key deletes it from the metadata object.
+
+        Successful response body contains the updated metadata object.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              priority: high
+        description: Metadata object associated with the resource. Max size 1k.
+        required: true
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully updated.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: Geofence ID
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putMetadataV2GeofencesByGeofenceId
+      x-operation-id-source: derived
+    delete:
+      deprecated: true
+      summary: Deletes all metadata of a geofence
+      description: Deletes all the metadata of the geofence identified by the `geofenceId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteMetadataV2GeofencesByGeofenceId
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/geofences/batch:
+    parameters:
+    - name: pageToken
+      description: A token from the previously returned response to retrieve the specified page.
+      schema:
+        type: string
+      in: query
+      required: false
+    - name: count
+      description: The number of items to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      in: query
+      required: false
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      deprecated: true
+      summary: Gets a batch of metadata of multiple geofences
+      description: Gets a batch of metadata of multiple geofences. The geofences IDs are specified in the request body.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: Geofence ID
+                type: string
+                format: uuid
+              example:
+              - d0c29690-5d26-4cf1-a37e-b7816e72cb99
+              - ff92eda0-3114-4640-b7e6-4ba641ae1124
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            description: Geofence ID
+                            type: string
+                            format: uuid
+                          data:
+                            type: object
+                            description: 'Metadata JSON object
+
+                              '
+                            example:
+                              priority: high
+                        required:
+                        - id
+                        - data
+                        additionalProperties: false
+                  required:
+                  - data
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: postMetadataV2GeofencesBatch
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/sensorRules/{sensorRuleId}:
+    parameters:
+    - in: path
+      schema:
+        type: string
+        format: uuid
+        description: 'Must be a valid UUIDv4.
+
+          '
+      name: sensorRuleId
+      description: Sensor rule ID
+      required: true
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    get:
+      deprecated: true
+      summary: Gets metadata of a sensor rule
+      description: Gets metadata of the sensor rule identified by the `sensorRuleId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: Sensor rule ID
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: getMetadataV2SensorRulesBySensorRuleId
+      x-operation-id-source: derived
+    put:
+      deprecated: true
+      summary: Creates or updates metadata of a sensor rule
+      description: 'Updates the metadata object of the sensor rule identified by the `sensorRuleId`.
+
+        The metadata specified in the request body is merged with the existing metadata object
+
+        (or gets created if no metadata object exists);
+
+        new keys are added, and the values of the existing keys are updated with the new data.
+
+        Adding ''null'' value for a key deletes it from the metadata object.
+
+        Successful response body contains the updated metadata object.'
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              priority: high
+        description: Metadata object associated with the resource. Max size 1k.
+        required: true
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully updated.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: Sensor rule ID
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    description: 'Metadata JSON object
+
+                      '
+                    example:
+                      priority: high
+                required:
+                - id
+                - data
+                additionalProperties: false
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: putMetadataV2SensorRulesBySensorRuleId
+      x-operation-id-source: derived
+    delete:
+      deprecated: true
+      summary: Deletes all metadata of a sensor rule
+      description: Delete all the metadata of the sensor rule identified by the `sensorRuleId`.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      tags:
+      - Metadata
+      responses:
+        '204':
+          description: Successful (no content)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: deleteMetadataV2SensorRulesBySensorRuleId
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+  /metadata/v2/sensorRules/batch:
+    parameters:
+    - name: pageToken
+      description: A token from the previously returned response to retrieve the specified page.
+      schema:
+        type: string
+      in: query
+      required: false
+    - name: count
+      description: The number of items to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      in: query
+      required: false
+    - in: header
+      name: X-Request-Id
+      schema:
+        type: string
+        format: uuid
+      description: 'ID used for correlating requests within HERE Tracking. Used for logging and error reporting.
+
+
+        Must be a valid UUIDv4.
+
+        '
+      required: false
+    post:
+      deprecated: true
+      summary: Gets a batch of metadata for multiple sensor rules
+      description: Gets a batch of metadata of multiple sensor rules. The sensor rules IDs are specified in the request body.
+      security:
+      - UserToken: []
+      - ClientToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: Sensor rule ID
+                type: string
+                format: uuid
+              example:
+              - d0c29690-5d26-4cf1-a37e-b7816e72cb99
+              - ff92eda0-3114-4640-b7e6-4ba641ae1124
+      tags:
+      - Metadata
+      responses:
+        '200':
+          description: 'Successful
+
+
+            The metadata was successfully retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    pageToken:
+                      type: string
+                      description: A token that can be used to retrieve the next page of the response.
+                    count:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+                      default: 100
+                      description: The number of items in the response.
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            description: Sensor rule ID
+                            type: string
+                            format: uuid
+                          data:
+                            type: object
+                            description: 'Metadata JSON object
+
+                              '
+                            example:
+                              priority: high
+                        required:
+                        - id
+                        - data
+                        additionalProperties: false
+                  required:
+                  - data
+                example:
+                  data:
+                  - id: 3b10404d-4e9e-456b-b262-5e98dd39d9c3
+                    data:
+                      blob: SEVSRSBUcmFja2luZw==
+                  - id: 3b10404d-4e9e-456b-b262-5e98dd39d9c3
+                    data:
+                      externalId: EXT-1234
+                  count: 2
+                  pageToken: 018ffffea253d64ba
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Bad request
+                code: 400
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The request object is in an incorrect format or has values that are invalid or out of range.
+                details:
+                  hereErrorCode: 400306
+          description: 'Bad request
+
+
+            The request object is in an incorrect format or has values that are invalid or out of range.
+
+
+            If available, further error details are provided in the response body.
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Unauthorized
+                code: 401
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The provided credentials are not valid.
+                details:
+                  hereErrorCode: 401306
+          description: 'Unauthorized
+
+
+            The request did not provide correct authentication details
+
+            '
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Forbidden
+                code: 403
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The account does not have the correct privileges.
+                details:
+                  hereErrorCode: 403306
+          description: 'Forbidden
+
+
+            The account does not have the correct privileges
+
+            '
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: An HTTP error description
+                  code:
+                    type: integer
+                    description: An HTTP status code
+                  message:
+                    type: string
+                    description: Descriptive text that explains the error
+                  id:
+                    type: string
+                    format: uuid
+                    description: An error ID that allows you to trace the error details
+                  details:
+                    description: An optional object containing more information about the error
+                required:
+                - error
+                - code
+                - id
+              example:
+                error: Not Found
+                code: 404
+                id: 5771b3d4-95ae-4959-ac63-fbaa3d5d06ee-lds2
+                message: The specified resource was not found.
+                details:
+                  hereErrorCode: 404306
+          description: 'Not Found
+
+
+            The specified resource was not found
+
+            '
+      operationId: postMetadataV2SensorRulesBatch
+      x-operation-id-source: derived
+    servers:
+    - url: https://tracking.hereapi.com/
+    - url: https://tracking.api.here.com/
+components:
+  schemas:
+    Dependencies:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          description: A list of catalog versions.
+          items:
+            $ref: '#/components/schemas/CatalogVersion'
+    MinimumVersionInfo:
+      required:
+      - version
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The minimum version of the catalog metadata to update.
+          format: int64
+      description: The minumum version of the catalog.
+    Partitions:
+      required:
+      - partitions
+      type: object
+      properties:
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partition'
+        next:
+          type: string
+          description: If the number of results exceeds the limit, then this uri will be present and will provide the path to the next batch of results.
+          format: uri
+          example: /uri/to/next/page
+      description: Describes a list of partitions for a given layer and layer version.
+    LayerVersion:
+      required:
+      - layer
+      - timestamp
+      - version
+      type: object
+      properties:
+        layer:
+          type: string
+          description: Layer ID
+          example: my-layer
+        version:
+          type: integer
+          description: Version of the layer when it was last updated
+          format: int64
+          example: 0
+        timestamp:
+          type: integer
+          description: Each time a layer version increments, this updates `timestamp` for this layer version *and* `timestamp` for the related catalog version, which increments as well. The `timestamp` is in milliseconds since UNIX Epoch time.
+          format: int64
+          example: 1516397474657
+      description: Describes catalog layer version.
+    VersionDependency:
+      required:
+      - direct
+      - hrn
+      - version
+      type: object
+      properties:
+        direct:
+          type: boolean
+          description: Indicates the type of data dependency. If this value is set to false, this dependency is an indirect dependency. This means that data from this catalog was not directly used by a data processing pipeline to update the current version of the catalog. Instead, the data was only used by upstream pipeline(s) to generate the input data.
+          example: false
+        hrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the catalog that the batch commit depends on.
+          example: hrn:here:data:::my-catalog
+        version:
+          type: integer
+          description: The version of the catalog metadata that the batch commit depends on.
+          format: int64
+          example: 23
+      description: Describes the properties of the version dependencies.
+    LayerVersions:
+      required:
+      - layerVersions
+      - version
+      type: object
+      properties:
+        layerVersions:
+          type: array
+          description: List of layer versions
+          items:
+            $ref: '#/components/schemas/LayerVersion'
+        version:
+          type: integer
+          description: Catalog version
+          format: int64
+          example: 1
+      description: Describes the list of the layer versions for a given catalog version.
+    CatalogVersion:
+      type: object
+      required:
+      - hrn
+      - version
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data:::my-catalog
+          description: The HERE Resource Name (HRN) of a catalog.
+        version:
+          type: integer
+          format: int64
+          example: 24
+          description: The version of the catalog metadata.
+    PartsResponse:
+      type: object
+      properties:
+        parts:
+          type: array
+          example:
+          - eyJwYXJ0SW5kZXgiOjEsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
+          - eyJwYXJ0SW5kZXgiOjMsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
+          items:
+            type: string
+      title: PartsResponse
+    VersionInfo:
+      required:
+      - dependencies
+      - timestamp
+      - version
+      type: object
+      properties:
+        dependencies:
+          type: array
+          description: A list of the catalog dependencies.
+          items:
+            $ref: '#/components/schemas/VersionDependency'
+        partitionCounts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: A map of the layers in the catalog and their partition counts. The map is expressed in key value pairs.
+        timestamp:
+          type: integer
+          description: A `timestamp` that indicates when the version was created. The `timestamp` is in milliseconds since UNIX Epoch time.
+          format: int64
+          example: 1516397474657
+        version:
+          type: integer
+          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
+          format: int64
+          example: 1
+        hasKnownIssues:
+          type: boolean
+          description: Indicates whether this catalog version has known issues. A value of true usually means that HERE had to delete selected partitions for this catalog version in incidental mode due to legal or other reasons. If you want to avoid using catalog versions with known issues, use this flag in your application logic. A common SDK use case is clearing the local cache based on this information.
+      description: Describes properties for the catalog version.
+    VersionResponse:
+      required:
+      - version
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
+          format: int64
+      description: The version of the catalog.
+    VersionsResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          description: A list of catalog versions.
+          items:
+            type: object
+            properties:
+              version:
+                type: integer
+                format: int64
+                example: 42
+              sharedDependencies:
+                type: array
+                description: A list of the catalog.
+                items:
+                  $ref: '#/components/schemas/CatalogVersion'
+        next:
+          type: string
+          description: If the number of results exceeds the provided limit then this uri will be present and will provide the path to the next batch of results.
+          format: uri
+          example: /uri/to/next/page
+    VersionInfos:
+      required:
+      - versions
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionInfo'
+      description: Describes the list of version information for a catalog.
+    AdditionalFieldsEnum:
+      type: string
+      enum:
+      - dataSize
+      - checksum
+      - compressedDataSize
+      - crc
+    Partition:
+      required:
+      - partition
+      - version
+      type: object
+      properties:
+        layer:
+          type: string
+          description: Id of the layer this partition belongs to.
+          example: test-layer
+        checksum:
+          type: string
+          description: The checksum field is optional. The response includes the checksum only if `checksum` is specified in the `additionalFields` query parameter, and if a checksum was specified in the partition metadata when it was published. The algorithm used to calculate the checksum is user-specific. Algorithms that can be used are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. The checksum of the data content can be used if data comparison needs to be working for this catalog. The maximum length of the checksum field is 128 characters. In the case of the compressed data, the checksum is calculated for the uncompressed data.
+          example: 291f66029c232400e3403cd6e9cfd36e
+        compressedDataSize:
+          type: integer
+          description: Optional value for the size of the compressed partition data in bytes. The response only includes the compressed data size if `compressedDataSize` is specified in the `additionalFields` query parameter, and if compression is enabled, and if `compressedDataSize` was specified in the partition metadata when it was published.
+          format: int64
+          example: 1024
+        dataHandle:
+          type: string
+          description: The data handle is used when retrieving the data that relates to this partition. The data handle identifies a specific blob so that the blob's contents can be requested with the Blob API. When requesting data from the Blob API, the catalog ID, layer ID and the dataHandle must be specified. An empty data handle indicates the removal of this partition.
+          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
+        dataSize:
+          type: integer
+          description: Optional value for the size of the partition data in bytes. The response only includes the data size if `dataSize` specified in the `additionalFields` query parameter, and if `dataSize` was specified in the partition metadata when it was published.
+          format: int64
+          example: 1024
+        crc:
+          type: string
+          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if `crc` is specified in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
+          example: c3f276d7
+        partition:
+          type: string
+          pattern: '[a-zA-Z0-9_\-\.:]'
+          description: The partition key. This is a unique key for a partition within a layer. If the layer's partitioning scheme is set to `heretile`, the partition key is equivalent to the tile key. The partition key cannot be empty. The maximum length of the partition key is 500 characters.
+          example: '314010583'
+        version:
+          type: integer
+          description: For active versioned partitions, the version of the catalog when this partition was last changed. For volatile partitions this will always be -1
+          format: int64
+          example: 1
+      description: Describes the partition object which is unique within a layer.
+    ProjectionSchema:
+      type: string
+      example: mc
+      description: The map projection type used when rendering images.
+    CopyrightSchema:
+      type: object
+      properties:
+        copyrightText:
+          type: string
+          example: copyright IGN 2009 - BD TOPO
+          description: Verbose copyright text of the label displayed upon mouse hover over the label or the info menu entry.
+        boundingBoxes:
+          type: array
+          description: A collection of areas that belong to this copyright.
+          items:
+            type: object
+            properties:
+              west:
+                type: number
+                format: float
+                example: -90
+              south:
+                type: number
+                format: float
+                example: -90
+              east:
+                type: number
+                format: float
+                example: 90
+              north:
+                type: number
+                format: float
+                example: 90
+            description: 'The bounding boxes define areas where specific copyrights are applicable.
+
+              A bounding box is defined by the `west` (longitude), `south` (latitude) and `east` (longitude), `north` (latitude) coordinates.
+
+              '
+        label:
+          type: string
+          example: IGN
+          description: Copyright text to display after the copyright symbol on the map.
+        maxLevel:
+          type: integer
+          example: 20
+          description: Maximum zoom level for the specified copyright label.
+        minLevel:
+          type: integer
+          example: 11
+          description: Minimum zoom level for the specified copyright label.
+    CopyrightResourcesSchema:
+      type: object
+      description: The copyright style mappings for this particular resource.
+      additionalProperties:
+        $ref: '#/components/schemas/CopyrightLayersSchema'
+      example:
+        base:
+          styles:
+            explore.satellite.day:
+            - in
+            - sat
+        background:
+          styles:
+            explore.satellite.day:
+            - in
+            - sat
+    ForbiddenErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
+    IconTypesSchema:
+      type: array
+      items:
+        $ref: '#/components/schemas/IconTypeSchema'
+    MapVersionSchema:
+      description: The current encoded map version which is valid for 24 hours. After that period, this value must be refreshed.
+      type: string
+      pattern: ^([a-z]{2,3}[0-9]+)+
+      example: in123jp45
+    IconTypeSchema:
+      type: string
+      example: roadShield
+      description: Name of the underlying icon type for the icon image.
+    StylesSchema:
+      type: array
+      description: List of available styles.
+      items:
+        $ref: '#/components/schemas/StyleSchema'
+    PoliticalViewsSchema:
+      type: object
+      description: 'Map resource to list of supported geopolitical views for that resource.
+
+        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
+
+        '
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/PoliticalViewSchema'
+      example:
+        base:
+        - AR
+        - CY
+        - EG
+        - IN
+    InternalServerErrorResponseSchema:
+      type: object
+      description: Internal Error | Indicates a server malfunction and an unexpected error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 500
+        code:
+          type: string
+          description: Error code. Possible error codes include E622050,E622051,E622052,E622053, and E622054.
+          example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    ProjectionsSchema:
+      type: array
+      description: List of available map projection types.
+      items:
+        $ref: '#/components/schemas/ProjectionSchema'
+    StyleFeatureSchema:
+      type: object
+      description: Defines a single feature.
+      properties:
+        name:
+          type: string
+          description: Feature name.
+          example: environmental_zones
+        modes:
+          type: array
+          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in the image request.
+          items:
+            type: string
+          example:
+          - disabled
+          - all
+    ErrorResponseSchema:
+      type: object
+      description: Response in case of error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: E622002
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    FeaturesSchema:
+      type: object
+      description: Provides the information about supported features.
+      properties:
+        features:
+          $ref: '#/components/schemas/StylesFeaturesSchema'
+    CopyrightStylesSchema:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+          example: in
+      example:
+        explore.satellite.day:
+        - in
+        - sat
+    CopyrightsObjectSchema:
+      type: object
+      description: The copyright objects.
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/CopyrightSchema'
+      example:
+        base:
+        - boundingBoxes:
+          - east: 90
+            north: 90
+            south: -90
+            west: -90
+          copyrightText: copyright IGN 2009 - BD TOPO
+          label: IGN
+          maxLevel: 20
+          minLevel: 11
+    StylesFeaturesSchema:
+      type: object
+      description: Features and their corresponding modes available for each style.
+      additionalProperties:
+        $ref: '#/components/schemas/StyleFeaturesSchema'
+      example:
+        explore.day:
+        - name: environmental_zones
+          modes:
+          - disabled
+          - all
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+        - name: pois
+          modes:
+          - all
+          - disabled
+        - name: vehicle_restrictions
+          modes:
+          - disabled
+          - active_and_inactive
+        explore.night:
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+    LanguageSchema:
+      type: string
+      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
+      example: en
+      description: 'Indicates that the map supports the returned language.
+
+        The values follow the BCP47 language code limited to ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
+
+        '
+    ResourcesSchema:
+      description: List of available resource types.
+      type: array
+      items:
+        $ref: '#/components/schemas/ResourceSchema'
+    NotFoundErrorResponseSchema:
+      type: object
+      description: Not Found | Indicates that the resource was not found.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 404
+        code:
+          type: string
+          description: Error code.
+          example: E622000
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    LanguagesSchema:
+      type: object
+      description: List of languages supported for a specific resource type.
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/LanguageSchema'
+      example:
+        base:
+        - en
+        - es
+        - ru
+    UnauthorizedErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
+    StyleFeaturesSchema:
+      type: array
+      description: Defines all features supported by a particular style.
+      items:
+        $ref: '#/components/schemas/StyleFeatureSchema'
+    ErrorResponseDetailsSchema:
+      type: object
+      description: Detailed information about the error.
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: output parameter matches none of the supported values
+    CopyrightsSchema:
+      type: object
+      description: Copyright objects and a mapping of "resource" paths to a set of copyright objects associated with the resource.
+      properties:
+        copyrights:
+          $ref: '#/components/schemas/CopyrightsObjectSchema'
+        resources:
+          $ref: '#/components/schemas/CopyrightResourcesSchema'
+      example:
+        copyrights:
+          in:
+          - boundingBoxes:
+            - east: -89.0225
+              north: 17.8168
+              south: 16.5943
+              west: -91.4256
+            - east: -88.2215
+              north: 16.1868
+              south: 14.9642
+              west: -89.0225
+            copyrightText: Aprobado por el INSTITUTO GEOGRAFICO NACIONAL Resolucion del IGN No 186-2011
+            label: IGN Guatemala
+            maxLevel: 20
+            minLevel: 10
+          sat:
+          - boundingBoxes:
+            - east: -180
+              north: 90
+              south: -90
+              west: 180
+            copyrightText: Airbus
+            label: Airbus
+            maxLevel: 20
+            minLevel: 14
+        resources:
+          base:
+            styles:
+              explore.day:
+              - in
+              explore.satellite.day:
+              - in
+              - sat
+    FormatSchema:
+      type: string
+      description: Supported image format types.
+      example: png
+    ResourceSchema:
+      type: string
+      example: mapview
+      description: Name of the underlying resource type for the map image.
+    FormatsSchema:
+      description: List of supported image formats.
+      type: array
+      items:
+        $ref: '#/components/schemas/FormatSchema'
+    SizesSchema:
+      description: List of supported image sizes.
+      type: object
+      properties:
+        width:
+          $ref: '#/components/schemas/AllowedSizesSchema'
+        height:
+          $ref: '#/components/schemas/AllowedSizesSchema'
+    PoliticalViewSchema:
+      type: string
+      example: IN
+      description: 'Indicates a certain geopolitical view applied to the map.
+
+        The values follow the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code schema.
+
+        '
+      pattern: ^[A-Z]{2}$
+    StyleSchema:
+      type: string
+      example: explore.day
+    InfoSchema:
+      type: object
+      properties:
+        resources:
+          $ref: '#/components/schemas/ResourcesSchema'
+        projections:
+          $ref: '#/components/schemas/ProjectionsSchema'
+        imageFormats:
+          $ref: '#/components/schemas/FormatsSchema'
+        iconImageFormats:
+          $ref: '#/components/schemas/FormatsSchema'
+        iconTypes:
+          $ref: '#/components/schemas/IconTypesSchema'
+        styles:
+          $ref: '#/components/schemas/StylesSchema'
+        mapVersion:
+          $ref: '#/components/schemas/MapVersionSchema'
+        imageSizes:
+          $ref: '#/components/schemas/SizesSchema'
+        iconSizes:
+          $ref: '#/components/schemas/SizesSchema'
+        zoomLevels:
+          $ref: '#/components/schemas/ZoomLevelsSchema'
+    AllowedSizesSchema:
+      type: object
+      properties:
+        min:
+          type: integer
+        max:
+          type: integer
+    ZoomLevelsSchema:
+      type: object
+      description: The range of available zoom levels.
+      properties:
+        max:
+          type: integer
+          description: The maximum value for the zoom parameter.
+          example: 20
+        min:
+          type: integer
+          description: The minimum value for the zoom parameter.
+          example: 0
+    CopyrightLayersSchema:
+      type: object
+      description: The mapping that matches styles with copyright bounding box definitions.
+      properties:
+        styles:
+          $ref: '#/components/schemas/CopyrightStylesSchema'
+      example:
+        styles:
+          explore.satellite.day:
+          - in
+          - sat
+    ProjectionSchema_2:
+      type: string
+      example: mc
+      description: The projection used when rendering tiles
+    GenericError:
+      description: generic error
+      type: object
+    CopyrightSchema_2:
+      type: object
+      properties:
+        copyrightText:
+          type: string
+          example: copyright IGN 2009 - BD TOPO
+          description: Verbose copyright text of the label displayed upon mouse hover over the label or info menu entry.
+        boundingBoxes:
+          type: array
+          description: A collection of areas that belong to this copyright
+          items:
+            type: object
+            properties:
+              west:
+                type: number
+                format: float
+                example: -90
+              south:
+                type: number
+                format: float
+                example: -90
+              east:
+                type: number
+                format: float
+                example: 90
+              north:
+                type: number
+                format: float
+                example: 90
+            description: 'The bounding boxes define areas where specific copyrights are valid.
+
+              A bounding box is defined by `west` (longitude), `south` (latitude) and `east` (longitude), `north` (latitude).
+
+              '
+        label:
+          type: string
+          example: IGN
+          description: Copyright text to display after the copyright symbol on the map.
+        maxLevel:
+          type: integer
+          example: 20
+          description: Maximum zoom level for the specified copyright label.
+        minLevel:
+          type: integer
+          example: 11
+          description: Minimum zoom level for the specified copyright label.
+    SizeSchema:
+      type: integer
+      description: Supported image size
+      example: 512
+    ForbiddenErrorSchema_2:
+      type: object
+      description: Custom error response schema returned by authentication
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
+    MapVersionSchema_2:
+      description: The current encoded map version. Lasts for 24 hours. After that period, this value should be refreshed.
+      type: string
+      pattern: ^([a-z]{2,3}[0-9]+)+$
+      example: in123jp45
+    StylesSchema_2:
+      type: array
+      description: List of available styles
+      items:
+        $ref: '#/components/schemas/StyleSchema'
+    InternalServerErrorResponseSchema_2:
+      description: Internal Error | Indicates a server malfunction and an unexpected error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 500
+        code:
+          type: string
+          description: Error code. Possible error codes E622050,E622051,E622052,E622053,E622054
+          example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema_2'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    ProjectionsSchema_2:
+      type: array
+      description: List of available projections
+      items:
+        $ref: '#/components/schemas/ProjectionSchema_2'
+    StyleFeatureSchema_2:
+      type: object
+      description: Defines a single feature.
+      properties:
+        name:
+          type: string
+          description: Feature name.
+          example: environmental_zones
+        modes:
+          type: array
+          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in tile request.
+          items:
+            type: string
+          example:
+          - disabled
+          - all
+    ErrorResponseSchema_2:
+      description: Response in case of error
+      properties:
+        title:
+          type: string
+          description: User-friendly error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: E622002
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema_2'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    FeaturesSchema_2:
+      type: object
+      description: Provides information about supported features.
+      properties:
+        features:
+          $ref: '#/components/schemas/StylesFeaturesSchema_2'
+    StylesFeaturesSchema_2:
+      type: object
+      description: Mapping of a style to all supported features for the style.
+      additionalProperties:
+        $ref: '#/components/schemas/StyleFeaturesSchema_2'
+      example:
+        explore.day:
+        - name: environmental_zones
+          modes:
+          - disabled
+          - all
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+        - name: pois
+          modes:
+          - all
+          - disabled
+        - name: vehicle_restrictions
+          modes:
+          - disabled
+          - active_and_inactive
+        explore.night:
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+    LanguageSchema_2:
+      type: string
+      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
+      example: en
+      description: 'Indicates that the map on this layer supports the returned language language.
+
+        The values follow ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
+
+        '
+    ResourcesSchema_2:
+      description: List of available resources
+      type: array
+      items:
+        $ref: '#/components/schemas/ResourceSchema_2'
+    NotFoundErrorResponseSchema_2:
+      description: Not Found | Indicates that the requested resource was not found.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 404
+        code:
+          type: string
+          description: Error code.
+          example: E622000
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema_2'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    LanguagesSchema_2:
+      type: object
+      description: Map resource to list of supported languages for that resource
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/LanguageSchema_2'
+      example:
+        base:
+        - en
+        - es
+        - ru
+    UnauthorizedErrorSchema_2:
+      type: object
+      description: Custom error response schema returned by authentication
+      properties:
+        error:
+          type: string
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
+    StyleFeaturesSchema_2:
+      type: array
+      description: Defines all the features supported by a particular style.
+      items:
+        $ref: '#/components/schemas/StyleFeatureSchema_2'
+    ErrorResponseDetailsSchema_2:
+      description: Detailed information about the error
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: output parameter matches none of the supported values
+    FormatSchema_2:
+      type: string
+      description: Supported image format
+      example: png
+    ResourceSchema_2:
+      type: string
+      description: Name of a tile resource
+      example: base
+    FormatsSchema_2:
+      description: List of supported formats
+      type: array
+      items:
+        $ref: '#/components/schemas/FormatSchema_2'
+    SizesSchema_2:
+      description: List of supported image sizes
+      type: array
+      items:
+        $ref: '#/components/schemas/SizeSchema'
+    PoliticalViewSchema_2:
+      type: string
+      example: IN
+      description: 'Indicates a certain geopolitical view of the map.
+
+        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
+
+        '
+      pattern: ^[A-Z]{2,3}$
+    InfoSchema_2:
+      type: object
+      properties:
+        imageFormats:
+          $ref: '#/components/schemas/FormatsSchema_2'
+        imageSizes:
+          $ref: '#/components/schemas/SizesSchema_2'
+        mapVersion:
+          $ref: '#/components/schemas/MapVersionSchema_2'
+        resources:
+          $ref: '#/components/schemas/ResourcesSchema_2'
+        projections:
+          $ref: '#/components/schemas/ProjectionsSchema_2'
+        styles:
+          $ref: '#/components/schemas/StylesSchema_2'
+        zoomLevels:
+          $ref: '#/components/schemas/ZoomLevelsSchema_2'
+    ZoomLevelsSchema_2:
+      type: object
+      description: The range of available zoom levels
+      properties:
+        max:
+          type: integer
+          description: The maximum value for the zoom parameter
+          example: 20
+        min:
+          type: integer
+          description: The minimum value for the zoom parameter
+          example: 0
+  parameters:
+    Context:
+      name: context
+      in: query
+      description: 'The context where the operation will be performed on a composite layers. Only available for versioned layers.
+
+
+        Available context are:
+
+        |Context|Description|
+
+        |-------|-----------|
+
+        |default|The default value if none is given. For composite layers the operation is executed for both layers current and the layer it extends. For normal layers this is the only valid context.|
+
+        |extension|The operation will be executed only in the extension and no operation will be performed in the extended layer.|
+
+        |super| The operation will be executed only in the layer being extended (super layer).|
+
+        '
+      schema:
+        type: string
+        enum:
+        - default
+        - extension
+        - super
+        default: default
+    XRequestIDParam:
+      in: header
+      name: X-Request-ID
+      required: false
+      example: '12345'
+      description: 'The ID given by the caller to match in the response.
+
+        '
+      schema:
+        type: string
+  headers:
+    X-Correlation-ID:
+      description: 'The auto-generated ID that uniquely identifies the request and is accessible within the response.  When reaching out to support with an inquiry about a particular request, please include the value of this header. Doing so will assist in troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: 'User-provided token that you can use to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    Cache-Control:
+      description: Specifies how the response can be cached. For more information, see [Cache control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control).
+      schema:
+        type: string
+      example: max-age=86400
+    X-Correlation-ID_2:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    Cache-Control_2:
+      description: Specifies how the response can be cached. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+      schema:
+        type: string
+      example: max-age=86400
+  responses:
+    ErrorResponse:
+      description: API response in case of an error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponseSchema'
+    NotFoundErrorResponse:
+      description: API response that indicates that the requested resource was not found.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundErrorResponseSchema'
+    ForbiddenError:
+      description: API response that indicates that the access token does not authorize access.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ForbiddenErrorSchema'
+    UnauthorizedError:
+      description: API response that indicates that the access token is missing or invalid.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedErrorSchema'
+    InternalServerErrorResponse:
+      description: API response that indicates a server malfunction or an unexpected error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema'
+    ErrorResponse_2:
+      description: API response in case of errors.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponseSchema_2'
+    NotFoundErrorResponse_2:
+      description: API response indicates that the resource was not found.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundErrorResponseSchema_2'
+    GatewayTimeoutErrorResponse:
+      description: API response indicates indicates that the server, while acting as a gateway or proxy, did not get a response in time from the upstream server that it needed in order to complete the request. Try later for the same resource and the request might succeed.
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/GenericError'
+    ForbiddenError_2:
+      description: Access token does not authorize access.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ForbiddenErrorSchema_2'
+    UnauthorizedError_2:
+      description: Access token is missing or invalid.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedErrorSchema_2'
+    InternalServerErrorResponse_2:
+      description: API response indicates a server malfunction and an unexpected error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema_2'
+    ServiceUnavailableErrorResponse:
+      description: API response indicates indicates that the service is temporarily unavailable due to system overload or maintenance. Try later for the same resource and the request might succeed.
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/GenericError'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html).
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the  [Identity & Access Management Guide - API Keys](https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys).
+
+        '
+    UserToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using user's realm, username and password and then further scoped to a specific project.\n\nFirst obtain access token from [/users/v2/login endpoint](#tag/Users/paths/~1users~1v2~1login/post).\nThen use [/users/v2/tokenExchange endpoint](#tag/Users/paths/~1users~1v2~1tokenExchange/post) to convert\nyour user access token into a project-scoped user access token.\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.xikjhDyJsE17VLhPXiu.fm3WsNOunstXH78RvU8_...\n```\n"
+    ClientToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "This token is obtained using application's OAuth 2.0 credentials (key + secret) and then scoped to a specific project.\n\nFollow [instructions here](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/topics/plat-token.html)\nto create your application credentials and obtain the token using OLP CLI. With an exception\nthat when getting the token you need to provide also project's HRN value:\n\n```\n    olp api token get --scope {PROJECT_HRN}\n```\n\nOnce done, make a request with an `Authorization` header containing the scoped access token.\n\nExample:\n\n```\n    Authorization: Bearer h1.PGEVzQmaoW5pyBYUlWu.SQoSCF7qpToEFMHgSlJ_...\n```\n"
+    DeviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This access token is obtained from [/v2/token endpoint](#tag/Ingestion/paths/~1v2~1token/post) using a signed request.
+
+
+        > **Note:** Only a small subset of our endpoints support this token type and is only useful for hardware devices.
+
+        > You probably won''t need this.
+
+        '
+    signedRequest:
+      type: http
+      scheme: oauth
+      description: "HERE Tracking requires that you sign your requests for tokens. The signature method uses the OAuth 1.0 standard. For more information on this standard, see the [OAuth Core 1.0](https://oauth.net/core/1.0/) specification.\n\n> **Note:** You must create a new signature for each token request to HERE Tracking. Signatures can only be used once.\n\n**Create the Signature Base String**\n\nThe first step in creating a signature is to create the signature base string. This string contains the parameters to use when generating the signature.\n\n*1. To begin, make sure you have the information listed in the following table.*\n\n| Parameter                | Description                              |\n| ------------------------ | -----------------------------------------|\n| oauth\\_consumer\\_key     | The device ID for which you want to generate a token. |\n| oauth\\_signature\\_method | Always use \"HMAC-SHA256\".                 |\n| oauth\\_timestamp         | The number of seconds since the Unix epoch at the point the request is generated. This must be within 10 seconds of the timestamp returned by the `/v2/timestamp` endpoint. |\n| oauth\\_nonce             | A unique string for this signature. The string cannot have been used in a previous signature. Each token generation request to HERE Tracking must have a unique signature, and the value in this parameter is what is used to ensure the signature is unique. |\n| oauth\\_version           | Always use \"1.0\".                         |\n\n*2. Combine these values into a single string by following these steps:*\n\n   1. URL encode every key and value.\n   2. Sort the list of key-value pairs alphabetically by key.\n   3. Concatenate each key/value pair, separating each with an ampersand character (\"&\").\n\nThe result is a parameter string that looks like this (line breaks are added for legibility):\n\n   ```\n   oauth_consumer_key=47164fb0-b7b3-49e8-891b-650270b82cf2\n   &oauth_nonce=LIIpk4\n   &oauth_signature_method=HMAC-SHA256\n   &oauth_timestamp=1513634609\n   &oauth_version=1.0\n   ```\n\n*3. Combine the HTTP method, base URL, and parameter string into a single string called the \"base string\". This will be the string from which the signature is generated. The base string is in this format:*\n\n   ```\n   POST&https://tracking.api.here.com/v2/token&<URL encoded parameter string>\n   ```\n\n   The base string consists of:\n\n   1. The HTTP method in caps (POST) followed by an ampersand (\"&\")\n   2. The URL of the HERE Tracking token endpoint followed by an ampersand (\"&\")\n   3. The URL-encoded parameter string.\n\n   For example (line breaks are added for legibility):\n\n   ```\n   POST\n    &https%3A%2F%2Ftracking.api.here.com%2Fv2%2Ftoken\n    &oauth_consumer_key%3D47164fb0-b7b3-49e8-891b-650270b82cf2%26\n    oauth_nonce%3DLIIpk4%26oauth_signature_method%3DHMAC-SHA256%26\n    oauth_timestamp%3D1513634609%26oauth_version%3D1.0\n   ```\n\n   > **Note:** The URL-encoded base string should contain exactly two ampersands (\"&\").\n\n**Create the signature**\n\nThe signing key used to sign the base string is the `deviceSecret` followed by an ampersand (\"&\").\n\nCreate the signature by passing the signature base string and the signing key to the `HMAC-SHA256` hashing algorithm and converting the result to a `base64` string. Then, use the signature to request a token.\n\n**Request the token**\n\nMake a `POST` request to this endpoint with an `Authorization` header constructed from the above parameters and the generated signature.\n\nExample:\n\n```\n    Authorization: OAuth oauth_consumer_key=\"47164fb0-b7b3-49e8-891b-650270b82cf2\",\n        oauth_signature_method=\"HMAC-SHA256\",\n        oauth_timestamp=\"1513634609\",\n        oauth_nonce=\"LIIpk4\",\n        oauth_version=\"1.0\",\n        oauth_signature=\"pQ9EJX14L736B%2Br7uZl4yQlO6Xw%3D\"\n```\n"
+x-refined-from:
+- here-data-metadata-v1-openapi.yml
+- here-map-image-v3-openapi.yml
+- here-raster-tile-v3-openapi.yml
+- here-tracking-v2-openapi.json

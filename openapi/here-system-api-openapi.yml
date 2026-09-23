@@ -1,0 +1,93 @@
+openapi: 3.2.0
+info:
+  title: Tour Planning API v3 System API
+  description: The HERE Tour Planning API enables you to dynamically optimize routes for multiple vehicles visiting a set of locations, considering real-life constraints such as limited vehicle capacity and delivery time windows.
+  version: 3.61.1
+  termsOfService: https://developer.here.com/terms-and-conditions
+  license:
+    name: HERE Documentation License
+    url: https://legal.here.com/en-gb/terms/documentation-license
+servers:
+- url: https://tourplanning.hereapi.com/v3
+  description: Production environment base url.
+security:
+- Bearer: []
+- ApiKey: []
+tags:
+- name: System
+  description: Endpoints to retrieve service information, including service version and health status.
+paths:
+  /version:
+    get:
+      operationId: getVersion
+      summary: Full version of the API
+      description: Retrieve the current version of the service.
+      tags:
+      - System
+      security: []
+      responses:
+        '200':
+          description: The current version of the service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health status of the service
+      description: Retrieve the current health status of the service.
+      tags:
+      - System
+      security: []
+      responses:
+        '200':
+          description: The current health status of the service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    HealthResponse:
+      description: Retrieves the current health status of the service.
+      properties:
+        status:
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            '
+          enum:
+          - ok
+          example: ok
+          type: string
+    VersionResponse:
+      description: Retrieves the current versions of all service components.
+      properties:
+        apiVersion:
+          description: The current version of the API.
+          example: 3.1.0
+          type: string
+      required:
+      - apiVersion
+      type: object
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      name: apikey
+      in: query
+      description: "The API authentication key. For more information on how to get an API key, \nsee [Identity and Access Management - Developer Guide](https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys).\n"
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'This token is obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+        For more information on how to get a bearer token, see [OAuth 2.0 tokens](https://docs.here.com/identity-and-access-management/docs/how-to-authorize-with-oauth-20).
+
+        '
+externalDocs:
+  description: The Developer guide and Release notes are available here.
+  url: https://docs.here.com/tour-planning/docs/introduction-tour-planning

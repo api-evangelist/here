@@ -1,0 +1,913 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Resource Policies API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Resource Policies
+  description: Resource Policy Management
+paths:
+  /resourcePolicies:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Resource Policies
+      summary: Create a resource policy
+      operationId: createResourcePolicy
+      description: 'Create a resource policy. A resource policy packages resources that are to be made linkable to realms.
+
+        A resource policy can be homed to a project or created outside of the context of a project. Once a resource
+
+        home is created for the resource policy, all access to the resource policy would need to be in the context of
+
+        the project scope.
+
+
+        For an unscoped resource policy, the creator is granted "manageResourcePolicy", "addGrant:manageResourcePolicy"
+
+        access on the resource policy HRN. For a resource policy scoped to a project all members of the home project
+
+        get the "projectEnabled" action "manageResourcePolicy" access on the resource policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"createResourcePolicy"** action permission in the **"authorization"** service.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePolicyRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags:
+      - Resource Policies
+      summary: Get a list of Resource Policies
+      operationId: getResourcePolicies
+      description: 'Get a list of Resource Policies.
+
+        If an unscoped access token is used, all resource policies(unscoped and scoped) within the realm of the caller are returned.
+
+        If a project scoped access token is used, resource policies within the project are returned.
+
+
+        Access Control:
+
+        * The calling principal must have **"readResourcePolicies"** action permission in the **"authorization"** service.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      parameters:
+      - $ref: '#/components/parameters/resourceQuery'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /resourcePolicies/{resourcePolicy}:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/resourcePolicy'
+    get:
+      tags:
+      - Resource Policies
+      summary: Get a resource policy
+      operationId: getResourcePolicy
+      description: 'Get details of a Resource Policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"readResourcePolicies"** action permission in the **"authorization"** service.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags:
+      - Resource Policies
+      summary: Delete a resource policy
+      operationId: deleteResourcePolicy
+      description: 'Delete a resource policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageResourcePolicy"** action permission for the resource **"{resourcePolicy}"** in the **"authorization"** service.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    patch:
+      tags:
+      - Resource Policies
+      summary: Update a resource policy
+      operationId: updateResourcePolicy
+      description: 'Update a resource policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageResourcePolicy"** action permission for the resource **"{resourcePolicy}"** in the **"authorization"** service.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePolicyPatchRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /resourcePolicies/{resourcePolicy}/resources:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/resourcePolicy'
+    post:
+      tags:
+      - Resource Policies
+      summary: Add resources to a resource policy
+      operationId: addResourcesToResourcePolicy
+      description: 'Add the specified list of resources to the Resource Policy with allowedActions in a batch.
+
+        A maximum of 100 resources may be contained in a single Resource Policy. If a batch would push the
+
+        ResourcePolicy over-limit, the entire batch fails with an error code indicating available capacity.
+
+        Note: The allowed actions list must match the Resource''s resource setting allowed actions available
+
+        for resource policy. By default all "projectLinkingEnabled" are allowed to be added for a resource
+
+        in a resource policy.
+
+        Adding a resource to a resource policy enables the ability of the resource to be made linkable to other realms.
+
+        This batch API response returns a status that can be polled to get information about the batch request.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageResourcePolicy"** action permission for the resource **"{resourcePolicy}"** in the **"authorization"** service.
+
+        **AND**
+
+        * According to the resource setting, The calling principal **must either** have permission to take all the "requiredToMakeLinkable" actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource **or** the Resource''s resource setting is configured to allow anyone within the
+
+        home realm of the resource to create a resource policy.
+
+        * When the access token is project scoped, all the resources added to a resource policy must either be homed or
+
+        referenced in the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePolicyResourcesPayload'
+      responses:
+        '202':
+          description: Accepted
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyResourcesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags:
+      - Resource Policies
+      summary: Get all resources in a resource policy
+      operationId: getAllResourcesInResourcePolicy
+      description: 'Get a list of resources in a Resource Policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"readResourcePolicies"** action permission in the **"authorization"** service.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      parameters:
+      - $ref: '#/components/parameters/Type'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyResourceList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /resourcePolicies/{resourcePolicy}/resources/status/{statusId}:
+    get:
+      tags:
+      - Resource Policies
+      summary: Get the status of resource policy resources batch addition
+      operationId: getResourcePolicyResourcesStatus
+      parameters:
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/resourcePolicy'
+      - $ref: '#/components/parameters/statusId'
+      description: 'Get the status of resource policy resources batch addition.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageResourcePolicy"** action permission for the resource **"{resourcePolicy}"** in the **"authorization"** service.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyResourcePartialSuccessList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /resourcePolicies/{resourcePolicy}/resources/{resource}:
+    parameters:
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/resourcePolicy'
+    - $ref: '#/components/parameters/resource'
+    put:
+      tags:
+      - Resource Policies
+      summary: Add a resource to a resource policy
+      operationId: addResourceToResourcePolicy
+      description: 'Add a resource to the Resource Policy with allowedActions.
+
+        A maximum of 100 resources may be contained in a single Resource Policy.
+
+        Note: The allowed actions list must match the Resource''s resource setting allowed actions available
+
+        for resource policy. By default all "projectLinkingEnabled" are allowed to be added for a resource
+
+        in a resource policy.
+
+        Adding a resource to a resource policy enables the ability of the resource to be made linkable to other realms.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageResourcePolicy"** action permission for the resource **"{resourcePolicy}"** in the **"authorization"** service.
+
+        **AND**
+
+        * According to the resource setting, The calling principal **must either** have permission to take all the "requiredToMakeLinkable" actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource **or** the Resource''s resource setting is configured to allow anyone within the
+
+        home realm of the resource to create a resource policy.
+
+        * When the access token is project scoped, all the resources added to a resource policy must either be homed or
+
+        referenced in the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePolicyResource'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyResource'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags:
+      - Resource Policies
+      summary: Get a resource in a resource policy
+      operationId: getResourceInResourcePolicy
+      description: 'Get resource in a Resource Policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"readResourcePolicies"** action permission in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.
+
+        * The unscoped access to this api is granted via the default authorization policy.
+
+        * The scoped access to this api is granted via the default "projectEnabled" action for members of the project.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePolicyResource'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags:
+      - Resource Policies
+      summary: Delete resource from a resource policy
+      operationId: deleteResourceFromResourcePolicy
+      description: 'Delete a resource from a Resource Policy. Also supports comma-separated list of resources in the path for batch
+
+        delete operation.
+
+
+        Access Control:
+
+        * The calling principal must have **manageResourcePolicy** action permission for the resource **"{resourcePolicy}"** in the **"{authorization}"** service.
+
+        **OR**
+
+        * The calling principal **must** have permission to take all the "requiredToMakeLinkable" actions against
+
+        the service inferred via the reserved resource prefix of the resource in the path in the scope of the
+
+        home project of the resource.
+
+        * This API works for tokens with or without a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  schemas:
+    ResourcePolicyResourcesResponse:
+      type: object
+      properties:
+        statusId:
+          type: string
+          example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+          description: 'The status id of the resource policy resources batch request
+
+            '
+        href:
+          type: string
+          example: https://account.api.here.com/authorization/v1.1/resourcePolicies/hrn:here:authorization::myrealm:resourcePolicy%2Fmy-policy-000/resources/status/STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+          description: 'The status url of the resource policy resources batch request
+
+            '
+    ResourcePolicyResourcesPayload:
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of resource policy resources
+          items:
+            $ref: '#/components/schemas/ResourcePolicyResource'
+    Type:
+      type: string
+      example: catalog
+      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
+    allowedActions:
+      type: array
+      items:
+        type: string
+        example: readResource
+      description: 'The list of actions made available for referencing for the resourceType.
+
+        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
+
+        reserved resource prefix of the resource in the path.
+
+        '
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    subresources:
+      type: array
+      maxItems: 10
+      items:
+        type: string
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
+
+        '
+    ResourcePolicyList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePolicy'
+            description: List of resource policies in the realm
+    ResourcePolicyResourceList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            description: List of resource policy resources
+            items:
+              $ref: '#/components/schemas/ResourcePolicyResource'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ResourcePolicyResource:
+      type: object
+      properties:
+        resource:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        subresources:
+          $ref: '#/components/schemas/subresources'
+    ResourcePolicyRequest:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          example: my-vanity-id
+          description: 'The id of the resource policy. The ID must comply to the regex - (^[a-zA-Z0-9][a-zA-Z0-9\-:]{2,61}[a-zA-Z0-9]$)
+
+            '
+        name:
+          type: string
+          example: My resource policy
+          description: 'The name of the resource policy
+
+            '
+        description:
+          type: string
+          example: This is my resource policy
+          description: 'The description of the resource policy
+
+            '
+    ResourcePolicy:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-000
+          description: 'The hrn of the resource policy
+
+            '
+        id:
+          type: string
+          example: my-vanity-id
+          description: 'The id of the resource policy
+
+            '
+        name:
+          type: string
+          example: My resource policy
+          description: 'The name of the resource policy
+
+            '
+        description:
+          type: string
+          example: This is my resource policy
+          description: 'The description of the resource policy
+
+            '
+    ResourcePolicyResourcePartialSuccessList:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - pending
+          - inProgress
+          - failure
+          - success
+          - partialSuccess
+          example: partialSuccess
+          description: 'The status of the batch call for adding resources to a resource policy
+
+            '
+        resource:
+          type: object
+          properties:
+            href:
+              type: string
+              example: https://account.api.here.com/authorization/v1.1/resourcePolicies/hrn:here:authorization::myrealm:resourcePolicy%2Fmy-policy-000/resources
+              description: 'Get the resources in the resource policy
+
+                '
+        items:
+          type: array
+          description: List of resource policy resources
+          items:
+            type: object
+            properties:
+              resource:
+                type: string
+                example: hrn:here:data::myrealm:my-catalog
+                description: 'The hrn of the resource
+
+                  '
+              status:
+                type: integer
+                example: 403
+                description: 'Status code for the resource add request
+
+                  '
+              code:
+                description: Service specific error code
+                type: string
+                example: EXXXYYY
+    ResourcePolicyPatchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: My resource policy
+          description: 'The name of the resource policy
+
+            '
+        description:
+          type: string
+          example: This is my resource policy
+          description: 'The description of the resource policy
+
+            '
+  parameters:
+    resource:
+      in: path
+      name: resource
+      schema:
+        type: string
+      required: true
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    resourceQuery:
+      in: query
+      name: resource
+      schema:
+        type: string
+      required: false
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    Type:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    statusId:
+      in: path
+      name: statusId
+      required: true
+      description: 'The status id of the resource policy resources batch request
+
+        '
+      schema:
+        type: string
+      example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+    resourcePolicy:
+      in: path
+      name: resourcePolicy
+      required: true
+      description: The HRN of the resource policy
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-0000
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

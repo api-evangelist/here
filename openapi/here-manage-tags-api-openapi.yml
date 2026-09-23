@@ -1,0 +1,312 @@
+openapi: 3.2.0
+info:
+  title: Interactive Map API v1 Manage Tags API
+  description: Interactive Map API v1 is a REST API for simple access to geo data.
+  contact: {}
+  version: 1.22.2
+  x-olp-service:
+    name: interactive
+    version: v1
+servers:
+- url: https://use.apilookup.for.a.base.url/
+security:
+- Bearer: []
+tags:
+- name: Manage Tags
+  description: Read and write endpoints for tags.
+paths:
+  /layers/{layerId}/tags:
+    get:
+      tags:
+      - Manage Tags
+      summary: List tags
+      description: 'List tags available in the layer.
+
+        List can include system tags when includeSystemTags parameter is set to true.'
+      operationId: Interactive Map API v1 listTags
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TagsResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+    post:
+      tags:
+      - Manage Tags
+      summary: Create a tag
+      description: 'Create a tag, which points to a version of the layer.
+
+        If a version is not provided when creating the tag, then the current HEAD version will be referenced.'
+      operationId: Interactive Map API v1 createTag
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      requestBody:
+        $ref: '#/components/requestBodies/TagRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/TagResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '409':
+          $ref: '#/components/responses/ErrorResponse409'
+  /layers/{layerId}/tags/{tagId}:
+    patch:
+      tags:
+      - Manage Tags
+      summary: Update a tag
+      description: Update the version of a tag.
+      operationId: Interactive Map API v1 updateTag
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/TagId'
+      requestBody:
+        $ref: '#/components/requestBodies/TagRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/TagResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+    get:
+      tags:
+      - Manage Tags
+      summary: Get a tag
+      description: Retrieves a tag.
+      operationId: Interactive Map API v1 getTag
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TagResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+    delete:
+      tags:
+      - Manage Tags
+      summary: Delete a tag
+      description: Deletes a tag.
+      operationId: Interactive Map API v1 deleteTag
+      parameters:
+      - $ref: '#/components/parameters/LayerId'
+      - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TagResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+components:
+  responses:
+    ErrorResponse409:
+      description: An error response which indicates a conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The record exists.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse400:
+      description: Malformed or Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse404:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    TagResponse:
+      description: A tag response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: Insufficient rights + <Request specific access error details>
+    TagsResponse:
+      description: A list of tags response.
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/Tag'
+            type: array
+  headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+  parameters:
+    TagId:
+      name: tagId
+      in: path
+      description: The id of the tag.
+      required: true
+      schema:
+        type: string
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    TagRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+  schemas:
+    Tag:
+      type: object
+      description: A tag which points to a version of the layer.
+      properties:
+        id:
+          type: string
+          description: The tag ID.
+        version:
+          type: integer
+          format: int64
+          description: The referenced version.
+        description:
+          type: string
+          description: The description of the tag, must be less than 255 characters.
+        author:
+          type: string
+          description: The author of the tag.
+        createdAt:
+          type: integer
+          format: int64
+          description: The timestamp of creation of the tag in millis.
+        layerId:
+          type: string
+          description: The layer ID for which the tag is registered.
+    Error:
+      type: object
+      description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Bad Request
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.
+
+
+        For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+    ApiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the [Identity & Access Management Guide](https://developer.here.com/documentation/identity-access-management/dev_guide/index.html).
+
+        '
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/data-api

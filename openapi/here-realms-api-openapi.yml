@@ -1,0 +1,3030 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Realms API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Realms
+  description: Realms and Realm Membership Management
+paths:
+  /realms/{realm}/invites/{invite}:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/invite'
+    post:
+      tags:
+      - Realms
+      summary: Resend an invitation to a user in a realm
+      description: 'Resend an invitation to a new member to the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * This API is rate limited to a maximum of **6** invites per realm per minute.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: resendRealmMemberInvite
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or invite not found.
+        '429':
+          description: Realm invitation is temporarily suspended due to repeated requests. Wait for a while before making a new request.
+    put:
+      tags:
+      - Realms
+      summary: Update and send an invitation to a user in a realm
+      description: 'Update and resend an invitation to add a new member to the realm,
+
+        optionally assign membership to one or more groups if the Inviter is
+
+        also a **GroupAdmin** for the group and optionally invite with one or
+
+        more roles assigned.
+
+
+        Access Control:
+
+        * In order to invite a new user to the **"{realm}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * In order to invite a new user to the **"{realm}"** as a member of the **"{group}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** **AND**
+
+        **"manageMembers"** action permission for the resource **"{group}"** in the **"authorization"** service.
+
+        * In order to invite a new user to the **"{realm}"** to have roles. For each **"{role}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** **AND**
+
+        **"manageEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * This API is rate limited to a maximum of **6** invites per realm per minute.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: sendUpdatedRealmMemberInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealmAuthorizationInvite'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmAuthInviteResponse'
+        '400':
+          description: Invalid name or role.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or group or role not found.
+        '422':
+          description: Group size limit exceeded.
+        '429':
+          description: Realm invitation is temporarily suspended due to repeated requests. Wait for a while before making a new request.
+    delete:
+      tags:
+      - Realms
+      summary: Cancel a user invitation to a realm
+      description: 'Cancel an invitation to the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: cancelRealmMemberInvite
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or invite not found.
+  /realms/{realm}/invites:
+    get:
+      tags:
+      - Realms
+      summary: Search for invitations in a realm
+      description: 'Search for invitations in the realm, optionally providing a group.
+
+
+        Access Control:
+
+        * The calling principal must have either **"manageInvites"** or **"readMembers"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: searchRealmMemberInvites
+      parameters:
+      - $ref: '#/components/parameters/realm'
+      - $ref: '#/components/parameters/groupQuery'
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/invitesSearch'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitePageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or group not found.
+    post:
+      tags:
+      - Realms
+      summary: Create and send a user invitation for a realm
+      description: 'Create and send an invitation to add a new member to the realm,optionally assign membership to one or more groups
+
+        if the Inviter is also a **GroupAdmin** for the group and optionally invite with one or more roles assigned.
+
+
+        Access Control:
+
+        * In order to invite a new user to the **"{realm}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * In order to invite a new user to the **"{realm}"** as a member of the **"{group}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** **AND**
+
+        **"manageMembers"** action permission for the resource **"{group}"** in the **"authorization"** service.
+
+        * In order to invite a new user to the **"{realm}"** to have roles. For each **"{role}"**:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** **AND**
+
+        **"manageEntities"** action permission for the resource **"{role}"** in the **"authorization"** service.
+
+        * This API is rate limited to a maximum of **6** invites per realm per minute.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: createRealmMemberInvite
+      parameters:
+      - $ref: '#/components/parameters/realm'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealmAuthorizationInvite'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmAuthInviteResponse'
+        '400':
+          description: Invalid email or name or role.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or group or role not found.
+        '422':
+          description: Group size limit exceeded.
+        '429':
+          description: Realm invitation is temporarily suspended due to repeated requests. Wait for a while before making a new request.
+  /realms/{realm}/invites/targets:
+    get:
+      tags:
+      - Realms
+      summary: Get list of supported invite targets for the realm
+      description: 'Get the list of supported invite targets for the realm. An invite target determines what application a
+
+        user is directed to use in the invitation email. The value **"platform"** is available by default in every
+
+        realm. Additional supported values are available depending on the realm''s configuration.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageInvites"** action permission for the resource **"{realm}"** in the **"account"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmMemberInviteTargets
+      parameters:
+      - $ref: '#/components/parameters/realm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteTargets'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or group not found.
+  /realms/{realm}/limits:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/XRequestId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/limitType'
+      tags:
+      - Realms
+      summary: Get Realm limits
+      description: 'Retrieve the list of limits associated with this realm. A limit with the same **"type"** __may__ appear in the list
+
+        multiple times. In this case, the actual limit that is enforced by the same is the highest of all configured values.
+
+
+        Access Control:
+
+        * The calling principal must have **"readLimits"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmLimits
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmLimitPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/realmEntityType'
+      - $ref: '#/components/parameters/realmMembersSearch'
+      - $ref: '#/components/parameters/realmMembersState'
+      - $ref: '#/components/parameters/vehicleContractId'
+      tags:
+      - Realms
+      summary: Get realm members
+      description: 'Retrieve the list of members within the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readMembers"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmMembers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmMemberPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    get:
+      tags:
+      - Realms
+      summary: Get realm member
+      description: 'Retrieve the user or application details of the member defined by member HRN.
+
+
+        Access Control:
+
+        * The calling principal must have **"readMembers"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmMember
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmMember'
+              examples:
+                user:
+                  value:
+                    memberHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+                    entityType: user
+                    info:
+                      userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+                      userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+                      realm: myrealm
+                      firstname: John
+                      lastname: Williams
+                      email: john.williams@example.com
+                      roles:
+                      - OrgAdmin
+                      - GroupAdmin
+                      state: enabled
+                      createdTime: 1432216394712
+                vehicle:
+                  value:
+                    memberHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0890
+                    entityType: car
+                    info:
+                      userId: HERE-64badba9-4242-4859-88d5-74563a8f0890
+                      userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0890
+                      realm: myrealm
+                      carId: HashedVehicleVIN
+                      vehicleContractId: XY/1234
+                      roles:
+                      - OrgAdmin
+                      - GroupAdmin
+                      state: enabled
+                      createdTime: 1432216394712
+                app:
+                  value:
+                    memberHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+                    entityType: app
+                    info:
+                      clientId: 0123456789ABCDEFGHHIJKLM
+                      clientHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+                      realm: myrealm
+                      name: Some Application
+                      description: Application for doing something.
+                      ownerId: HERE-00000000-0000-0000-0000-000000000000
+                      ownerHrn: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+                      defaultScope: hrn:here:authorization::myrealm:project/my-project-0000
+                      isRestrictedScope: 'true'
+                      appCreationEnabled: 'true'
+                      alwaysProjectScope: 'true'
+                      status: active
+                      roles:
+                      - OrgAdmin
+                      - GroupAdmin
+                      state: enabled
+                      createdTime: 1432216394712
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/members/{member}/roles:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Realms
+      summary: Get entity roles
+      description: 'Retrieve the roles a given entity has been assigned.
+
+
+        Access Control:
+
+        * The calling principal must have **"readRoles"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityRoleAssignments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/members/{member}/groups:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/count'
+    get:
+      tags:
+      - Realms
+      summary: Get entity group membership
+      description: 'Retrieve the groups a given entity is a member of.
+
+
+        Access Control:
+
+        * The calling principal must have **"readGroups"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityGroupMembership
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/members/{member}/managedGroups:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/count'
+    - $ref: '#/components/parameters/pageToken'
+    get:
+      tags:
+      - Realms
+      summary: Get entity managed group
+      description: 'Retrieve the list of groups over which the provided entity has been
+
+        granted the role of GroupAdmin.
+
+
+        Access Control:
+
+        * The calling principal must have **"readGroups"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityManagedGroups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/members/{member}/projects:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Realms
+      summary: Get entity project membership
+      description: 'Retrieve the projects a given entity is a member of.
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{member}"** in the **"authorization"** service.'
+      operationId: getEntityProjectMembership
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListWithPageToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/plans:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Plans
+      operationId: getEntityPlans
+      description: 'Get all plans attached to the requested entity.
+
+
+        **Note:** Plans can only be attached to apps. Requesting plans attached to a user will return 404.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPlanPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/plans/{plan}/policies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/planHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Plan Policies
+      operationId: getEntityPlanPolicies
+      description: 'Get all policies associated with a plan attached to the requested entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPolicyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/plans/{plan}/policies/{policy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/planHrn'
+    - $ref: '#/components/parameters/policyHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Plan Policy Permissions
+      operationId: getEntityPlanPolicyPermissions
+      description: 'Get all **unscoped** permissions that are in a policy associated with a plan attached to the requested entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/policies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Policies
+      operationId: getEntityPolicies
+      description: 'Get all policies attached to the requested entity.
+
+
+        **Note:** Policies can only be attached to apps. Requesting policies attached to a user will return 404.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPolicies"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPolicyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/policies/{policy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/policyHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Policy Permissions
+      operationId: getEntityPolicyPermissions
+      description: 'Get all **unscoped** permissions that are in a policy attached to the requested entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPolicies"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/permissionServiceId'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Realms
+      summary: Get entity permissions
+      description: 'Retrieve the **unscoped** permissions a given entity has been assigned.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPermissions"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityPermissions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/members/{member}/filters:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Access Filters
+      description: 'Retrieve the Access Filters attached to this entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilter"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityAccessFilters
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilterAttachmentPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/members/{member}/filters/{filterHrn}:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/member'
+    - $ref: '#/components/parameters/filterHrn'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Entity Access Filter
+      description: 'Retrieve an Access Filter attached to this entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilter"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEntityAccessFilter
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilterAttachment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Realms
+      summary: Attach Entity Access Filter
+      description: 'Attach an Access Filter to this entity. A maximum of **5** Access Filters may be attached to a single entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilter"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: attachEntityAccessFilter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFilterAttachment'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilterAttachment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Realms
+      summary: Detach Entity Access Filter
+      description: 'Remove the Access Filter attached to this entity.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilter"** action permission for the resource **"{member}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: detachEntityAccessFilter
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/plans:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/planServiceId'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Plans
+      operationId: getRealmPlans
+      description: 'Get all plans attached to the requested realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPlanPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/plans/{plan}/policies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/planHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Plan Policies
+      operationId: getRealmPlanPolicies
+      description: 'Get all policies associated with a plan attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPolicyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/plans/{plan}/policies/{policy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/planHrn'
+    - $ref: '#/components/parameters/policyHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Plan Policy Permissions
+      operationId: getRealmPlanPolicyPolicies
+      description: 'Get all **unscoped** permissions associated with a policy that is in a plan that is attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/policies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/policyServiceId'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Policies
+      operationId: getRealmPolicies
+      description: 'Get all policies attached to the requested realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPolicies"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedUnscopedPolicyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/policies/{policy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/policyHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Policy Permissions
+      operationId: getPolicyPermissions
+      description: 'Get all **unscoped** permissions associated with a policy that is attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPolicies"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/resourcePlans:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Resource Plans
+      operationId: getRealmResourcePlans
+      description: 'Get all resource plans attached to the requested realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedResourcePlanPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/resourcePlans/{resourcePlan}/resourcePolicies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/resourcePlanHrn'
+    - $ref: '#/components/parameters/externalIdAttachment'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Resource Plan Resource Policies
+      operationId: getRealmResourcePlanResourcePolicies
+      description: 'Get all resource policies associated with a resource plan attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedResourcePolicyPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/resourcePlans/{resourcePlan}/resourcePolicies/{resourcePolicy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/resourcePlanHrn'
+    - $ref: '#/components/parameters/resourcePolicy'
+    - $ref: '#/components/parameters/externalIdAttachment'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Resource Plan Resource Policy Permissions
+      operationId: getRealmResourcePlanResourcePolicyPermissions
+      description: 'Get all **linkable** permissions associated with a resource policy that is in a resource plan that is attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWithSubresourcesPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/resourcePlans/{resourcePlan}/actionPolicies:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/resourcePlanHrn'
+    - $ref: '#/components/parameters/externalIdAttachment'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Resource Plan Action Policies
+      operationId: getRealmResourcePlanActionPolicies
+      description: 'Get all service action policies associated with a resource plan attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePlanPolicyList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/resourcePlans/{resourcePlan}/actionPolicies/{actionPolicy}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/resourcePlanHrn'
+    - $ref: '#/components/parameters/actionPolicy'
+    - $ref: '#/components/parameters/externalIdAttachment'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/XCorrelationId'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Resource Plan Action Policy Permissions
+      operationId: getRealmResourcePlanActionPolicyPermissions
+      description: 'Get all permissions associated with a service action policy that is in a resource plan that is attached to a realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPlans"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      responses:
+        '200':
+          description: OK.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionPolicyPermissionList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /realms/{realm}/linkable/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    - $ref: '#/components/parameters/linkablePermissionResourceType'
+    - $ref: '#/components/parameters/permissionServiceId'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Realms
+      summary: Get realm linkable permissions
+      description: 'Get the list of **linkable** permissions that are associated with all resources in this realm that have
+
+        specifically been made available to be linked to any project in the realm. Note this list does NOT include
+
+        linkable permissions associated with resource plans attached to the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPermissions"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmLinkablePermissions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /realms/{realm}/filter:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    get:
+      tags:
+      - Realms
+      summary: Get Realm Access Filter
+      description: 'Retrieve the Access Filter attached to this realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readAccessFilter"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmAccessFilter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm not found
+    post:
+      tags:
+      - Realms
+      summary: Attach Realm Access Filter
+      description: 'Update the Access Filter attached to this realm. Only a single access filter may be attached to a realm.
+
+        If an Access Filter is already attached to the realm, this operation will replace it with a new one.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageAccessFilter"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: attachRealmAccessFilter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFilterIdentifier'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm not found
+  /realms/{realm}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/realm'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/limit'
+      tags:
+      - Realms
+      summary: Get realm permissions
+      deprecated: true
+      description: 'Retrieve the effective permissions associated with the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"readPermissions"** action permission for the resource **"{realm}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getRealmPermissions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    realmMembersSearch:
+      in: query
+      name: q
+      required: false
+      description: A free text query string used to filter the results. A search against members in the realm will consider the 'userId', 'firstname', 'lastname', 'email', 'clientId', 'name', 'roles', and 'carId' fields of the members. The precise search algorithm used to match members is not specified, but generally any member where one of the considered fields has a full or partial match should be included in the results.
+      schema:
+        type: string
+    limitType:
+      in: query
+      name: type
+      required: false
+      description: The type of the limit.
+      schema:
+        type: string
+      example: MaxEntityApps
+    realmEntityType:
+      in: query
+      name: entityType
+      required: false
+      description: The type of members to return in the result. One of 'user', 'app', or 'car'. If this parameter is omitted, all entity types will be returned.
+      schema:
+        type: string
+        enum:
+        - user
+        - app
+        - car
+    filterHrn:
+      in: path
+      name: filterHrn
+      required: true
+      description: HRN identifying the filter.
+      schema:
+        type: string
+      example: hrn:here:authorization::HERE:filter/FILTER-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+    count:
+      in: query
+      name: count
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    planServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include plans that contain a policy associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    invitesSearch:
+      in: query
+      name: q
+      required: false
+      description: A free text query string used to filter the results.  A search against invites in the realm will consider the 'firstName', 'lastName', and 'emailAddress' fields of the invites.  The precise search algorithm used to match invites is not specified, but generally any invite where one of the considered fields has a full or partial match should be included in the results.
+      schema:
+        type: string
+    policyServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include policies associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    externalIdAttachment:
+      in: query
+      name: externalId
+      example: A-S00001234
+      required: false
+      description: ExternalId of the attached ResourcePlan to select a specific one. If not set the one with empty externalId is selected.
+      schema:
+        type: string
+    invite:
+      in: path
+      name: invite
+      required: true
+      description: HRN identifying a given invite.
+      schema:
+        type: string
+    realmMembersState:
+      in: query
+      name: state
+      required: false
+      description: Only return user members with the given 'state' in the results.
+      schema:
+        type: string
+        enum:
+        - enabled
+        - disabled
+    actionPolicy:
+      name: actionPolicy
+      in: path
+      description: HRN identifying the service action policy
+      required: true
+      example: hrn:here:authorization::HERE:actionpolicy/ACTIONPOLICY-0000
+      schema:
+        type: string
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    realm:
+      in: path
+      name: realm
+      required: true
+      description: HRN identifying the realm
+      schema:
+        type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service.  X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    vehicleContractId:
+      in: query
+      name: vehicleContractId
+      required: false
+      description: Only return user members with matching vehicleContractId. Works only when entityType=car
+      schema:
+        type: string
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    planHrn:
+      in: path
+      name: plan
+      required: true
+      description: 'HRN identifying the plan.
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::HERE:plan/PLAN-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+    linkablePermissionResourceType:
+      in: query
+      name: resourceType
+      required: true
+      description: 'Only include permissions effective against the requested resource type.
+
+        '
+      schema:
+        type: string
+    member:
+      in: path
+      name: member
+      required: true
+      description: HRN identifying member
+      schema:
+        type: string
+      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+    groupQuery:
+      in: query
+      name: group
+      required: false
+      description: 'HRN idenitifying the group to search.
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    resourcePlanHrn:
+      in: path
+      name: resourcePlan
+      required: true
+      description: 'HRN identifying the resource plan.
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:resourcePlan/my-plan-000
+    resourcePolicy:
+      in: path
+      name: resourcePolicy
+      required: true
+      description: The HRN of the resource policy
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-0000
+    permissionServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include permissions associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    policyHrn:
+      in: path
+      name: policy
+      required: true
+      description: 'HRN identifying the policy.
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
+  schemas:
+    RealmMemberPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/RealmMember'
+            example:
+            - memberHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+              entityType: user
+              info:
+                userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+                userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+                realm: myrealm
+                firstname: John
+                lastname: Williams
+                email: john.williams@example.com
+                roles:
+                - OrgAdmin
+                - GroupAdmin
+                state: enabled
+                createdTime: 1432216394712
+            - memberHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0890
+              entityType: car
+              info:
+                userId: HERE-64badba9-4242-4859-88d5-74563a8f0890
+                userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0890
+                realm: myrealm
+                carId: HashedVehicleVIN
+                vehicleContractId: XY/1234
+                roles:
+                - OrgAdmin
+                - GroupAdmin
+                state: enabled
+                createdTime: 1432216394712
+            - memberHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+              entityType: app
+              info:
+                clientId: 0123456789ABCDEFGHHIJKLM
+                clientHrn: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+                realm: myrealm
+                name: Some Application
+                description: Application for doing something.
+                ownerId: HERE-00000000-0000-0000-0000-000000000000
+                ownerHrn: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+                defaultScope: hrn:here:authorization::myrealm:project/my-project-0000
+                isRestrictedScope: 'true'
+                appCreationEnabled: 'true'
+                alwaysProjectScope: 'true'
+                status: active
+                roles:
+                - OrgAdmin
+                - GroupAdmin
+                state: enabled
+                createdTime: 1432216394712
+    Group:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          example: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+          readOnly: true
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+          readOnly: true
+        name:
+          type: string
+          description: 'A user defined name for the group.
+
+            The following characters are not allowed in the group name: control characters, non-breaking space, and * / < > \  |
+
+            '
+          example: Power Users
+        realm:
+          type: string
+          example: HERE
+          readOnly: true
+        description:
+          type: string
+          maxLength: 500
+          description: 'An optional user defined description for the group.
+
+
+            The following characters are not allowed in the group name: control
+
+            characters, non-breaking space, and * / < > \  |
+
+            '
+          example: This is the power users group
+    AccessFilterAttachment:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      properties:
+        expiresAt:
+          type: string
+          example: '2030-05-26T19:30:00Z'
+          format: date-time
+          description: 'The UTC time when the access filter attachment expires.
+
+            '
+    PageWToken:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          example: 10
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          example: 7afd7f8e94eb4844ba45
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          example: 2
+          type: integer
+          description: number of items returned
+    ResourcePlanPolicyList:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActionPolicy'
+            description: List of Service Action Policies.
+    subresources:
+      type: array
+      maxItems: 10
+      items:
+        type: string
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
+
+        '
+    RealmMemberAppInfo:
+      allOf:
+      - $ref: '#/components/schemas/AppInfo'
+      - type: object
+        properties:
+          createdTime:
+            type: integer
+            format: int64
+            description: Timestamp (milliseconds since the Unix epoch) when the app was created.
+            example: 1432216394712
+    ListInviteResponse:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the authorization invite.
+          example: hrn:here:authorization::myrealm:invite/AUTHINVITE-84477c71-d0ab-451b-bd61-e3c47c16c80b
+        emailAddress:
+          type: string
+          description: The email address of the user.
+          example: Steven@example.com
+        firstName:
+          type: string
+          description: The first name of the invitee.
+          example: Steven
+        lastName:
+          type: string
+          description: The last name of the invitee.
+          example: Smith
+        creatorHrn:
+          type: string
+          description: The HRN of the entity that created the authorization.
+          example: hrn:here:account::myrealm:user/HERE-fa438f6e-b41c-479a-bdab-c722feca11d9
+        realmHrn:
+          type: string
+          description: The HRN of the realm of the invitation.
+          example: hrn:here:account::myrealm:realm/myrealm
+        roles:
+          type: array
+          description: The roles to be assigned to the invitee upon invite accepted.
+          items:
+            $ref: '#/components/schemas/RoleShort'
+          example:
+          - hrn: hrn:here:authorization::myrealm:role/ROLE-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+            name: OrgAdmin
+          - hrn: hrn:here:authorization::myrealm:role/ROLE-9dee6088-3684-47d3-a9ca-fc8004ee51c1
+            name: MonitoringDashboardEditor
+        createdTime:
+          type: integer
+          format: int64
+          description: Timestamp (milliseconds since the Unix epoch) when the authorization was created.
+          example: 1432216394712
+        updatedTime:
+          type: integer
+          format: int64
+          description: Timestamp (milliseconds since the Unix epoch) when the invite was last sent.
+          example: 1432216437420
+        allowPasswordLogin:
+          type: boolean
+          description: 'If the realm is configured to support both ''saml'' and ''password'' logins, allow the user to
+
+            activate this invite by setting up ''password'' credentials. Otherwise, use the default login
+
+            method of the realm when activating this invite.
+
+            '
+          example: false
+    AttachedResourcePlan:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: 'The hrn of the resource plan
+
+            '
+          example: hrn:here:authorization::myrealm:resourcePlan/my-plan-000
+        externalId:
+          $ref: '#/components/schemas/externalId'
+        subresources:
+          type: object
+          additionalProperties:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              maxLength: 24
+            example:
+            - usa-il-chicago
+            - deu
+            description: 'The list of associated subresource identifiers.
+
+              '
+          example:
+            hrn:here:authorization::myrealm:resourcePolicy/my-policy-000:
+            - usa-il-chicago
+            - deu
+          description: 'Provides the subresources per included Resource Policy (HRN as key). You can only
+
+            set subresources with the attached plan if the subresources are not set in
+
+            the Resource Policy. This shows the effective setting, either from the
+
+            Resource Policy or as specified in the attachment. Setting it on attachment
+
+            has a higher priority than setting it on the Resource Policy and will override
+
+            any values set at the Resource Policy.
+
+            '
+        expiresAt:
+          type: string
+          example: '2030-05-26T19:30:00Z'
+          format: date-time
+          description: 'The UTC time when the resource plan attachment expires.
+
+            '
+    RealmMember:
+      type: object
+      properties:
+        memberHrn:
+          type: string
+          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        entityType:
+          type: string
+          enum:
+          - user
+          - app
+          - car
+        info:
+          $ref: '#/components/schemas/RealmMemberInfo'
+    RolePageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Role'
+    RealmAuthInviteResponse:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the authorization invite.
+          example: hrn:here:authorization::myrealm:invite/AUTHINVITE-84477c71-d0ab-451b-bd61-e3c47c16c80b
+        emailAddress:
+          type: string
+          description: The email address of the user.
+          example: Suzanne@example.com
+        firstName:
+          type: string
+          description: The first name of the invitee.
+          example: Suzanne
+        lastName:
+          type: string
+          description: The last name of the invitee.
+          example: Smith
+        roles:
+          type: array
+          description: The roles to be assigned to the invitee upon invite accepted.
+          items:
+            $ref: '#/components/schemas/RoleShort'
+          example:
+          - hrn: hrn:here:authorization::myrealm:role/ROLE-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+            name: OrgAdmin
+          - hrn: hrn:here:authorization::myrealm:role/ROLE-9dee6088-3684-47d3-a9ca-fc8004ee51c1
+            name: MonitoringDashboardEditor
+        groupHrns:
+          type: array
+          items:
+            type: string
+          description: The HRNs of the groups the invitee was added to during invite creation.
+          example:
+          - hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
+        creatorHrn:
+          type: string
+          description: The HRN of the entity that created the authorization.
+          example: hrn:here:account::myrealm:user/HERE-fa438f6e-b41c-479a-bdab-c722feca11d9
+        realmHrn:
+          type: string
+          description: The HRN of the realm of the invitation.
+          example: hrn:here:account::myrealm:realm/myrealm
+        createdTime:
+          type: integer
+          format: int64
+          description: Timestamp (milliseconds since the Unix epoch) when the authorization was created.
+          example: 1432216394712
+        updatedTime:
+          type: integer
+          format: int64
+          description: Timestamp (milliseconds since the Unix epoch) when the invite was last sent.
+          example: 1432216437420
+        allowPasswordLogin:
+          type: boolean
+          description: 'If the realm is configured to support both ''saml'' and ''password'' logins, allow the user to
+
+            activate this invite by setting up ''password'' credentials. Otherwise, use the default login
+
+            method of the realm when activating this invite.
+
+            '
+          example: false
+    externalId:
+      type: string
+      maxLength: 80
+      example: A-S0001234
+      description: 'ID provided by an external system. For every resource in a target realm this must be unique.
+
+        Typically, this holds the subscription ID used to license the resource. You can have the same
+
+        resource with different external IDs in a target realm. The empty value is valid, and is the
+
+        implicit value used for resource made explicitly linkable.
+
+        '
+    PermissionWithSubresourcesPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PermissionWithSubresources'
+    AccessFilterIdentifier:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the filter
+          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
+    AttachedResourcePolicyPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttachedResourcePolicy'
+    ActionPolicy:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:authorization::HERE:actionpolicy/ACTIONPOLICY-0000
+    RealmAuthorizationInvite:
+      type: object
+      required:
+      - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          description: The email address to send the invitation to.
+          example: Steven@example.com
+        firstName:
+          type: string
+          description: The first name of the invitee.
+          example: Steven
+        lastName:
+          type: string
+          description: The last name of the invitee.
+          example: Smith
+        roles:
+          type: array
+          description: HRNs of the roles to be assigned to the invitee upon invite accepted.
+          items:
+            type: string
+          example:
+          - hrn:here:authorization::myrealm:role/ROLE-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+          - hrn:here:authorization::myrealm:role/ROLE-9dee6088-3684-47d3-a9ca-fc8004ee51c1
+        groupHrns:
+          type: array
+          items:
+            type: string
+          description: The group memberships to create for this invitation.
+          example:
+          - hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
+        allowPasswordLogin:
+          type: boolean
+          description: 'If the realm is configured to support both ''saml'' and ''password'' logins, allow the user to
+
+            activate this invite by setting up ''password'' credentials. Otherwise, use the default login
+
+            method of the realm when activating this invite.
+
+            '
+          example: false
+    AccessFilterStatement:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Prose description of what this filter statement does.
+          example: Block evaluation of all unscoped permissions for any project scoped request.
+        permissions:
+          type: string
+          enum:
+          - unscoped
+          - scoped
+          - linkable
+          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
+          example: unscoped
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
+        service:
+          type: string
+          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
+
+            or the **serviceIdAlias** of the service.
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+        actions:
+          type: array
+          description: The specific action identifiers of the access request that will match this statement
+          items:
+            type: string
+          example:
+          - read
+        actionAccessLevel:
+          type: string
+          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
+          enum:
+          - read
+          - write
+          - default
+          - internal
+          example: read
+        resource:
+          type: string
+          description: The resource identifier of the access request that will match this statement
+          example: hrn:here:data::my-realm:service-catalog
+        scope:
+          type: string
+          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        evaluate:
+          type: boolean
+          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
+          example: true
+        priority:
+          type: integer
+          description: An integer representing the statement priority
+          minimum: 0
+          maximum: 1000
+          example: 1
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the role
+          example: ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        hrn:
+          type: string
+          description: Unique identifier for this role with partition/realm/etc, an HRN
+          example: hrn:here:authorization::myrealm:role/ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        name:
+          type: string
+          description: System defined name for the role
+          example: GroupAdmin
+        resource:
+          type: string
+          description: Represents either Group or Realm HRN for which object is scoped for
+          example: hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    AccessFilterCommonProperties:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - here-platform
+          - custom
+          - virtual
+          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
+          example: here-platform
+        name:
+          type: string
+          description: The name of the filter
+          example: Strict Projects
+    AccessFilterAttachmentPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AccessFilterAttachment'
+    GroupPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Group'
+        example:
+          total: 10
+          pageToken: 7afd7f8e94eb4844ba45
+          count: 2
+          data:
+          - id: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+            hrn: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+            name: Power Users
+            description: This is the Power Users group
+          - id: GROUP-85e5c3f7-a866-1248-3690-18c94689be17
+            hrn: hrn:here:authorization::myrealm:group/GROUP-85e5c3f7-a866-1248-3690-18c94689be17
+            name: Data scientist
+            description: This is the Data scientist group
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    AttachedUnscopedPlanPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttachedUnscopedPlan'
+    AccessFilterVirtualProperties:
+      type: object
+      properties:
+        externalIds:
+          type: array
+          items:
+            type: string
+          description: 'Only included in virtual Access Filters.  The list of externalIds that this virtual Access Filter is linked
+
+            to.  Plans and ResourcePlans attached to this realm with one of the externalIds in this list are used as
+
+            the basis of this filter.  The list of Plans and ResourcePlans used may be further filtered **if** the
+
+            planAttachments or resourcePlanAttachments properties are also defined.  The statements in this filter are
+
+            automatically generated to allow access to each of the permissions and resources defined in those included
+
+            plans.
+
+            '
+          example:
+          - A-12345
+          - A-67890
+        planAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of plan attachments to filter.  Must match one of the top level externalIds specified
+
+                  for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              planHrns:
+                type: array
+                items:
+                  type: string
+                description: 'The list of planHrns that may be used as the basis of this virtual Access Filter''s statements for
+
+                  any plans that are attached to this realm with the given externalId.
+
+                  '
+                example:
+                - hrn:here:authorization::HERE:plan/PLAN-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+                - hrn:here:authorization::HERE:plan/PLAN-457c91d8-f67e-49e6-b629-e72c2f5b1036
+          description: 'Only included in virtual Access Filters.  The list of planAttachments that this virtual Access Filter is
+
+            linked to.  If this field is included, for the externalId of each list entry, **only** Plans that are
+
+            attached to this realm with the defined externalId **and** one of the defined planHrns will be used as the
+
+            basis of statements in this filter.  Any Plans attached to this realm with the given externalId that are
+
+            **not** in the list of defined planHrns will be excluded from the basis of this filter.  If this field is
+
+            omitted, or there is no entry for any one of the externalIds defined for this virtual Access Filter,
+
+            **all** of the Plans attached with the externalId will be used as the basis of statements in this filter.
+
+            '
+        resourcePlanAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of resource plan attachments to filter.  Must match one of the top level externalIds
+
+                  specified for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              resourcePlanHrns:
+                type: array
+                items:
+                  type: string
+                description: "The list of resourcePlanHrns that may be used as the basis of this virtual Access Filter's statements \nfor any resource plans that are attached to this realm with the given externalId.\n"
+                example:
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0000
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0001
+          description: 'Only included in virtual Access Filters.  The list of resourcePlanAttachments that this virtual Access
+
+            Filter is linked to.  If this field is included, for the externalId of each list entry, **only** Resource
+
+            Plans that are attached to this realm with the defined externalId **and** one of the defined
+
+            resourcePlanHrns will be used as the basis of statements in this filter.  Any Resource Plans attached to
+
+            this realm with the given externalId that are **not** in the list of defined resourcePlanHrns will be
+
+            excluded from the basis of this filter.  If this field is omitted, or there is no entry for any one of the
+
+            externalIds defined for this virtual Access Filter, **all** of the Plans attached with the externalId will
+
+            be used as the basis of statements in this filter.
+
+            '
+        mode:
+          type: string
+          enum:
+          - open
+          - strict
+          description: "Only included in virtual Access Filters.  The pattern of filter statements used in this virtual Access Filter.\n* **open** - All permissions and resources specified in both Plans and ResourcePlans attached to this realm\n  with the relevant externalIds are available via this filter with both scoped and unscoped access.  In\n  addition, all linkable resources are available in both scoped and unscoped access.\n* **strict** - All permissions specified in Plans attached to this realm with the relevant externalIds are\n  ONLY available via this filter with unscoped access.  All resources specified in ResourcePlans attached\n  to this realm with the relevant externalIds are ONLY available via this filter with scoped access.\n"
+          example: open
+        priority:
+          type: integer
+          description: 'Only included in virtual Access Filters.  The priority assigned to each filter statement in this virtual
+
+            Access Filter.
+
+            '
+          minimum: 0
+          maximum: 1000
+          example: 100
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    VehicleInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the vehicle.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the vehicle.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the vehicle belongs to.
+          example: myrealm
+        carId:
+          type: string
+          description: 'CarId representing an external unique identifier of the vehicle.
+
+            '
+          example: HashedVehicleVIN
+        vehicleContractId:
+          type: string
+          description: 'Contract identifier specified by OEM.
+
+            '
+          example: XY/1234
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    RoleShort:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: Unique identifier for this role with partition/realm/etc, an HRN
+          example: hrn:here:authorization::myrealm:role/ROLE-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        name:
+          type: string
+          description: System defined name for the role
+          example: OrgAdmin
+    InvitePageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/ListInviteResponse'
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    AttachedUnscopedPolicy:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: 'The hrn of the policy
+
+            '
+          example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
+        serviceId:
+          type: string
+          description: 'The id of the service associated with the policy
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    AppInfo:
+      type: object
+      properties:
+        clientId:
+          readOnly: true
+          type: string
+          description: Identifier for the client/application.
+          example: 0123456789ABCDEFGHHIJKLM
+        clientHrn:
+          readOnly: true
+          type: string
+          description: HRN for the client/application.
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+        realm:
+          readOnly: true
+          type: string
+          description: A realm to which app belongs to.
+          example: myrealm
+        name:
+          readOnly: true
+          type: string
+          description: Human readable name of the client.
+          example: Some Application
+        description:
+          readOnly: true
+          type: string
+          description: Prose description of the client.
+          example: Application for doing something.
+        ownerId:
+          readOnly: true
+          type: string
+          description: The id of the user that owns this client.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        ownerHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the user that owns this client.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        defaultScope:
+          readOnly: true
+          type: string
+          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        isRestrictedScope:
+          readOnly: true
+          type: boolean
+          description: If true, the app cannot request a token with a scope different from defaultScope.
+          example: true
+        appCreationEnabled:
+          readOnly: true
+          type: boolean
+          description: If true, the app can create apps.
+          example: true
+        alwaysProjectScope:
+          readOnly: true
+          type: boolean
+          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
+          example: true
+        status:
+          readOnly: true
+          type: string
+          enum:
+          - active
+          - expired
+          - blacklisted
+          - deactivated
+          - monitoring
+          - quota_exceeded
+          description: Status of the application
+          example: active
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the app.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    PermissionWithSubresources:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermission'
+      - type: object
+        properties:
+          subresources:
+            $ref: '#/components/schemas/subresources'
+          expiresAt:
+            type: string
+            example: '2030-05-26T19:30:00Z'
+            format: date-time
+            description: 'The UTC time when the permission expires.
+
+              '
+    AttachedResourcePlanPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttachedResourcePlan'
+    RealmMemberInfo:
+      description: 'Details about the member of organization (realm). The provided fields are dependent on the entityType as provided.<p> User: userId, userHrn, realm, firstname, lastname, email, roles, state, createdTime<p> App: clientId, clientHrn, realm, name, description, roles, ownerId, ownerHrn, defaultScope, isRestrictedScope, appCreationEnabled, alwaysProjectScope, status, createdTime<p> Car: userId, userHrn, realm, carId, roles, state
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/RealmMemberUserInfo'
+      - $ref: '#/components/schemas/RealmMemberAppInfo'
+      - type: object
+        properties:
+          roles:
+            type: array
+            items:
+              type: string
+            description: 'A list of roles assigned to the member. Each entry in the list will be equal to the ''name'' of the role.
+
+              '
+          carId:
+            type: string
+            description: The unique identifier of the car. Only included if entityType is car
+            example: VIN123456
+      example:
+        userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+        userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        realm: myrealm
+        firstname: John
+        lastname: Williams
+        email: john.williams@example.com
+        roles:
+        - OrgAdmin
+        - GroupAdmin
+        state: enabled
+        createdTime: 1432216394712
+    AttachedResourcePolicy:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: 'The hrn of the policy
+
+            '
+          example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-0000
+    AccessFilter:
+      type: object
+      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+    ActionPolicyPermissionList:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermissionNoResource'
+            description: List of Service Action Policy Permissions.
+    AttachedUnscopedPlan:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: 'The hrn of the plan
+
+            '
+          example: hrn:here:authorization::HERE:plan/PLAN-99b7c7d7-867a-4573-8730-4689be1718c9
+        externalIds:
+          type: array
+          description: 'List of all external ids for this plan attachment.
+
+            No external ids for the attachment if it is missing.
+
+            '
+          items:
+            type: string
+          example:
+          - A-S0001234
+          - A-S0001235
+    RealmMemberUserInfo:
+      allOf:
+      - $ref: '#/components/schemas/UserInfo'
+      - $ref: '#/components/schemas/VehicleInfo'
+      - type: object
+        properties:
+          createdTime:
+            type: integer
+            format: int64
+            description: Timestamp (milliseconds since the Unix epoch) when the user was created.
+            example: 1432216394712
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    InviteTargets:
+      type: object
+      properties:
+        targets:
+          type: array
+          items:
+            type: object
+            required:
+            - target
+            properties:
+              target:
+                type: string
+                enum:
+                - wegopro
+                description: 'An invite target which is supported in the realm.
+
+                  '
+                example: wegopro
+              roleName:
+                type: string
+                enum:
+                - OrgAdmin
+                - OrgInviter
+                - ResourceManager
+                - CrossRealmTrustManager
+                - LicensingAdmin
+                - MarketplaceConsumer
+                - MarketplaceProvider
+                - MonitoringDashboardEditor
+                - RestrictedAccess
+                description: 'An optional roleName that this invite target is mapped to.  If an invite target is mapped to a role,
+
+                  an invite with that role sent to a user will by default use the requested invite target in the
+
+                  invite. This value must be unique among all invite targets configured for a realm.
+
+                  '
+                example: RestrictedAccess
+          description: 'The list of target applications supported in invitations in this realm.
+
+            '
+          example:
+          - target: platform
+          - target: wegopro
+            roleName: RestrictedAccess
+    ProjectListWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectResponse'
+            description: List of Projects.
+    RealmLimit:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn identifying the limit configuration
+          example: hrn:here:authorization::HERE:limit/LIMIT-829fe129-f508-487e-9418-2272b6c565fc
+        type:
+          type: string
+          description: The type of limit
+          example: MaxEntityApps
+        maximum:
+          type: integer
+          description: The maximum value allowed for this limit in this realm
+          example: 100
+    AttachedUnscopedPolicyPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttachedUnscopedPolicy'
+    PermissionPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    PermissionPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    AccessFilterStatements:
+      type: object
+      properties:
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFilterStatement'
+          description: List of statements in this filter.
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: my-project-0000
+          description: 'The id of the Project
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+          description: 'The hrn of the Project
+
+            '
+        name:
+          type: string
+          example: My Project
+          description: 'The name of the Project
+
+            '
+        description:
+          type: string
+          example: This is my demo Project
+          description: 'The description of the Project
+
+            '
+    RealmLimitPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/RealmLimit'
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management

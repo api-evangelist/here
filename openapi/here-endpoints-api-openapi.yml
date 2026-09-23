@@ -1,0 +1,290 @@
+openapi: 3.2.0
+info:
+  title: Rate Limit Rules API v1 Endpoints API
+  version: 1.0.0
+  description: 'The Rate Limit Rules API provides information about rate limit rules that are actively being enforced
+
+    for your organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- token: []
+- apiKey: []
+tags:
+- name: Endpoints
+  description: Identify information about endpoints subject to rate limit rules on the platform
+paths:
+  /endpoints:
+    get:
+      summary: Get endpoints
+      operationId: Rate Limit Rules API v1 getEndpoints
+      description: Get metadata about endpoints that are subject to rate limiting rules.
+      tags:
+      - Endpoints
+      parameters:
+      - $ref: '#/components/parameters/pageToken'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/xRequestId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /endpoints/{endpointId}:
+    get:
+      description: Get metadata about the specific endpoint.
+      tags:
+      - Endpoints
+      parameters:
+      - $ref: '#/components/parameters/endpointId'
+      - $ref: '#/components/parameters/xRequestId'
+      summary: Get endpoint
+      operationId: Rate Limit Rules API v1 getEndpoint
+      security:
+      - token: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Endpoint'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    AuthErrorResponse:
+      type: object
+      required:
+      - error
+      - error_description
+      properties:
+        error:
+          type: string
+          description: Error title
+        error_description:
+          type: string
+          description: Error description
+    Endpoint:
+      type: object
+      required:
+      - id
+      - url
+      properties:
+        id:
+          type: string
+          description: User defined id for the endpoint
+          example: search-geocode
+        url:
+          type: string
+          description: URL of the endpoint
+          example: https://geocode.search.hereapi.com
+    EndpointPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Endpoint'
+    PageWithToken:
+      type: object
+      properties:
+        total:
+          example: 10
+          type: integer
+          description: Total number of items
+        pageToken:
+          example: 7afd7f8e94eb4844ba45
+          type: string
+          description: The pageToken used to retrieve the next page of items.  Present only if there is an additional page of items to view.
+        count:
+          example: 2
+          type: integer
+          description: Count of items returned in this query
+        limit:
+          example: 5
+          type: integer
+          description: Maximum number of items as specified in request
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E124101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+  parameters:
+    pageToken:
+      name: pageToken
+      schema:
+        type: string
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    limit:
+      name: limit
+      in: query
+      description: Number of results to be returned. Values between 1 and 100
+      schema:
+        type: integer
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    endpointId:
+      name: endpointId
+      in: path
+      description: Identifier for the endpoint
+      required: true
+      example: search-geocode
+      schema:
+        type: string
+  headers:
+    X-Request-ID:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request. \nFor more information on how to get a bearer token, see the\n[https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).\n"
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
+      description: 'A key generated specifically to authenticate API requests. For more information on how to get an API key, see the  [https://developer.here.com/documentation/identity-access-management/dev_guide/index.html](Identity & Access Management Guide).
+
+        '

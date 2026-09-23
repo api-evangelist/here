@@ -1,31 +1,1197 @@
 openapi: 3.2.0
 info:
-  title: HERE Geocoding & Search API v7 Batch Jobs API
-  description: 'HERE Geocoding & Search API v7 — including batch processing (Batch API v7).
-
-    Generated best-effort from public docs at
-
-    https://docs.here.com/geocoding-and-search/.
-
-    '
-  version: 7.0.0
-  contact:
-    name: HERE Technologies
-    url: https://www.here.com/developer
+  title: Here Batch jobs API
+  version: '1.0'
+  description: 'Operations tagged Batch jobs across 2 of this provider''s published API definitions: here-geocoding-batch-v7-openapi.yml, here-batch-jobs-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
+- url: https://batch.search.hereapi.com/v7
+  description: Production environment URL
 - url: https://geocode.search.hereapi.com/v1
   description: Geocoding & Search (real-time)
 - url: https://batch.geocoder.ls.hereapi.com/6.2
   description: Batch Geocoder (legacy)
-- url: https://batch.search.hereapi.com/v7
-  description: Batch API v7
-security:
-- apiKey: []
-- bearerAuth: []
 tags:
 - name: Batch Jobs
+  description: API for creating and managing Batch jobs on Location Services
 paths:
+  /batch/jobs:
+    get:
+      tags:
+      - Batch Jobs
+      summary: Returns the details of multiple jobs
+      description: 'Fetches the details of all jobs the user is authorized to access - filtered on criteria provided in the query.
+
+
+        If **none** of the jobs matches criteria, an empty array is returned in the `200 - OK` response.'
+      operationId: getJobs
+      parameters:
+      - name: limit
+        in: query
+        description: Limits the number of results returned in the response. Default value is 100.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 100
+          maximum: 100
+          minimum: 1
+        example: 100
+      - name: offset
+        in: query
+        description: For supporting paging by offset - the result list will start at the given offset. Default is 0.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          minimum: 0
+        example: 0
+      - name: status
+        in: query
+        description: Filter on jobs with this status.
+        required: false
+        schema:
+          type: string
+          default: any
+          enum:
+          - any
+          - submitted
+          - queued
+          - pending
+          - inProgress
+          - completed
+          - stopped
+          - failure
+      - name: tag
+        in: query
+        description: 'A user supplied string that denotes one or more jobs.
+
+
+          Can be used to filter job responses on delete and get operations.'
+        required: false
+        schema:
+          type: string
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'Page with an array of the details of all jobs matching the supplied criteria.
+
+
+            Empty if none matched the criteria.'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobDetailResponse'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    post:
+      tags:
+      - Batch Jobs
+      summary: Creates a new job
+      description: 'Creates a new job from the supplied input and query parameters.
+
+
+        A `201 - CREATED` response returns the job''s unique ID, which should be used in future operations on the job.'
+      operationId: postJob
+      parameters:
+      - name: serviceHrn
+        in: query
+        description: The HERE Resource Name identifier of the Service targeted by the job.
+        required: true
+        schema:
+          type: string
+          default: hrn:here:service::olp-here:search-geocode-7
+          enum:
+          - hrn:here:service::olp-here:search-geocode-7
+          - hrn:here:service::olp-here:search-revgeocode-7
+          - hrn:here:service::olp-here:search-lookup-7
+      - name: tag
+        in: query
+        description: 'A user supplied string that denotes one or more jobs.
+
+
+          Can be used to filter job responses on delete and get operations.'
+        required: false
+        schema:
+          type: string
+      - name: billingTags
+        in: query
+        description: 'A user supplied string that specifies the billing tags of the job.
+
+
+          Up to six billing tags can be concatenated either with plus (+) or comma (,) sign to a long string (do not mix). Duplicates will be ignored (taken as single).
+
+
+          Must be between 4-16 characters, case sensitive.
+
+
+          Allowed characters are alpha/numeric ASCII characters  [A-Za-z0-9] and the following special characters (not begin or end with): - _.'
+        required: false
+        schema:
+          type: string
+      - name: inputDelimiter
+        in: query
+        description: 'Character used to delimit fields in the job input.
+
+
+          Will be ignored if the input is supplied as URL query strings. Max length 2 is reserved for \t as delimiter'
+        required: false
+        schema:
+          type: string
+          default: '|'
+          maxLength: 2
+          minLength: 1
+      - name: outputDelimiter
+        in: query
+        description: 'Character used to delimit fields in the job results.
+
+
+          Certain characters, specifically: ` ."()` (spaces, the period, quotes and parentheses) are not supported as delimiters for output.'
+        required: false
+        schema:
+          type: string
+          default: '|'
+          maxLength: 2
+          minLength: 1
+      - name: inputColumns
+        in: query
+        description: 'A format descriptor used to interpret fields in the job input.
+
+
+          Every record in the input will be split by the input delimiter and compared to the  supplied format descriptor during processing, if the record does not conform to the format description the record will be marked as invalid.
+
+
+          Every record will be identified by a record identifier (called `recId` in the format descriptor). You can choose to have the record identifiers be **auto-generated** for you by **leaving out** `recId` in the header or input format descriptor.
+
+
+          The format descriptor can be left **empty** if the  input has a header describing the format, or is formatted as requests in the URL query format.'
+        required: false
+        schema:
+          type: string
+          maxLength: 1024
+          minLength: 1
+        examples:
+          Geocoding:
+            description: Example Header for the Geocoding Service
+            value: recId|q|in|lang|limit
+          Reverse Geocoding:
+            description: Example Header for the Reverse Geocoding Service
+            value: recId|at|lang|limit
+          Lookup-by-ID:
+            description: Example Header for the Lookup-by-ID Service
+            value: recId|id
+      - name: outputColumns
+        in: query
+        description: 'A descriptor used to format fields in the job results.
+
+
+          Every result in the output will be split by the output delimiter and formatted according to the supplied descriptor during processing.
+
+
+          Fields supported by the API will be interpreted, those that are not will be ignored. A field is recognized by matching it to an expected name or variants of that name. Character casing (i.e. lowercase or UPPERCASE) is ignored.
+
+
+          General response parameters (such as `recId`) always precede the service specific parameters in the Job''s output format and need not be specified in the format descriptor.
+
+
+          If the format descriptor is absent a default output format is used.'
+        required: false
+        schema:
+          type: string
+          maxLength: 1024
+          minLength: 1
+        example: position|title|id
+      - name: outputFilter
+        in: query
+        description: "In case the 'outputType=jsonl' the formater supports json filtering in a basic json path format like 'title,id,address.label,address.streets,access.lat,position', where each path segment can either be an object or array property name (e.g. 'access' is an array with sub objects).\n - The single segments are always seperated by a comma ','. The outputDelimiter is ignored in this case.\n - The filtering is **case sensitive**.\n - If a property is not found it is ignored.\n - Individually selecting objects within an array is not possible, the next path segment to filter will always be applied to all features within an array.\n"
+        required: false
+        schema:
+          type: string
+          maxLength: 1024
+          minLength: 1
+      - name: startJob
+        in: query
+        description: 'A boolean value (true/false) indicating if a job should be started immediately
+
+          after creation. Default value is true.'
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: outputType
+        in: query
+        description: '**ALPHA** The output type for the result file of the submitted batch job. For now csv (default) and jsonl are supported.'
+        required: false
+        schema:
+          type: string
+          default: csv
+          enum:
+          - csv
+          - jsonl
+      - name: notificationIds
+        in: query
+        description: '(BETA) The UUIDs of the notification hooks that are called at the end of a job.
+
+
+          The notifications need to exist up front and be owned by the calling principle. Multiple notifications can be seperated by '',''. (Max. 5 per job)'
+        required: false
+        schema:
+          type: string
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      requestBody:
+        description: 'The job''s input as text, structured and delimited, with an optional header describing the format.
+
+
+          Each line of text is interpreted as a request to the targeted Service.
+
+
+          Every request will be identified by a record identifier (called `recId` in the input header). You can choose to have the record identifiers be **auto-generated** for you by **leaving out** `recId` in the header or input format descriptor.'
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              Geocoder job input (with header):
+                $ref: '#/components/examples/GeocoderJobInputWithHeader'
+              Geocoder job input (as URL queries):
+                $ref: '#/components/examples/GeocoderJobInputAsURLQuery'
+              Reverse Geocoder job input (with header):
+                $ref: '#/components/examples/ReverseGeocoderJobInputWithHeader'
+              Reverse Geocoder job input (as URL queries):
+                $ref: '#/components/examples/ReverseGeocoderJobInputAsURLQuery'
+              Lookup job input (with header):
+                $ref: '#/components/examples/LookupJobInputWithHeader'
+              Lookup job input (as URL queries):
+                $ref: '#/components/examples/LookupJobInputAsURLQuery'
+          text/csv:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Response on successful creation of the job.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+              examples:
+                Geocoder job:
+                  $ref: '#/components/examples/GeocoderJobSubmittedExample'
+                Reverse Geocoder job:
+                  $ref: '#/components/examples/ReverseGeocoderJobSubmittedExample'
+        '400':
+          description: Response when a particular request parameter is considered invalid or could not be parsed correctly.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Argument Exceeds Length Limit:
+                  $ref: '#/components/examples/ArgumentExceedsMaxLengthErrorExample'
+                Input Exceeds Size Limit:
+                  $ref: '#/components/examples/InputExceedsMaxSizeErrorExample'
+                Unsupported Delimiter Character:
+                  $ref: '#/components/examples/CharacterDelimiterUnsupportedErrorExample'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: API response when the Service with the specified HRN could not be found or is unsupported.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Service Unsupported:
+                  $ref: '#/components/examples/ServiceUnsupportedErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    delete:
+      tags:
+      - Batch Jobs
+      summary: Deletes multiple jobs
+      description: 'Deletes all jobs the user is authorized to access, filtered on criteria provided in the query.
+
+
+        If **none** of the jobs matches the criteria, a `200 - OK` response is returned with an empty list of job IDs.'
+      operationId: deleteJobs
+      parameters:
+      - name: status
+        in: query
+        description: Filter on jobs with this status.
+        required: true
+        schema:
+          type: string
+          enum:
+          - any
+          - submitted
+          - queued
+          - pending
+          - inProgress
+          - completed
+          - stopped
+          - failure
+      - name: tag
+        in: query
+        description: 'A user supplied string that denotes one or more jobs.
+
+
+          Can be used to filter job responses on delete and get operations.'
+        required: false
+        schema:
+          type: string
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'Listing of all the jobs that were deleted.
+
+
+            If *none* were deleted, the `total` will be `0`.'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsDeletedResponse'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
+  /batch/jobs/{jobId}:
+    get:
+      tags:
+      - Batch Jobs
+      summary: Returns the details of a job
+      description: Fetches the details of the job with the specified ID.
+      operationId: getJob
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The details of the job found.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDetailResponse'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: API response when the job with the specified ID could not be located.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Job not found:
+                  $ref: '#/components/examples/JobNotFoundErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    delete:
+      tags:
+      - Batch Jobs
+      summary: Deletes a job
+      description: Deletes a job.
+      operationId: deleteJob
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Listing of the job that was deleted.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+              examples:
+                Job deleted:
+                  $ref: '#/components/examples/GeocoderJobDeletedExample'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: API response when the job with the specified ID could not be located.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Job not found:
+                  $ref: '#/components/examples/JobNotFoundErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
+  /batch/jobs/{jobId}/errors:
+    get:
+      tags:
+      - Batch Jobs
+      summary: Returns the errors of a job
+      description: 'Fetches the errors of the job with the specified ID, given that it has completed with errors, as a downloadable stream of data.
+
+
+        If the job does not yet have any errors available, this operation responds with a `404 - NOT FOUND` response.
+
+        If the job did not produce any errors, the operation responds with a `204 - NO CONTENT` response'
+      operationId: getJobErrors
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'The errors of the job as a downloadable stream. Each line is a reference to the input line and error details from backend service. '
+          headers:
+            Transfer-Encoding:
+              description: Encoding is expected to be `chunked` for streaming downloads of unknown size
+              style: simple
+              schema:
+                type: string
+                example: chunked
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            Content-Disposition:
+              description: The format is expected to be `attachment` or `attachment; filename="JOB-<id>-results.txt"`
+              style: simple
+              schema:
+                type: string
+                example: attachment; filename="JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6-results.csv"
+            Content-Encoding:
+              description: Content may be compressed to reduce bandwidth requirements
+              style: simple
+              schema:
+                type: string
+                example: gzip
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: API response when the job has completed without generating any errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            text/plain:
+              schema:
+                type: 'null'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: "API response when either:\n - a job with the specified ID could not be located, or\n - the errors of the job are not available, yet."
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
+  /batch/jobs/{jobId}/results:
+    get:
+      tags:
+      - Batch Jobs
+      summary: Returns the results of a job
+      description: 'Fetches the results of the job with the specified ID, given that it has completed successfully, as a downloadable stream of data.
+
+
+        If the job does not (yet) have any results available, this operation responds with a `404 - NOT FOUND` response.'
+      operationId: getJobResults
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'The results of the job as a downloadable stream. Formatted according to the output format descriptor provided during creation/modification of the job. '
+          headers:
+            Transfer-Encoding:
+              description: Encoding is expected to be `chunked` for streaming downloads of unknown size
+              style: simple
+              schema:
+                type: string
+                example: chunked
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            Content-Disposition:
+              description: The format is expected to be `attachment` or `attachment; filename="JOB-<id>-results.txt"`
+              style: simple
+              schema:
+                type: string
+                example: attachment; filename="JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6-results.txt"
+            Content-Encoding:
+              description: Content may be compressed to reduce bandwidth requirements
+              style: simple
+              schema:
+                type: string
+                example: gzip
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: binary
+              examples:
+                Geocoder job results:
+                  $ref: '#/components/examples/GeocoderJobOutput'
+        '204':
+          description: API response when the job has no results.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            text/plain:
+              schema:
+                type: 'null'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: "API response when either:\n - a job with the specified ID could not be located, or\n - the results of the job is unavailable."
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Job Not Found:
+                  $ref: '#/components/examples/JobNotFoundErrorExample'
+                Job Results Not Found:
+                  $ref: '#/components/examples/JobResultsUnavailableErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
+  /batch/jobs/{jobId}/start:
+    put:
+      tags:
+      - Batch Jobs
+      summary: Starts a job
+      description: 'Schedules a job for immediate execution and responds with a `200 - OK` if successful.
+
+        If the job is already running this operation does nothing and will respond with the same `200 - OK` response.
+
+
+        If the job was previously halted, this operation will continue execution from the point where it was stopped.
+
+        If you wish to restart a job from its beginning, you should create a new job and delete the existing one.
+
+
+        Take note, this operation will return a `429 - TOO MANY REQUESTS` if the allowed number of concurrently running jobs is exceeded.'
+      operationId: startJob
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'Response if the job was successfully scheduled for execution.
+
+
+            The job''s status will change to `queued` if the job was successfully validated and scheduled for execution.
+
+
+            When the job starts execution the status will change to `inProgress`.'
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+              examples:
+                Geocoder job:
+                  $ref: '#/components/examples/GeocoderJobPendingExample'
+                Reverse Geocoder job:
+                  $ref: '#/components/examples/ReverseGeocoderJobPendingExample'
+        '400':
+          description: Response if the job could not be executed due to incomplete request information.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: API response when the job with the specified ID could not be located.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Job not found:
+                  $ref: '#/components/examples/JobNotFoundErrorExample'
+        '429':
+          description: Response if the allowed number of concurrently running jobs is exceeded.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Too many concurrent jobs:
+                  $ref: '#/components/examples/MaxConcurrentJobsErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
+  /batch/jobs/{jobId}/stop:
+    put:
+      tags:
+      - Batch Jobs
+      summary: Stops a job
+      description: 'This operation will schedule a job to be halted and responds with a `200 - OK` if successful. If the job is **not** currently running, then this operation does nothing but will still return a `200 - OK` response.
+
+
+        Once the job has been stopped, you can continue from where the job halted by starting it again.'
+      operationId: stopJob
+      parameters:
+      - name: jobId
+        in: path
+        description: Identifier that was auto-generated on job creation and uniquely identifies the job.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - name: X-Request-ID
+        in: header
+        description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Response if the job was successfully scheduled to be halted. The job's status will change to `stopped` once the job is successfully halted.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+              examples:
+                Geocoder job:
+                  $ref: '#/components/examples/GeocoderJobStoppedExample'
+                Reverse Geocoder job:
+                  $ref: '#/components/examples/ReverseGeocoderJobStoppedExample'
+        '401':
+          description: API response in case of unauthorized access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '403':
+          description: API response in case of forbidden access.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/ForbiddenErrorExample'
+        '404':
+          description: API response when the job with the specified ID could not be located.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Job not found:
+                  $ref: '#/components/examples/JobNotFoundErrorExample'
+        default:
+          description: API response in case of errors.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKey: []
+      - Bearer: []
+    servers:
+    - url: https://batch.search.hereapi.com/v7
+      description: Production environment URL
   /jobs:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     get:
       tags:
       - Batch Jobs
@@ -35,6 +1201,11 @@ paths:
       responses:
         '200':
           description: OK
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: getJobs
+      x-operation-id-source: derived
     post:
       tags:
       - Batch Jobs
@@ -55,6 +1226,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Job'
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: postJobs
+      x-operation-id-source: derived
     delete:
       tags:
       - Batch Jobs
@@ -64,7 +1240,19 @@ paths:
       responses:
         '204':
           description: Deleted
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: deleteJobs
+      x-operation-id-source: derived
   /jobs/{jobId}:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     get:
       tags:
       - Batch Jobs
@@ -80,6 +1268,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Job'
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: getJobsByJobId
+      x-operation-id-source: derived
     delete:
       tags:
       - Batch Jobs
@@ -91,7 +1284,19 @@ paths:
       responses:
         '204':
           description: Deleted
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: deleteJobsByJobId
+      x-operation-id-source: derived
   /jobs/{jobId}/start:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     put:
       tags:
       - Batch Jobs
@@ -103,7 +1308,19 @@ paths:
       responses:
         '200':
           description: Started
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: putJobsByJobIdStart
+      x-operation-id-source: derived
   /jobs/{jobId}/stop:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     put:
       tags:
       - Batch Jobs
@@ -115,7 +1332,19 @@ paths:
       responses:
         '200':
           description: Stopped
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: putJobsByJobIdStop
+      x-operation-id-source: derived
   /jobs/{jobId}/results:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     get:
       tags:
       - Batch Jobs
@@ -132,7 +1361,19 @@ paths:
               schema:
                 type: string
                 format: binary
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: getJobsByJobIdResults
+      x-operation-id-source: derived
   /jobs/{jobId}/errors:
+    servers:
+    - url: https://geocode.search.hereapi.com/v1
+      description: Geocoding & Search (real-time)
+    - url: https://batch.geocoder.ls.hereapi.com/6.2
+      description: Batch Geocoder (legacy)
+    - url: https://batch.search.hereapi.com/v7
+      description: Batch API v7
     get:
       tags:
       - Batch Jobs
@@ -144,15 +1385,478 @@ paths:
       responses:
         '200':
           description: OK
+      security:
+      - apiKey: []
+      - bearerAuth: []
+      operationId: getJobsByJobIdErrors
+      x-operation-id-source: derived
 components:
-  parameters:
-    JobId:
-      name: jobId
-      in: path
-      required: true
+  examples:
+    LookupJobInputWithHeader:
+      value: 'recId|id
+
+        001|here:af:streetsection:tVuvjJYhO86yd5jk1cmzNB:CgcIBCCE59BeEAEaAzExNg
+
+        002|here:af:streetsection:6cjWtEIO2t07E.pKRVV5bA:CgcIBCCa46pZEAEaATgiCEhpbGxzaXRl
+
+        003|here:af:streetsection:hdZ6xBRUraY46IQZCqZidD:CgcIBCDMlOElEAEaAzQyNQ
+
+        004|here:af:streetsection:k-3ojKsslOuU0B1PF4J4HD:CgcIBCCq3cJGEAEaATE
+
+        005|here:af:streetsection:otB53KK-9vZXGNGL.uhpFD:CgcIBCD3n4EPEAEaAzIwMA'
+    GeocoderJobOutput:
+      value: 'recId|seqNumber|seqLength|position|title
+
+        0001|1|1|(52.5308609,13.3846903)|Invalidenstraße 116, 10115 Berlin, Deutschland
+
+        0002|1|1|(50.1619301,8.5336103)|Am Kronberger Hang 8, 65824 Schwalbach, Deutschland
+
+        0003|1|1|(41.8843193,-87.6387711)|425 W Randolph St, Chicago, IL 60606, United States
+
+        0004|1|1|(42.3622513,-71.0802994)|1 Main St, Cambridge, MA 02142, United States
+
+        0005|1|1|(37.376339,-122.03405)|200 S Mathilda Ave, Sunnyvale, CA 94086, United States'
+    InputExceedsMaxSizeErrorExample:
+      value:
+        title: Input exceeds maximum size limit
+        status: 400
+        code: E6004003
+        cause: The input exceeds the maximum allowed size of 1GB
+        action: Trim the input or split the job into smaller jobs
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    CharacterDelimiterUnsupportedErrorExample:
+      value:
+        title: Delimiter character is unsupported
+        status: 400
+        code: E6004005
+        cause: The supplied character string is not supported as a delimiter for output/input
+        action: Provide a single character delimiter that can be used to delimit output/input
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    ArgumentExceedsMaxLengthErrorExample:
+      value:
+        title: Argument exceeds maximum length limit
+        status: 400
+        code: E6004002
+        cause: The argument exceeds the maximum supported character length (256 characters)
+        action: Shorten the argument to match length requirements
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    GeocoderJobInputWithHeader:
+      value: 'recId|q|in|lang|limit
+
+        001|Invalidenstraße 116 10115 Berlin|DEU|de-DE|20
+
+        002|Am Kronberger Hang 8 65824 Schwalbach|DEU|de-DE|20
+
+        003|425 W Randolph St Chicago IL 60606|USA|en-US|20
+
+        004|One Main Street Cambridge MA 02142|USA|en-US|20
+
+        005|200 S Mathilda Ave Sunnyvale CA 94086|USA|en-US|20'
+    ForbiddenErrorExample:
+      value:
+        error: Forbidden
+        error_description: These credentials do not authorize access
+    ReverseGeocoderJobSubmittedExample:
+      value:
+        id: JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+        serviceHrn: hrn:here:service::olp-here:search-revgeocode-7
+        tag: my-reverse-geocoder-job
+        billingTags:
+        - billingTagRevGeocoder1
+        - billingTagRevGeocoder2
+        - billingTagRevGeocoder3
+        status: submitted
+        href: https://<endpoint-url>/jobs/JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+    UnauthorizedErrorExample:
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+    JobResultsUnavailableErrorExample:
+      value:
+        title: Results unavailable
+        status: 404
+        code: E6004042
+        cause: The results of the job are unavailable at this time
+        action: Check that the job has completed and try again
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    GeocoderJobStoppedExample:
+      value:
+        id: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn: hrn:here:service::olp-here:search-geocode-7
+        tag: my-geocoder-job
+        billingTags:
+        - billingTagGeocoder3
+        - billingTagGeocoder2
+        - billingTagGeocoder1
+        status: stopped
+        href: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+    ServiceUnsupportedErrorExample:
+      value:
+        title: Service not found or is unsupported
+        status: 404
+        code: E6004043
+        cause: The Service with the specified HRN could not be found or is not supported at this time
+        action: Check that the Service HRN was entered correctly
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    GeocoderJobInputAsURLQuery:
+      value: 'q=Invalidenstraße 116 10115 Berlin&in=countryCode:DEU&lang=de-DE&limit=20
+
+        q=Am Kronberger Hang 8 65824 Schwalbach&in=countryCode:DEU&lang=de-DE&limit=20
+
+        q=425 W Randolph St Chicago IL 60606&in=countryCode:USA&lang=en-US&limit=20
+
+        q=One Main Street Cambridge MA 02142&in=countryCode:USA&lang=en-US&limit=20
+
+        q=200 S Mathilda Ave Sunnyvale CA 94086&in=countryCode:USA&lang=en-US&limit=20'
+    GeocoderJobSubmittedExample:
+      value:
+        id: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn: hrn:here:service::olp-here:search-geocode-7
+        tag: my-geocoder-job
+        billingTags:
+        - billingTagGeocoder3
+        - billingTagGeocoder2
+        - billingTagGeocoder1
+        status: submitted
+        href: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+    ReverseGeocoderJobStoppedExample:
+      value:
+        id: JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+        serviceHrn: hrn:here:service::olp-here:search-revgeocode-7
+        tag: my-reverse-geocoder-job
+        billingTags:
+        - billingTagRevGeocoder1
+        - billingTagRevGeocoder2
+        - billingTagRevGeocoder3
+        status: stopped
+        href: https://<endpoint-url>/jobs/JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+    GeocoderJobPendingExample:
+      value:
+        id: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn: hrn:here:service::olp-here:search-geocode-7
+        tag: my-geocoder-job
+        billingTags:
+        - billingTagGeocoder3
+        - billingTagGeocoder2
+        - billingTagGeocoder1
+        status: pending
+        href: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+    ReverseGeocoderJobPendingExample:
+      value:
+        id: JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+        serviceHrn: hrn:here:service::olp-here:search-revgeocode-7
+        tag: my-reverse-geocoder-job
+        billingTags:
+        - billingTagRevGeocoder1
+        - billingTagRevGeocoder2
+        - billingTagRevGeocoder3
+        status: pending
+        href: https://<endpoint-url>/jobs/JOB-88b5b0ff-0479-4380-8af7-6af809e8b335
+    LookupJobInputAsURLQuery:
+      value: 'id=here:af:streetsection:tVuvjJYhO86yd5jk1cmzNB:CgcIBCCE59BeEAEaAzExNg
+
+        id=here:af:streetsection:6cjWtEIO2t07E.pKRVV5bA:CgcIBCCa46pZEAEaATgiCEhpbGxzaXRl
+
+        id=here:af:streetsection:hdZ6xBRUraY46IQZCqZidD:CgcIBCDMlOElEAEaAzQyNQ
+
+        id=here:af:streetsection:k-3ojKsslOuU0B1PF4J4HD:CgcIBCCq3cJGEAEaATE
+
+        id=here:af:streetsection:otB53KK-9vZXGNGL.uhpFD:CgcIBCD3n4EPEAEaAzIwMA'
+    MaxConcurrentJobsErrorExample:
+      value:
+        title: Too many concurrent jobs running
+        status: 429
+        code: E6004291
+        cause: You have exceeded the number of jobs you may run concurrently
+        action: Stop or wait for your existing jobs to complete and then try starting the job again
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    JobNotFoundErrorExample:
+      value:
+        title: Job not found
+        status: 404
+        code: E6004041
+        cause: Job with the specified ID could not be found
+        action: Verify the job ID and try again
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    ReverseGeocoderJobInputAsURLQuery:
+      value: 'at=52.5308609,13.3846903&limit=1&lang=en-US
+
+        at=50.1619301,8.5336103&limit=1&lang=en-US
+
+        at=41.8843193,-87.6387711&limit=1&lang=en-US
+
+        at=42.3622513,-71.0802994&limit=1&lang=en-US
+
+        at=37.376339,-122.03405&limit=1&lang=en-US'
+    GeocoderJobDeletedExample:
+      value:
+        id: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn: hrn:here:service::olp-here:search-geocode-7
+        status: deleted
+    ReverseGeocoderJobInputWithHeader:
+      value: 'recId|at|lang|limit
+
+        001|52.5308609,13.3846903|de-DE|1
+
+        002|50.1619301,8.5336103|de-DE|1
+
+        003|41.8843193,-87.6387711|en-US|1
+
+        004|42.3622513,-71.0802994|en-US|1
+
+        005|37.376339,-122.03405|en-US|1'
+  headers:
+    X-Correlation-ID:
+      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
+      schema:
+        type: string
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
       schema:
         type: string
   schemas:
+    JobsDeletedResponse:
+      type: object
+      description: Listing of all the jobs that were deleted.
+      properties:
+        total:
+          type: integer
+          format: int32
+          description: The number of jobs that were deleted
+          example: 2
+        jobIds:
+          type: array
+          description: Identifiers of the jobs that were deleted
+          items:
+            type: string
+      required:
+      - jobIds
+      - total
+    ErrorResponse:
+      type: object
+      description: Response in case of error.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Exxxxxx
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error.
+          example: Provide validated input
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - action
+      - cause
+      - code
+      - correlationId
+      - status
+      - title
+    JobDetailResponse:
+      type: object
+      description: Detailed job information.
+      properties:
+        id:
+          type: string
+          description: Identifier that was auto-generated on job creation and uniquely identifies this job.
+          example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn:
+          type: string
+          description: ID of the Service the job is executed against.
+          example: hrn:here:service::olp-here:search-geocode-7
+        tag:
+          type: string
+          description: Denotes one or more jobs and can be used as a filter in some job operations.
+          example: my-job-tag
+        billingTags:
+          type: array
+          description: Tags for billing operation. Can be up to 6 tags, no duplicates.
+          items:
+            type: string
+          uniqueItems: true
+        status:
+          type: string
+          description: The current status of the job.
+          enum:
+          - submitted
+          - queued
+          - pending
+          - inProgress
+          - completed
+          - stopped
+          - deleted
+          - failure
+          example: inProgress
+        href:
+          type: string
+          description: Link to obtain the details and status of this job
+          example: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        created:
+          type: string
+          format: date-time
+          description: Timestamp at which the job was created.
+        started:
+          type: string
+          format: date-time
+          description: Timestamp at which the job started.
+        ended:
+          type: string
+          format: date-time
+          description: Timestamp at which the job ended.
+        records:
+          $ref: '#/components/schemas/JobRecords'
+        resultsHref:
+          type: string
+          description: Link to obtain the results of this job
+          example: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6/results
+        errorsHref:
+          type: string
+          description: Link to obtain the errors of this job
+          example: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6/errors
+        outputType:
+          type: string
+          description: Output Mime Type for the results of this job
+          example: csv
+        notificationIds:
+          type: array
+          description: The notifications that are called at the end of a job.
+          items:
+            type: string
+      required:
+      - created
+      - id
+      - serviceHrn
+      - status
+    PaginatedJobDetailResponse:
+      type: object
+      description: A page of detailed job Information
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of items per Page
+          example: 100
+        count:
+          type: integer
+          format: int32
+          description: Number of items in this Page
+          example: 1
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobDetailResponse'
+      required:
+      - count
+    AuthErrorResponse:
+      description: Response on Authorization Error
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+      required:
+      - error
+      - error_description
+    JobRecords:
+      type: object
+      description: Information on the Records within a particular job.
+      properties:
+        total:
+          type: integer
+          format: int32
+          description: Total number of records in the job.
+          example: 10000
+        valid:
+          type: integer
+          format: int32
+          description: Number of valid records in the job.
+          example: 9000
+        invalid:
+          type: integer
+          format: int32
+          description: Number of invalid records in the job.
+          example: 1000
+        processed:
+          type: integer
+          format: int32
+          description: Number of records in the job that have been processed.
+          example: 6000
+        pending:
+          type: integer
+          format: int32
+          description: Number of records in the job that are still pending.
+          example: 3000
+        succeeded:
+          type: integer
+          format: int32
+          description: Number of records in the job that have successfully completed.
+          example: 5500
+        failed:
+          type: integer
+          format: int32
+          description: Number of records in the job that failed to complete successfully.
+          example: 500
+    JobResponse:
+      type: object
+      description: Basic job information
+      properties:
+        id:
+          type: string
+          description: Identifier that was auto-generated on job creation and uniquely identifies this job.
+          example: JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+        serviceHrn:
+          type: string
+          description: ID of the Service the job is executed against.
+          example: hrn:here:service::olp-here:search-geocode-7
+        tag:
+          type: string
+          description: Denotes one or more jobs and can be used as a filter in some job operations.
+          example: my-job-tag
+        billingTags:
+          type: array
+          description: Tags for billing operation. Can be up to 6 tags, no duplicates.
+          items:
+            type: string
+          uniqueItems: true
+        status:
+          type: string
+          description: The current status of the job.
+          enum:
+          - submitted
+          - queued
+          - pending
+          - inProgress
+          - completed
+          - stopped
+          - deleted
+          - failure
+          example: inProgress
+        href:
+          type: string
+          description: Link to obtain the details and status of this job
+          example: https://<endpoint-url>/jobs/JOB-3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - id
+      - serviceHrn
+      - status
     Job:
       type: object
       properties:
@@ -173,7 +1877,24 @@ components:
           type: integer
         processedCount:
           type: integer
+  parameters:
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
   securitySchemes:
+    ApiKey:
+      type: apiKey
+      description: "A key generated specifically to authenticate API requests. For more information on how to get an API key, see the\n API key used to authorize requests. For more information, see\n [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html)"
+      name: apiKey
+      in: query
+    Bearer:
+      type: http
+      description: "A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.\n For more information on how to get a bearer token, see the [Identity & Access Management Guide](https://www.here.com/docs/bundle/identity-and-access-management-developer-guide/page/README.html)"
+      scheme: bearer
+      bearerFormat: JWT
     apiKey:
       type: apiKey
       in: query
@@ -182,3 +1903,9 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+externalDocs:
+  description: The developer guide and changelog are available here.
+  url: https://www.here.com/docs/bundle/batch-api-developer-guide/page/README.html
+x-refined-from:
+- here-geocoding-batch-v7-openapi.yml
+- here-batch-jobs-api-openapi.yml

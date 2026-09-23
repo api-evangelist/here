@@ -1,0 +1,2018 @@
+openapi: 3.2.0
+info:
+  title: Authorization API v1.1 Project Access Management API
+  version: 1.1.0
+  description: 'This specification is intended to describe the Authorization v1.1 APIs
+
+    ## Roles
+
+    ### **OrgAdmin** - An entity which has administrative authority over an organization.'
+servers:
+- url: Use API Lookup for a base URL
+security:
+- Bearer: []
+tags:
+- name: Project Access Management
+  description: Project Access and Membership Management
+paths:
+  /projects/{project}/members/{member}:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectMember'
+    - $ref: '#/components/parameters/XCorrelationId'
+    post:
+      tags:
+      - Project Access Management
+      summary: Add the member to the requested Project
+      operationId: addProjectMember
+      description: 'Add the member to the requested Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMembers"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK. Project Member already exists
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the requested Project Member
+      operationId: getProjectMember
+      description: 'Get the requested Project Member.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectMember'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Project Access Management
+      summary: Remove the member from the specified Project
+      operationId: deleteProjectMember
+      description: 'Remove the member from the specified Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"manageMembers"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /projects/{project}/members/me:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/XCorrelationId'
+    delete:
+      tags:
+      - Project Access Management
+      summary: Remove the caller from the specified Project
+      operationId: leaveProject
+      description: 'Remove the caller from the specified Project.
+
+
+        Access Control:
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/members:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/onlyIncludeIdentities'
+    - $ref: '#/components/parameters/XCorrelationId'
+    - $ref: '#/components/parameters/limit10'
+    - $ref: '#/components/parameters/pageToken'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the list of members of the Project
+      operationId: listProjectMembers
+      description: 'Get the list of members of the Project.
+
+
+        **Note:** If ''onlyIncludeIdentities'' query parameter is set to true, ''total'' is NOT returned in Response.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectMemberListWithPageToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/policies:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    post:
+      tags:
+      - Project Access Management
+      summary: Create the requested Project Policy
+      operationId: createProjectPolicy
+      description: 'Create the requested custom policy in the Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"managePolicies"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPolicyRequestBody'
+      security:
+      - Bearer: []
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      parameters:
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/ProjectPolicyType'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      summary: List the Policies in a Project
+      operationId: getProjectPolicyList
+      description: 'List the Policies that can be attached to members of the Project.
+
+        This list will contain all the HERE provided policies and any custom user defined policies created in the Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/policies/{policy}:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectPolicy'
+    put:
+      tags:
+      - Project Access Management
+      summary: Update the requested Project Policy
+      operationId: updateProjectPolicy
+      description: 'Update the requested custom policy in the Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"managePolicies"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPolicyRequestBody'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the Project Policy
+      operationId: getProjectPolicy
+      description: 'Get the requested Project Policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Project Access Management
+      summary: Delete the custom Project Policy
+      operationId: deleteProjectPolicy
+      description: 'Delete the custom policy in the Project.
+
+
+        Access Control:
+
+        * The calling principal must have **"managePolicies"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/policies/{policy}/members:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectPolicy'
+    get:
+      tags:
+      - Project Access Management
+      parameters:
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      summary: Get the list of all Project Members with the attached Policy
+      operationId: getAllProjectMembersWithAttachedPolicy
+      description: 'Get the list of all Project Members with the attached Policy.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectMemberListWithPageToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/settings:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    patch:
+      tags:
+      - Project Access Management
+      summary: Update the ProjectSettings for a Project
+      operationId: updateProjectSettings
+      description: 'Update the Project Settings.
+
+
+        The setting *defaultNewMemberProjectPolicies* defines the default ProjectPolicy(ies) that are applied to
+
+        new Project members when they are added to the Project.
+
+        For a newly-created Project, there are two *defaultNewMemberProjectPolicies* set:
+
+        * all-access-all-project-resources
+
+        * resource-creation-access-all-project-resources
+
+
+        Access Control:
+
+        * The calling principal must have **"manage"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectSettings'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the Project Settings
+      operationId: getProjectSettings
+      description: 'Get the Project Settings for the specified Project.
+
+
+        The setting *defaultNewMemberProjectPolicies* defines the default ProjectPolicy(ies) that are applied to
+
+        new Project members when they are added to the Project.
+
+        For a newly-created Project, there are two *defaultNewMemberProjectPolicies* set:
+
+        * all-access-all-project-resources
+
+        * resource-creation-access-all-project-resources
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettings'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/attachedPolicies:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    post:
+      tags:
+      - Project Access Management
+      summary: Set Attached Policies for all Members
+      operationId: setAttachedProjectPoliciesToProject
+      description: 'Sets the Attached Policies list for all Project Members, overwriting any pre-existing Attached Policies at the Project-level.
+
+        Setting these ProjectPolicies as Attached at the Project-level means their permissions will be applied for all Project members.
+
+        Project Policies attached at the Project-level will be added to any Project Policies that have been directly attached to any Member Group, User, App, or Device.
+
+        The request body will replace any pre-existing Policy attachment(s), and replace that list with those Policies identified in the request body.
+
+
+        **Note:** The maximum number of ProjectPolicies attached at the Project-level is 5.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachedPolicies'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedPolicies'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      parameters:
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      summary: Get the list of Attached Project Policies For all Members of a Project
+      operationId: getAttachedProjectPoliciesForProject
+      description: 'Get the list of Attached Project Policies For all Members of a Project.
+
+
+        **Note:** The maximum number of ProjectPolicies attached at the Project-level is 5.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/attachedPolicies/{policy}:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectPolicy'
+    post:
+      tags:
+      - Project Access Management
+      summary: Attach a single Project Policy to all Members of a Project
+      operationId: attachProjectPolicyToProject
+      description: 'Attaches the Project Policy to all members of the specified Project.
+
+        Attaching a ProjectPolicy at the Project-level means its permissions will be applied for all Project members.
+
+
+        **Note:** The maximum number of ProjectPolicies attached at the Project-level is 5.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the attached Project Policy at the Project-level
+      operationId: getAttachedProjectPolicyForProject
+      description: 'Get the attached Project Policy at the Project-level.
+
+
+        **Note:** The maximum number of ProjectPolicies attached at the Project-level is **5**.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedPolicy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Project Access Management
+      summary: Detach the Project Policy from the Project-level for all Members
+      operationId: detachProjectPolicyFromProject
+      description: 'Detached the requested custom Project Policy from the Project.
+
+        The specified ProjectPolicy will no longer be applied to all Project members,
+
+        unless attached to them individually or through their group membership.
+
+
+        The ProjectPolicy is still available to attach to individual members.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/members/{member}/policies:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectMember'
+    post:
+      tags:
+      - Project Access Management
+      summary: Set Attached Policies for Member
+      operationId: setAttachedProjectPoliciesToMember
+      description: 'Sets the Attached Policies list for the specified Project Member, overwriting any pre-existing Attached Policies.
+
+        The request body will replace any pre-existing Policy attachment(s), and replace that list with those Policies identified in the request body.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachedPolicies'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedPolicies'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      parameters:
+      - $ref: '#/components/parameters/XCorrelationId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/pageToken'
+      summary: Get the list of Attached Project Policies For a Member
+      operationId: getAttachedProjectPoliciesForMember
+      description: 'Get the list of Attached Project Policies For a Member.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPolicyListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/members/{member}/policies/{policy}:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectMember'
+    - $ref: '#/components/parameters/projectPolicy'
+    post:
+      tags:
+      - Project Access Management
+      summary: Attach Project Policy to Member
+      operationId: attachProjectPolicyToMember
+      description: 'Attaches the Project Policy to the member of the Project.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get the attached Project Policy for a Member
+      operationId: getAttachedProjectPolicyForMember
+      description: 'Get the attached Project Policy For a Member.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachedPolicy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Project Access Management
+      summary: Detach the Project Policy from a Member
+      operationId: detachProjectPolicyFromMember
+      description: 'Detached the requested custom Project Policy from a Member.
+
+
+        Access Control:
+
+        * The calling principal must have both **"manageMembers"** and **"managePolicies"** action permissions for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Admins and Resource Managers.
+
+        * The calling principal MUST NOT include a project scope.'
+      security:
+      - Bearer: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project}/members/{member}/permissions:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectMember'
+    - $ref: '#/components/parameters/permissionServiceId'
+    - $ref: '#/components/parameters/permissionResourceHrn'
+    - $ref: '#/components/parameters/permissionResourceType'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get Effective Permissions for Member
+      description: 'Get the list of **scoped** permissions that are effective for this member when operating in the project scope.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * In the Project workflow, the above permission is granted to all Project Members, Project Admins, Org Admins.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getEffectiveProjectPermissionsForMember
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithTokenNoTotal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /projects/{project}/members/{member}/linkable/permissions:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    - $ref: '#/components/parameters/projectMember'
+    - $ref: '#/components/parameters/linkablePermissionResourceType'
+    - $ref: '#/components/parameters/permissionServiceId'
+    - $ref: '#/components/parameters/permissionResourceHrn'
+    - $ref: '#/components/parameters/pageToken'
+    - $ref: '#/components/parameters/limit'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get project linkable permissions
+      description: 'Get the list of **linkable** permissions that are associated with resources in the realm that have been
+
+        specifically made available to be linked to the requested project and can be done so by the requested member.
+
+        Note this list does NOT include linkable permissions associated with resource plans attached to the realm.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getProjectLinkablePermissions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPageWithToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Realm or realm member not found
+  /projects/{project}/filter:
+    parameters:
+    - $ref: '#/components/parameters/project'
+    get:
+      tags:
+      - Project Access Management
+      summary: Get Project Access Filter
+      description: 'Retrieve the Access Filter attached to this project.
+
+
+        Access Control:
+
+        * The calling principal must have **"read"** action permission for the resource **"{project}"** in the **"authorization"** service.
+
+        * The calling principal MUST NOT include a project scope.'
+      operationId: getProjectAccessFilter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFilter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Project not found or no filter attached
+components:
+  schemas:
+    ProjectPolicyListResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectPolicyResponse'
+            description: List of Project Policies
+    AttachedPolicy:
+      type: object
+      properties:
+        policy:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
+          description: 'The hrn of the project policy
+
+            Note - For HERE provided policies, the HRN format would be - hrn:here:authorization::olp-here:here-platform:policy/read-only-access-to-all-catalogs
+
+            '
+    ProjectMember:
+      type: object
+      properties:
+        project:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+          description: 'The hrn of the Project
+
+            '
+        member:
+          type: string
+          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        identityType:
+          type: string
+          enum:
+          - user
+          - app
+          - group
+        info:
+          description: 'Details about the project member. The provided fields are dependent on the entity type<p> User: userId, userHrn, realm, firstname, lastname, email, state<p> App: clientId, clientHrn, realm, name, description, ownerId, ownerHrn, defaultScope, isRestrictedScope, appCreationEnabled<p> Group: groupId, groupHrn, name
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/UserInfo'
+          - $ref: '#/components/schemas/AppInfo'
+          - $ref: '#/components/schemas/ProjectMemberGroupInfo'
+          example:
+            userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+            userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+            realm: myrealm
+            firstname: John
+            lastname: Williams
+            email: john.williams@example.com
+            state: enabled
+    AccessFilter:
+      type: object
+      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+    Type:
+      type: string
+      example: catalog
+      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
+    AccessFilterVirtualProperties:
+      type: object
+      properties:
+        externalIds:
+          type: array
+          items:
+            type: string
+          description: 'Only included in virtual Access Filters.  The list of externalIds that this virtual Access Filter is linked
+
+            to.  Plans and ResourcePlans attached to this realm with one of the externalIds in this list are used as
+
+            the basis of this filter.  The list of Plans and ResourcePlans used may be further filtered **if** the
+
+            planAttachments or resourcePlanAttachments properties are also defined.  The statements in this filter are
+
+            automatically generated to allow access to each of the permissions and resources defined in those included
+
+            plans.
+
+            '
+          example:
+          - A-12345
+          - A-67890
+        planAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of plan attachments to filter.  Must match one of the top level externalIds specified
+
+                  for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              planHrns:
+                type: array
+                items:
+                  type: string
+                description: 'The list of planHrns that may be used as the basis of this virtual Access Filter''s statements for
+
+                  any plans that are attached to this realm with the given externalId.
+
+                  '
+                example:
+                - hrn:here:authorization::HERE:plan/PLAN-7316c7e6-9e05-4086-aef3-cd7240e3c92b
+                - hrn:here:authorization::HERE:plan/PLAN-457c91d8-f67e-49e6-b629-e72c2f5b1036
+          description: 'Only included in virtual Access Filters.  The list of planAttachments that this virtual Access Filter is
+
+            linked to.  If this field is included, for the externalId of each list entry, **only** Plans that are
+
+            attached to this realm with the defined externalId **and** one of the defined planHrns will be used as the
+
+            basis of statements in this filter.  Any Plans attached to this realm with the given externalId that are
+
+            **not** in the list of defined planHrns will be excluded from the basis of this filter.  If this field is
+
+            omitted, or there is no entry for any one of the externalIds defined for this virtual Access Filter,
+
+            **all** of the Plans attached with the externalId will be used as the basis of statements in this filter.
+
+            '
+        resourcePlanAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              externalId:
+                type: string
+                description: 'The externalId of resource plan attachments to filter.  Must match one of the top level externalIds
+
+                  specified for this virtual Access Filter.
+
+                  '
+                example: A-12345
+              resourcePlanHrns:
+                type: array
+                items:
+                  type: string
+                description: "The list of resourcePlanHrns that may be used as the basis of this virtual Access Filter's statements \nfor any resource plans that are attached to this realm with the given externalId.\n"
+                example:
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0000
+                - hrn:here:authorization::myrealm:resourcePlan/my-plan-0001
+          description: 'Only included in virtual Access Filters.  The list of resourcePlanAttachments that this virtual Access
+
+            Filter is linked to.  If this field is included, for the externalId of each list entry, **only** Resource
+
+            Plans that are attached to this realm with the defined externalId **and** one of the defined
+
+            resourcePlanHrns will be used as the basis of statements in this filter.  Any Resource Plans attached to
+
+            this realm with the given externalId that are **not** in the list of defined resourcePlanHrns will be
+
+            excluded from the basis of this filter.  If this field is omitted, or there is no entry for any one of the
+
+            externalIds defined for this virtual Access Filter, **all** of the Plans attached with the externalId will
+
+            be used as the basis of statements in this filter.
+
+            '
+        mode:
+          type: string
+          enum:
+          - open
+          - strict
+          description: "Only included in virtual Access Filters.  The pattern of filter statements used in this virtual Access Filter.\n* **open** - All permissions and resources specified in both Plans and ResourcePlans attached to this realm\n  with the relevant externalIds are available via this filter with both scoped and unscoped access.  In\n  addition, all linkable resources are available in both scoped and unscoped access.\n* **strict** - All permissions specified in Plans attached to this realm with the relevant externalIds are\n  ONLY available via this filter with unscoped access.  All resources specified in ResourcePlans attached\n  to this realm with the relevant externalIds are ONLY available via this filter with scoped access.\n"
+          example: open
+        priority:
+          type: integer
+          description: 'Only included in virtual Access Filters.  The priority assigned to each filter statement in this virtual
+
+            Access Filter.
+
+            '
+          minimum: 0
+          maximum: 1000
+          example: 100
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    AccessFilterStatement:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Prose description of what this filter statement does.
+          example: Block evaluation of all unscoped permissions for any project scoped request.
+        permissions:
+          type: string
+          enum:
+          - unscoped
+          - scoped
+          - linkable
+          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
+          example: unscoped
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
+        service:
+          type: string
+          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
+
+            or the **serviceIdAlias** of the service.
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+        actions:
+          type: array
+          description: The specific action identifiers of the access request that will match this statement
+          items:
+            type: string
+          example:
+          - read
+        actionAccessLevel:
+          type: string
+          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
+          enum:
+          - read
+          - write
+          - default
+          - internal
+          example: read
+        resource:
+          type: string
+          description: The resource identifier of the access request that will match this statement
+          example: hrn:here:data::my-realm:service-catalog
+        scope:
+          type: string
+          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        evaluate:
+          type: boolean
+          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
+          example: true
+        priority:
+          type: integer
+          description: An integer representing the statement priority
+          minimum: 0
+          maximum: 1000
+          example: 1
+    ProjectSettings:
+      type: object
+      properties:
+        scopeAccess:
+          type: string
+          enum:
+          - thisProjectOnly
+          - thisProjectOrNoProject
+          description: "The scope of access that is allowed when operating within this project's scope (i.e. using a project scoped token).\nAvailable options include:\n- thisProjectOnly - Requests scoped to this project can only access resources and API calls available within this project's scope\n                    Unscoped and Linkable permissions are not blocked and MAY be granted via a realm level access filter.\n                    (When this option is selected, NO AccessFilter is attached to the project)\n- thisProjectOrNoProject - Requests scoped to this project can access resources and API calls available within this project's\n                           scope in addition to resources and API calls associated with no project at all that the calling identity has access to.\n                           (When this option is selected, the project-eval-unscoped AccessFilter is attached to the project)\n"
+          default: thisProjectOnly
+          example: thisProjectOnly
+        defaultNewMemberProjectPolicies:
+          type: array
+          description: The default Project Policies to apply to new Members in the project.
+          minItems: 1
+          maxItems: 5
+          items:
+            type: string
+            description: a Project Policy HRN
+          example:
+          - hrn:here:authorization::myrealm:project/my-project-0000:policy/resource-creation-access-all-project-resources
+          - hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-all-project-resources
+    ProjectPolicyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: all-access-for-catalog-1
+          description: 'The Identifier for the Project Policy
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-for-catalog-1
+          description: 'The HRN for the Project Policy
+
+            '
+        name:
+          type: string
+          example: All access for catalog 1
+          description: 'The name for the Project Policy
+
+            '
+        description:
+          type: string
+          example: All access for catalog 1
+          description: 'The description for the Project Policy
+
+            '
+        type:
+          type: string
+          enum:
+          - custom
+          - here-platform
+        permissions:
+          type: array
+          description: The permissions that apply for the policy. Limited to a maximum of 100
+          items:
+            type: object
+            properties:
+              resource:
+                type: string
+                example: hrn:here:data::myrealm:my-catalog
+                description: 'The hrn of the resource
+
+                  '
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: readResource
+                description: 'The list of allowed actions for this Project Policy Permission
+
+                  '
+        nonHrnPermissions:
+          type: array
+          description: The permissions for actions with no allowedResourceTypes that apply for the policy.
+          items:
+            type: object
+            properties:
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: create
+                description: 'The list of allowed actions for this Project Policy Permission
+
+                  '
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    ProjectMemberGroupInfo:
+      type: object
+      properties:
+        groupId:
+          readOnly: true
+          type: string
+          description: The id of the group..
+          example: GROUP-00000000-0000-0000-0000-000000000000
+        groupHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the group..
+          example: hrn:here:authorization::myrealm:group/GROUP-00000000-0000-0000-0000-000000000000
+        name:
+          readOnly: true
+          type: string
+          description: A user assigned name for the group.
+          example: Group  name
+    AccessFilterCommonProperties:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - here-platform
+          - custom
+          - virtual
+          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
+          example: here-platform
+        name:
+          type: string
+          description: The name of the filter
+          example: Strict Projects
+    AttachedPolicies:
+      type: object
+      properties:
+        policies:
+          type: array
+          description: The list of project policy hrns to attach.
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/AttachedPolicy'
+    ProjectMemberListWithPageToken:
+      type: object
+      description: \'total\' will not be returned when onlyIncludeIdentities query parameter is set to 'true'
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectMember'
+            description: List of Project Members.
+    PageWithTokenNoTotal:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    AppInfo:
+      type: object
+      properties:
+        clientId:
+          readOnly: true
+          type: string
+          description: Identifier for the client/application.
+          example: 0123456789ABCDEFGHHIJKLM
+        clientHrn:
+          readOnly: true
+          type: string
+          description: HRN for the client/application.
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+        realm:
+          readOnly: true
+          type: string
+          description: A realm to which app belongs to.
+          example: myrealm
+        name:
+          readOnly: true
+          type: string
+          description: Human readable name of the client.
+          example: Some Application
+        description:
+          readOnly: true
+          type: string
+          description: Prose description of the client.
+          example: Application for doing something.
+        ownerId:
+          readOnly: true
+          type: string
+          description: The id of the user that owns this client.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        ownerHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the user that owns this client.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        defaultScope:
+          readOnly: true
+          type: string
+          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        isRestrictedScope:
+          readOnly: true
+          type: boolean
+          description: If true, the app cannot request a token with a scope different from defaultScope.
+          example: true
+        appCreationEnabled:
+          readOnly: true
+          type: boolean
+          description: If true, the app can create apps.
+          example: true
+        alwaysProjectScope:
+          readOnly: true
+          type: boolean
+          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
+          example: true
+        status:
+          readOnly: true
+          type: string
+          enum:
+          - active
+          - expired
+          - blacklisted
+          - deactivated
+          - monitoring
+          - quota_exceeded
+          description: Status of the application
+          example: active
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the app.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    PermissionPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    PermissionPageWithTokenNoTotal:
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    ProjectPolicyRequestBody:
+      type: object
+      required:
+      - id
+      - name
+      - permissions
+      properties:
+        id:
+          type: string
+          example: read-access-for-catalog-1
+          description: 'The Identifier for the Project Policy.
+
+            '
+          minLength: 4
+          maxLength: 16
+          pattern: ^[a-z0-9][a-z0-9\-]{2,14}[a-z0-9]$
+        name:
+          type: string
+          example: Read access for catalog 1
+          description: 'The name for the Project Policy
+
+            '
+        description:
+          type: string
+          example: This is a custom Project Policy that grants read access to catalog 1
+          description: 'The description for the Project Policy
+
+            '
+        permissions:
+          type: array
+          items:
+            type: object
+            required:
+            - allowedActions
+            properties:
+              resource:
+                type: string
+                example: hrn:here:data::myrealm:my-catalog
+                description: 'The hrn of the resource. One of resource or the resourceType must be defined
+
+                  '
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: readResource
+                description: 'The list of actions allowed to be taken against either the resource or the resource type defined in the Project Policy in the context of the Project
+
+                  '
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    AccessFilterStatements:
+      type: object
+      properties:
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFilterStatement'
+          description: List of statements in this filter.
+    AccessFilterIdentifier:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the filter
+          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
+  parameters:
+    ProjectPolicyType:
+      in: query
+      name: projectPolicyType
+      required: false
+      description: The type of the Project Policy
+      schema:
+        type: string
+        enum:
+        - custom
+        - here-platform
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    permissionResourceHrn:
+      in: query
+      name: resource
+      required: false
+      description: 'Only include permissions effective against the requested resource.
+
+        '
+      schema:
+        type: string
+    onlyIncludeIdentities:
+      in: query
+      name: onlyIncludeIdentities
+      required: false
+      description: 'If true, returns an effective project members list containing only user and app identities, including those
+
+        that are members of the project indirectly via a group. It will also return users who are project admins of
+
+        the specified project, and Resource Managers for the realm. Response will NOT include total number of
+
+        identities. If false, returns users, apps, and groups that are direct members of the project, excluding any
+
+        users and apps that only have membership via a group.
+
+        Defaults to false.
+
+
+        Suppose there are a user U and a group G with app A in it.  Suppose user U and group G are the members of the project, then
+
+        * onlyIncludeIdentities=true will return U and A
+
+        * onlyIncludeIdentities=false or absent will return U and G
+
+        '
+      schema:
+        type: boolean
+    projectPolicy:
+      in: path
+      name: policy
+      required: true
+      description: 'HRN identifying the project policy. For HERE provided policies, the HRN format would be - hrn:here:authorization::HERE:platform:policy/read-only-access-to-all-catalogs
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
+    limit10:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 10 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 10
+    projectMember:
+      in: path
+      name: member
+      required: true
+      description: HRN identifying the project member. Either user, app or group
+      schema:
+        type: string
+      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    permissionResourceType:
+      in: query
+      name: resourceType
+      required: false
+      description: 'Only include permissions effective against the requested resource type.
+
+        '
+      schema:
+        type: string
+    linkablePermissionResourceType:
+      in: query
+      name: resourceType
+      required: true
+      description: 'Only include permissions effective against the requested resource type.
+
+        '
+      schema:
+        type: string
+    project:
+      in: path
+      name: project
+      required: true
+      description: HRN identifying the project
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+    permissionServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include permissions associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  responses:
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer Access Token issued to either the User or Client.
+externalDocs:
+  description: The developer guide and related API references are available here.
+  url: https://www.here.com/docs/category/identity-and-access-management
