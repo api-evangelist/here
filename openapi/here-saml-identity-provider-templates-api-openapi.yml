@@ -51,6 +51,47 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 components:
+  parameters:
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
   headers:
     XCorrelationId:
       schema:
@@ -68,28 +109,48 @@ components:
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   schemas:
-    IdpTemplateResponseWithPageToken:
+    Error401Response:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/IdentityProviderTemplate'
-            description: List of IDP templates.
-    IdentityProviderTemplate:
-      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
       properties:
-        id:
+        title:
           type: string
-          description: Identity provider template id
-          example: okta
-        name:
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
           type: string
-          description: Name of the identity provider template.
-          example: okta
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
     Error403Response:
       type: object
       required:
@@ -155,89 +216,28 @@ components:
           type: integer
           example: 1
           description: The number of federations matching the search criteria.
-    Error401Response:
+    IdpTemplateResponseWithPageToken:
       type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentityProviderTemplate'
+            description: List of IDP templates.
+    IdentityProviderTemplate:
+      type: object
       properties:
-        title:
+        id:
           type: string
-          example: ''
-          description: ''
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 401
-        code:
-          description: Service specific error code
+          description: Identity provider template id
+          example: okta
+        name:
           type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request.
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        message:
-          description: Authorization error message
-          type: string
-          example: Unauthorized to perform this operation.
-  parameters:
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
+          description: Name of the identity provider template.
+          example: okta
   responses:
     Forbidden:
       description: You do not have permission to perform this action

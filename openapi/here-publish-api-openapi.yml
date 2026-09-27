@@ -20,7 +20,7 @@ paths:
       - Publish
       summary: Initialize a new publication
       description: Initializes a new publication for publishing metadata. Determines the publication type based on the provided layer IDs. A publication can only consist of layer IDs that have the same layer type. For example, you can have a publication for multiple layers of type `versioned`, but you cannot have a single publication that publishes to both `versioned` and `volatile` layers. In addition, you may only have one `versioned` publication in process at a time. The body field `versionDependencies` is optional and is used for `versioned` layers to declare version dependencies.
-      operationId: Publish API v2 initPublication
+      operationId: PublishAPIV2InitPublication
       parameters:
       - name: billingTag
         in: query
@@ -61,13 +61,15 @@ paths:
           content: {}
       x-olp-access-type: resource
       x-codegen-request-body-name: body
+      x-operation-id-source: normalized
+      x-operation-id-original: Publish API v2 initPublication
   /publications/{publicationId}:
     get:
       tags:
       - Publish
       summary: Gets a publication
       description: 'Returns the details of the specified publication. Publication can be in one of these states: Initialized, Submitted, Cancelled, Failed, Succeeded, Expired. See Data API Developer’s Guide in the Documentation section for the publication state diagram.'
-      operationId: Publish API v2 getPublication
+      operationId: PublishAPIV2GetPublication
       parameters:
       - name: publicationId
         in: path
@@ -97,12 +99,14 @@ paths:
           description: Publication not found.
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Publish API v2 getPublication
     put:
       tags:
       - Publish
       summary: Submits a publication
       description: Submits the publication and initiates post processing if necessary. Publication state becomes `Submitted` directly after submission and `Succeeded` after successful processing. See Data API Developer’s Guide in the Documentation section for complete publication states diagram.
-      operationId: Publish API v2 submitPublication
+      operationId: PublishAPIV2SubmitPublication
       parameters:
       - name: publicationId
         in: path
@@ -129,12 +133,14 @@ paths:
           description: Publication not found.
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Publish API v2 submitPublication
     delete:
       tags:
       - Publish
       summary: Cancels a publication
       description: Cancels a publication if it has not yet been submitted. Will fail if attempting to cancel a submitted publication. This allows the specified publication to be abandoned. See Data API Developer’s Guide in the Documentation section for publication states diagram and all possible publication states transitions.
-      operationId: Publish API v2 cancelPublication
+      operationId: PublishAPIV2CancelPublication
       parameters:
       - name: publicationId
         in: path
@@ -161,13 +167,15 @@ paths:
           description: Publication not found.
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Publish API v2 cancelPublication
   /layers/{layerId}/publications/{publicationId}/partitions:
     post:
       tags:
       - Publish
       summary: Upload partitions
       description: Upload partitions to the given layer. Dependending on the publication type, post processing may be required before the partitions are published. For better performance batch your partitions (e.g. 10000 per request), rather than uploading them individually.
-      operationId: Publish API v2 uploadPartitions
+      operationId: PublishAPIV2UploadPartitions
       parameters:
       - name: layerId
         in: path
@@ -211,6 +219,8 @@ paths:
           content: {}
       x-olp-access-type: resource
       x-codegen-request-body-name: body
+      x-operation-id-source: normalized
+      x-operation-id-original: Publish API v2 uploadPartitions
 components:
   schemas:
     VersionDependency:
@@ -230,6 +240,41 @@ components:
           format: int64
           example: 1
       description: Metadata about any dependencies on other catalogs that the publication may have.
+    PublishPartition:
+      required:
+      - partition
+      - dataHandle
+      type: object
+      properties:
+        partition:
+          type: string
+          pattern: '[a-zA-Z0-9_\-\.:]'
+          description: A key that specifies the partition that the content is related to. It is required. If the layer's partitioning scheme is set to `heretile`, the partition key is the tile key. The maximum length of the partition key is 500 characters.
+          example: '314010583'
+        checksum:
+          type: string
+          description: The checksum of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. The algorithm used to calculate the checksum is user specific. Algorithms that you can use are, for example, MD5 or SHA1. This is not a secure hash, so you should only use it to detect changes in content.
+          format: '[0-9a-fA-F]+'
+          example: ff7494d6f17da702862e550c907c0a91
+        compressedDataSize:
+          type: integer
+          description: The compressed size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. Applicable when Content-Encoding is set to gzip when uploading and downloading data in the Blob API.
+          format: int64
+          example: 152417
+        dataSize:
+          type: integer
+          description: The nominal size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. When compression is enabled, this is the size of the uncompressed content.
+          format: int64
+          example: 250110
+        dataHandle:
+          type: string
+          description: The handle created when uploading the content to the Blob API, that is used to retrieve the content at a later stage.
+          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
+        crc:
+          type: string
+          description: User provided CRC of the partition data in bytes. Should be lowercase.
+          example: c3f276d7
+      description: Metadata describing the partition being published.
     Publication:
       type: object
       properties:
@@ -295,41 +340,6 @@ components:
           readOnly: true
           example: 1523459129829
       description: Details of the publication.
-    PublishPartition:
-      required:
-      - partition
-      - dataHandle
-      type: object
-      properties:
-        partition:
-          type: string
-          pattern: '[a-zA-Z0-9_\-\.:]'
-          description: A key that specifies the partition that the content is related to. It is required. If the layer's partitioning scheme is set to `heretile`, the partition key is the tile key. The maximum length of the partition key is 500 characters.
-          example: '314010583'
-        checksum:
-          type: string
-          description: The checksum of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. The algorithm used to calculate the checksum is user specific. Algorithms that you can use are, for example, MD5 or SHA1. This is not a secure hash, so you should only use it to detect changes in content.
-          format: '[0-9a-fA-F]+'
-          example: ff7494d6f17da702862e550c907c0a91
-        compressedDataSize:
-          type: integer
-          description: The compressed size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. Applicable when Content-Encoding is set to gzip when uploading and downloading data in the Blob API.
-          format: int64
-          example: 152417
-        dataSize:
-          type: integer
-          description: The nominal size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. When compression is enabled, this is the size of the uncompressed content.
-          format: int64
-          example: 250110
-        dataHandle:
-          type: string
-          description: The handle created when uploading the content to the Blob API, that is used to retrieve the content at a later stage.
-          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
-        crc:
-          type: string
-          description: User provided CRC of the partition data in bytes. Should be lowercase.
-          example: c3f276d7
-      description: Metadata describing the partition being published.
     PublishPartitions:
       type: object
       properties:

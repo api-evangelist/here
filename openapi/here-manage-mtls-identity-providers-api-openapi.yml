@@ -467,24 +467,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   parameters:
-    MtlsIdentityProviderHrn:
-      in: path
-      name: mtlsIdentityProvider
-      required: true
-      description: HRN for the specific mTLS IdentityProvider with a realm
-      schema:
-        type: string
-      example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
     PageToken:
       name: pageToken
       in: query
@@ -497,6 +479,32 @@ components:
         '
       schema:
         type: string
+    MtlsAuthenticatorHrn:
+      in: path
+      name: mtlsAuthenticator
+      required: true
+      description: HRN for the specific mTLS Authenticator
+      schema:
+        type: string
+      example: hrn:here:account::myRealm:mtlsAuthenticator/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -506,14 +514,6 @@ components:
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
 
         '
-    MtlsAuthenticatorHrn:
-      in: path
-      name: mtlsAuthenticator
-      required: true
-      description: HRN for the specific mTLS Authenticator
-      schema:
-        type: string
-      example: hrn:here:account::myRealm:mtlsAuthenticator/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
     XRequestId:
       in: header
       name: X-Request-ID
@@ -523,6 +523,14 @@ components:
       description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
 
         '
+    MtlsIdentityProviderHrn:
+      in: path
+      name: mtlsIdentityProvider
+      required: true
+      description: HRN for the specific mTLS IdentityProvider with a realm
+      schema:
+        type: string
+      example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
     App:
       in: path
       required: true
@@ -532,52 +540,23 @@ components:
       description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
 
         '
-    Realm:
-      in: path
-      required: true
-      name: realm
+  headers:
+    XCorrelationId:
       schema:
         type: string
-      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
-      example: hrn:here:account::org123456789:realm/org123456789
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   schemas:
-    ErrorMessage:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
-      example:
-        title: Input data failed validation
-        status: 400
-        code: E110000
-        cause: The input data in question does not meet validation rules
-        action: Actionable instructions for the user.
-        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
-      properties:
-        title:
-          type: string
-          description: Title of the error.
-        status:
-          type: integer
-          minimum: 0
-          maximum: 999
-          description: HTTP status code of error message.
-        code:
-          type: string
-          description: Identifier for the detailed error code for programmatic error handling.
-        cause:
-          type: string
-          description: The cause of the error.
-        action:
-          type: string
-          description: Actionable instructions for the user.
-        correlationId:
-          type: string
-          description: The Correlation ID for the request for tracking purposes.
     Error403Response:
       type: object
       required:
@@ -624,6 +603,58 @@ components:
           type: string
           description: Human-readable error description
           example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    MtlsCAResponse:
+      type: object
+      required:
+      - hrn
+      - name
+      - certificates
+      properties:
+        hrn:
+          type: string
+          description: HRN of the mTLS Identity Provider
+          example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        name:
+          type: string
+          description: IdP's display name.
+          example: My Certificate Authority
+        certificates:
+          type: array
+          description: Details about each certificate in the chain
+          items:
+            type: object
+            properties:
+              subject:
+                type: string
+                description: The subject field of the certificate
+                example: C=DE, O=Company Name, CN=Company Intermediate CA v1
+              fingerprint:
+                type: string
+                description: The SHA-1 encoded fingerprint the certificate
+                example: 123456789
+              serialNumber:
+                type: string
+                description: The serial number of the certificate
+                example: 43:40:44:51:3a:80:2a:a1:9c:97:a2:d0:41:47:74:5a:e1:b0:48:48
     MtlsAuthenticator:
       type: object
       properties:
@@ -657,139 +688,17 @@ components:
           type: boolean
           description: Indicates whether or not the app is enabled for authenticating certificates from the mTLS Identity Provider
           example: true
-    Error401Response:
+    MtlsCAResponseWithPageToken:
       type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
-      properties:
-        title:
-          type: string
-          example: ''
-          description: ''
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 401
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request.
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        message:
-          description: Authorization error message
-          type: string
-          example: Unauthorized to perform this operation.
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
           items:
-            $ref: '#/components/schemas/ErrorDetail'
-    MtlsAuthenticatorRequest:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: Indicates whether or not this authenticator is enabled for authenticating client certificates.
-          default: true
-          example: true
-    MtlsCARequest:
-      type: object
-      required:
-      - name
-      - certificateChainPemContent
-      properties:
-        name:
-          type: string
-          description: IdP's display name.
-          example: My Certificate Authority
-        certificateChainPemContent:
-          type: string
-          description: PEM encoded certificate chain
-          example: '-----BEGIN CERTIFICATE-----\nMIIF7TCCBNWgAwIBAgIQJ1J...\n-----END CERTIFICATE-----'
+            type: array
+            items:
+              $ref: '#/components/schemas/MtlsCAResponse'
+            description: List of mTLS Certificate Authorities
     GenericError404Response:
       type: object
       required:
@@ -836,69 +745,176 @@ components:
           type: string
           description: Human-readable error description
           example: Resource not found.
-    MtlsCAResponse:
+    MtlsAuthenticatorRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether or not this authenticator is enabled for authenticating client certificates.
+          default: true
+          example: true
+    ErrorResponse:
       type: object
       required:
-      - hrn
-      - name
-      - certificates
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
       properties:
-        hrn:
+        title:
+          description: Error title
           type: string
-          description: HRN of the mTLS Identity Provider
-          example: hrn:here:account::myRealm:mtlsIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    MtlsCARequest:
+      type: object
+      required:
+      - name
+      - certificateChainPemContent
+      properties:
         name:
           type: string
           description: IdP's display name.
           example: My Certificate Authority
-        certificates:
-          type: array
-          description: Details about each certificate in the chain
-          items:
-            type: object
-            properties:
-              subject:
-                type: string
-                description: The subject field of the certificate
-                example: C=DE, O=Company Name, CN=Company Intermediate CA v1
-              fingerprint:
-                type: string
-                description: The SHA-1 encoded fingerprint the certificate
-                example: 123456789
-              serialNumber:
-                type: string
-                description: The serial number of the certificate
-                example: 43:40:44:51:3a:80:2a:a1:9c:97:a2:d0:41:47:74:5a:e1:b0:48:48
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: number of entries in the response.
-        pageToken:
+        certificateChainPemContent:
           type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: The number of federations matching the search criteria.
-    MtlsCAResponseWithPageToken:
+          description: PEM encoded certificate chain
+          example: '-----BEGIN CERTIFICATE-----\nMIIF7TCCBNWgAwIBAgIQJ1J...\n-----END CERTIFICATE-----'
+    ErrorDetail:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/MtlsCAResponse'
-            description: List of mTLS Certificate Authorities
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
     MtlsAuthenticatorPageWithToken:
       type: object
       allOf:
@@ -909,22 +925,6 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/MtlsAuthenticator'
-  headers:
-    WWWAuthenticate:
-      schema:
-        type: string
-      required: true
-      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   responses:
     NotFound:
       description: The requested resource was not found, see error response for details
@@ -944,6 +944,17 @@ components:
           $ref: '#/components/headers/XCorrelationId'
         X-Request-ID:
           $ref: '#/components/headers/XRequestId'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: You do not have permission to perform this action
       headers:
@@ -968,17 +979,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error401Response'
-    BadRequest:
-      description: Invalid input provided, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-        X-Request-ID:
-          $ref: '#/components/headers/XRequestId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
   securitySchemes:
     UserOrClientBearerToken:
       type: http

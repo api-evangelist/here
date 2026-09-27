@@ -954,6 +954,93 @@ components:
         pageToken:
           type: string
           description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
+    IdentityProviderIssuerAttachmentList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of IdentityProviderIssuerAttachments in this page of the List.
+        total:
+          type: integer
+          description: The total number of IdentityProviderIssuerAttachments in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
+          description: List of IdentityProvider Issuer Attachments.
+          maxItems: 2
+        pageToken:
+          type: string
+          description: 'A pointer to the next page of results, if any.
+
+            Not present if there are no more results after the current page.
+
+            '
+    CreateIdentityProviderIssuerAttachment:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
+          default: true
+          example: true
+    IdentityProvider:
+      type: object
+      required:
+      - id
+      - accountType
+      - realm
+      properties:
+        id:
+          type: string
+          description: Unique identifier the OpenID Connect Provider within the Realm.
+          example: example-op
+        hrn:
+          type: string
+          description: HRN for the Realm Provider
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        name:
+          type: string
+          description: User-friendly name for the OpenID Connect Provider
+          example: Example OP
+        description:
+          type: string
+          description: Detailed text description of the Identity Provider
+          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
+        accountType:
+          type: string
+          description: Always "device" for now.  Reserved for future use, new account types may be added in the future.
+          enum:
+          - device
+          default: device
+          example: device
+        realm:
+          type: string
+          description: HRN of the Realm within which the OpenID Connect Provider is trusted.
+        created:
+          type: string
+          format: date-time
+          example: '2023-01-21T17:32:28Z'
+        issuers:
+          type: array
+          maxLength: 2
+          items:
+            type: object
+            required:
+            - issuer
+            properties:
+              issuer:
+                type: string
+                description: OpenID Connect Provider Issuer URL.
+                example: https://op.example.com
+              enabled:
+                type: boolean
+                description: true to enable an individual issuer URL.
+                default: true
     ErrorMessage:
       type: object
       required:
@@ -1032,14 +1119,6 @@ components:
           type: boolean
           description: Defines if the Identity Provider is enabled
           example: true
-    UpdateIdentityProviderIssuerAttachmentRequest:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
-          default: true
-          example: true
     UpdateIdentityProviderRequest:
       type: object
       properties:
@@ -1051,85 +1130,6 @@ components:
           type: string
           description: Detailed text description of the Identity Provider
           example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
-    IdentityProvider:
-      type: object
-      required:
-      - id
-      - accountType
-      - realm
-      properties:
-        id:
-          type: string
-          description: Unique identifier the OpenID Connect Provider within the Realm.
-          example: example-op
-        hrn:
-          type: string
-          description: HRN for the Realm Provider
-          example: hrn:here:account::org123456789:identityProviders/example-op
-        name:
-          type: string
-          description: User-friendly name for the OpenID Connect Provider
-          example: Example OP
-        description:
-          type: string
-          description: Detailed text description of the Identity Provider
-          example: The Widgets Provider is used with vehicles shipped in the Whatzit market.
-        accountType:
-          type: string
-          description: Always "device" for now.  Reserved for future use, new account types may be added in the future.
-          enum:
-          - device
-          default: device
-          example: device
-        realm:
-          type: string
-          description: HRN of the Realm within which the OpenID Connect Provider is trusted.
-        created:
-          type: string
-          format: date-time
-          example: '2023-01-21T17:32:28Z'
-        issuers:
-          type: array
-          maxLength: 2
-          items:
-            type: object
-            required:
-            - issuer
-            properties:
-              issuer:
-                type: string
-                description: OpenID Connect Provider Issuer URL.
-                example: https://op.example.com
-              enabled:
-                type: boolean
-                description: true to enable an individual issuer URL.
-                default: true
-    IdentityProviderIssuerAttachmentList:
-      type: object
-      required:
-      - count
-      - total
-      - items
-      properties:
-        count:
-          type: integer
-          description: The number of IdentityProviderIssuerAttachments in this page of the List.
-        total:
-          type: integer
-          description: The total number of IdentityProviderIssuerAttachments in the List.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/IdentityProviderIssuerAttachment'
-          description: List of IdentityProvider Issuer Attachments.
-          maxItems: 2
-        pageToken:
-          type: string
-          description: 'A pointer to the next page of results, if any.
-
-            Not present if there are no more results after the current page.
-
-            '
     IdentityProviderIssuerAttachment:
       type: object
       required:
@@ -1150,7 +1150,7 @@ components:
           description: indicates whether the configured OpenID Connect Provider is enabled for use in the Realm
           default: true
           example: true
-    CreateIdentityProviderIssuerAttachment:
+    UpdateIdentityProviderIssuerAttachmentRequest:
       type: object
       properties:
         enabled:
@@ -1159,24 +1159,18 @@ components:
           default: true
           example: true
   parameters:
-    Realm:
-      in: path
-      required: true
-      name: realm
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
       schema:
         type: string
-      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
-      example: hrn:here:account::org123456789:realm/org123456789
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -1195,28 +1189,6 @@ components:
       description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
 
         '
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
-    IdentityProvider:
-      in: path
-      required: true
-      name: identityProvider
-      schema:
-        type: string
-      description: 'HRN identifying the IdentityProvider.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
     Issuer:
       in: path
       required: true
@@ -1227,6 +1199,34 @@ components:
 
         '
       example: https://op.example.com
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
   headers:
     XCorrelationId:
       schema:

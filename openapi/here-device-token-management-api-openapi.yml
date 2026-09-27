@@ -15,7 +15,7 @@ paths:
       tags:
       - Device Token Management
       summary: Revoke a HERE device access token that was obtained via token exchange
-      operationId: OAuth 2.0 Access Token deleteDeviceToken
+      operationId: OAuth2.0AccessTokenDeleteDeviceToken
       description: 'Revoke the HERE device access token, provided in the Authorization: Bearer header for this request,
 
         that was previously obtained via token exchange API.'
@@ -70,18 +70,20 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
             X-Request-ID:
               $ref: '#/components/headers/XRequestId'
+      x-operation-id-source: normalized
+      x-operation-id-original: OAuth 2.0 Access Token deleteDeviceToken
 components:
   headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
     XRequestId:
       schema:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   schemas:
     ErrorMessage:
       type: object

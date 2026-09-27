@@ -197,25 +197,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   parameters:
-    AccessKey:
-      in: path
-      required: true
-      name: accessKey
-      schema:
-        type: string
-      description: 'HRN identifying the access key. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-
-        '
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
     PageToken:
       name: pageToken
       in: query
@@ -228,6 +209,25 @@ components:
         '
       schema:
         type: string
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    AccessKey:
+      in: path
+      required: true
+      name: accessKey
+      schema:
+        type: string
+      description: 'HRN identifying the access key. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -256,33 +256,22 @@ components:
 
         '
   headers:
-    WWWAuthenticate:
-      schema:
-        type: string
-      required: true
-      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
     XCorrelationId:
       schema:
         type: string
       required: false
       description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
     XRequestId:
       schema:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   schemas:
-    AccessKeyPageWithToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/AccessKey'
-            description: List of access keys.
     Error403Response:
       type: object
       required:
@@ -329,48 +318,69 @@ components:
           type: string
           description: Human-readable error description
           example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
-    Error401Response:
+    PageWithToken:
       type: object
       required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+      - limit
+      - total
+      - items
       properties:
-        title:
-          type: string
-          example: ''
-          description: ''
-        status:
-          description: HTTP Status Code
+        limit:
           type: integer
-          example: 401
-        code:
-          description: Service specific error code
+          example: 1
+          description: number of entries in the response.
+        pageToken:
           type: string
-          example: E202101
-        cause:
-          description: The cause of the error
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    AccessKeyPageWithToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AccessKey'
+            description: List of access keys.
+    AccessKey:
+      type: object
+      properties:
+        accessKeyId:
           type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
+          example: 846ee567-7806-403a-97b6-6cf0b6ffa897
+          readOnly: true
+        accessKeyHrn:
           type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request.
+          example: hrn:here:account::myrealm:accesskey/846ee567-7806-403a-97b6-6cf0b6ffa897
+          readOnly: true
+        clientId:
           type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        errorId:
+          example: uIkGzYShLKtQQAimXzvV
+          readOnly: true
+        clientHrn:
           type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        message:
-          description: Authorization error message
-          type: string
-          example: Unauthorized to perform this operation.
+          example: hrn:here:account::myrealm:app/uIkGzYShLKtQQAimXzvV
+          readOnly: true
+        enabled:
+          type: boolean
+          example: true
+        createdTime:
+          type: integer
+          format: int64
+          example: 1545041748000
+          readOnly: true
+        lastTimeUsed:
+          type: integer
+          format: int64
+          description: The timestamp that this Access Key was last used within one minute precision.
+          example: 1545041748000
+          readOnly: true
     CreateAccessKeyResponse:
       type: object
       properties:
@@ -446,58 +456,48 @@ components:
           type: string
           description: Human-readable error description
           example: Resource not found.
-    PageWithToken:
+    Error401Response:
       type: object
       required:
-      - limit
-      - total
-      - items
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
       properties:
-        limit:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
           type: integer
-          example: 1
-          description: number of entries in the response.
-        pageToken:
+          example: 401
+        code:
+          description: Service specific error code
           type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: The number of federations matching the search criteria.
-    AccessKey:
-      type: object
-      properties:
-        accessKeyId:
+          example: E202101
+        cause:
+          description: The cause of the error
           type: string
-          example: 846ee567-7806-403a-97b6-6cf0b6ffa897
-          readOnly: true
-        accessKeyHrn:
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
           type: string
-          example: hrn:here:account::myrealm:accesskey/846ee567-7806-403a-97b6-6cf0b6ffa897
-          readOnly: true
-        clientId:
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
           type: string
-          example: uIkGzYShLKtQQAimXzvV
-          readOnly: true
-        clientHrn:
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
           type: string
-          example: hrn:here:account::myrealm:app/uIkGzYShLKtQQAimXzvV
-          readOnly: true
-        enabled:
-          type: boolean
-          example: true
-        createdTime:
-          type: integer
-          format: int64
-          example: 1545041748000
-          readOnly: true
-        lastTimeUsed:
-          type: integer
-          format: int64
-          description: The timestamp that this Access Key was last used within one minute precision.
-          example: 1545041748000
-          readOnly: true
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
   responses:
     NotFound:
       description: The requested resource was not found, see error response for details

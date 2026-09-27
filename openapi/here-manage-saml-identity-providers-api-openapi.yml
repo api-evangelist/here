@@ -325,24 +325,6 @@ paths:
               $ref: '#/components/headers/XRequestId'
 components:
   parameters:
-    SamlIdentityProviderHrn:
-      in: path
-      name: samlIdentityProvider
-      required: true
-      description: HRN for the specific SAML IdP configuration with a realm
-      schema:
-        type: string
-      example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
     PageToken:
       name: pageToken
       in: query
@@ -355,6 +337,16 @@ components:
         '
       schema:
         type: string
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
     AllowPasswordLogin:
       in: query
       required: false
@@ -362,6 +354,14 @@ components:
       schema:
         type: boolean
       description: "Flag indicating if password login should be allowed after enabling identity provider for the realm. \nIf omitted, the value is defaulted to false.\n\ntrue - both 'password' and 'saml' login methods are allowed\nfalse - 'saml' is the only allowed login method for the realm\n"
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -380,90 +380,31 @@ components:
       description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
 
         '
-    Realm:
+    SamlIdentityProviderHrn:
       in: path
+      name: samlIdentityProvider
       required: true
-      name: realm
+      description: HRN for the specific SAML IdP configuration with a realm
       schema:
         type: string
-      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
-      example: hrn:here:account::org123456789:realm/org123456789
+      example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
+      schema:
+        type: string
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   schemas:
-    ErrorMessage:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
-      example:
-        title: Input data failed validation
-        status: 400
-        code: E110000
-        cause: The input data in question does not meet validation rules
-        action: Actionable instructions for the user.
-        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
-      properties:
-        title:
-          type: string
-          description: Title of the error.
-        status:
-          type: integer
-          minimum: 0
-          maximum: 999
-          description: HTTP status code of error message.
-        code:
-          type: string
-          description: Identifier for the detailed error code for programmatic error handling.
-        cause:
-          type: string
-          description: The cause of the error.
-        action:
-          type: string
-          description: Actionable instructions for the user.
-        correlationId:
-          type: string
-          description: The Correlation ID for the request for tracking purposes.
-    SamlIdpUpdateRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Idp's display name.
-          example: Okta Login!
-        identityProviderTemplateId:
-          type: string
-          description: Identity provider (okta/entra/generic).
-          example: okta
-        entityId:
-          type: string
-          description: Issuer Id provided for the IDP
-          example: https://www.example.com/mySso
-        ssoLoginUrl:
-          type: string
-          description: Login url for the IDP
-          example: https://here.example.com/sso/saml
-        metadataSource:
-          type: string
-          description: Path to the IdP metadata file (file path or URL).
-          example: File
-        metadataContent:
-          type: string
-          description: Base-64 encrypted metadata xml content.
-          example: PG1kOkVudGl0eURlc2NyaXB0b3IKCXhtbG5zOm1kPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLj==
-    SamlIdpConfigResponseWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/SamlIdpConfigResponse'
-            description: List of IdP configurations.
     Error403Response:
       type: object
       required:
@@ -510,123 +451,31 @@ components:
           type: string
           description: Human-readable error description
           example: 'errorCode: 403403. These credentials do not authorize access for this operation.'
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    Error401Response:
+    PageWithToken:
       type: object
       required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+      - limit
+      - total
+      - items
       properties:
-        title:
-          type: string
-          example: ''
-          description: ''
-        status:
-          description: HTTP Status Code
+        limit:
           type: integer
-          example: 401
-        code:
-          description: Service specific error code
+          example: 1
+          description: number of entries in the response.
+        pageToken:
           type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request.
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        message:
-          description: Authorization error message
-          type: string
-          example: Unauthorized to perform this operation.
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
           type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-    SamlIdpConfigValidateOnlyResponse:
+          example: 1
+          description: The number of federations matching the search criteria.
+    SamlIdpUpdateRequest:
       type: object
       properties:
         name:
           type: string
-          description: IdP's display name.
+          description: Idp's display name.
           example: Okta Login!
         identityProviderTemplateId:
           type: string
@@ -634,12 +483,20 @@ components:
           example: okta
         entityId:
           type: string
-          description: IdP entity Id.
+          description: Issuer Id provided for the IDP
           example: https://www.example.com/mySso
         ssoLoginUrl:
           type: string
-          description: The login url for IdP
+          description: Login url for the IDP
           example: https://here.example.com/sso/saml
+        metadataSource:
+          type: string
+          description: Path to the IdP metadata file (file path or URL).
+          example: File
+        metadataContent:
+          type: string
+          description: Base-64 encrypted metadata xml content.
+          example: PG1kOkVudGl0eURlc2NyaXB0b3IKCXhtbG5zOm1kPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLj==
     SamlIdpConfigRequest:
       type: object
       required:
@@ -671,6 +528,79 @@ components:
           type: string
           description: Login url for the IdP. This will be extracted from the metadata if not provided.
           example: https://here.example.com/sso/saml
+    SamlIdpConfigResponseWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SamlIdpConfigResponse'
+            description: List of IdP configurations.
+    SamlIdpConfigValidateOnlyResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: IdP's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        entityId:
+          type: string
+          description: IdP entity Id.
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: The login url for IdP
+          example: https://here.example.com/sso/saml
+    SamlIdpConfigResponse:
+      type: object
+      properties:
+        samlIdentityProviderHrn:
+          type: string
+          description: HRN of the IdP
+          example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
+        name:
+          type: string
+          description: IdP's display name.
+          example: Okta Login!
+        identityProviderTemplateId:
+          type: string
+          description: Identity provider (okta/entra/generic).
+          example: okta
+        entityId:
+          type: string
+          description: IdP entity Id.
+          example: https://www.example.com/mySso
+        ssoLoginUrl:
+          type: string
+          description: The login url for IdP
+          example: https://here.example.com/sso/saml
+        created:
+          type: string
+          format: date-time
+          example: '2023-01-21T17:32:28Z'
+        enabled:
+          type: boolean
+          description: Whether the IdP config is enabled or not
+          example: true
+        callback:
+          type: string
+          description: Service provider's callback url.
+          example: https://account.here.com/saml/callback
+        spMetadataUrl:
+          type: string
+          description: Url to get service provider metadata.xml file content.
+          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/metadata
+        spCertificateUrl:
+          type: string
+          description: Url to get service provider public key certificate.
+          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/cert
     GenericError404Response:
       type: object
       required:
@@ -717,84 +647,154 @@ components:
           type: string
           description: Human-readable error description
           example: Resource not found.
-    PageWithToken:
+    ErrorResponse:
       type: object
       required:
-      - limit
-      - total
-      - items
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
       properties:
-        limit:
-          type: integer
-          example: 1
-          description: number of entries in the response.
-        pageToken:
+        title:
+          description: Error title
           type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
           type: integer
-          example: 1
-          description: The number of federations matching the search criteria.
-    SamlIdpConfigResponse:
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorMessage:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      example:
+        title: Input data failed validation
+        status: 400
+        code: E110000
+        cause: The input data in question does not meet validation rules
+        action: Actionable instructions for the user.
+        correlationId: 6c1bce6d-d31f-4275-9d9f-6832d8ba2377
+      properties:
+        title:
+          type: string
+          description: Title of the error.
+        status:
+          type: integer
+          minimum: 0
+          maximum: 999
+          description: HTTP status code of error message.
+        code:
+          type: string
+          description: Identifier for the detailed error code for programmatic error handling.
+        cause:
+          type: string
+          description: The cause of the error.
+        action:
+          type: string
+          description: Actionable instructions for the user.
+        correlationId:
+          type: string
+          description: The Correlation ID for the request for tracking purposes.
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
+    ErrorDetail:
       type: object
       properties:
-        samlIdentityProviderHrn:
+        title:
           type: string
-          description: HRN of the IdP
-          example: hrn:here:account::myRealm:samlIdentityProvider/IDP-4451d8ed-42cd-4de1-ac16-3fa1ed7f393d
-        name:
+          description: Error message
+          example: Invalid size value
+        source:
           type: string
-          description: IdP's display name.
-          example: Okta Login!
-        identityProviderTemplateId:
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
           type: string
-          description: Identity provider (okta/entra/generic).
-          example: okta
-        entityId:
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
           type: string
-          description: IdP entity Id.
-          example: https://www.example.com/mySso
-        ssoLoginUrl:
-          type: string
-          description: The login url for IdP
-          example: https://here.example.com/sso/saml
-        created:
-          type: string
-          format: date-time
-          example: '2023-01-21T17:32:28Z'
-        enabled:
-          type: boolean
-          description: Whether the IdP config is enabled or not
-          example: true
-        callback:
-          type: string
-          description: Service provider's callback url.
-          example: https://account.here.com/saml/callback
-        spMetadataUrl:
-          type: string
-          description: Url to get service provider metadata.xml file content.
-          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/metadata
-        spCertificateUrl:
-          type: string
-          description: Url to get service provider public key certificate.
-          example: https://account.here.com/identityProvider/aHJuOmhlcmU6YWNjb3VudDo6bXlSZWFs/cert
-  headers:
-    WWWAuthenticate:
-      schema:
-        type: string
-      required: true
-      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
   responses:
     NotFound:
       description: The requested resource was not found, see error response for details
@@ -814,6 +814,17 @@ components:
           $ref: '#/components/headers/XCorrelationId'
         X-Request-ID:
           $ref: '#/components/headers/XRequestId'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: You do not have permission to perform this action
       headers:
@@ -838,17 +849,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error401Response'
-    BadRequest:
-      description: Invalid input provided, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-        X-Request-ID:
-          $ref: '#/components/headers/XRequestId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
   securitySchemes:
     UserOrClientBearerToken:
       type: http

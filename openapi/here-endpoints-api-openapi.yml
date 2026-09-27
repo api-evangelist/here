@@ -17,7 +17,7 @@ paths:
   /endpoints:
     get:
       summary: Get endpoints
-      operationId: Rate Limit Rules API v1 getEndpoints
+      operationId: RateLimitRulesAPIV1GetEndpoints
       description: Get metadata about endpoints that are subject to rate limiting rules.
       tags:
       - Endpoints
@@ -43,6 +43,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-operation-id-source: normalized
+      x-operation-id-original: Rate Limit Rules API v1 getEndpoints
   /endpoints/{endpointId}:
     get:
       description: Get metadata about the specific endpoint.
@@ -52,7 +54,7 @@ paths:
       - $ref: '#/components/parameters/endpointId'
       - $ref: '#/components/parameters/xRequestId'
       summary: Get endpoint
-      operationId: Rate Limit Rules API v1 getEndpoint
+      operationId: RateLimitRulesAPIV1GetEndpoint
       security:
       - token: []
       responses:
@@ -73,20 +75,63 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-operation-id-source: normalized
+      x-operation-id-original: Rate Limit Rules API v1 getEndpoint
 components:
   schemas:
-    AuthErrorResponse:
+    EndpointPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Endpoint'
+    ErrorResponse:
       type: object
       required:
-      - error
-      - error_description
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      - correlationId
       properties:
-        error:
-          type: string
+        title:
           description: Error title
-        error_description:
           type: string
-          description: Error description
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E124101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
     Endpoint:
       type: object
       required:
@@ -101,15 +146,6 @@ components:
           type: string
           description: URL of the endpoint
           example: https://geocode.search.hereapi.com
-    EndpointPageWithToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Endpoint'
     PageWithToken:
       type: object
       properties:
@@ -155,51 +191,27 @@ components:
             field: size
             min: 3
             max: 64
-    ErrorResponse:
+    AuthErrorResponse:
       type: object
       required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      - correlationId
+      - error
+      - error_description
       properties:
-        title:
+        error:
+          type: string
           description: Error title
+        error_description:
           type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E124101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
+          description: Error description
   parameters:
+    endpointId:
+      name: endpointId
+      in: path
+      description: Identifier for the endpoint
+      required: true
+      example: search-geocode
+      schema:
+        type: string
     pageToken:
       name: pageToken
       schema:
@@ -219,14 +231,6 @@ components:
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.
       schema:
         type: string
-    endpointId:
-      name: endpointId
-      in: path
-      description: Identifier for the endpoint
-      required: true
-      example: search-geocode
-      schema:
-        type: string
   headers:
     X-Request-ID:
       description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
@@ -242,6 +246,17 @@ components:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
   responses:
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
     Forbidden:
       description: You do not have permission to perform this action
       headers:
@@ -264,17 +279,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    Unauthorized:
-      description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
   securitySchemes:
     token:
       type: http

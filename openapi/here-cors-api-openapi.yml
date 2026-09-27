@@ -19,7 +19,7 @@ paths:
       - CORS
       summary: CORS support for the endpoint for ingesting generic data
       description: Enable CORS by returning correct headers
-      operationId: Ingest API v1 ingestDataCors
+      operationId: IngestAPIV1IngestDataCors
       parameters:
       - name: layerId
         in: path
@@ -42,6 +42,8 @@ paths:
                 type: string
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestDataCors
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/partitions:
@@ -50,7 +52,7 @@ paths:
       - CORS
       summary: CORS support for sending a list of partitions to a stream layer
       description: Enable CORS by returning correct headers
-      operationId: Ingest API v1 ingestPartitionsCors
+      operationId: IngestAPIV1IngestPartitionsCors
       parameters:
       - name: layerId
         in: path
@@ -73,6 +75,8 @@ paths:
                 type: string
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestPartitionsCors
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/sdiiMessageList:
@@ -81,7 +85,7 @@ paths:
       - CORS
       summary: CORS support for sending a list of SDII messages to a stream layer
       description: Enable CORS by returning correct headers
-      operationId: Ingest API v1 ingestSDIICors
+      operationId: IngestAPIV1IngestSDIICors
       parameters:
       - name: layerId
         in: path
@@ -104,6 +108,8 @@ paths:
                 type: string
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestSDIICors
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /problems:

@@ -26,7 +26,7 @@ paths:
 
 
         Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
-      operationId: Geofencing API geofence
+      operationId: GeofencingAPIGeofence
       parameters:
       - name: layers
         in: query
@@ -109,12 +109,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesV8Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API geofence
     post:
       tags:
       - Geofencing V8
       summary: Simple and fast search for geometries on HERE Map Content layers, extensible…
       description: Simple and fast search for geometries on HERE Map Content layers, extensible with custom geometry layers
-      operationId: Geofencing API geofencePost
+      operationId: GeofencingAPIGeofencePost
       parameters:
       - name: in
         in: query
@@ -199,13 +201,15 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesV8Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API geofencePost
   /v8/geofence/upload:
     post:
       tags:
       - Geofencing V8
       summary: Import Geometries in a WKT or Shape File
       description: Import polygons, polylines or points in WKT (Wellknown Text) or Shapefile format geometries using an HTTP POST request. A layer can contain only one geometry type - polygons, polylines or points, but not a mix of different types. After the response there is a delay of several seconds to compile, store and make the geometries available in the service.
-      operationId: Geofencing API v8UploadPost
+      operationId: GeofencingAPIV8UploadPost
       parameters:
       - name: layerId
         in: query
@@ -268,13 +272,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LayerUploadResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API v8UploadPost
   /v8/geofence/modify:
     post:
       tags:
       - Geofencing V8
       summary: Modify Geometries in Existing Layers
       description: 'Modify geometries using an HTTP POST request. After receiving the response, there is a delay of several seconds to compile, store and make the modified geometries available in the service. Note: The level (tile grid size) of the layer can only be changed by re-uploading the whole layer, not as a modification operation.'
-      operationId: Geofencing API v8ModifyPost
+      operationId: GeofencingAPIV8ModifyPost
       parameters:
       - name: layerId
         in: query
@@ -334,12 +340,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LayerModifyResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API v8ModifyPost
   /v8/geofence/delete:
     get:
       tags:
       - Geofencing V8
       summary: Delete some of my Geometry Layers.
-      operationId: Geofencing API v8DeleteMapsLayers
+      operationId: GeofencingAPIV8DeleteMapsLayers
       parameters:
       - name: layerId
         in: query
@@ -366,12 +374,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteLayersResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API v8DeleteMapsLayers
   /v8/geofence/attributes:
     get:
       tags:
       - Geofencing V8
       summary: Simple and fast access to your custom geofence attributes
-      operationId: Geofencing API geofenceAttributes
+      operationId: GeofencingAPIGeofenceAttributes
       parameters:
       - name: app_id
         in: query
@@ -458,6 +468,8 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesV8Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: Geofencing API geofenceAttributes
 components:
   schemas:
     AssetPositions:
@@ -468,22 +480,16 @@ components:
           description: List of asset points with corresponding attributes.
           items:
             $ref: '#/components/schemas/AssetPoint'
-    SearchMetaResponse:
+    TileResponseV8:
       type: object
       properties:
-        searchParameter:
-          type: string
-          writeOnly: true
-        layerId:
-          type: string
-          description: Layer name of geometries in a search response.
-          example: ADAS_ATTRIB_FC4
-        lastUpdateTimeStamp:
-          type: integer
-          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
-          format: int64
-          example: 1756219305792
-      description: List of Meta info for spatial search response.
+        rows:
+          type: array
+          description: List of Attribute/value map from a specific layer.
+          items:
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
     TileRow:
       type: object
       properties:
@@ -509,6 +515,14 @@ components:
             description: Map of attributes and values.
             example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
       description: List of Attribute/value map from a specific layer.
+    LayerUploadResponse:
+      type: object
+      properties:
+        storedTilesCount:
+          type: integer
+          description: Number of tiles that were created to store the uploaded layer content
+          format: int32
+          example: 20
     AssetPoint:
       type: object
       properties:
@@ -545,6 +559,42 @@ components:
           type: string
           description: "Optional. Identifier for the asset. If provided, the response will contain the assetId.\n * The maximum length of an asset id and the permitted characters can be looked up in the service via `/v8/maps/serviceconfiguration`."
       description: List of asset points with corresponding attributes.
+    MapAttributesV8Response:
+      type: object
+      properties:
+        geometries:
+          type: array
+          description: List of geometries for spatial search response.
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          description: List of Meta info for spatial search response.
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+        Tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TileResponseV8'
+    LayerModifyResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
+    DeleteLayersResponse:
+      type: object
+      properties:
+        deletedLayers:
+          type: array
+          description: List of deleted layers.
+          example:
+          - SAMPLE_LAYER
+          items:
+            type: string
+            description: List of deleted layers.
+            example: '["SAMPLE_LAYER"]'
     MetaResponseV8:
       type: object
       properties:
@@ -571,23 +621,6 @@ components:
           description: Specific map release that this layer content belongs to.
           example: '25122'
       description: Meta info for a specific layer.
-    MapAttributesV8Response:
-      type: object
-      properties:
-        geometries:
-          type: array
-          description: List of geometries for spatial search response.
-          items:
-            $ref: '#/components/schemas/Geometry'
-        meta:
-          type: array
-          description: List of Meta info for spatial search response.
-          items:
-            $ref: '#/components/schemas/SearchMetaResponse'
-        Tiles:
-          type: array
-          items:
-            $ref: '#/components/schemas/TileResponseV8'
     Geometry:
       type: object
       properties:
@@ -664,43 +697,22 @@ components:
           - TILED
           - FULL
       description: List of geometries for spatial search response.
-    TileResponseV8:
+    SearchMetaResponse:
       type: object
       properties:
-        rows:
-          type: array
-          description: List of Attribute/value map from a specific layer.
-          items:
-            $ref: '#/components/schemas/TileRow'
-        meta:
-          $ref: '#/components/schemas/MetaResponseV8'
-    LayerModifyResponse:
-      type: object
-      properties:
-        action:
+        searchParameter:
           type: string
-          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
-          example: append
-    LayerUploadResponse:
-      type: object
-      properties:
-        storedTilesCount:
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
           type: integer
-          description: Number of tiles that were created to store the uploaded layer content
-          format: int32
-          example: 20
-    DeleteLayersResponse:
-      type: object
-      properties:
-        deletedLayers:
-          type: array
-          description: List of deleted layers.
-          example:
-          - SAMPLE_LAYER
-          items:
-            type: string
-            description: List of deleted layers.
-            example: '["SAMPLE_LAYER"]'
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
+      description: List of Meta info for spatial search response.
   securitySchemes:
     apiKey:
       type: apiKey

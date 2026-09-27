@@ -25,7 +25,7 @@ paths:
 
 
         Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
-      operationId: Waypoints Sequence API findSequenceGET
+      operationId: WaypointsSequenceAPIFindSequenceGET
       parameters:
       - name: start
         in: query
@@ -258,11 +258,13 @@ paths:
                 $ref: '#/components/schemas/WseResponse'
       summary: Waypoints sequence API find sequence GET
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Waypoints Sequence API findSequenceGET
     post:
       tags:
       - Waypoints Sequence
       description: Compute best Sequence for Waypoints (Travelling Salesman Problem). For POST requests, send the request parameters in an application/x-www-form-urlencoded request body instead of the query string.
-      operationId: Waypoints Sequence API findSequencePOST
+      operationId: WaypointsSequenceAPIFindSequencePOST
       parameters:
       - name: mode
         in: query
@@ -497,61 +499,10 @@ paths:
                 $ref: '#/components/schemas/WseResponse'
       summary: Waypoints sequence API find sequence POST
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Waypoints Sequence API findSequencePOST
 components:
   schemas:
-    FailedConstraint:
-      type: object
-      properties:
-        constraint:
-          type: string
-          description: The constraint reflects the input setting in the same format.
-        reason:
-          type: integer
-          description: ' The reason defines why the constraint was not met: 0:Undetermined, 1:not reachable in time, 2:service time did not fit, 3: conflicts with arrival time of final waypoint.'
-          format: int32
-      description: List containing pairs of unmet constraints and reasons
-    TimeBreakdown:
-      type: object
-      properties:
-        driving:
-          type: integer
-          description: Time spent in motion for completing the sequence in seconds
-          format: int32
-        service:
-          type: integer
-          description: Active time spent at the waypoints in seconds
-          format: int32
-        rest:
-          type: integer
-          description: Time needed for resting according to legal regulations (simplified model) in seconds
-          format: int32
-        waiting:
-          type: integer
-          description: Time spent waiting at the waypoints in seconds
-          format: int32
-        break:
-          type: integer
-          description: Break time spent at the waypoint in seconds
-          format: int32
-      description: Time needed for traveling through the sequence by categories
-    Warnings:
-      type: object
-      properties:
-        outOfSequenceWaypoints:
-          type: array
-          description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
-          xml:
-            name: OutOfSequenceWaypoints
-          items:
-            $ref: '#/components/schemas/OutOfSequenceWaypoint'
-        parameterOverrides:
-          type: array
-          description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
-          xml:
-            name: ParameterOverrides
-          items:
-            $ref: '#/components/schemas/ParameterOverride'
-      description: This List contains 0 or more elements with an ordered list of waypoints. This value is set only, if no sequence is found due to constraints.
     WseResponse:
       type: object
       properties:
@@ -579,35 +530,68 @@ components:
           description: Identifier defined in the request and passed through the system. This field is null, if no such value was defined in the request.
       xml:
         name: Response
-    Result:
+    Warnings:
       type: object
       properties:
-        waypoints:
+        outOfSequenceWaypoints:
           type: array
-          description: Waypoints in the order of the calculated sequence
+          description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
           xml:
-            name: Waypoints
+            name: OutOfSequenceWaypoints
           items:
-            $ref: '#/components/schemas/Waypoint'
-        distance:
-          type: string
-          description: Overall distance to travel the whole sequence in meter
-          xml:
-            name: Distance
-        time:
-          type: string
-          description: Overall time to travel the whole sequence in seconds
-        interconnections:
+            $ref: '#/components/schemas/OutOfSequenceWaypoint'
+        parameterOverrides:
           type: array
-          description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+          description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
+          xml:
+            name: ParameterOverrides
           items:
-            $ref: '#/components/schemas/Interconnection'
-        description:
+            $ref: '#/components/schemas/ParameterOverride'
+      description: This List contains 0 or more elements with an ordered list of waypoints. This value is set only, if no sequence is found due to constraints.
+    OutOfSequenceWaypoint:
+      type: object
+      properties:
+        id:
           type: string
-          description: Human readable description of the optimization goals
-        timeBreakdown:
-          $ref: '#/components/schemas/TimeBreakdown'
-      description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
+          description: User provided id
+        lat:
+          type: number
+          description: Latitude of the waypoint
+          format: double
+        lng:
+          type: number
+          description: Longitude of the waypoint
+          format: double
+        failedConstraints:
+          type: array
+          description: List containing pairs of unmet constraints and reasons
+          items:
+            $ref: '#/components/schemas/FailedConstraint'
+      description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
+    TimeBreakdown:
+      type: object
+      properties:
+        driving:
+          type: integer
+          description: Time spent in motion for completing the sequence in seconds
+          format: int32
+        service:
+          type: integer
+          description: Active time spent at the waypoints in seconds
+          format: int32
+        rest:
+          type: integer
+          description: Time needed for resting according to legal regulations (simplified model) in seconds
+          format: int32
+        waiting:
+          type: integer
+          description: Time spent waiting at the waypoints in seconds
+          format: int32
+        break:
+          type: integer
+          description: Break time spent at the waypoint in seconds
+          format: int32
+      description: Time needed for traveling through the sequence by categories
     Waypoint:
       type: object
       properties:
@@ -654,26 +638,46 @@ components:
           description: Warning/error code
           format: int32
       description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
-    OutOfSequenceWaypoint:
+    Result:
       type: object
       properties:
-        id:
-          type: string
-          description: User provided id
-        lat:
-          type: number
-          description: Latitude of the waypoint
-          format: double
-        lng:
-          type: number
-          description: Longitude of the waypoint
-          format: double
-        failedConstraints:
+        waypoints:
           type: array
-          description: List containing pairs of unmet constraints and reasons
+          description: Waypoints in the order of the calculated sequence
+          xml:
+            name: Waypoints
           items:
-            $ref: '#/components/schemas/FailedConstraint'
-      description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
+            $ref: '#/components/schemas/Waypoint'
+        distance:
+          type: string
+          description: Overall distance to travel the whole sequence in meter
+          xml:
+            name: Distance
+        time:
+          type: string
+          description: Overall time to travel the whole sequence in seconds
+        interconnections:
+          type: array
+          description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+          items:
+            $ref: '#/components/schemas/Interconnection'
+        description:
+          type: string
+          description: Human readable description of the optimization goals
+        timeBreakdown:
+          $ref: '#/components/schemas/TimeBreakdown'
+      description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
+    FailedConstraint:
+      type: object
+      properties:
+        constraint:
+          type: string
+          description: The constraint reflects the input setting in the same format.
+        reason:
+          type: integer
+          description: ' The reason defines why the constraint was not met: 0:Undetermined, 1:not reachable in time, 2:service time did not fit, 3: conflicts with arrival time of final waypoint.'
+          format: int32
+      description: List containing pairs of unmet constraints and reasons
     ParameterOverride:
       type: object
       properties:

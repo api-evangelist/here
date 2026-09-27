@@ -21,7 +21,7 @@ paths:
       - Write Features
       summary: Create or replace multiple features
       description: Create or replace the provided features.
-      operationId: Interactive Map API v1 putFeatures
+      operationId: InteractiveMapAPIV1PutFeatures
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/VersionRef'
@@ -47,12 +47,14 @@ paths:
         '513':
           $ref: '#/components/responses/ErrorResponse513'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 putFeatures
     post:
       tags:
       - Write Features
       summary: Modify features in the layer
       description: Create or patch features.
-      operationId: Interactive Map API v1 postFeatures
+      operationId: InteractiveMapAPIV1PostFeatures
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/VersionRef'
@@ -78,12 +80,14 @@ paths:
         '513':
           $ref: '#/components/responses/ErrorResponse513'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 postFeatures
     delete:
       tags:
       - Write Features
       summary: Delete multiple features
       description: Delete the features with the provided ids.
-      operationId: Interactive Map API v1 deleteFeatures
+      operationId: InteractiveMapAPIV1DeleteFeatures
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/Ids'
@@ -110,13 +114,15 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse404'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 deleteFeatures
   /layers/{layerId}/features/{featureId}:
     put:
       tags:
       - Write Features
       summary: Create or replace a feature
       description: Creates or replaces a feature in the layer.
-      operationId: Interactive Map API v1 putFeature
+      operationId: InteractiveMapAPIV1PutFeature
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/FeatureId'
@@ -139,12 +145,14 @@ paths:
         '513':
           $ref: '#/components/responses/ErrorResponse513'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 putFeature
     patch:
       tags:
       - Write Features
       summary: Patch a feature
       description: Patches an existing feature.
-      operationId: Interactive Map API v1 patchFeature
+      operationId: InteractiveMapAPIV1PatchFeature
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/FeatureId'
@@ -169,12 +177,14 @@ paths:
         '513':
           $ref: '#/components/responses/ErrorResponse513'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 patchFeature
     delete:
       tags:
       - Write Features
       summary: Deletes a feature from the layer
       description: Deletes an existing feature.
-      operationId: Interactive Map API v1 deleteFeature
+      operationId: InteractiveMapAPIV1DeleteFeature
       parameters:
       - $ref: '#/components/parameters/LayerId'
       - $ref: '#/components/parameters/FeatureId'
@@ -189,51 +199,10 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse404'
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Interactive Map API v1 deleteFeature
 components:
   responses:
-    ErrorResponse413:
-      description: Request entity too large.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            error: Exception
-            errorMessage: Request entity too large.
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse400:
-      description: Malformed or Bad Request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: <Invalid request details>
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    FeatureResponse:
-      description: A feature response.
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/Feature'
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
     ErrorResponse403:
       description: Forbidden request. Insufficient rights to perform the request.
       content:
@@ -256,6 +225,12 @@ components:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     FeatureCollectionModificationResponse:
       description: An array of features and their modifications response.
       content:
@@ -285,6 +260,49 @@ components:
                 amenity: Football Stadium
                 capacity: 54074
                 description: Home of the Liverpool Football Club.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse404:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse400:
+      description: Malformed or Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    FeatureResponse:
+      description: A feature response.
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/Feature'
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -322,39 +340,69 @@ components:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse404:
-      description: Not found.
+    ErrorResponse413:
+      description: Request entity too large.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: The requested resource does not exist.
+            errorMessage: Request entity too large.
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse401:
-      description: Unauthorized to perform the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  headers:
-    X-Correlation-ID:
-      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+  parameters:
+    FeatureId:
+      name: featureId
+      in: path
+      description: The unique identifier of a feature in the layer.
+      required: true
       schema:
         type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+    VersionRef:
+      name: versionRef
+      in: query
+      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
+      required: false
       schema:
         type: string
+        default: HEAD
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
+    Ids:
+      name: id
+      in: query
+      description: "A comma separated list of unique feature identifiers. These are the acceptable formats for this field:\n  * id=value1,value2\n  * id=value1,id=value2\n\n\nnot required when eraseContent=true is used."
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
   requestBodies:
+    FeatureRequest:
+      description: A feature request.
+      required: true
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/Feature'
+    FeatureCollectionRequest:
+      description: A feature collection request.
+      required: true
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollection'
     FeatureCollectionOrFeatureModificationListRequest:
       description: A FeatureCollection object or a FeatureModificationList object.
       required: true
@@ -365,28 +413,47 @@ components:
         application/vnd.here.feature-modification-list:
           schema:
             $ref: '#/components/schemas/FeatureModificationList'
-    FeatureCollectionRequest:
-      description: A feature collection request.
-      required: true
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/FeatureCollection'
-    FeatureRequest:
-      description: A feature request.
-      required: true
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/Feature'
   schemas:
-    OnFeatureNotExists:
-      type: string
-      enum:
-      - retain
-      - error
-      - create
-      default: create
+    FeatureModificationList:
+      type: object
+      description: 'An object describing modifications of features. Contains feature data being provided as
+
+        GeoJSON FeatureCollections (see [RFC-7946](https://tools.ietf.org/html/rfc7946))
+
+        or (in case of deletions) a list of feature IDs.
+
+        '
+      externalDocs:
+        url: https://tools.ietf.org/html/rfc7946
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        modifications:
+          type: array
+          description: A list of FeatureModification objects
+          items:
+            $ref: '#/components/schemas/FeatureModification'
+      example:
+        type: FeatureModificationList
+        modifications:
+        - type: FeatureModification
+          featureData:
+            type: FeatureCollection
+            features:
+            - type: Feature
+              id: BfiimUxHjj
+              geometry:
+                type: Point
+                coordinates:
+                - -2.960847
+                - 53.430828
+              properties:
+                name: Anfield
+                amenity: Football Stadium
+                capacity: 54074
+                description: Home of the Liverpool Football Club.
     OnMergeConflict:
       type: string
       enum:
@@ -394,124 +461,34 @@ components:
       - retain
       - replace
       default: error
-    FeatureCollection:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A FeatureCollection GeoJSON object.
-        required:
-        - features
-        discriminator:
-          propertyName: type
-          mapping:
-            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
-            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
-        properties:
-          features:
-            type: array
-            description: Features included in the collection.
-            items:
-              $ref: '#/components/schemas/Feature'
-        example:
-          type: FeatureCollection
-          features:
-          - type: Feature
-            id: BfiimUxHjj
-            geometry:
-              type: Point
-              coordinates:
-              - -2.960847
-              - 53.430828
-            properties:
-              name: Anfield
-              '@ns:com:here:xyz':
-                createdAt: 1517504700726
-                updatedAt: 1517504700726
-              amenity: Football Stadium
-              capacity: 54074
-              description: Home of the Liverpool Football Club.
-    OnFeatureExists:
-      type: string
-      enum:
-      - merge
-      - patch
-      - replace
-      - delete
-      - retain
-      - error
-      default: patch
-    Feature:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A Feature object represents a spatially bounded thing.
-        properties:
-          id:
-            description: The unique identifier of the feature.
-            type: string
-          geometry:
-            $ref: '#/components/schemas/Geometry'
-          properties:
-            type: object
-            description: The properties of the feature.
-            additionalProperties: true
-        example:
-          type: Feature
-          id: BfiimUxHjj
-          geometry:
-            type: Point
-            coordinates:
-            - -2.960847
-            - 53.430828
-          properties:
-            name: Anfield
-            amenity: Football Stadium
-            capacity: 54074
-            description: Home of the Liverpool Football Club.
-    FeatureCollectionModification:
-      allOf:
-      - $ref: '#/components/schemas/FeatureCollection'
-      - type: object
-        properties:
-          inserted:
-            type: array
-            description: List of inserted feature IDs.
-            items:
-              type: string
-          updated:
-            type: array
-            description: List of updated features IDs.
-            items:
-              type: string
-          deleted:
-            type: array
-            description: List of deleted features IDs.
-            items:
-              type: string
-        example:
-          type: FeatureCollection
-          etag: b9be03f253c53c23
-          inserted:
-          - BfiimUxHjj
-          updated:
-          - cuiImUxOjj
-          features:
-          - type: Feature
-            id: BfiimUxHjj
-            geometry:
-              type: Point
-              coordinates:
-              - -2.960847
-              - 53.430828
-            properties:
-              name: Anfield
-              '@ns:com:here:xyz':
-                createdAt: 1517504700726
-                updatedAt: 1517504700726
-                space: 0FzlE2wX
-              amenity: Football Stadium
-              capacity: 54074
-              description: Home of the Liverpool Football Club.
+    Error:
+      type: object
+      description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Bad Request
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
     FeatureModification:
       type: object
       description: 'A FeatureModification object containing GeoJSON FeatureCollections
@@ -556,48 +533,60 @@ components:
               amenity: Football Stadium
               capacity: 54074
               description: Home of the Liverpool Football Club.
-    Geometry:
+    OnFeatureExists:
+      type: string
+      enum:
+      - merge
+      - patch
+      - replace
+      - delete
+      - retain
+      - error
+      default: patch
+    FeatureCollectionModification:
       allOf:
-      - $ref: '#/components/schemas/GeoJSON'
+      - $ref: '#/components/schemas/FeatureCollection'
       - type: object
-        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
-        discriminator:
-          propertyName: type
-          mapping:
-            MultiPoint: '#/components/schemas/MultiPoint'
-            MultiLineString: '#/components/schemas/MultiLineString'
-            LineString: '#/components/schemas/LineString'
-            MultiPolygon: '#/components/schemas/MultiPolygon'
-            Point: '#/components/schemas/Point'
-            Polygon: '#/components/schemas/Polygon'
-    Error:
-      type: object
-      description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
-      properties:
-        title:
-          type: string
-          description: Human-readable error description
-          example: Input data failed validation
-        status:
-          type: integer
-          description: HTTP status code
-          example: 400
-        code:
-          type: string
-          description: Error code.
-          example: Bad Request
-        cause:
-          type: string
-          description: Human-readable explanation for the error
-          example: The input data in question does not comply with validation rules
-        action:
-          type: string
-          description: Human-readable description of the action that can be taken to correct the error
-          example: Request a valid id
-        correlationId:
-          type: string
-          description: Auto-generated id that uniquely identifies the request
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        properties:
+          inserted:
+            type: array
+            description: List of inserted feature IDs.
+            items:
+              type: string
+          updated:
+            type: array
+            description: List of updated features IDs.
+            items:
+              type: string
+          deleted:
+            type: array
+            description: List of deleted features IDs.
+            items:
+              type: string
+        example:
+          type: FeatureCollection
+          etag: b9be03f253c53c23
+          inserted:
+          - BfiimUxHjj
+          updated:
+          - cuiImUxOjj
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+                space: 0FzlE2wX
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
     GeoJSON:
       type: object
       description: The base type for all possible GeoJSON objects.
@@ -618,76 +607,99 @@ components:
           FeatureCollection: '#/components/schemas/FeatureCollection'
           Geometry: '#/components/schemas/Geometry'
       additionalProperties: true
-    FeatureModificationList:
-      type: object
-      description: 'An object describing modifications of features. Contains feature data being provided as
-
-        GeoJSON FeatureCollections (see [RFC-7946](https://tools.ietf.org/html/rfc7946))
-
-        or (in case of deletions) a list of feature IDs.
-
-        '
-      externalDocs:
-        url: https://tools.ietf.org/html/rfc7946
-      required:
-      - type
-      properties:
-        type:
-          type: string
-        modifications:
-          type: array
-          description: A list of FeatureModification objects
-          items:
-            $ref: '#/components/schemas/FeatureModification'
-      example:
-        type: FeatureModificationList
-        modifications:
-        - type: FeatureModification
-          featureData:
-            type: FeatureCollection
-            features:
-            - type: Feature
-              id: BfiimUxHjj
-              geometry:
-                type: Point
-                coordinates:
-                - -2.960847
-                - 53.430828
-              properties:
-                name: Anfield
-                amenity: Football Stadium
-                capacity: 54074
-                description: Home of the Liverpool Football Club.
-  parameters:
-    VersionRef:
-      name: versionRef
-      in: query
-      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
-      required: false
+    Feature:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Feature object represents a spatially bounded thing.
+        properties:
+          id:
+            description: The unique identifier of the feature.
+            type: string
+          geometry:
+            $ref: '#/components/schemas/Geometry'
+          properties:
+            type: object
+            description: The properties of the feature.
+            additionalProperties: true
+        example:
+          type: Feature
+          id: BfiimUxHjj
+          geometry:
+            type: Point
+            coordinates:
+            - -2.960847
+            - 53.430828
+          properties:
+            name: Anfield
+            amenity: Football Stadium
+            capacity: 54074
+            description: Home of the Liverpool Football Club.
+    FeatureCollection:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A FeatureCollection GeoJSON object.
+        required:
+        - features
+        discriminator:
+          propertyName: type
+          mapping:
+            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
+            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
+        properties:
+          features:
+            type: array
+            description: Features included in the collection.
+            items:
+              $ref: '#/components/schemas/Feature'
+        example:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
+    OnFeatureNotExists:
+      type: string
+      enum:
+      - retain
+      - error
+      - create
+      default: create
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
+  headers:
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
       schema:
         type: string
-        default: HEAD
-    LayerId:
-      name: layerId
-      in: path
-      description: The unique identifier of the layer.
-      required: true
-      schema:
-        type: string
-    Ids:
-      name: id
-      in: query
-      description: "A comma separated list of unique feature identifiers. These are the acceptable formats for this field:\n  * id=value1,value2\n  * id=value1,id=value2\n\n\nnot required when eraseContent=true is used."
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-    FeatureId:
-      name: featureId
-      in: path
-      description: The unique identifier of a feature in the layer.
-      required: true
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
       schema:
         type: string
   securitySchemes:

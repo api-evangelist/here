@@ -15,7 +15,7 @@ paths:
       tags:
       - Authorization Server Metadata
       summary: Get OAuth Authorization Server Metadata
-      operationId: OAuth 2.0 Access Token getAuthServerMetadata
+      operationId: OAuth2.0AccessTokenGetAuthServerMetadata
       description: Returns OAuth 2.0 Authorization Server Metadata according to https://datatracker.ietf.org/doc/html/rfc8414#section-3.1
       responses:
         '200':
@@ -24,12 +24,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthServerMetadata'
+      x-operation-id-source: normalized
+      x-operation-id-original: OAuth 2.0 Access Token getAuthServerMetadata
   /.well-known/oauth-authorization-server/mcp:
     get:
       tags:
       - Authorization Server Metadata
       summary: Get MCP OAuth Authorization Server Metadata
-      operationId: OAuth 2.0 Access Token getMcpAuthServerMetadata
+      operationId: OAuth2.0AccessTokenGetMcpAuthServerMetadata
       security: []
       description: Returns OAuth 2.0 Authorization Server Metadata according to https://datatracker.ietf.org/doc/html/rfc8414#section-3.1
       responses:
@@ -39,6 +41,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MCPAuthServerMetadata'
+      x-operation-id-source: normalized
+      x-operation-id-original: OAuth 2.0 Access Token getMcpAuthServerMetadata
 components:
   schemas:
     AuthServerMetadata:

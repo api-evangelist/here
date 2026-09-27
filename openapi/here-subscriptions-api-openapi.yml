@@ -1397,110 +1397,16 @@ paths:
       - apiKey: []
 components:
   schemas:
-    SubscriptionDeviceDetailsDto:
+    FeatureGroupByNameRequestDto:
       required:
-      - deviceId
-      - deviceStatus
-      type: object
-      properties:
-        deviceId:
-          type: string
-          description: The device identifier.
-          example: DEVICE-bb9d8e02-70dd-427f-99f6-89a8a0d503a5
-        deviceStatus:
-          type: string
-          description: Device status
-          example: ACTIVE
-          enum:
-          - ACTIVE
-          - INACTIVE
-          - DELETED
-        lastActiveAt:
-          type: string
-          description: The date and time when the device was last active.
-          format: date-time
-          example: '2025-02-03T16:44:12Z'
-    FeatureGroupByIdRequestDto:
-      required:
-      - id
+      - name
       type: object
       allOf:
       - $ref: '#/components/schemas/FeatureGroupRequestDto'
       - type: object
         properties:
-          id:
+          name:
             type: string
-            format: uuid
-    UnauthorizedErrorResponseDto:
-      required:
-      - error
-      - error_description
-      type: object
-      properties:
-        error:
-          type: string
-          description: The error type indicating the request is unauthorized.
-          example: Unauthorized
-        error_description:
-          type: string
-          description: A description providing more details about the unauthorized error.
-          example: No credentials found
-    SubscriptionDetailsDto:
-      required:
-      - expirationTime
-      - featureGroups
-      - id
-      - keyType
-      - status
-      - subscriptionKey
-      type: object
-      properties:
-        id:
-          type: string
-          description: The subscription unique ID.
-          format: uuid
-          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
-        subscriptionKey:
-          type: string
-          description: The subscription key.
-          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
-        keyType:
-          type: string
-          description: The type of a subscription.
-          example: SINGLE_DEVICE
-          enum:
-          - SINGLE_DEVICE
-          - MULTI_DEVICE
-        status:
-          type: string
-          description: The status of the subscription.
-          example: ACTIVE
-          enum:
-          - ACTIVE
-          - INACTIVE
-          - DELETED
-        featureGroups:
-          uniqueItems: true
-          type: array
-          description: Set of feature groups assigned to this subscription.
-          example:
-          - id: 550e8400-e29b-41d4-a716-446655440000
-            name: feature_group_name
-            description: Test feature group description
-            features:
-            - id: a1b2c3d4-e5f6-4321-8765-9876543210ab
-              name: feature_name
-          items:
-            $ref: '#/components/schemas/FeatureGroupDto'
-        expirationTime:
-          type: string
-          description: The expiration time of the subscription.
-          format: date-time
-          example: '2024-05-30T23:59:59Z'
-        zuoraSubscriptionId:
-          type: string
-          description: Zuora subscription ID
-          example: A-S00001563
     FeatureGroupDto:
       required:
       - createdAt
@@ -1572,34 +1478,6 @@ components:
           type: string
           description: Zuora subscription ID
           example: A-S00001563
-    SubscriptionDevicesDto:
-      required:
-      - devices
-      - subscriptionStatus
-      type: object
-      properties:
-        subscriptionStatus:
-          type: string
-          description: Subscription status.
-          example: ACTIVE
-          enum:
-          - ACTIVE
-          - INACTIVE
-          - DELETED
-        devices:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionDeviceDetailsDto'
-    DeactivateSubscriptionRequestDto:
-      type: object
-      properties:
-        status:
-          type: string
-          description: The status to set for the deactivated subscription
-          default: DELETED
-          enum:
-          - INACTIVE
-          - DELETED
     SubscriptionSummaryDto:
       required:
       - id
@@ -1623,27 +1501,55 @@ components:
           enum:
           - SINGLE_DEVICE
           - MULTI_DEVICE
+    FeatureGroupByIdRequestDto:
+      required:
+      - id
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/FeatureGroupRequestDto'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
     FeatureGroupRequestDto:
       type: object
       description: An optional list of feature groups specified by either name or ID.
       example:
       - name: New Feature Group
       - id: 123e4567-e89b-12d3-a456-426614174000
-    CreatedSubscriptionDto:
+    SubscriptionDevicesDto:
       required:
-      - id
-      - subscriptionKey
+      - devices
+      - subscriptionStatus
       type: object
       properties:
-        id:
+        subscriptionStatus:
           type: string
-          description: The unique identifier of the created subscription.
-          format: uuid
-          example: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
-        subscriptionKey:
+          description: Subscription status.
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionDeviceDetailsDto'
+    UnauthorizedErrorResponseDto:
+      required:
+      - error
+      - error_description
+      type: object
+      properties:
+        error:
           type: string
-          description: The subscription key.
-          example: c6f11a00-6f08-46c7-8636-4977fde39476
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
+          type: string
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
     DeactivateSubscriptionDevicesRequestDto:
       required:
       - devices
@@ -1656,6 +1562,72 @@ components:
     SubscriptionUpdatePublicRequestDto:
       type: object
       properties:
+        zuoraSubscriptionId:
+          type: string
+          description: Zuora subscription ID
+          example: A-S00001563
+    DeactivateSubscriptionRequestDto:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status to set for the deactivated subscription
+          default: DELETED
+          enum:
+          - INACTIVE
+          - DELETED
+    SubscriptionDetailsDto:
+      required:
+      - expirationTime
+      - featureGroups
+      - id
+      - keyType
+      - status
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The subscription unique ID.
+          format: uuid
+          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        keyType:
+          type: string
+          description: The type of a subscription.
+          example: SINGLE_DEVICE
+          enum:
+          - SINGLE_DEVICE
+          - MULTI_DEVICE
+        status:
+          type: string
+          description: The status of the subscription.
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        featureGroups:
+          uniqueItems: true
+          type: array
+          description: Set of feature groups assigned to this subscription.
+          example:
+          - id: 550e8400-e29b-41d4-a716-446655440000
+            name: feature_group_name
+            description: Test feature group description
+            features:
+            - id: a1b2c3d4-e5f6-4321-8765-9876543210ab
+              name: feature_name
+          items:
+            $ref: '#/components/schemas/FeatureGroupDto'
+        expirationTime:
+          type: string
+          description: The expiration time of the subscription.
+          format: date-time
+          example: '2024-05-30T23:59:59Z'
         zuoraSubscriptionId:
           type: string
           description: Zuora subscription ID
@@ -1696,16 +1668,44 @@ components:
           type: string
           description: Request identifier provided by the user via `x-request-id` header
           example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
-    FeatureGroupByNameRequestDto:
+    SubscriptionDeviceDetailsDto:
       required:
-      - name
+      - deviceId
+      - deviceStatus
       type: object
-      allOf:
-      - $ref: '#/components/schemas/FeatureGroupRequestDto'
-      - type: object
-        properties:
-          name:
-            type: string
+      properties:
+        deviceId:
+          type: string
+          description: The device identifier.
+          example: DEVICE-bb9d8e02-70dd-427f-99f6-89a8a0d503a5
+        deviceStatus:
+          type: string
+          description: Device status
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        lastActiveAt:
+          type: string
+          description: The date and time when the device was last active.
+          format: date-time
+          example: '2025-02-03T16:44:12Z'
+    CreatedSubscriptionDto:
+      required:
+      - id
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the created subscription.
+          format: uuid
+          example: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: c6f11a00-6f08-46c7-8636-4977fde39476
   securitySchemes:
     Bearer:
       type: http

@@ -18,7 +18,7 @@ paths:
       - Weather Radar
       summary: Weather radar image
       description: Retrieves a doppler radar image.
-      operationId: Weather API v1 weatherRadarImage
+      operationId: WeatherAPIV1WeatherRadarImage
       parameters:
       - name: zoom
         in: path
@@ -94,6 +94,8 @@ paths:
           $ref: '#/components/responses/Error504Response'
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Weather API v1 weatherRadarImage
     servers:
     - url: https://weather.cc.api.here.com
       description: Production environment URL.
@@ -103,7 +105,7 @@ paths:
       - Weather Radar
       summary: Weather radar image
       description: Retrieves a Doppler radar image
-      operationId: Weather API v3 weatherRadarImage
+      operationId: WeatherAPIV3WeatherRadarImage
       parameters:
       - $ref: '#/components/parameters/X-Request-Id'
       - name: zoom
@@ -203,78 +205,13 @@ paths:
       security:
       - Bearer: []
       - ApiKey: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Weather API v3 weatherRadarImage
     servers:
     - url: https://weather.hereapi.com/v3
       description: Production environment URL
 components:
-  examples:
-    BadRequestTileExample:
-      value:
-        Type: Invalid Request
-        Message:
-        - LayerId '3' is invalid. Only layer Ids '2,1' are allowed.
-    InternalServerErrorExample:
-      value:
-        Type: Internal Server Error
-        Message:
-        - Service is not available
-    502errorResponseExample:
-      value:
-        Type: Bad Gateway
-        Message:
-        - Failure of communication with external system.
-    504errorResponseExample:
-      value:
-        Type: Gateway timeout
-        Message:
-        - Did not receive a timely response from an upstream server
-    BadRequestTileExample_2:
-      value:
-        status: 400
-        title: Invalid Request
-        cause: imageType 'temperature' is invalid. Only imageType=radar is allowed.
-        action: Please provide valid imageType in the request.
-        code: E611206
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    InternalServerErrorExample_2:
-      value:
-        status: 500
-        title: Internal Server Error
-        cause: There was some issue processing the request.
-        action: Please retry after some time.
-        code: E611101
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    502errorResponseExample_2:
-      value:
-        title: Bad Gateway
-        status: 502
-        code: E611201
-        cause: Bad Gateway
-        action: Failure of communication with external system.
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    504errorResponseExample_2:
-      value:
-        title: Gateway timeout
-        status: 504
-        code: E611101
-        cause: Gateway Timeout
-        action: Did not receive a timely response from an upstream server
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
   responses:
-    Error403Response:
-      description: API response in case of insufficient credentials for access to the requested resource.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
     Error502Response:
       description: API response in case of bad gateway
       headers:
@@ -289,22 +226,8 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/502errorResponseExample'
-    Error401Response:
-      description: API response in case of lacking valid authorization credentials.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Unauthorized
-            error_description: No credentials found
-    Error503Response:
-      description: API response in case of service unavailable
+    Error500Response:
+      description: API response in case of internal server error
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -314,10 +237,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            Type: Service not available
-            Message:
-            - Service is not available
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
     Error429Response:
       description: API response in case of too many requests
       headers:
@@ -347,6 +269,20 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/504errorResponseExample'
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
     Error400TileResponse:
       description: Invalid parameters were provided.
       headers:
@@ -361,8 +297,22 @@ components:
           examples:
             badRequestExample:
               $ref: '#/components/examples/BadRequestTileExample'
-    Error500Response:
-      description: API response in case of internal server error
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error503Response:
+      description: API response in case of service unavailable
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -372,9 +322,10 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample'
+          example:
+            Type: Service not available
+            Message:
+            - Service is not available
     Error502Response_2:
       description: API response in case of bad gateway
       headers:
@@ -389,8 +340,8 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/502errorResponseExample_2'
-    Error503Response_2:
-      description: API response in case of service unavailable
+    Error500Response_2:
+      description: API response in case of internal server error
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -400,13 +351,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-          example:
-            status: 503
-            code: E611001
-            title: Service not available
-            cause: Service current not available
-            action: Retry later
-            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_2'
     Error504Response_2:
       description: API response in case of gateway timeout.
       headers:
@@ -435,8 +382,8 @@ components:
           examples:
             badRequestExample:
               $ref: '#/components/examples/BadRequestTileExample_2'
-    Error500Response_2:
-      description: API response in case of internal server error
+    Error503Response_2:
+      description: API response in case of service unavailable
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -446,22 +393,78 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample_2'
-  headers:
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+          example:
+            status: 503
+            code: E611001
+            title: Service not available
+            cause: Service current not available
+            action: Retry later
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+  examples:
+    502errorResponseExample:
+      value:
+        Type: Bad Gateway
+        Message:
+        - Failure of communication with external system.
+    InternalServerErrorExample:
+      value:
+        Type: Internal Server Error
+        Message:
+        - Service is not available
+    504errorResponseExample:
+      value:
+        Type: Gateway timeout
+        Message:
+        - Did not receive a timely response from an upstream server
+    BadRequestTileExample:
+      value:
+        Type: Invalid Request
+        Message:
+        - LayerId '3' is invalid. Only layer Ids '2,1' are allowed.
+    502errorResponseExample_2:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E611201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    InternalServerErrorExample_2:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E611101
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    504errorResponseExample_2:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E611101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    BadRequestTileExample_2:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: imageType 'temperature' is invalid. Only imageType=radar is allowed.
+        action: Please provide valid imageType in the request.
+        code: E611206
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
   schemas:
+    Error:
+      type: object
+      properties:
+        Type:
+          type: string
+          example: Invalid Request
+        Message:
+          type: array
+          items:
+            type: string
+            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
     AuthError:
       description: Error object reported in case of authentication or authorization errors.
       type: object
@@ -475,17 +478,6 @@ components:
       example:
         Type: Unauthorized
         Message: ApiKey invalid. ApiKey not found.
-    Error:
-      type: object
-      properties:
-        Type:
-          type: string
-          example: Invalid Request
-        Message:
-          type: array
-          items:
-            type: string
-            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
     ErrorResponse:
       type: object
       properties:
@@ -515,6 +507,18 @@ components:
       - cause
       - action
       - correlationId
+  headers:
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
   parameters:
     X-Request-Id:
       name: X-Request-Id

@@ -185,20 +185,51 @@ paths:
       - apiKey: []
 components:
   schemas:
-    UnauthorizedErrorResponseDto:
+    FeatureGroupWithFeaturesDto:
       required:
-      - error
-      - error_description
+      - featureGroup
       type: object
       properties:
-        error:
+        featureGroup:
+          $ref: '#/components/schemas/FeatureGroupFeatureDto'
+    FeatureGroupFeatureDto:
+      required:
+      - createdAt
+      - description
+      - features
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
           type: string
-          description: The error type indicating the request is unauthorized.
-          example: Unauthorized
-        error_description:
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 878bb615-3fbd-415f-85cf-e496da3596cb
+        name:
           type: string
-          description: A description providing more details about the unauthorized error.
-          example: No credentials found
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        features:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureDto'
     FeatureGroupDto:
       required:
       - createdAt
@@ -294,51 +325,20 @@ components:
           description: The date and time when the feature was last modified.
           format: date-time
           example: '2023-07-24T17:29:03Z'
-    FeatureGroupWithFeaturesDto:
+    UnauthorizedErrorResponseDto:
       required:
-      - featureGroup
+      - error
+      - error_description
       type: object
       properties:
-        featureGroup:
-          $ref: '#/components/schemas/FeatureGroupFeatureDto'
-    FeatureGroupFeatureDto:
-      required:
-      - createdAt
-      - description
-      - features
-      - id
-      - modifiedAt
-      - name
-      type: object
-      properties:
-        id:
+        error:
           type: string
-          description: The unique identifier of the feature group.
-          format: uuid
-          example: 878bb615-3fbd-415f-85cf-e496da3596cb
-        name:
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
           type: string
-          description: The name of the new feature group.
-          example: New Feature Group
-        description:
-          type: string
-          description: A brief description of the feature.
-          example: Feature Group Description
-        createdAt:
-          type: string
-          description: The date and time when the feature was created.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        modifiedAt:
-          type: string
-          description: The date and time when the feature was last modified.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        features:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/FeatureDto'
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
     ErrorResponseDto:
       required:
       - correlationId

@@ -611,188 +611,207 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  parameters:
-    includeNonMemberProjects:
-      in: query
-      name: includeNonMemberProjects
-      required: false
-      description: If true, the list of Projects is **not** filtered out based on the membership of the caller. Defaults to false.
-      schema:
-        type: boolean
-    linkableToHrn:
-      in: path
-      name: linkableToHrn
-      schema:
-        type: string
-      required: true
-      description: 'The HRN of the project that the resource is made linkable to or
-
-        the HRN of the realm that the resource is made linkable to.
-
-        This property can be used for cross-realm sharing only if cross-realm trust is established.
-
-        If there is no cross-realm trust established, the linkableToHrn value must be either a project in the same realm as the resource''s home project,
-
-        or must be the resource''s home project''s realm.
-
-        '
-      example: hrn:here:authorization::myrealm:project/Project-00000
-    Linkable:
-      in: query
-      name: linkable
-      required: false
-      description: 'Get all linkable resources available to the caller to attach as a link to project. Only supported value is true.
-
-        Note - Can be used as a synonym for referenceable
-
-        '
-      schema:
-        type: boolean
-    ReferenceableSingle:
-      in: query
-      name: referenceable
-      required: true
-      description: Get the resource only if it is available to the caller to attach as a reference to projects.  A resource is referenceable if it is marked as referenceable and the caller has permission to all reference enabled actions against the resource.  Otherwise 404.  Only supported value is true.
-      schema:
-        type: boolean
-    actionType:
-      in: query
-      name: type
-      required: true
-      description: 'The type of action for the resource type.
-
-
-        - projectEnabled : Actions that are enabled for Project access
-
-        - projectLinkingEnabled : Actions that are allowed to be linked
-
-        - projectReferenceEnabled : Actions that are allowed for Project references
-
-        - requiredToMakeLinkable : Actions that are required when an identity is making a resource linkable to a realm or other projects
-
-        - sharingEnabled : Actions that are allowed to be shared
-
-        - projectResourceCreationEnabled : Actions that are marked as resource creation actions for Projects
-
-        '
-      schema:
-        type: string
-        enum:
-        - projectEnabled
-        - projectLinkingEnabled
-        - projectReferenceEnabled
-        - requiredToMakeLinkable
-        - sharingEnabled
-        - projectResourceCreationEnabled
-    resource:
-      in: path
-      name: resource
-      schema:
-        type: string
-      required: true
-      description: 'The hrn that identifies the resource.
-
-        '
-      example: hrn:here:data::myrealm:my-catalog
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    Type:
-      in: query
-      name: type
-      required: false
-      description: The type of the resource.
-      schema:
-        $ref: '#/components/schemas/Type'
-    Access:
-      in: query
-      name: access
-      required: false
-      description: "Filter the resources accessible to the caller based on the access types.\nThe default value is 'default'. Not applicable to use along with the query parameter 'referenceable=true' or 'linkable=true'\n\n- If 'default' includes resources where:\n  - The user has access to the resource's home project OR\n  - The user has access to a project that the resource is linked to as a reference OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'write' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'manage' includes resources where:\n  - The user has access to the resource's home project OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'readOutsideProject' includes resources where:\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it.\n\nraiEnabled types = [catalog, service, schema, artifact]\n"
-      schema:
-        type: string
-        enum:
-        - default
-        - manage
-    Relation:
-      in: query
-      name: relation
-      required: false
-      description: The relation of the resource. A resource is only returned in the response if it matches the requested relation.
-      schema:
-        $ref: '#/components/schemas/Relation'
-    ResourceType:
-      in: query
-      name: type
-      required: true
-      description: The type of the resource.
-      schema:
-        $ref: '#/components/schemas/Type'
-    externalResourcesAction:
-      in: query
-      name: action
-      required: true
-      description: 'Only include resources accessible with the requested action via the registered serviceId of the resource''s
-
-        resource type.
-
-        '
-      schema:
-        type: string
-    Referenceable:
-      in: query
-      name: referenceable
-      required: false
-      description: "Get all referenceable(linkable) resources available to the caller to attach as a reference(link) to projects. Only supported value is true.\nNote - Can be used as a synonym for linkable\n\nA resource is referenceable(linkable) if it is marked as referenceable:\n  - and the caller has permission to all reference enabled actions against the resource or,\n  - in case of a project scoped token, the caller has effective membership on the projects to attach resources\n    as a reference(link) to the Project.\n"
-      schema:
-        type: boolean
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    externalResourcesResourceType:
-      in: query
-      name: type
-      required: true
-      description: 'Only include resources of the requested resource type.
-
-        '
-      schema:
-        type: string
-    includeCrossRealmProjects:
-      in: query
-      name: includeCrossRealmProjects
-      required: false
-      description: If true, the list of Projects will include projects that resource is linked too across realms, if a valid cross-realm trust is established. Defaults to false.
-      schema:
-        type: boolean
-    ResourceTypePath:
-      in: path
-      name: resourceType
-      required: true
-      description: The type of the resource.
-      schema:
-        $ref: '#/components/schemas/Type'
   schemas:
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: my-project-0000
+          description: 'The id of the Project
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+          description: 'The hrn of the Project
+
+            '
+        name:
+          type: string
+          example: My Project
+          description: 'The name of the Project
+
+            '
+        description:
+          type: string
+          example: This is my demo Project
+          description: 'The description of the Project
+
+            '
+    subresources:
+      type: array
+      maxItems: 10
+      items:
+        type: string
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
+
+        '
+    ExternalResourcePageWithTokenNoTotal:
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExternalResource'
+    ResourceSetting:
+      type: object
+      required:
+      - resourcePolicyAvailability
+      properties:
+        resourcePolicyAvailability:
+          type: object
+          required:
+          - authorizedTo
+          - allowedActions
+          properties:
+            authorizedTo:
+              type: string
+              enum:
+              - requiredToMakeLinkable
+              - realm
+              example: requiredToMakeLinkable
+              description: 'The authorization required to add the resource to a resource policy. By default a resource
+
+                is allowed to be added to a resource policy for principals who have the permission to take the
+
+                "requiredToMakeLinkable" actions against the resource service. Set to "realm" to allow the resource to
+
+                be added to a resource policy by anyone in the realm with sufficient privileges to create the resource policy.
+
+                '
+            allowedActions:
+              type: array
+              items:
+                type: string
+                example: readResource
+              description: 'The actions allowed for a resource to be added to a resource policy. By default all "projectLinkingEnabled"
+
+                actions can be added as allowed actions for a resource policy. Optionally a developer can also limit the
+
+                actions to be one of any "projectLinkingEnabled" actions defined by the service
+
+                '
+    ResourceResponseDetailed:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        type:
+          $ref: '#/components/schemas/Type'
+        home:
+          type: string
+          example: hrn:here:authorization::myrealm:project/Project-00000
+          description: 'The hrn of the home project that the resource belongs to
+
+            '
+        relation:
+          $ref: '#/components/schemas/Relation'
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        active:
+          type: boolean
+          example: true
+          description: 'Indicates whether this resource is active or not for the caller. For
+
+            resources with a relation of type ''home'', it is always active.
+
+            If a reference is not active, the caller may not access the resource via
+
+            project scope.
+
+            '
+        linkOptions:
+          $ref: '#/components/schemas/linkOptions'
+    PageWithTokenNoTotal:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ResourceListDetailedWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceResponseDetailed'
+            description: List of Resources.
+    ExternalResource:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        type:
+          $ref: '#/components/schemas/Type'
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+        expiresAt:
+          type: integer
+          format: int64
+          example: 1735689600000
+          description: 'The timestamp in milliseconds when the resource access expires
+
+            '
+    linkOption:
+      type: object
+      properties:
+        externalId:
+          $ref: '#/components/schemas/externalId'
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        subresources:
+          $ref: '#/components/schemas/subresources'
     ResourceProjectResponse:
       type: object
       allOf:
@@ -812,6 +831,42 @@ components:
           allowedActions:
             allOf:
             - $ref: '#/components/schemas/allowedActions'
+    allowedActions:
+      type: array
+      items:
+        type: string
+        example: readResource
+      description: 'The list of actions made available for referencing for the resourceType.
+
+        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
+
+        reserved resource prefix of the resource in the path.
+
+        '
+    DetailedLinkableResource:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/LinkableResource'
+      - type: object
+        properties:
+          projectId:
+            type: string
+            example: my-project-0000
+            description: 'The id of the Project
+
+              '
+          projectName:
+            type: string
+            example: My Project
+            description: 'The name of the Project
+
+              '
+          projectDescription:
+            type: string
+            example: This is my demo Project
+            description: 'The description of the Project
+
+              '
     ResourceProjectListWithPageToken:
       type: object
       allOf:
@@ -823,10 +878,45 @@ components:
             items:
               $ref: '#/components/schemas/ResourceProjectResponse'
             description: List of Projects associated with a given resource.
+    LinkableResourceList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/DetailedLinkableResource'
+            description: List of ways the resource has been made linkable
     Type:
       type: string
       example: catalog
       description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
+    externalId:
+      type: string
+      maxLength: 80
+      example: A-S0001234
+      description: 'ID provided by an external system. For every resource in a target realm this must be unique.
+
+        Typically, this holds the subscription ID used to license the resource. You can have the same
+
+        resource with different external IDs in a target realm. The empty value is valid, and is the
+
+        implicit value used for resource made explicitly linkable.
+
+        '
+    ServiceActionsList:
+      type: object
+      properties:
+        allowedActions:
+          type: array
+          items:
+            type: string
+          example:
+          - readResource
+          - writeResource
+          description: List of allowed actions
     linkOptions:
       type: array
       maxItems: 50
@@ -848,53 +938,6 @@ components:
         - deu
       items:
         $ref: '#/components/schemas/linkOption'
-    ExternalResourcePageWithTokenNoTotal:
-      allOf:
-      - $ref: '#/components/schemas/PageWithTokenNoTotal'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ExternalResource'
-    allowedActions:
-      type: array
-      items:
-        type: string
-        example: readResource
-      description: 'The list of actions made available for referencing for the resourceType.
-
-        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
-
-        reserved resource prefix of the resource in the path.
-
-        '
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
     ErrorResponse:
       type: object
       required:
@@ -938,43 +981,41 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
-    LinkableResourceList:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/DetailedLinkableResource'
-            description: List of ways the resource has been made linkable
-    ExternalResource:
+    Relation:
+      type: string
+      enum:
+      - home
+      - reference
+      example: home
+      description: 'The relation of the resource with the Project.
+
+        '
+    ErrorDetail:
       type: object
       properties:
-        hrn:
+        title:
           type: string
-          example: hrn:here:data::myrealm:my-catalog
-          description: 'The hrn of the resource
-
-            '
-        type:
-          $ref: '#/components/schemas/Type'
-        subresources:
-          type: array
-          items:
-            type: string
-            maxLength: 24
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
           example:
-          - usa-il-chicago
-          - deu
-        expiresAt:
-          type: integer
-          format: int64
-          example: 1735689600000
-          description: 'The timestamp in milliseconds when the resource access expires
-
-            '
+            field: size
+            min: 3
+            max: 64
     LinkableResource:
       type: object
       required:
@@ -1001,228 +1042,187 @@ components:
             '
         allowedActions:
           $ref: '#/components/schemas/allowedActions'
-    ResourceSetting:
-      type: object
-      required:
-      - resourcePolicyAvailability
-      properties:
-        resourcePolicyAvailability:
-          type: object
-          required:
-          - authorizedTo
-          - allowedActions
-          properties:
-            authorizedTo:
-              type: string
-              enum:
-              - requiredToMakeLinkable
-              - realm
-              example: requiredToMakeLinkable
-              description: 'The authorization required to add the resource to a resource policy. By default a resource
-
-                is allowed to be added to a resource policy for principals who have the permission to take the
-
-                "requiredToMakeLinkable" actions against the resource service. Set to "realm" to allow the resource to
-
-                be added to a resource policy by anyone in the realm with sufficient privileges to create the resource policy.
-
-                '
-            allowedActions:
-              type: array
-              items:
-                type: string
-                example: readResource
-              description: 'The actions allowed for a resource to be added to a resource policy. By default all "projectLinkingEnabled"
-
-                actions can be added as allowed actions for a resource policy. Optionally a developer can also limit the
-
-                actions to be one of any "projectLinkingEnabled" actions defined by the service
-
-                '
-    Relation:
-      type: string
-      enum:
-      - home
-      - reference
-      example: home
-      description: 'The relation of the resource with the Project.
-
-        '
-    ServiceActionsList:
-      type: object
-      properties:
-        allowedActions:
-          type: array
-          items:
-            type: string
-          example:
-          - readResource
-          - writeResource
-          description: List of allowed actions
-    subresources:
-      type: array
-      maxItems: 10
-      items:
+  parameters:
+    includeNonMemberProjects:
+      in: query
+      name: includeNonMemberProjects
+      required: false
+      description: If true, the list of Projects is **not** filtered out based on the membership of the caller. Defaults to false.
+      schema:
+        type: boolean
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
         type: string
-        maxLength: 24
-      example:
-      - usa-il-chicago
-      - deu
-      description: 'The list of associated subresource identifiers.
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    actionType:
+      in: query
+      name: type
+      required: true
+      description: 'The type of action for the resource type.
+
+
+        - projectEnabled : Actions that are enabled for Project access
+
+        - projectLinkingEnabled : Actions that are allowed to be linked
+
+        - projectReferenceEnabled : Actions that are allowed for Project references
+
+        - requiredToMakeLinkable : Actions that are required when an identity is making a resource linkable to a realm or other projects
+
+        - sharingEnabled : Actions that are allowed to be shared
+
+        - projectResourceCreationEnabled : Actions that are marked as resource creation actions for Projects
 
         '
-    PageWithTokenNoTotal:
-      type: object
-      required:
-      - limit
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-    ResourceListDetailedWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithTokenNoTotal'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourceResponseDetailed'
-            description: List of Resources.
-    linkOption:
-      type: object
-      properties:
-        externalId:
-          $ref: '#/components/schemas/externalId'
-        allowedActions:
-          $ref: '#/components/schemas/allowedActions'
-        subresources:
-          $ref: '#/components/schemas/subresources'
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
-    ResourceResponseDetailed:
-      type: object
-      properties:
-        hrn:
-          type: string
-          example: hrn:here:data::myrealm:my-catalog
-          description: 'The hrn of the resource
-
-            '
-        type:
-          $ref: '#/components/schemas/Type'
-        home:
-          type: string
-          example: hrn:here:authorization::myrealm:project/Project-00000
-          description: 'The hrn of the home project that the resource belongs to
-
-            '
-        relation:
-          $ref: '#/components/schemas/Relation'
-        allowedActions:
-          $ref: '#/components/schemas/allowedActions'
-        active:
-          type: boolean
-          example: true
-          description: 'Indicates whether this resource is active or not for the caller. For
-
-            resources with a relation of type ''home'', it is always active.
-
-            If a reference is not active, the caller may not access the resource via
-
-            project scope.
-
-            '
-        linkOptions:
-          $ref: '#/components/schemas/linkOptions'
-    DetailedLinkableResource:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/LinkableResource'
-      - type: object
-        properties:
-          projectId:
-            type: string
-            example: my-project-0000
-            description: 'The id of the Project
-
-              '
-          projectName:
-            type: string
-            example: My Project
-            description: 'The name of the Project
-
-              '
-          projectDescription:
-            type: string
-            example: This is my demo Project
-            description: 'The description of the Project
-
-              '
-    externalId:
-      type: string
-      maxLength: 80
-      example: A-S0001234
-      description: 'ID provided by an external system. For every resource in a target realm this must be unique.
-
-        Typically, this holds the subscription ID used to license the resource. You can have the same
-
-        resource with different external IDs in a target realm. The empty value is valid, and is the
-
-        implicit value used for resource made explicitly linkable.
+      schema:
+        type: string
+        enum:
+        - projectEnabled
+        - projectLinkingEnabled
+        - projectReferenceEnabled
+        - requiredToMakeLinkable
+        - sharingEnabled
+        - projectResourceCreationEnabled
+    externalResourcesResourceType:
+      in: query
+      name: type
+      required: true
+      description: 'Only include resources of the requested resource type.
 
         '
-    ProjectResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: my-project-0000
-          description: 'The id of the Project
+      schema:
+        type: string
+    Referenceable:
+      in: query
+      name: referenceable
+      required: false
+      description: "Get all referenceable(linkable) resources available to the caller to attach as a reference(link) to projects. Only supported value is true.\nNote - Can be used as a synonym for linkable\n\nA resource is referenceable(linkable) if it is marked as referenceable:\n  - and the caller has permission to all reference enabled actions against the resource or,\n  - in case of a project scoped token, the caller has effective membership on the projects to attach resources\n    as a reference(link) to the Project.\n"
+      schema:
+        type: boolean
+    Linkable:
+      in: query
+      name: linkable
+      required: false
+      description: 'Get all linkable resources available to the caller to attach as a link to project. Only supported value is true.
 
-            '
-        hrn:
-          type: string
-          example: hrn:here:authorization::myrealm:project/my-project-0000
-          description: 'The hrn of the Project
+        Note - Can be used as a synonym for referenceable
 
-            '
-        name:
-          type: string
-          example: My Project
-          description: 'The name of the Project
+        '
+      schema:
+        type: boolean
+    externalResourcesAction:
+      in: query
+      name: action
+      required: true
+      description: 'Only include resources accessible with the requested action via the registered serviceId of the resource''s
 
-            '
-        description:
-          type: string
-          example: This is my demo Project
-          description: 'The description of the Project
+        resource type.
 
-            '
+        '
+      schema:
+        type: string
+    Type:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    resource:
+      in: path
+      name: resource
+      schema:
+        type: string
+      required: true
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    includeCrossRealmProjects:
+      in: query
+      name: includeCrossRealmProjects
+      required: false
+      description: If true, the list of Projects will include projects that resource is linked too across realms, if a valid cross-realm trust is established. Defaults to false.
+      schema:
+        type: boolean
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    ResourceTypePath:
+      in: path
+      name: resourceType
+      required: true
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    Relation:
+      in: query
+      name: relation
+      required: false
+      description: The relation of the resource. A resource is only returned in the response if it matches the requested relation.
+      schema:
+        $ref: '#/components/schemas/Relation'
+    linkableToHrn:
+      in: path
+      name: linkableToHrn
+      schema:
+        type: string
+      required: true
+      description: 'The HRN of the project that the resource is made linkable to or
+
+        the HRN of the realm that the resource is made linkable to.
+
+        This property can be used for cross-realm sharing only if cross-realm trust is established.
+
+        If there is no cross-realm trust established, the linkableToHrn value must be either a project in the same realm as the resource''s home project,
+
+        or must be the resource''s home project''s realm.
+
+        '
+      example: hrn:here:authorization::myrealm:project/Project-00000
+    ReferenceableSingle:
+      in: query
+      name: referenceable
+      required: true
+      description: Get the resource only if it is available to the caller to attach as a reference to projects.  A resource is referenceable if it is marked as referenceable and the caller has permission to all reference enabled actions against the resource.  Otherwise 404.  Only supported value is true.
+      schema:
+        type: boolean
+    ResourceType:
+      in: query
+      name: type
+      required: true
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    Access:
+      in: query
+      name: access
+      required: false
+      description: "Filter the resources accessible to the caller based on the access types.\nThe default value is 'default'. Not applicable to use along with the query parameter 'referenceable=true' or 'linkable=true'\n\n- If 'default' includes resources where:\n  - The user has access to the resource's home project OR\n  - The user has access to a project that the resource is linked to as a reference OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'write' access to it OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'manage' includes resources where:\n  - The user has access to the resource's home project OR\n  - The type is raiEnabled and the resource is not in any project and the user has 'manage' access to it.\n- If 'readOutsideProject' includes resources where:\n  - The type is raiEnabled and the resource is not in any project and the user has 'read' access to it.\n\nraiEnabled types = [catalog, service, schema, artifact]\n"
+      schema:
+        type: string
+        enum:
+        - default
+        - manage
   headers:
     XCorrelationId:
       schema:

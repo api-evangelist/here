@@ -22,7 +22,7 @@ paths:
       - Index
       summary: Gets the partitions that match the query
       description: Queries the index layer for the partitions that match the query. Returns each partition that matches the query, including each partition's data handle, which you use with the `blob` API to retrieve data for each partition.
-      operationId: Index API v1 performQuery
+      operationId: IndexAPIV1PerformQuery
       parameters:
       - name: layerID
         in: path
@@ -62,12 +62,14 @@ paths:
           description: Not Found - The criteria set in the query is not valid.
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 performQuery
     put:
       tags:
       - Index
       summary: Updates index layer partitions
       description: Modifies partitions in an index layer.
-      operationId: Index API v1 performUpdate
+      operationId: IndexAPIV1PerformUpdate
       parameters:
       - name: layerID
         in: path
@@ -96,12 +98,14 @@ paths:
           description: Conflict - An index with the given ID already exists
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 performUpdate
     post:
       tags:
       - Index
       summary: Inserts index data to an index layer
       description: Adds index data for a given data blob to an index layer. For more information, see Publish to an Index Layer.
-      operationId: Index API v1 insertIndexes
+      operationId: IndexAPIV1InsertIndexes
       parameters:
       - name: layerID
         in: path
@@ -134,12 +138,14 @@ paths:
           description: Conflict - An index with the given ID already exists.
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 insertIndexes
     delete:
       tags:
       - Index
       summary: Deletes the partitions that match the query
       description: Deletes the partitions that match the query in the index layer. Returns the delete request ID, which you can use to query the status of the delete operation.
-      operationId: Index API v1 performDelete
+      operationId: IndexAPIV1PerformDelete
       parameters:
       - name: layerID
         in: path
@@ -172,6 +178,8 @@ paths:
           description: Not Found - The criteria set in the query is not valid.
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 performDelete
   /layers/{layerID}/deleteRequest/{deleteId}:
     parameters:
     - $ref: '#/components/parameters/billingTag'
@@ -180,7 +188,7 @@ paths:
       - Index
       summary: Returns the status of the delete request
       description: 'Returns the details of the specified delete request. Delete request can be in one of the following states: Scheduled, Processing, Failed, Succeeded. See Data API Developer’s Guide in the Documentation section for the delete request state diagram.'
-      operationId: Index API v1 getDeleteRequestStatus
+      operationId: IndexAPIV1GetDeleteRequestStatus
       parameters:
       - name: layerID
         in: path
@@ -213,6 +221,8 @@ paths:
           description: Not Found - The criteria set in the request are not valid.
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 getDeleteRequestStatus
   /layers/{layerID}/parts:
     parameters:
     - $ref: '#/components/parameters/billingTag'
@@ -221,7 +231,7 @@ paths:
       - Index
       summary: Get partIds for parallel queries
       description: Returns a list of Part Ids which represent the layer parts that can be used to limit the scope of a query operation. This allows to run parallel queries with multiple parts. The user has to provide the desired number of parts and the service will return a list of Part Ids. Please note in some cases the requested number of parts will make them too small and in this case the service might return lesser amount of the parts than requested.
-      operationId: Index API v1 getParts
+      operationId: IndexAPIV1GetParts
       parameters:
       - name: layerID
         in: path
@@ -255,8 +265,51 @@ paths:
           description: Not Found - A layer with the given name does not exist.
       x-olp-access-type: resource
       deprecated: false
+      x-operation-id-source: normalized
+      x-operation-id-original: Index API v1 getParts
 components:
+  parameters:
+    billingTag:
+      in: query
+      name: billingTag
+      description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+      schema:
+        type: string
   schemas:
+    DataResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          example:
+          - id: 7a320ce9-e4d0-4d74-9c7a-19810f99a3a1
+            size: 100
+            checksum: checksum
+            metadata: '{"ingestionTime": "1532018660873"}'
+            timestamp: 1543351987660
+            crc: crc
+            hour: 0
+            tile: 377782527
+            containsProbe: true
+            eventType: vss
+          items:
+            $ref: '#/components/schemas/MapStringObject'
+      title: DataResponse
+    MapStringObject:
+      type: object
+      title: MapStringObject
+      additionalProperties:
+        type: object
+    PartsResponse:
+      type: object
+      properties:
+        parts:
+          type: array
+          example:
+          - partId: 7a320ce9e4d04d749c7a19810f99a3a1
+          items:
+            $ref: '#/components/schemas/PartId'
+      title: PartsResponse
     DeleteRequestStatus:
       type: object
       properties:
@@ -295,55 +348,26 @@ components:
           readOnly: true
           example: 0
       title: DeleteRequestStatus
-    DataResponse:
+    UpdateIndexRequest:
       type: object
       properties:
-        data:
+        additions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Index'
+        deleteBlob:
+          type: boolean
+          default: false
+          description: Indicates if the blobs listed in the removals section shall be deleted. Please note the blobs deletion is not instant but deferred in time.
+        removals:
           type: array
           example:
-          - id: 7a320ce9-e4d0-4d74-9c7a-19810f99a3a1
-            size: 100
-            checksum: checksum
-            metadata: '{"ingestionTime": "1532018660873"}'
-            timestamp: 1543351987660
-            crc: crc
-            hour: 0
-            tile: 377782527
-            containsProbe: true
-            eventType: vss
+          - e07191de-8ab8-49f5-a11d-8240e1b93ab7
+          - 99e0bde0-935c-4382-b940-fe0d2cf2ec23
           items:
-            $ref: '#/components/schemas/MapStringObject'
-      title: DataResponse
-    MapStringObject:
-      type: object
-      title: MapStringObject
-      additionalProperties:
-        type: object
-    DeleteResponse:
-      type: object
-      properties:
-        deleteId:
-          type: string
-          format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-          example: e07191de-8ab8-49f5-a11d-8240e1b93ab7
-      title: DeleteResponse
-    PartId:
-      type: object
-      properties:
-        partId:
-          type: string
-          example: e07191de8ab849f5a11d8240e1b93ab7
-      title: PartId
-    PartsResponse:
-      type: object
-      properties:
-        parts:
-          type: array
-          example:
-          - partId: 7a320ce9e4d04d749c7a19810f99a3a1
-          items:
-            $ref: '#/components/schemas/PartId'
-      title: PartsResponse
+            type: string
+            format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+      title: UpdateIndexRequest
     Index:
       type: object
       properties:
@@ -385,33 +409,21 @@ components:
           example: 100
           description: The size of the data being indexed by this index record.
       title: Index
-    UpdateIndexRequest:
+    PartId:
       type: object
       properties:
-        additions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Index'
-        deleteBlob:
-          type: boolean
-          default: false
-          description: Indicates if the blobs listed in the removals section shall be deleted. Please note the blobs deletion is not instant but deferred in time.
-        removals:
-          type: array
-          example:
-          - e07191de-8ab8-49f5-a11d-8240e1b93ab7
-          - 99e0bde0-935c-4382-b940-fe0d2cf2ec23
-          items:
-            type: string
-            format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-      title: UpdateIndexRequest
-  parameters:
-    billingTag:
-      in: query
-      name: billingTag
-      description: Billing Tag is an optional free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
-      schema:
-        type: string
+        partId:
+          type: string
+          example: e07191de8ab849f5a11d8240e1b93ab7
+      title: PartId
+    DeleteResponse:
+      type: object
+      properties:
+        deleteId:
+          type: string
+          format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+          example: e07191de-8ab8-49f5-a11d-8240e1b93ab7
+      title: DeleteResponse
   securitySchemes:
     Bearer:
       type: http

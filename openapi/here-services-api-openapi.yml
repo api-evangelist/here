@@ -118,129 +118,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
   schemas:
-    ResourceTypeInfo:
-      type: object
-      properties:
-        resourceType:
-          type: string
-          example: footype
-          description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
-        serviceIdAlias:
-          type: string
-          example: foo
-          description: The alias for the service id
-        serviceId:
-          type: string
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-          description: The service descriptor id
-    ServiceInformation:
-      type: object
-      properties:
-        serviceId:
-          type: string
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-          description: The service descriptor id
-        serviceIdAlias:
-          type: string
-          example: foo
-          description: The alias for the service id
-        allowedActions:
-          type: array
-          description: List of allowed actions
-          items:
-            type: object
-            properties:
-              action:
-                type: string
-                example: readResource
-                description: The action string
-              resourceRequired:
-                type: boolean
-                description: Defines if the action requires use with a resource
-                example: false
-        resourceTypes:
-          type: array
-          description: List of resource types
-          items:
-            type: string
-            example: footype
-            description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
-    ResourceTypesWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourceTypeInfo'
-            description: List of resource types.
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
-    ServiceInformationWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ServiceInformation'
-            description: Service information list.
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
     ErrorResponse:
       type: object
       required:
@@ -284,6 +162,120 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
+    ServiceInformation:
+      type: object
+      properties:
+        serviceId:
+          type: string
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+          description: The service descriptor id
+        serviceIdAlias:
+          type: string
+          example: foo
+          description: The alias for the service id
+        allowedActions:
+          type: array
+          description: List of allowed actions
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                example: readResource
+                description: The action string
+              resourceRequired:
+                type: boolean
+                description: Defines if the action requires use with a resource
+                example: false
+        resourceTypes:
+          type: array
+          description: List of resource types
+          items:
+            type: string
+            example: footype
+            description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ResourceTypesWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceTypeInfo'
+            description: List of resource types.
+    ServiceInformationWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ServiceInformation'
+            description: Service information list.
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    ResourceTypeInfo:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          example: footype
+          description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
+        serviceIdAlias:
+          type: string
+          example: foo
+          description: The alias for the service id
+        serviceId:
+          type: string
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+          description: The service descriptor id
   parameters:
     pageToken:
       name: pageToken
@@ -292,16 +284,13 @@ components:
       schema:
         type: string
       example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    limit:
+    serviceIdAlias:
       in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      name: serviceIdAlias
+      required: true
+      description: The alias for the service id. eg. data, pipeline
       schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
+        type: string
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -319,13 +308,24 @@ components:
       schema:
         type: string
       example: SERVICE-00000000-0000-0000-0000-000000000000
-    serviceIdAlias:
+    limit:
       in: query
-      name: serviceIdAlias
-      required: true
-      description: The alias for the service id. eg. data, pipeline
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+  headers:
+    XCorrelationId:
       schema:
         type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
   responses:
     Forbidden:
       description: You do not have permission to perform this action

@@ -245,69 +245,6 @@ paths:
                 $ref: '#/components/schemas/ErrorMessage'
 components:
   schemas:
-    AuditLogEntry:
-      type: object
-      properties:
-        created:
-          type: string
-          format: date-time
-        ruleId:
-          type: string
-          description: Identifier of EgressRule that was affected by action.
-          example: 286aad61-50f2-4745-a336-a087aaa0e746
-        ruleDestination:
-          type: string
-          description: Destination of EgressRule that was affected by action.
-          example: '*.weather.gov'
-        action:
-          type: string
-          description: Action applied to EgressRule.
-          example: created
-          enum:
-          - created
-          - deleted
-        principal:
-          type: string
-          description: HERE identifier for user/client that issued this action.
-          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
-        realm:
-          type: string
-          description: 'System generated: Realm under which EgressRule exists.'
-          example: olp-here
-      description: Record representing change made to an EgressRule.
-    EgressRule:
-      type: object
-      properties:
-        created:
-          type: string
-          description: 'System generated: Time when this EgressRule was created. This is in ISO-8601 calendar system.'
-          format: date-time
-          example: '2007-12-03T09:15:30Z'
-        id:
-          type: string
-          description: 'System generated: Unique id of this Egress Rule'
-          example: 286aad61-50f2-4745-a336-a087aaa0e746
-        description:
-          type: string
-          description: Optional Egress Rule description
-          example: Allow access to National Weather Services APIs
-        destination:
-          type: string
-          description: IP address or DNS name for this egress Rule. Wildcards are allowed in DNS names only in leftmost part and not right before a public suffix. For example, *.example.com is allowed, but *.*.com or *.com or *.co.uk are not. DNS name cannot be a public suffix.
-          example: '*.weather.gov'
-        destinationType:
-          type: string
-          description: Defines destination type for this EgressRule.
-          example: host
-          readOnly: true
-          enum:
-          - ipAddress
-          - host
-        realm:
-          type: string
-          description: 'System generated: The realm under which the rule will be applied.'
-          example: olp-here
-      description: Represents a rule that allows access from a pipeline namespace to host or IP address.
     ValidationErrorMessage:
       description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
       properties:
@@ -361,6 +298,36 @@ components:
           type: object
       readOnly: true
       type: object
+    AuditLogEntry:
+      type: object
+      properties:
+        created:
+          type: string
+          format: date-time
+        ruleId:
+          type: string
+          description: Identifier of EgressRule that was affected by action.
+          example: 286aad61-50f2-4745-a336-a087aaa0e746
+        ruleDestination:
+          type: string
+          description: Destination of EgressRule that was affected by action.
+          example: '*.weather.gov'
+        action:
+          type: string
+          description: Action applied to EgressRule.
+          example: created
+          enum:
+          - created
+          - deleted
+        principal:
+          type: string
+          description: HERE identifier for user/client that issued this action.
+          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
+        realm:
+          type: string
+          description: 'System generated: Realm under which EgressRule exists.'
+          example: olp-here
+      description: Record representing change made to an EgressRule.
     ErrorMessage:
       type: object
       properties:
@@ -400,6 +367,39 @@ components:
           items:
             $ref: '#/components/schemas/ValidationErrorMessage'
       description: HTTP Error message thrown by the service
+    EgressRule:
+      type: object
+      properties:
+        created:
+          type: string
+          description: 'System generated: Time when this EgressRule was created. This is in ISO-8601 calendar system.'
+          format: date-time
+          example: '2007-12-03T09:15:30Z'
+        id:
+          type: string
+          description: 'System generated: Unique id of this Egress Rule'
+          example: 286aad61-50f2-4745-a336-a087aaa0e746
+        description:
+          type: string
+          description: Optional Egress Rule description
+          example: Allow access to National Weather Services APIs
+        destination:
+          type: string
+          description: IP address or DNS name for this egress Rule. Wildcards are allowed in DNS names only in leftmost part and not right before a public suffix. For example, *.example.com is allowed, but *.*.com or *.com or *.co.uk are not. DNS name cannot be a public suffix.
+          example: '*.weather.gov'
+        destinationType:
+          type: string
+          description: Defines destination type for this EgressRule.
+          example: host
+          readOnly: true
+          enum:
+          - ipAddress
+          - host
+        realm:
+          type: string
+          description: 'System generated: The realm under which the rule will be applied.'
+          example: olp-here
+      description: Represents a rule that allows access from a pipeline namespace to host or IP address.
   securitySchemes:
     Bearer:
       type: http

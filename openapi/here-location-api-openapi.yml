@@ -27,7 +27,7 @@ paths:
     post:
       description: Request WGS-84 compliant geographical coordinates for a location based on 2G/3G/4G cell and/or WLAN measurements.
       summary: Location query
-      operationId: HERE Network Positioning API v2 postLocate
+      operationId: HERENetworkPositioningAPIV2PostLocate
       tags:
       - Location
       parameters:
@@ -136,205 +136,12 @@ paths:
           $ref: '#/components/responses/Error503'
         default:
           $ref: '#/components/responses/ErrorDefault'
+      x-operation-id-source: normalized
+      x-operation-id-original: HERE Network Positioning API v2 postLocate
 components:
   schemas:
-    GsmLocalId:
-      type: object
-      description: Local identification parameters of GSM serving cell
-      required:
-      - bsic
-      - bcch
-      properties:
-        bsic:
-          $ref: '#/components/schemas/Bsic'
-        bcch:
-          $ref: '#/components/schemas/Bcch'
-      example:
-        bsic: 5
-        bcch: 80
-      additionalProperties: false
-    Nr:
-      description: NR (5G) standalone (NR SA) cell measurement
-      type: object
-      required:
-      - mcc
-      - mnc
-      - cid
-      properties:
-        mcc:
-          $ref: '#/components/schemas/MccString'
-        mnc:
-          $ref: '#/components/schemas/MncString'
-        cid:
-          $ref: '#/components/schemas/Nci'
-        localId:
-          $ref: '#/components/schemas/NrLocalId'
-        tac:
-          $ref: '#/components/schemas/NrTac'
-        ss:
-          $ref: '#/components/schemas/NrSyncSignal'
-        nmr:
-          $ref: '#/components/schemas/NrNmrArray'
-      additionalProperties: false
-      example:
-        mcc: '262'
-        mnc: '02'
-        cid: 2898945
-        localId:
-          nrarfcn: 126300
-          pci: 1001
-        nmr:
-        - nrarfcn: 126300
-          pci: 937
-        - nrarfcn: 126300
-          pci: 1001
-    Nci:
-      description: NR Cell Identifier (NCI). See 3GPP TS 38.331 (V18.2.0), Section 6.3.2 for details.
-      type: integer
-      minimum: 0
-      maximum: 68719476735
-      example: 14674662
-    Bsid:
-      description: Base Station ID (CDMA BSID, BID)
-      type: integer
-      minimum: 0
-      maximum: 65535
-      example: 8584
-    Rss:
-      description: Received signal level (dBm) at the terminal
-      type: integer
-      minimum: -128
-      maximum: 0
-      example: -76
-    Rsrp:
-      description: 'Reference Signal Received Power (RSRP) in dBm. Values less than -156dBm should be clamped to -156. Values greater than -44dBm should be clamped to -44. For reference see 3GPP TS 36.133.
-
-        '
-      type: integer
-      minimum: -156
-      maximum: -44
-      example: -95
-    Bsic:
-      description: Base Station Identity Code (BSIC, for instance, color code)
-      type: integer
-      minimum: 0
-      maximum: 63
-      example: 6
-    Tdscdma:
-      description: TD-SCDMA measurement.
-      type: object
-      required:
-      - mcc
-      - mnc
-      - cid
-      properties:
-        mcc:
-          $ref: '#/components/schemas/Mcc'
-        mnc:
-          $ref: '#/components/schemas/Mnc'
-        cid:
-          $ref: '#/components/schemas/TdscdmaCid'
-        lac:
-          $ref: '#/components/schemas/Lac'
-        localId:
-          $ref: '#/components/schemas/TdscdmaLocalId'
-        ta:
-          $ref: '#/components/schemas/TdscdmaTimingAdvance'
-        rscp:
-          $ref: '#/components/schemas/Rscp'
-        pathloss:
-          $ref: '#/components/schemas/Pathloss'
-        nmr:
-          $ref: '#/components/schemas/TdscdmaNmrArray'
-      additionalProperties: false
-      example:
-        mcc: 460
-        mnc: 0
-        cid: 18563770
-        localId:
-          uarfcn: 10101
-          cellParams: 56
-        nmr:
-        - uarfcn: 10100
-          cellParams: 86
-        - uarfcn: 10121
-          cellParams: 14
-    GsmNmr:
-      description: 'GSM network measurements.
-
-        '
-      type: object
-      required:
-      - bsic
-      - bcch
-      properties:
-        bsic:
-          $ref: '#/components/schemas/Bsic'
-        bcch:
-          $ref: '#/components/schemas/Bcch'
-        rxLevel:
-          $ref: '#/components/schemas/RxLevel'
-        globalIdentity:
-          $ref: '#/components/schemas/GsmNmrGlobalId'
-      additionalProperties: false
-      example:
-        bsic: 6
-        bcch: 82
-    NrRsrp:
-      description: 'NR Reference Signal Received Power (SS-RSRP or CSI-RSRP) in dBm. For reference see 3GPP TS 38.215 and 3GPP TS 38.133, version 16.8.0, section 10.1.6. Value range is [-156, -31]. Values less than -156dBm should be clamped to -156. Values greater than -31dBm should be clamped to -31.
-
-        '
-      type: integer
-      minimum: -156
-      maximum: -31
-      example: -100
-    BaseLat:
-      description: Base station latitude
-      type: number
-      minimum: -90
-      maximum: 90
-      example: 40.689249
-    Cdma:
-      description: CDMA measurement
-      type: object
-      required:
-      - sid
-      - nid
-      - bsid
-      properties:
-        sid:
-          $ref: '#/components/schemas/Sid'
-        nid:
-          $ref: '#/components/schemas/Nid'
-        bsid:
-          $ref: '#/components/schemas/Bsid'
-        rz:
-          $ref: '#/components/schemas/RegistrationZone'
-        localId:
-          $ref: '#/components/schemas/CdmaLocalId'
-        pilotPower:
-          $ref: '#/components/schemas/PilotPower'
-        baseLat:
-          $ref: '#/components/schemas/BaseLat'
-        baseLng:
-          $ref: '#/components/schemas/BaseLng'
-        nmr:
-          $ref: '#/components/schemas/CdmaNmrArray'
-      additionalProperties: false
-      example:
-        sid: 4162
-        nid: 10
-        bsid: 8583
-        localId:
-          channel: 0
-          pnOffset: 247
-        nmr:
-        - channel: 0
-          pnOffset: 357
-        - channel: 0
-          pnOffset: 366
-    NbIotNmr:
-      description: NB-IoT network measurement
+    LteNmr:
+      description: LTE network measurement
       type: object
       required:
       - pci
@@ -346,114 +153,126 @@ components:
           $ref: '#/components/schemas/Earfcn'
         cid:
           $ref: '#/components/schemas/EutranCid'
-        nrsrp:
-          $ref: '#/components/schemas/Nrsrp'
-        nrsrq:
-          $ref: '#/components/schemas/Nrsrq'
+        rsrp:
+          $ref: '#/components/schemas/Rsrp'
+        rsrq:
+          $ref: '#/components/schemas/Rsrq'
       additionalProperties: false
       example:
         earfcn: 6300
         pci: 237
-        nrsrp: -95
-        nrsrq: -12
-    Longitude:
-      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
-      type: number
-      minimum: -180
-      maximum: 180
-      example: 23.72265816
-    Wcdma:
-      description: WCDMA measurement
-      type: object
-      required:
-      - mcc
-      - mnc
-      - cid
-      properties:
-        mcc:
-          $ref: '#/components/schemas/Mcc'
-        mnc:
-          $ref: '#/components/schemas/Mnc'
-        cid:
-          $ref: '#/components/schemas/WcdmaCid'
-        lac:
-          $ref: '#/components/schemas/Lac'
-        localId:
-          $ref: '#/components/schemas/WcdmaLocalId'
-        rscp:
-          $ref: '#/components/schemas/Rscp'
-        pathloss:
-          $ref: '#/components/schemas/Pathloss'
-        nmr:
-          $ref: '#/components/schemas/WcdmaNmrArray'
-      additionalProperties: false
-      example:
-        mcc: 262
-        mnc: 7
-        cid: 14674663
-        localId:
-          uarfcndl: 10780
-          psc: 140
-        nmr:
-        - uarfcndl: 10786
-          psc: 149
-        - uarfcndl: 10762
-          psc: 211
-    NrTac:
-      description: NR Tracking Area Code (NR TAC)
+        rsrp: -95
+        rsrq: -12
+    Nci:
+      description: NR Cell Identifier (NCI). See 3GPP TS 38.331 (V18.2.0), Section 6.3.2 for details.
       type: integer
       minimum: 0
-      maximum: 16777215
-      example: 1
-    Rsrq:
-      description: 'Reference Signal Received Quality (RSRQ) in dB. Values less than -34dB should be clamped to -34. Values greater than +3dB should be clamped to +3. For reference see 3GPP TS 36.133. Note that TS 36.133 defines the upper limit as +2.5dB, however some devices represent this parameter using integer type, hence the wider range.
+      maximum: 68719476735
+      example: 14674662
+    NrLocalId:
+      type: object
+      required:
+      - pci
+      - nrarfcn
+      description: Local identification parameters of NR serving cell
+      properties:
+        pci:
+          $ref: '#/components/schemas/NrPci'
+        nrarfcn:
+          $ref: '#/components/schemas/NrArfcn'
+      additionalProperties: false
+      example:
+        nrarfcn: 126300
+        pci: 1001
+    NrNmr:
+      description: NR network measurement
+      type: object
+      required:
+      - pci
+      - nrarfcn
+      properties:
+        pci:
+          $ref: '#/components/schemas/NrPci'
+        nrarfcn:
+          $ref: '#/components/schemas/NrArfcn'
+        cid:
+          $ref: '#/components/schemas/Nci'
+        ss:
+          $ref: '#/components/schemas/NrSyncSignal'
+      additionalProperties: false
+      example:
+        nrarfcn: 1236300
+        pci: 1001
+    TdscdmaTimingAdvance:
+      description: 'Timing advance (TA). Round-Trip distance presented in the units of `4 * c / 7.68e6`, which corresponds to ~ 156 meters. That is, the scaling factor is 4 times the chip length at chip rate of 7.68 Mchips/s. Note that at chip rates 1.28 Mchips/s and 3.84 Mchips/s you need to scale according to chip length of 7.68 Mchips/s, that is, multiply by 6 or 2 if needed.
 
         '
-      type: number
-      minimum: -34
-      maximum: 3
-      example: -12
-    NbIotNmrArray:
-      description: NB-IoT network measurements
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/NbIotNmr'
-      example:
-      - earfcn: 6300
-        pci: 237
-      - earfcn: 6300
-        pci: 442
-    Earfcn:
-      description: Evolved Absolute Radio Frequency Channel Number (E-ARFCN)
       type: integer
       minimum: 0
-      maximum: 262143
-      example: 6300
-    WcdmaNmr:
-      description: WCDMA network measurement
+      maximum: 1530
+      example: 20
+    TdscdmaNmr:
+      description: TD-SCDMA network measurement
       type: object
       required:
-      - uarfcndl
-      - psc
+      - uarfcn
+      - cellParams
       properties:
-        uarfcndl:
-          $ref: '#/components/schemas/Uarfcndl'
-        psc:
-          $ref: '#/components/schemas/Psc'
+        uarfcn:
+          $ref: '#/components/schemas/Uarfcn'
+        cellParams:
+          $ref: '#/components/schemas/CellParams'
         cid:
-          $ref: '#/components/schemas/WcdmaCid'
+          $ref: '#/components/schemas/TdscdmaCid'
         rscp:
           $ref: '#/components/schemas/Rscp'
         pathloss:
           $ref: '#/components/schemas/Pathloss'
       additionalProperties: false
       example:
-        uarfcndl: 10786
-        psc: 149
+        uarfcn: 10100
+        cellParams: 86
         rscp: -50
         pathloss: 80
+    Channel:
+      description: CDMA channel frequency
+      type: integer
+      minimum: 0
+      maximum: 2047
+      example: 1
+    PilotPower:
+      description: 'Pilot Power (dBm). If Pilot Power is not available directly, it needs to be calculated from Total Power in the band and Pilot Strength with respect to the Total Power. Values less than -142dBm should be clamped to -142. Values greater than -49dBm should be clamped to -49.
+
+        '
+      type: integer
+      minimum: -142
+      maximum: -49
+      example: -99
+    NrArfcn:
+      description: NR Absolute Radio Frequency Channel Number (NRARFCN)
+      type: integer
+      minimum: 0
+      maximum: 3279165
+      example: 6300
+    WlanLocate:
+      description: WLAN measurement
+      type: object
+      required:
+      - mac
+      properties:
+        mac:
+          description: 'The MAC address of the WLAN access point. MAC-48 address with colon (:) or hyphen (-) separators, upper or lower case hex digits. Note that if the SSID contains postfix "_nomap", the AP should not be used for positioning.
+
+            '
+          type: string
+          pattern: ^((([0-9a-fA-F]{2}:){5})|(([0-9a-fA-F]{2}-){5}))[0-9a-fA-F]{2}$
+          maxLength: 17
+          example: A0-E4-53-20-66-AD
+        rss:
+          $ref: '#/components/schemas/Rss'
+      additionalProperties: false
+      example:
+        mac: 8C-1A-BF-20-66-AD
     ClientInfo:
       description: Information about the client
       type: object
@@ -511,40 +330,253 @@ components:
         model: Flagship X1
         name: FinderApp
         version: 2.0.31
-    RxLevel:
-      description: 'Received Signal power (dBm). Values less than -110dBm should be clamped to -110. Values greater than -25dBm should be clamped to -25.
-
-        '
-      type: integer
-      minimum: -110
-      maximum: -25
-      example: -77
-    LteTimingAdvance:
-      description: 'Timing Advance. Expressed in the units of `16 * Ts` (16 Basic time units) = `16 / (15000 * 2048)` seconds, which corresponds to ~ 156 meters. For reference see 3GPP TS 36.213 and 36.211.
+    Longitude:
+      description: Longitude in WGS-84 format, decimal representation ranging from -180 to 180.
+      type: number
+      minimum: -180
+      maximum: 180
+      example: 23.72265816
+    LteCatMLocalId:
+      type: object
+      required:
+      - pci
+      - earfcn
+      description: Local identification parameters of LTE Cat-M serving cell
+      properties:
+        pci:
+          $ref: '#/components/schemas/Pci'
+        earfcn:
+          $ref: '#/components/schemas/Earfcn'
+      example:
+        earfcn: 6300
+        pci: 123
+      additionalProperties: false
+    CdmaNmr:
+      description: CDMA network measurement
+      type: object
+      required:
+      - pnOffset
+      - channel
+      properties:
+        pnOffset:
+          $ref: '#/components/schemas/PnOffset'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        pilotPower:
+          $ref: '#/components/schemas/PilotPower'
+        bsid:
+          $ref: '#/components/schemas/Bsid'
+      additionalProperties: false
+      example:
+        channel: 0
+        pnOffset: 357
+    WcdmaCid:
+      description: 'WCDMA Cell Identifier (UTRAN CID, UC-Id), 28 bits (12 bits RNC and 16 bits Cell ID). See 3GPP TS 25.331 (V18.0.0), Section 10.3.2.2 for details.
 
         '
       type: integer
       minimum: 0
-      maximum: 1282
-      example: 40
+      maximum: 268435455
+      example: 14674663
+    NbIot:
+      description: NB-IoT cell measurement
+      type: object
+      required:
+      - mcc
+      - mnc
+      - cid
+      properties:
+        mcc:
+          $ref: '#/components/schemas/Mcc'
+        mnc:
+          $ref: '#/components/schemas/Mnc'
+        cid:
+          $ref: '#/components/schemas/EutranCid'
+        tac:
+          $ref: '#/components/schemas/Tac'
+        localId:
+          $ref: '#/components/schemas/NbIotLocalId'
+        ta:
+          $ref: '#/components/schemas/LteTimingAdvance'
+        nrsrp:
+          $ref: '#/components/schemas/Nrsrp'
+        nrsrq:
+          $ref: '#/components/schemas/Nrsrq'
+        nmr:
+          $ref: '#/components/schemas/NbIotNmrArray'
+      additionalProperties: false
+      example:
+        mcc: 244
+        mnc: 5
+        cid: 1980678
+        localId:
+          earfcn: 6400
+          pci: 42
+        nmr:
+        - earfcn: 1825
+          pci: 363
+        - earfcn: 100
+          pci: 106
+    MccInteger:
+      deprecated: true
+      description: 'Mobile Country Code (MCC) as integer.
+
+        **Note**: this format is deprecated, use string format instead.
+
+        **Note**: 0xx is for test networks, 1xx and 8xx are not used.
+
+        '
+      type: integer
+      minimum: 200
+      maximum: 999
+      example: 262
+    NbIotNmr:
+      description: NB-IoT network measurement
+      type: object
+      required:
+      - pci
+      - earfcn
+      properties:
+        pci:
+          $ref: '#/components/schemas/Pci'
+        earfcn:
+          $ref: '#/components/schemas/Earfcn'
+        cid:
+          $ref: '#/components/schemas/EutranCid'
+        nrsrp:
+          $ref: '#/components/schemas/Nrsrp'
+        nrsrq:
+          $ref: '#/components/schemas/Nrsrq'
+      additionalProperties: false
+      example:
+        earfcn: 6300
+        pci: 237
+        nrsrp: -95
+        nrsrq: -12
+    Nr:
+      description: NR (5G) standalone (NR SA) cell measurement
+      type: object
+      required:
+      - mcc
+      - mnc
+      - cid
+      properties:
+        mcc:
+          $ref: '#/components/schemas/MccString'
+        mnc:
+          $ref: '#/components/schemas/MncString'
+        cid:
+          $ref: '#/components/schemas/Nci'
+        localId:
+          $ref: '#/components/schemas/NrLocalId'
+        tac:
+          $ref: '#/components/schemas/NrTac'
+        ss:
+          $ref: '#/components/schemas/NrSyncSignal'
+        nmr:
+          $ref: '#/components/schemas/NrNmrArray'
+      additionalProperties: false
+      example:
+        mcc: '262'
+        mnc: '02'
+        cid: 2898945
+        localId:
+          nrarfcn: 126300
+          pci: 1001
+        nmr:
+        - nrarfcn: 126300
+          pci: 937
+        - nrarfcn: 126300
+          pci: 1001
+    PnOffset:
+      description: 'Pseudonoise offset. This field and CDMA channel frequency together allow for the locally unique identification of the cell.
+
+        '
+      type: integer
+      minimum: 0
+      maximum: 511
+      example: 357
     Bcch:
       description: Broadcast Control Channel (BCCH, synonymous to ARFCN = Absolute Radio Frequency Channel)
       type: integer
       minimum: 0
       maximum: 1023
       example: 82
-    CdmaNmrArray:
-      description: CDMA network measurements
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/CdmaNmr'
+    LteLocalId:
+      type: object
+      required:
+      - pci
+      - earfcn
+      description: Local identification parameters of LTE serving cell
+      properties:
+        pci:
+          $ref: '#/components/schemas/Pci'
+        earfcn:
+          $ref: '#/components/schemas/Earfcn'
       example:
-      - channel: 0
-        pnOffset: 357
-      - channel: 0
-        pnOffset: 366
+        earfcn: 6300
+        pci: 123
+      additionalProperties: false
+    Rsrq:
+      description: 'Reference Signal Received Quality (RSRQ) in dB. Values less than -34dB should be clamped to -34. Values greater than +3dB should be clamped to +3. For reference see 3GPP TS 36.133. Note that TS 36.133 defines the upper limit as +2.5dB, however some devices represent this parameter using integer type, hence the wider range.
+
+        '
+      type: number
+      minimum: -34
+      maximum: 3
+      example: -12
+    RegistrationZone:
+      description: CDMA Registration Zone (RZ)
+      type: integer
+      minimum: 0
+      maximum: 4095
+      example: 1234
+    GsmLocalId:
+      type: object
+      description: Local identification parameters of GSM serving cell
+      required:
+      - bsic
+      - bcch
+      properties:
+        bsic:
+          $ref: '#/components/schemas/Bsic'
+        bcch:
+          $ref: '#/components/schemas/Bcch'
+      example:
+        bsic: 5
+        bcch: 80
+      additionalProperties: false
+    LteCatMNmr:
+      description: LTE Cat-M network measurement
+      type: object
+      required:
+      - pci
+      - earfcn
+      properties:
+        pci:
+          $ref: '#/components/schemas/Pci'
+        earfcn:
+          $ref: '#/components/schemas/Earfcn'
+        cid:
+          $ref: '#/components/schemas/EutranCid'
+        rsrp:
+          $ref: '#/components/schemas/Rsrp'
+        rsrq:
+          $ref: '#/components/schemas/Rsrq'
+      additionalProperties: false
+      example:
+        earfcn: 6300
+        pci: 237
+        rsrp: -95
+        rsrq: -12
+    TdscdmaCid:
+      description: 'TD-SCDMA Cell Identifier (UTRAN CID, UC-Id), 28 bits (12 bits RNC and 16 bits Cell ID). See 3GPP TS 25.331 (V18.0.0), Section 10.3.2.2 for details.
+
+        '
+      type: integer
+      minimum: 0
+      maximum: 268435455
+      example: 14674663
     Gsm:
       description: GSM measurement
       type: object
@@ -590,201 +622,74 @@ components:
           bcch: 88
         - bsic: 19
           bcch: 88
-    MncInteger:
-      description: 'Mobile Network Code (MNC) as integer.
-
-        **Note**: this format is deprecated, use string format instead.
-
-        '
-      deprecated: true
+    Tac:
+      description: Tracking Area Code (TAC)
       type: integer
       minimum: 0
-      maximum: 999
-      example: 2
-    Lac:
-      description: Location Area Code (LAC). Note, value 65534 is invalid.
-      type: integer
-      minimum: 1
       maximum: 65535
-      example: 5126
-    PnOffset:
-      description: 'Pseudonoise offset. This field and CDMA channel frequency together allow for the locally unique identification of the cell.
+      example: 1
+    MncString:
+      description: 'Mobile Network Code (MNC)
 
         '
-      type: integer
-      minimum: 0
-      maximum: 511
-      example: 357
-    LteNmrArray:
-      description: LTE network measurements
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/LteNmr'
-      example:
-      - earfcn: 6300
-        pci: 237
-      - earfcn: 6300
-        pci: 442
-    Version:
       type: string
-      format: version
-      pattern: ^[0-9]{1,3}\.[0-9]{1,3}(\.[0-9]{1,5})?$
-      minLength: 3
-      maxLength: 13
-      example: 2.0.31
-    LteCatMNmr:
-      description: LTE Cat-M network measurement
+      minLength: 2
+      maxLength: 3
+      pattern: ^[0-9]{2,3}$
+      example: '002'
+    LteCatM:
+      description: LTE Cat-M measurement
       type: object
       required:
-      - pci
-      - earfcn
+      - mcc
+      - mnc
+      - cid
       properties:
-        pci:
-          $ref: '#/components/schemas/Pci'
-        earfcn:
-          $ref: '#/components/schemas/Earfcn'
+        mcc:
+          $ref: '#/components/schemas/Mcc'
+        mnc:
+          $ref: '#/components/schemas/Mnc'
         cid:
           $ref: '#/components/schemas/EutranCid'
+        tac:
+          $ref: '#/components/schemas/Tac'
+        localId:
+          $ref: '#/components/schemas/LteCatMLocalId'
+        ta:
+          $ref: '#/components/schemas/LteTimingAdvance'
         rsrp:
           $ref: '#/components/schemas/Rsrp'
         rsrq:
           $ref: '#/components/schemas/Rsrq'
+        nmr:
+          $ref: '#/components/schemas/LteCatMNmrArray'
       additionalProperties: false
       example:
-        earfcn: 6300
-        pci: 237
-        rsrp: -95
-        rsrq: -12
-    EutranCid:
-      description: 'E-UTRA Cell Identifier (UC-Id), 28 bits (20 bits eNodeB and 8 bits Cell ID). See 3GPP TS 36.331 (V18.2.0), Section 6.3.4 for details.
+        mcc: 244
+        mnc: 5
+        cid: 1980678
+        localId:
+          earfcn: 6400
+          pci: 42
+        nmr:
+        - earfcn: 1825
+          pci: 363
+        - earfcn: 100
+          pci: 106
+    Nrsrp:
+      description: 'Narrowband Reference Signal Received Power (NRSRP) in dBm. For reference see 3GPP TS 36.214 version 14.2.0 Rel. 14, section 5.1.26. Value range is [-156, -44], for reference see 3GPP TS 36.133, Section 9.1.22.9. Values less than -156dBm should be clamped to -156. Values greater than -44dBm should be clamped to -44.
 
         '
+      type: integer
+      minimum: -156
+      maximum: -44
+      example: -100
+    Bsic:
+      description: Base Station Identity Code (BSIC, for instance, color code)
       type: integer
       minimum: 0
-      maximum: 268435455
-      example: 2898945
-    WcdmaCid:
-      description: 'WCDMA Cell Identifier (UTRAN CID, UC-Id), 28 bits (12 bits RNC and 16 bits Cell ID). See 3GPP TS 25.331 (V18.0.0), Section 10.3.2.2 for details.
-
-        '
-      type: integer
-      minimum: 0
-      maximum: 268435455
-      example: 14674663
-    TdscdmaCid:
-      description: 'TD-SCDMA Cell Identifier (UTRAN CID, UC-Id), 28 bits (12 bits RNC and 16 bits Cell ID). See 3GPP TS 25.331 (V18.0.0), Section 10.3.2.2 for details.
-
-        '
-      type: integer
-      minimum: 0
-      maximum: 268435455
-      example: 14674663
-    CdmaNmr:
-      description: CDMA network measurement
-      type: object
-      required:
-      - pnOffset
-      - channel
-      properties:
-        pnOffset:
-          $ref: '#/components/schemas/PnOffset'
-        channel:
-          $ref: '#/components/schemas/Channel'
-        pilotPower:
-          $ref: '#/components/schemas/PilotPower'
-        bsid:
-          $ref: '#/components/schemas/Bsid'
-      additionalProperties: false
-      example:
-        channel: 0
-        pnOffset: 357
-    Rscp:
-      description: 'Received Signal Code Power (RSCP) in dBm. Values less than -120dBm should be clamped to -120. Values greater than -25dBm should be clamped to -25.
-
-        '
-      type: integer
-      minimum: -120
-      maximum: -25
-      example: -50
-    NrSyncSignal:
-      description: 'Synchronization Signal measurement.
-
-        May include one or more of SS-RSRQ, SS-RSRP and SS-SINR reports.
-
-        '
-      type: object
-      properties:
-        rsrp:
-          $ref: '#/components/schemas/NrRsrp'
-        rsrq:
-          $ref: '#/components/schemas/NrRsrq'
-      additionalProperties: false
-      example:
-        rsrp: -100
-        rsrq: -10
-    GsmNmrArray:
-      description: GSM network measurements
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/GsmNmr'
-      example:
-      - bsic: 6
-        bcch: 82
-    GsmNmrGlobalId:
-      description: 'The `lac` and `cid` parameters of global ID for GSM neighbor measurement. They should be from the same PLMN (MCC+MNC) as the serving cell.
-
-        '
-      type: object
-      required:
-      - lac
-      - cid
-      properties:
-        lac:
-          $ref: '#/components/schemas/Lac'
-        cid:
-          $ref: '#/components/schemas/GsmCid'
-      additionalProperties: false
-    AuthError:
-      description: Error object reported in case of authentication or authorization errors.
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        error_description:
-          type: string
-          description: Detailed information about the error
-      example:
-        error: Unauthorized
-        error_description: ApiKey invalid. ApiKey not found.
-    CellParams:
-      description: Cell Parameters ID (CDMA Spreading Code ID)
-      type: integer
-      minimum: 0
-      maximum: 127
-      example: 86
-    GsmCid:
-      description: GSM Cell Identifier (GERAN CID). See 3GPP TS 23.003 (V18.6.0), Section 4.3.1 for details.
-      type: integer
-      minimum: 0
-      maximum: 65535
-      example: 16503
-    LteCatMNmrArray:
-      description: LTE Cat-M network measurements
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/LteCatMNmr'
-      example:
-      - earfcn: 6300
-        pci: 237
-      - earfcn: 6300
-        pci: 442
+      maximum: 63
+      example: 6
     WcdmaLocalId:
       type: object
       description: Local identification parameters of WCDMA serving cell
@@ -800,15 +705,101 @@ components:
         uarfcndl: 10780
         psc: 140
       additionalProperties: false
-    Mnc:
-      description: 'Mobile Network Code (MNC).
+    Mcc:
+      description: 'Mobile Country Code (MCC).
 
         The value may be either a string (recommended) or an integer (deprecated).
 
+        Note: 0xx is for test networks, 1xx and 8xx are not used.
+
         '
       oneOf:
-      - $ref: '#/components/schemas/MncString'
-      - $ref: '#/components/schemas/MncInteger'
+      - $ref: '#/components/schemas/MccString'
+      - $ref: '#/components/schemas/MccInteger'
+    Rsrp:
+      description: 'Reference Signal Received Power (RSRP) in dBm. Values less than -156dBm should be clamped to -156. Values greater than -44dBm should be clamped to -44. For reference see 3GPP TS 36.133.
+
+        '
+      type: integer
+      minimum: -156
+      maximum: -44
+      example: -95
+    Rscp:
+      description: 'Received Signal Code Power (RSCP) in dBm. Values less than -120dBm should be clamped to -120. Values greater than -25dBm should be clamped to -25.
+
+        '
+      type: integer
+      minimum: -120
+      maximum: -25
+      example: -50
+    Latitude:
+      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
+      type: number
+      minimum: -90
+      maximum: 90
+      example: 61.4706194
+    NrTac:
+      description: NR Tracking Area Code (NR TAC)
+      type: integer
+      minimum: 0
+      maximum: 16777215
+      example: 1
+    NbIotLocalId:
+      type: object
+      required:
+      - pci
+      - earfcn
+      description: Local identification parameters for NB-IoT cell measurement
+      properties:
+        pci:
+          $ref: '#/components/schemas/Pci'
+        earfcn:
+          $ref: '#/components/schemas/Earfcn'
+      example:
+        earfcn: 6300
+        pci: 123
+      additionalProperties: false
+    RxLevel:
+      description: 'Received Signal power (dBm). Values less than -110dBm should be clamped to -110. Values greater than -25dBm should be clamped to -25.
+
+        '
+      type: integer
+      minimum: -110
+      maximum: -25
+      example: -77
+    NrRsrp:
+      description: 'NR Reference Signal Received Power (SS-RSRP or CSI-RSRP) in dBm. For reference see 3GPP TS 38.215 and 3GPP TS 38.133, version 16.8.0, section 10.1.6. Value range is [-156, -31]. Values less than -156dBm should be clamped to -156. Values greater than -31dBm should be clamped to -31.
+
+        '
+      type: integer
+      minimum: -156
+      maximum: -31
+      example: -100
+    CdmaLocalId:
+      type: object
+      required:
+      - pnOffset
+      - channel
+      description: Local identification parameters of CDMA serving cell
+      properties:
+        pnOffset:
+          $ref: '#/components/schemas/PnOffset'
+        channel:
+          $ref: '#/components/schemas/Channel'
+      example:
+        channel: 0
+        pnOffset: 247
+      additionalProperties: false
+    GsmNmrArray:
+      description: GSM network measurements
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/GsmNmr'
+      example:
+      - bsic: 6
+        bcch: 82
     Locate:
       type: object
       description: 'Object wrapping the location data submitted in a request for a position. At least one of `gsm`, `wcdma`, `tdscdma`, `lte`, `lteCatM`, `nbIot`, `nr`, `cdma`, or `wlan` elements is required. Array elements should be unique within the request.
@@ -912,12 +903,291 @@ components:
           rss: -59
         - mac: 7C:21:0E:A9:58:03
           rss: -55
-    Tac:
-      description: Tracking Area Code (TAC)
+    CdmaNmrArray:
+      description: CDMA network measurements
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/CdmaNmr'
+      example:
+      - channel: 0
+        pnOffset: 357
+      - channel: 0
+        pnOffset: 366
+    NrPci:
+      description: NR Physical Cell Identity (NR PCI)
+      type: integer
+      minimum: 0
+      maximum: 1007
+      example: 237
+    WcdmaNmrArray:
+      description: WCDMA network measurements. Maximum of 8 distinct uarfcndl frequencies.
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/WcdmaNmr'
+      example:
+      - uarfcndl: 10786
+        psc: 149
+      - uarfcndl: 10762
+        psc: 211
+    LteTimingAdvance:
+      description: 'Timing Advance. Expressed in the units of `16 * Ts` (16 Basic time units) = `16 / (15000 * 2048)` seconds, which corresponds to ~ 156 meters. For reference see 3GPP TS 36.213 and 36.211.
+
+        '
+      type: integer
+      minimum: 0
+      maximum: 1282
+      example: 40
+    Uarfcndl:
+      description: UTRAN Absolute Radio Frequency Downlink (UARFCN-DL)
+      type: integer
+      minimum: 0
+      maximum: 16383
+      example: 10786
+    GsmNmrGlobalId:
+      description: 'The `lac` and `cid` parameters of global ID for GSM neighbor measurement. They should be from the same PLMN (MCC+MNC) as the serving cell.
+
+        '
+      type: object
+      required:
+      - lac
+      - cid
+      properties:
+        lac:
+          $ref: '#/components/schemas/Lac'
+        cid:
+          $ref: '#/components/schemas/GsmCid'
+      additionalProperties: false
+    MncInteger:
+      description: 'Mobile Network Code (MNC) as integer.
+
+        **Note**: this format is deprecated, use string format instead.
+
+        '
+      deprecated: true
+      type: integer
+      minimum: 0
+      maximum: 999
+      example: 2
+    Cdma:
+      description: CDMA measurement
+      type: object
+      required:
+      - sid
+      - nid
+      - bsid
+      properties:
+        sid:
+          $ref: '#/components/schemas/Sid'
+        nid:
+          $ref: '#/components/schemas/Nid'
+        bsid:
+          $ref: '#/components/schemas/Bsid'
+        rz:
+          $ref: '#/components/schemas/RegistrationZone'
+        localId:
+          $ref: '#/components/schemas/CdmaLocalId'
+        pilotPower:
+          $ref: '#/components/schemas/PilotPower'
+        baseLat:
+          $ref: '#/components/schemas/BaseLat'
+        baseLng:
+          $ref: '#/components/schemas/BaseLng'
+        nmr:
+          $ref: '#/components/schemas/CdmaNmrArray'
+      additionalProperties: false
+      example:
+        sid: 4162
+        nid: 10
+        bsid: 8583
+        localId:
+          channel: 0
+          pnOffset: 247
+        nmr:
+        - channel: 0
+          pnOffset: 357
+        - channel: 0
+          pnOffset: 366
+    NrRsrq:
+      description: 'NR Reference Signal Received Quality (SS-RSRQ or CSI-RSRQ) in dB. For reference see 3GPP TS 38.133, version 16.8.0, section 10.1.11.1. Value range is [-43, 20], values with higher precision should be rounded. Values less than -43dB should be clamped to -43. Values greater than 20dB should be clamped to 20.
+
+        '
+      type: integer
+      minimum: -43
+      maximum: 20
+      example: -10
+    PositionLocate:
+      description: Object containing information on a location where a measurement was taken.
+      type: object
+      required:
+      - lat
+      - lng
+      - accuracy
+      x-dependencies:
+        alt:
+        - altAccuracy
+        altAccuracy:
+        - alt
+      properties:
+        lat:
+          $ref: '#/components/schemas/Latitude'
+        lng:
+          $ref: '#/components/schemas/Longitude'
+        accuracy:
+          description: Uncertainty circle radius in meters (degree of confidence according to the `confidence` parameter).
+          type: number
+          minimum: 1
+          example: 829
+        alt:
+          description: 'Altitude in meters (referenced to the WGS-84 ellipsoid) negative or positive. Altitude information is included if requested with query parameter `desired=altitude` or `required=altitude`, if available.
+
+            '
+          type: number
+          example: 142
+        altAccuracy:
+          description: 'Uncertainty of the altitude estimate in meters (degree of confidence according to the `confidence` parameter). Altitude information is included if requested with query parameter `desired=altitude` or `required=altitude`, if available. This field superceeds old `altaccuracy`.
+
+            '
+          type: number
+          minimum: 1
+          example: 20
+      example:
+        lat: 61.4469302
+        lng: 23.864577
+        accuracy: 24
+        alt: 177
+        altAccuracy: 36
+    MccString:
+      description: 'Mobile Country Code (MCC).
+
+        **Note**: ''0xx'' is for test networks, ''1xx'' and ''8xx'' are not used.
+
+        '
+      type: string
+      minLength: 3
+      maxLength: 3
+      pattern: ^[0-9]{3}$
+      example: '262'
+    BaseLng:
+      description: Base station longitude
+      type: number
+      minimum: -180
+      maximum: 180
+      example: -74.0445
+    Pathloss:
+      description: UTRAN pathloss (dBm)
+      type: integer
+      minimum: 46
+      maximum: 158
+      example: 80
+    TdscdmaLocalId:
+      type: object
+      description: Local identification parameters of TD-SCDMA serving cell
+      required:
+      - uarfcn
+      - cellParams
+      properties:
+        uarfcn:
+          $ref: '#/components/schemas/Uarfcn'
+        cellParams:
+          $ref: '#/components/schemas/CellParams'
+      example:
+        uarfcn: 10101
+        cellParams: 56
+      additionalProperties: false
+    Tdscdma:
+      description: TD-SCDMA measurement.
+      type: object
+      required:
+      - mcc
+      - mnc
+      - cid
+      properties:
+        mcc:
+          $ref: '#/components/schemas/Mcc'
+        mnc:
+          $ref: '#/components/schemas/Mnc'
+        cid:
+          $ref: '#/components/schemas/TdscdmaCid'
+        lac:
+          $ref: '#/components/schemas/Lac'
+        localId:
+          $ref: '#/components/schemas/TdscdmaLocalId'
+        ta:
+          $ref: '#/components/schemas/TdscdmaTimingAdvance'
+        rscp:
+          $ref: '#/components/schemas/Rscp'
+        pathloss:
+          $ref: '#/components/schemas/Pathloss'
+        nmr:
+          $ref: '#/components/schemas/TdscdmaNmrArray'
+      additionalProperties: false
+      example:
+        mcc: 460
+        mnc: 0
+        cid: 18563770
+        localId:
+          uarfcn: 10101
+          cellParams: 56
+        nmr:
+        - uarfcn: 10100
+          cellParams: 86
+        - uarfcn: 10121
+          cellParams: 14
+    Nid:
+      description: Network ID (NID)
       type: integer
       minimum: 0
       maximum: 65535
-      example: 1
+      example: 10
+    Uarfcn:
+      description: UTRAN Absolute Radio Frequency (U-ARFCN)
+      type: integer
+      minimum: 0
+      maximum: 16383
+      example: 10100
+    Bsid:
+      description: Base Station ID (CDMA BSID, BID)
+      type: integer
+      minimum: 0
+      maximum: 65535
+      example: 8584
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
+    LteNmrArray:
+      description: LTE network measurements
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/LteNmr'
+      example:
+      - earfcn: 6300
+        pci: 237
+      - earfcn: 6300
+        pci: 442
+    Nrsrq:
+      description: 'Narrowband Reference Signal Received Quality (NRSRQ) in dB. Value range is [-34, 2.5], for reference see 3GPP TS 36.133, Rel. 17, Section 9.1.22.14. Values less than -34dB should be clamped to -34. Values greater than 2.5dB should be clamped to 2.5.
+
+        '
+      type: number
+      minimum: -34
+      maximum: 2.5
+      example: -30
     NrNmrArray:
       description: NR network measurements
       type: array
@@ -930,64 +1200,8 @@ components:
         pci: 937
       - nrarfcn: 126300
         pci: 1001
-    ErrorDetail:
-      description: Detail about an error
-      type: object
-      properties:
-        title:
-          description: Title for the detail
-          type: string
-          example: Invalid size value
-        source:
-          description: Source of the error, using JSONPath
-          type: string
-          example: $.data.attributes[0].size
-        message:
-          description: Localize message
-          type: string
-          example: Size must be between 3 and 64
-        messageTemplate:
-          description: Optional error template
-          type: string
-          example: validation.constraint.between
-        messagePlaceholders:
-          description: Optional placeholder for error details
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    NrNmr:
-      description: NR network measurement
-      type: object
-      required:
-      - pci
-      - nrarfcn
-      properties:
-        pci:
-          $ref: '#/components/schemas/NrPci'
-        nrarfcn:
-          $ref: '#/components/schemas/NrArfcn'
-        cid:
-          $ref: '#/components/schemas/Nci'
-        ss:
-          $ref: '#/components/schemas/NrSyncSignal'
-      additionalProperties: false
-      example:
-        nrarfcn: 1236300
-        pci: 1001
-    MncString:
-      description: 'Mobile Network Code (MNC)
-
-        '
-      type: string
-      minLength: 2
-      maxLength: 3
-      pattern: ^[0-9]{2,3}$
-      example: '002'
-    NbIot:
-      description: NB-IoT cell measurement
+    Wcdma:
+      description: WCDMA measurement
       type: object
       required:
       - mcc
@@ -999,38 +1213,57 @@ components:
         mnc:
           $ref: '#/components/schemas/Mnc'
         cid:
-          $ref: '#/components/schemas/EutranCid'
-        tac:
-          $ref: '#/components/schemas/Tac'
+          $ref: '#/components/schemas/WcdmaCid'
+        lac:
+          $ref: '#/components/schemas/Lac'
         localId:
-          $ref: '#/components/schemas/NbIotLocalId'
-        ta:
-          $ref: '#/components/schemas/LteTimingAdvance'
-        nrsrp:
-          $ref: '#/components/schemas/Nrsrp'
-        nrsrq:
-          $ref: '#/components/schemas/Nrsrq'
+          $ref: '#/components/schemas/WcdmaLocalId'
+        rscp:
+          $ref: '#/components/schemas/Rscp'
+        pathloss:
+          $ref: '#/components/schemas/Pathloss'
         nmr:
-          $ref: '#/components/schemas/NbIotNmrArray'
+          $ref: '#/components/schemas/WcdmaNmrArray'
       additionalProperties: false
       example:
-        mcc: 244
-        mnc: 5
-        cid: 1980678
+        mcc: 262
+        mnc: 7
+        cid: 14674663
         localId:
-          earfcn: 6400
-          pci: 42
+          uarfcndl: 10780
+          psc: 140
         nmr:
-        - earfcn: 1825
-          pci: 363
-        - earfcn: 100
-          pci: 106
-    Pci:
-      description: Physical Cell Identity (PCI)
+        - uarfcndl: 10786
+          psc: 149
+        - uarfcndl: 10762
+          psc: 211
+    Mnc:
+      description: 'Mobile Network Code (MNC).
+
+        The value may be either a string (recommended) or an integer (deprecated).
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/MncString'
+      - $ref: '#/components/schemas/MncInteger'
+    Earfcn:
+      description: Evolved Absolute Radio Frequency Channel Number (E-ARFCN)
       type: integer
       minimum: 0
-      maximum: 503
-      example: 237
+      maximum: 262143
+      example: 6300
+    CellParams:
+      description: Cell Parameters ID (CDMA Spreading Code ID)
+      type: integer
+      minimum: 0
+      maximum: 127
+      example: 86
+    GsmTimingAdvance:
+      description: Timing advance (TA). Expressed in the units of GSM bits equaling to 48/13 μs ~ 1107 meters.
+      type: integer
+      minimum: 0
+      maximum: 63
+      example: 3
     Lte:
       description: LTE measurement
       type: object
@@ -1083,123 +1316,26 @@ components:
           pci: 237
         - earfcn: 6300
           pci: 442
-    PositionLocate:
-      description: Object containing information on a location where a measurement was taken.
-      type: object
-      required:
-      - lat
-      - lng
-      - accuracy
-      x-dependencies:
-        alt:
-        - altAccuracy
-        altAccuracy:
-        - alt
-      properties:
-        lat:
-          $ref: '#/components/schemas/Latitude'
-        lng:
-          $ref: '#/components/schemas/Longitude'
-        accuracy:
-          description: Uncertainty circle radius in meters (degree of confidence according to the `confidence` parameter).
-          type: number
-          minimum: 1
-          example: 829
-        alt:
-          description: 'Altitude in meters (referenced to the WGS-84 ellipsoid) negative or positive. Altitude information is included if requested with query parameter `desired=altitude` or `required=altitude`, if available.
-
-            '
-          type: number
-          example: 142
-        altAccuracy:
-          description: 'Uncertainty of the altitude estimate in meters (degree of confidence according to the `confidence` parameter). Altitude information is included if requested with query parameter `desired=altitude` or `required=altitude`, if available. This field superceeds old `altaccuracy`.
-
-            '
-          type: number
-          minimum: 1
-          example: 20
-      example:
-        lat: 61.4469302
-        lng: 23.864577
-        accuracy: 24
-        alt: 177
-        altAccuracy: 36
-    Nid:
-      description: Network ID (NID)
+    Lac:
+      description: Location Area Code (LAC). Note, value 65534 is invalid.
+      type: integer
+      minimum: 1
+      maximum: 65535
+      example: 5126
+    Pci:
+      description: Physical Cell Identity (PCI)
       type: integer
       minimum: 0
-      maximum: 65535
-      example: 10
-    Mcc:
-      description: 'Mobile Country Code (MCC).
-
-        The value may be either a string (recommended) or an integer (deprecated).
-
-        Note: 0xx is for test networks, 1xx and 8xx are not used.
+      maximum: 503
+      example: 237
+    EutranCid:
+      description: 'E-UTRA Cell Identifier (UC-Id), 28 bits (20 bits eNodeB and 8 bits Cell ID). See 3GPP TS 36.331 (V18.2.0), Section 6.3.4 for details.
 
         '
-      oneOf:
-      - $ref: '#/components/schemas/MccString'
-      - $ref: '#/components/schemas/MccInteger'
-    Channel:
-      description: CDMA channel frequency
       type: integer
       minimum: 0
-      maximum: 2047
-      example: 1
-    TdscdmaNmr:
-      description: TD-SCDMA network measurement
-      type: object
-      required:
-      - uarfcn
-      - cellParams
-      properties:
-        uarfcn:
-          $ref: '#/components/schemas/Uarfcn'
-        cellParams:
-          $ref: '#/components/schemas/CellParams'
-        cid:
-          $ref: '#/components/schemas/TdscdmaCid'
-        rscp:
-          $ref: '#/components/schemas/Rscp'
-        pathloss:
-          $ref: '#/components/schemas/Pathloss'
-      additionalProperties: false
-      example:
-        uarfcn: 10100
-        cellParams: 86
-        rscp: -50
-        pathloss: 80
-    LteCatMLocalId:
-      type: object
-      required:
-      - pci
-      - earfcn
-      description: Local identification parameters of LTE Cat-M serving cell
-      properties:
-        pci:
-          $ref: '#/components/schemas/Pci'
-        earfcn:
-          $ref: '#/components/schemas/Earfcn'
-      example:
-        earfcn: 6300
-        pci: 123
-      additionalProperties: false
-    TdscdmaLocalId:
-      type: object
-      description: Local identification parameters of TD-SCDMA serving cell
-      required:
-      - uarfcn
-      - cellParams
-      properties:
-        uarfcn:
-          $ref: '#/components/schemas/Uarfcn'
-        cellParams:
-          $ref: '#/components/schemas/CellParams'
-      example:
-        uarfcn: 10101
-        cellParams: 56
-      additionalProperties: false
+      maximum: 268435455
+      example: 2898945
     Error:
       description: Object wrapper for the error response to a request.
       type: object
@@ -1255,196 +1391,40 @@ components:
             field: size
             min: 3
             max: 64
-    Uarfcn:
-      description: UTRAN Absolute Radio Frequency (U-ARFCN)
-      type: integer
-      minimum: 0
-      maximum: 16383
-      example: 10100
-    LteLocalId:
-      type: object
-      required:
-      - pci
-      - earfcn
-      description: Local identification parameters of LTE serving cell
-      properties:
-        pci:
-          $ref: '#/components/schemas/Pci'
-        earfcn:
-          $ref: '#/components/schemas/Earfcn'
-      example:
-        earfcn: 6300
-        pci: 123
-      additionalProperties: false
-    Nrsrp:
-      description: 'Narrowband Reference Signal Received Power (NRSRP) in dBm. For reference see 3GPP TS 36.214 version 14.2.0 Rel. 14, section 5.1.26. Value range is [-156, -44], for reference see 3GPP TS 36.133, Section 9.1.22.9. Values less than -156dBm should be clamped to -156. Values greater than -44dBm should be clamped to -44.
-
-        '
-      type: integer
-      minimum: -156
-      maximum: -44
-      example: -100
-    Sid:
-      description: System ID (SID)
-      type: integer
-      minimum: 1
-      maximum: 32767
-      example: 4162
-    TdscdmaTimingAdvance:
-      description: 'Timing advance (TA). Round-Trip distance presented in the units of `4 * c / 7.68e6`, which corresponds to ~ 156 meters. That is, the scaling factor is 4 times the chip length at chip rate of 7.68 Mchips/s. Note that at chip rates 1.28 Mchips/s and 3.84 Mchips/s you need to scale according to chip length of 7.68 Mchips/s, that is, multiply by 6 or 2 if needed.
-
-        '
-      type: integer
-      minimum: 0
-      maximum: 1530
-      example: 20
-    NrPci:
-      description: NR Physical Cell Identity (NR PCI)
-      type: integer
-      minimum: 0
-      maximum: 1007
-      example: 237
-    NrArfcn:
-      description: NR Absolute Radio Frequency Channel Number (NRARFCN)
-      type: integer
-      minimum: 0
-      maximum: 3279165
-      example: 6300
-    LteNmr:
-      description: LTE network measurement
-      type: object
-      required:
-      - pci
-      - earfcn
-      properties:
-        pci:
-          $ref: '#/components/schemas/Pci'
-        earfcn:
-          $ref: '#/components/schemas/Earfcn'
-        cid:
-          $ref: '#/components/schemas/EutranCid'
-        rsrp:
-          $ref: '#/components/schemas/Rsrp'
-        rsrq:
-          $ref: '#/components/schemas/Rsrq'
-      additionalProperties: false
-      example:
-        earfcn: 6300
-        pci: 237
-        rsrp: -95
-        rsrq: -12
-    Pathloss:
-      description: UTRAN pathloss (dBm)
-      type: integer
-      minimum: 46
-      maximum: 158
-      example: 80
     Psc:
       description: Primary Scrambling Code (PSC, Primary CPICH, Primary Control Pilot Channel).
       type: integer
       minimum: 0
       maximum: 511
       example: 149
-    PilotPower:
-      description: 'Pilot Power (dBm). If Pilot Power is not available directly, it needs to be calculated from Total Power in the band and Pilot Strength with respect to the Total Power. Values less than -142dBm should be clamped to -142. Values greater than -49dBm should be clamped to -49.
+    NrSyncSignal:
+      description: 'Synchronization Signal measurement.
+
+        May include one or more of SS-RSRQ, SS-RSRP and SS-SINR reports.
 
         '
+      type: object
+      properties:
+        rsrp:
+          $ref: '#/components/schemas/NrRsrp'
+        rsrq:
+          $ref: '#/components/schemas/NrRsrq'
+      additionalProperties: false
+      example:
+        rsrp: -100
+        rsrq: -10
+    Rss:
+      description: Received signal level (dBm) at the terminal
       type: integer
-      minimum: -142
-      maximum: -49
-      example: -99
-    GsmTimingAdvance:
-      description: Timing advance (TA). Expressed in the units of GSM bits equaling to 48/13 μs ~ 1107 meters.
+      minimum: -128
+      maximum: 0
+      example: -76
+    GsmCid:
+      description: GSM Cell Identifier (GERAN CID). See 3GPP TS 23.003 (V18.6.0), Section 4.3.1 for details.
       type: integer
       minimum: 0
-      maximum: 63
-      example: 3
-    CdmaLocalId:
-      type: object
-      required:
-      - pnOffset
-      - channel
-      description: Local identification parameters of CDMA serving cell
-      properties:
-        pnOffset:
-          $ref: '#/components/schemas/PnOffset'
-        channel:
-          $ref: '#/components/schemas/Channel'
-      example:
-        channel: 0
-        pnOffset: 247
-      additionalProperties: false
-    Latitude:
-      description: Latitude in WGS-84 format, decimal representation ranging from -90 to 90.
-      type: number
-      minimum: -90
-      maximum: 90
-      example: 61.4706194
-    NrRsrq:
-      description: 'NR Reference Signal Received Quality (SS-RSRQ or CSI-RSRQ) in dB. For reference see 3GPP TS 38.133, version 16.8.0, section 10.1.11.1. Value range is [-43, 20], values with higher precision should be rounded. Values less than -43dB should be clamped to -43. Values greater than 20dB should be clamped to 20.
-
-        '
-      type: integer
-      minimum: -43
-      maximum: 20
-      example: -10
-    LteCatM:
-      description: LTE Cat-M measurement
-      type: object
-      required:
-      - mcc
-      - mnc
-      - cid
-      properties:
-        mcc:
-          $ref: '#/components/schemas/Mcc'
-        mnc:
-          $ref: '#/components/schemas/Mnc'
-        cid:
-          $ref: '#/components/schemas/EutranCid'
-        tac:
-          $ref: '#/components/schemas/Tac'
-        localId:
-          $ref: '#/components/schemas/LteCatMLocalId'
-        ta:
-          $ref: '#/components/schemas/LteTimingAdvance'
-        rsrp:
-          $ref: '#/components/schemas/Rsrp'
-        rsrq:
-          $ref: '#/components/schemas/Rsrq'
-        nmr:
-          $ref: '#/components/schemas/LteCatMNmrArray'
-      additionalProperties: false
-      example:
-        mcc: 244
-        mnc: 5
-        cid: 1980678
-        localId:
-          earfcn: 6400
-          pci: 42
-        nmr:
-        - earfcn: 1825
-          pci: 363
-        - earfcn: 100
-          pci: 106
-    BaseLng:
-      description: Base station longitude
-      type: number
-      minimum: -180
-      maximum: 180
-      example: -74.0445
-    WcdmaNmrArray:
-      description: WCDMA network measurements. Maximum of 8 distinct uarfcndl frequencies.
-      type: array
-      minItems: 1
-      maxItems: 32
-      items:
-        $ref: '#/components/schemas/WcdmaNmr'
-      example:
-      - uarfcndl: 10786
-        psc: 149
-      - uarfcndl: 10762
-        psc: 211
+      maximum: 65535
+      example: 16503
     TdscdmaNmrArray:
       type: array
       description: TD-SCDMA network measurements. Maximum of 8 distinct uarfcn frequencies.
@@ -1457,100 +1437,364 @@ components:
         cellParams: 86
       - uarfcn: 10121
         cellParams: 14
-    WlanLocate:
-      description: WLAN measurement
-      type: object
-      required:
-      - mac
-      properties:
-        mac:
-          description: 'The MAC address of the WLAN access point. MAC-48 address with colon (:) or hyphen (-) separators, upper or lower case hex digits. Note that if the SSID contains postfix "_nomap", the AP should not be used for positioning.
-
-            '
-          type: string
-          pattern: ^((([0-9a-fA-F]{2}:){5})|(([0-9a-fA-F]{2}-){5}))[0-9a-fA-F]{2}$
-          maxLength: 17
-          example: A0-E4-53-20-66-AD
-        rss:
-          $ref: '#/components/schemas/Rss'
-      additionalProperties: false
-      example:
-        mac: 8C-1A-BF-20-66-AD
-    Uarfcndl:
-      description: UTRAN Absolute Radio Frequency Downlink (UARFCN-DL)
-      type: integer
-      minimum: 0
-      maximum: 16383
-      example: 10786
-    NbIotLocalId:
-      type: object
-      required:
-      - pci
-      - earfcn
-      description: Local identification parameters for NB-IoT cell measurement
-      properties:
-        pci:
-          $ref: '#/components/schemas/Pci'
-        earfcn:
-          $ref: '#/components/schemas/Earfcn'
-      example:
-        earfcn: 6300
-        pci: 123
-      additionalProperties: false
-    MccInteger:
-      deprecated: true
-      description: 'Mobile Country Code (MCC) as integer.
-
-        **Note**: this format is deprecated, use string format instead.
-
-        **Note**: 0xx is for test networks, 1xx and 8xx are not used.
-
-        '
-      type: integer
-      minimum: 200
-      maximum: 999
-      example: 262
-    Nrsrq:
-      description: 'Narrowband Reference Signal Received Quality (NRSRQ) in dB. Value range is [-34, 2.5], for reference see 3GPP TS 36.133, Rel. 17, Section 9.1.22.14. Values less than -34dB should be clamped to -34. Values greater than 2.5dB should be clamped to 2.5.
-
-        '
+    BaseLat:
+      description: Base station latitude
       type: number
-      minimum: -34
-      maximum: 2.5
-      example: -30
-    NrLocalId:
-      type: object
-      required:
-      - pci
-      - nrarfcn
-      description: Local identification parameters of NR serving cell
-      properties:
-        pci:
-          $ref: '#/components/schemas/NrPci'
-        nrarfcn:
-          $ref: '#/components/schemas/NrArfcn'
-      additionalProperties: false
-      example:
-        nrarfcn: 126300
-        pci: 1001
-    RegistrationZone:
-      description: CDMA Registration Zone (RZ)
+      minimum: -90
+      maximum: 90
+      example: 40.689249
+    Sid:
+      description: System ID (SID)
       type: integer
-      minimum: 0
-      maximum: 4095
-      example: 1234
-    MccString:
-      description: 'Mobile Country Code (MCC).
-
-        **Note**: ''0xx'' is for test networks, ''1xx'' and ''8xx'' are not used.
+      minimum: 1
+      maximum: 32767
+      example: 4162
+    NbIotNmrArray:
+      description: NB-IoT network measurements
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/NbIotNmr'
+      example:
+      - earfcn: 6300
+        pci: 237
+      - earfcn: 6300
+        pci: 442
+    LteCatMNmrArray:
+      description: LTE Cat-M network measurements
+      type: array
+      minItems: 1
+      maxItems: 32
+      items:
+        $ref: '#/components/schemas/LteCatMNmr'
+      example:
+      - earfcn: 6300
+        pci: 237
+      - earfcn: 6300
+        pci: 442
+    ErrorDetail:
+      description: Detail about an error
+      type: object
+      properties:
+        title:
+          description: Title for the detail
+          type: string
+          example: Invalid size value
+        source:
+          description: Source of the error, using JSONPath
+          type: string
+          example: $.data.attributes[0].size
+        message:
+          description: Localize message
+          type: string
+          example: Size must be between 3 and 64
+        messageTemplate:
+          description: Optional error template
+          type: string
+          example: validation.constraint.between
+        messagePlaceholders:
+          description: Optional placeholder for error details
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    Version:
+      type: string
+      format: version
+      pattern: ^[0-9]{1,3}\.[0-9]{1,3}(\.[0-9]{1,5})?$
+      minLength: 3
+      maxLength: 13
+      example: 2.0.31
+    GsmNmr:
+      description: 'GSM network measurements.
 
         '
-      type: string
-      minLength: 3
-      maxLength: 3
-      pattern: ^[0-9]{3}$
-      example: '262'
+      type: object
+      required:
+      - bsic
+      - bcch
+      properties:
+        bsic:
+          $ref: '#/components/schemas/Bsic'
+        bcch:
+          $ref: '#/components/schemas/Bcch'
+        rxLevel:
+          $ref: '#/components/schemas/RxLevel'
+        globalIdentity:
+          $ref: '#/components/schemas/GsmNmrGlobalId'
+      additionalProperties: false
+      example:
+        bsic: 6
+        bcch: 82
+    WcdmaNmr:
+      description: WCDMA network measurement
+      type: object
+      required:
+      - uarfcndl
+      - psc
+      properties:
+        uarfcndl:
+          $ref: '#/components/schemas/Uarfcndl'
+        psc:
+          $ref: '#/components/schemas/Psc'
+        cid:
+          $ref: '#/components/schemas/WcdmaCid'
+        rscp:
+          $ref: '#/components/schemas/Rscp'
+        pathloss:
+          $ref: '#/components/schemas/Pathloss'
+      additionalProperties: false
+      example:
+        uarfcndl: 10786
+        psc: 149
+        rscp: -50
+        pathloss: 80
+  responses:
+    Error415:
+      description: Invalid request content type. Check the `cause` field of the response body for the required content type.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Unsupported Media Type
+            status: 415
+            code: E606415
+            cause: Content-Type should be application/json.
+            action: Provide request body in application/json content type and/or correct Content-Type header
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    Error503:
+      description: Service is unavailable, try again later.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Service Unavailable
+            status: 503
+            code: E606503
+            cause: The service is currently unavailable
+            action: Please try again later
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    SuccessLocate:
+      description: Request processed successfully and a WGS-84 compliant geocoordinate location estimate was included in the response.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            description: Object wrapper for the response to a location request.
+            type: object
+            required:
+            - location
+            properties:
+              location:
+                $ref: '#/components/schemas/PositionLocate'
+    Error405Post:
+      description: 'Method not allowed.
+
+
+        Check the `Allow` header of the response for the allowed methods for this path.
+
+        '
+      headers:
+        Allow:
+          description: Allowed methods for this path
+          schema:
+            type: string
+          example: POST
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Not supported
+            status: 405
+            code: E606405
+            cause: The method GET is not supported
+            action: Send request using method specified in Allow header
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    Error429:
+      description: Too many requests in a given amount of time (rate limiting).
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Too Many Requests
+            error_description: Rate limit for this service has been reached
+    Error403:
+      description: 'Access denied.
+
+
+        Provided credentials do not authorize access.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    ErrorDefault:
+      description: Other possible errors
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: HTTP Version Not Supported
+            status: 505
+            code: E606505
+            cause: This HTTP version is not supported
+            action: Please use HTTP/1.1
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    Error401:
+      description: 'Authentication failed.
+
+
+        Credentials (such as apiKey or access token) are missing or invalid.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: Token Validation Failure - invalid time in token
+    Error413:
+      description: 'Too large request.
+
+
+        The request body exceeds the maximum size limit.
+
+        Check the `cause` field of the response body for the maximum allowed size.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Payload Too Large
+            status: 413
+            code: E606413
+            cause: The request body exceeds the maximum size limit of 30KB
+            action: Check the request correctness and/or remove some measurements to reduce request size
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    Error500:
+      description: An unexpected server error has occurred, try again later.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: Internal Server Error
+            status: 500
+            code: E606500
+            cause: Something unexpected happened.
+            action: System administrators have been notified about the problem. Please try again later.
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    Error414:
+      description: 'Too long URI.
+
+
+        The URI (the path and query parameters) exceeds the limit.
+
+        Check the `cause` field of the response body for the maximum allowed length.
+
+        '
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            title: URI Too Long
+            status: 414
+            code: E606414
+            cause: URI exceeds the maximum length of 500B
+            action: Fix the URI (remove extra parameters?)
+            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
   parameters:
+    BillingTag:
+      name: billingTag
+      description: 'A list of up to six billing tags, separated by the + sign. This parameter provides a way to track your platform usage. For details, refer to the Cost Management Developer Guide section on [Billing Tags](https://www.here.com/docs/bundle/cost-management-developer-guide/page/topics/tutorial-billing-tags.html).
+
+        '
+      in: query
+      schema:
+        type: string
+        minLength: 4
+        maxLength: 101
+      example: ABCD+EFGH
+    RequestID:
+      name: X-Request-ID
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service. Can be any string, but UUID is recommended. It will be echoed in the response.
+
+        '
+      in: header
+      required: false
+      schema:
+        type: string
     Desired:
       name: desired
       description: 'Comma-separated list of additional data fields that the service should include in the response if data is available. The query parameter supports the value `altitude`.
@@ -1566,27 +1810,6 @@ components:
       style: form
       explode: false
       required: false
-    Confidence:
-      name: confidence
-      description: 'Confidence level in percent for the accuracy/uncertainty in the location estimate response. If not specified, the default is 68 (this corresponds to a 68% probability that the true position is within the accuracy/uncertainty radius of the location estimate: the higher the number, the greater the confidence level).
-
-        '
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 50
-        maximum: 99
-        default: 68
-    RequestID:
-      name: X-Request-ID
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service. Can be any string, but UUID is recommended. It will be echoed in the response.
-
-        '
-      in: header
-      required: false
-      schema:
-        type: string
     Fallback:
       name: fallback
       in: query
@@ -1619,15 +1842,6 @@ components:
           value:
           - area
           - singleWifi
-    ContentEncoding:
-      name: Content-Encoding
-      in: header
-      description: 'Indicates that the data in the body has been compressed. Supported codings are: ''gzip'', ''deflate'', ''br''.
-
-        '
-      schema:
-        type: string
-      required: false
     Required:
       name: required
       description: 'Comma-separated list of additional data fields that the service should include in the response. If the data is not available, the response contains an error message. The query parameter supports the value `altitude`.
@@ -1643,244 +1857,28 @@ components:
       style: form
       explode: false
       required: false
-    BillingTag:
-      name: billingTag
-      description: 'A list of up to six billing tags, separated by the + sign. This parameter provides a way to track your platform usage. For details, refer to the Cost Management Developer Guide section on [Billing Tags](https://www.here.com/docs/bundle/cost-management-developer-guide/page/topics/tutorial-billing-tags.html).
+    Confidence:
+      name: confidence
+      description: 'Confidence level in percent for the accuracy/uncertainty in the location estimate response. If not specified, the default is 68 (this corresponds to a 68% probability that the true position is within the accuracy/uncertainty radius of the location estimate: the higher the number, the greater the confidence level).
 
         '
       in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 50
+        maximum: 99
+        default: 68
+    ContentEncoding:
+      name: Content-Encoding
+      in: header
+      description: 'Indicates that the data in the body has been compressed. Supported codings are: ''gzip'', ''deflate'', ''br''.
+
+        '
       schema:
         type: string
-        minLength: 4
-        maxLength: 101
-      example: ABCD+EFGH
-  responses:
-    Error403:
-      description: 'Access denied.
-
-
-        Provided credentials do not authorize access.
-
-        '
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
-    Error500:
-      description: An unexpected server error has occurred, try again later.
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: Internal Server Error
-            status: 500
-            code: E606500
-            cause: Something unexpected happened.
-            action: System administrators have been notified about the problem. Please try again later.
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    Error503:
-      description: Service is unavailable, try again later.
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: Service Unavailable
-            status: 503
-            code: E606503
-            cause: The service is currently unavailable
-            action: Please try again later
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    Error429:
-      description: Too many requests in a given amount of time (rate limiting).
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-        Retry-After:
-          $ref: '#/components/headers/RetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Too Many Requests
-            error_description: Rate limit for this service has been reached
-    Error413:
-      description: 'Too large request.
-
-
-        The request body exceeds the maximum size limit.
-
-        Check the `cause` field of the response body for the maximum allowed size.
-
-        '
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: Payload Too Large
-            status: 413
-            code: E606413
-            cause: The request body exceeds the maximum size limit of 30KB
-            action: Check the request correctness and/or remove some measurements to reduce request size
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    Error415:
-      description: Invalid request content type. Check the `cause` field of the response body for the required content type.
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: Unsupported Media Type
-            status: 415
-            code: E606415
-            cause: Content-Type should be application/json.
-            action: Provide request body in application/json content type and/or correct Content-Type header
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    Error401:
-      description: 'Authentication failed.
-
-
-        Credentials (such as apiKey or access token) are missing or invalid.
-
-        '
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Unauthorized
-            error_description: Token Validation Failure - invalid time in token
-    Error405Post:
-      description: 'Method not allowed.
-
-
-        Check the `Allow` header of the response for the allowed methods for this path.
-
-        '
-      headers:
-        Allow:
-          description: Allowed methods for this path
-          schema:
-            type: string
-          example: POST
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: Not supported
-            status: 405
-            code: E606405
-            cause: The method GET is not supported
-            action: Send request using method specified in Allow header
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    ErrorDefault:
-      description: Other possible errors
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: HTTP Version Not Supported
-            status: 505
-            code: E606505
-            cause: This HTTP version is not supported
-            action: Please use HTTP/1.1
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    SuccessLocate:
-      description: Request processed successfully and a WGS-84 compliant geocoordinate location estimate was included in the response.
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            description: Object wrapper for the response to a location request.
-            type: object
-            required:
-            - location
-            properties:
-              location:
-                $ref: '#/components/schemas/PositionLocate'
-    Error414:
-      description: 'Too long URI.
-
-
-        The URI (the path and query parameters) exceeds the limit.
-
-        Check the `cause` field of the response body for the maximum allowed length.
-
-        '
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            title: URI Too Long
-            status: 414
-            code: E606414
-            cause: URI exceeds the maximum length of 500B
-            action: Fix the URI (remove extra parameters?)
-            correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+      required: false
   headers:
-    RequestID:
-      description: Value of X-Request-ID header parameter supplied in the request.
-      schema:
-        type: string
     RetryAfter:
       description: Number of seconds to wait before making a new request.
       schema:
@@ -1897,6 +1895,10 @@ components:
         in future and relying upon this specific format is deprecated!
 
         '
+      schema:
+        type: string
+    RequestID:
+      description: Value of X-Request-ID header parameter supplied in the request.
       schema:
         type: string
   securitySchemes:

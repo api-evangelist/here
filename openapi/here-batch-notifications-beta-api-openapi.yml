@@ -522,49 +522,6 @@ paths:
       - Bearer: []
 components:
   schemas:
-    AuthErrorResponse:
-      description: Response on Authorization Error
-      properties:
-        error:
-          type: string
-          description: Human-readable error
-        error_description:
-          type: string
-          description: Human-readable error description
-      required:
-      - error
-      - error_description
-    Notification:
-      type: object
-      description: Notification hook that is called on jobs completion.
-      properties:
-        id:
-          type: string
-          description: Identifier that was auto-generated on notification creation and uniquely identifies this notification.
-          example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
-          readOnly: true
-        type:
-          type: string
-          default: webHook
-          description: The type of the notification.
-          enum:
-          - webHook
-          example: webHook
-        lastUsedTime:
-          type: string
-          format: date-time
-          description: The timestamp when the notification was last used.
-          readOnly: true
-        config:
-          type: object
-          additionalProperties: false
-          description: "To configure a notification, the **type** as well as the the **config** property needs to be defined. Each type requires individual properties as listed below.\n\n### `webHook`\nFor the notification of the type `webHook` only a **url** parameter is required. This URL is called via a GET request, after the job is completed.\nTo individualize the request, property placeholders in the URL are substituted if surrounded by '${' and '}' These placeholders can be in the path or a query parameter.\n\nAvailable properties are:\n - JOB_ID\n - JOB_NAME\n - JOB_STATUS\n - JOB_OUTPUT_TYPE\n - JOB_RECORDS_SUCCEEDED\n - JOB_RECORDS_FAILED\n - JOB_RECORDS_TOTAL\n - JOB_RECORDS_VALID\n - JOB_RECORDS_INVALID\n\nAn example for the url property would be: 'https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}'"
-          example:
-            url: https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}
-      required:
-      - config
-      - id
-      - type
     ErrorResponse:
       type: object
       description: Response in case of error.
@@ -601,6 +558,49 @@ components:
       - correlationId
       - status
       - title
+    Notification:
+      type: object
+      description: Notification hook that is called on jobs completion.
+      properties:
+        id:
+          type: string
+          description: Identifier that was auto-generated on notification creation and uniquely identifies this notification.
+          example: NOTIFICATION-3fa85f64-5717-4562-b3fc-2c963f66afa6
+          readOnly: true
+        type:
+          type: string
+          default: webHook
+          description: The type of the notification.
+          enum:
+          - webHook
+          example: webHook
+        lastUsedTime:
+          type: string
+          format: date-time
+          description: The timestamp when the notification was last used.
+          readOnly: true
+        config:
+          type: object
+          additionalProperties: false
+          description: "To configure a notification, the **type** as well as the the **config** property needs to be defined. Each type requires individual properties as listed below.\n\n### `webHook`\nFor the notification of the type `webHook` only a **url** parameter is required. This URL is called via a GET request, after the job is completed.\nTo individualize the request, property placeholders in the URL are substituted if surrounded by '${' and '}' These placeholders can be in the path or a query parameter.\n\nAvailable properties are:\n - JOB_ID\n - JOB_NAME\n - JOB_STATUS\n - JOB_OUTPUT_TYPE\n - JOB_RECORDS_SUCCEEDED\n - JOB_RECORDS_FAILED\n - JOB_RECORDS_TOTAL\n - JOB_RECORDS_VALID\n - JOB_RECORDS_INVALID\n\nAn example for the url property would be: 'https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}'"
+          example:
+            url: https://myPublicDomain.de?jobId=${JOB_ID}&status=${JOB_STATUS}
+      required:
+      - config
+      - id
+      - type
+    AuthErrorResponse:
+      description: Response on Authorization Error
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+      required:
+      - error
+      - error_description
   headers:
     X-Request-ID:
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.
@@ -611,14 +611,14 @@ components:
       schema:
         type: string
   examples:
-    ForbiddenErrorExample:
-      value:
-        error: Forbidden
-        error_description: These credentials do not authorize access
     UnauthorizedErrorExample:
       value:
         error: Unauthorized
         error_description: No credentials found
+    ForbiddenErrorExample:
+      value:
+        error: Forbidden
+        error_description: These credentials do not authorize access
   securitySchemes:
     ApiKey:
       type: apiKey

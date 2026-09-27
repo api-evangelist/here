@@ -21,7 +21,7 @@ paths:
       - Query
       summary: Gets changes for the version or time range for the specific partition(s)
       description: Gets the latest partition changes for a version range in a versioned layer or a time range for a volatile layer. Only the latest change for each changed partition is returned, not intermediate changes. If the response contains a partition with an empty 'dataHandle' value, the partition was deleted at the version indicated by the 'version' field of the partition object. If a partition was created and deleted between the versions specified in the `startVersion` and `endVersion` parameters, the partition is included in the response with an empty `dataHandle` value. For example, if you request versions `0` to `10`, and a partition was created in version `3` and then deleted in version `7`, it is included in the response with an empty `dataHandle` value.
-      operationId: Query API v1 getChangesById
+      operationId: QueryAPIV1GetChangesById
       parameters:
       - name: layerId
         in: path
@@ -101,13 +101,15 @@ paths:
           description: Catalog or layer does not exist
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Query API v1 getChangesById
   /layers/{layerId}/partitions:
     get:
       tags:
       - Query
       summary: Gets metadata for the requested partitions
       description: Gets metadata for specific partition ids. If the layer specified in the request does not exist, the request results in an error. If a partition specified in the request does not exist, the response does not include this partition. Maximum allowed number of partitions ids per call is 100.
-      operationId: Query API v1 getPartitionsById
+      operationId: QueryAPIV1GetPartitionsById
       parameters:
       - name: layerId
         in: path
@@ -170,13 +172,15 @@ paths:
           description: Catalog or layer does not exist
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Query API v1 getPartitionsById
   /layers/{layerId}/versions/{version}/quadkeys/{quadKey}/depths/{depth}:
     get:
       tags:
       - Query
       summary: Gets index metadata of versioned
       description: Gets metadata for the requested index. Only available for versioned layers where the partitioning scheme is `heretile`.
-      operationId: Query API v1 quadTreeIndex
+      operationId: QueryAPIV1QuadTreeIndex
       parameters:
       - name: layerId
         in: path
@@ -244,13 +248,15 @@ paths:
           description: Not Found
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Query API v1 quadTreeIndex
   /layers/{layerId}/quadkeys/{quadKey}/depths/{depth}:
     get:
       tags:
       - Query
       summary: Gets index metadata for volatile layers
       description: Gets metadata for the requested index. Only available for volatile layers where the partitioning scheme is `heretile`.
-      operationId: Query API v1 quadTreeIndexVolatile
+      operationId: QueryAPIV1QuadTreeIndexVolatile
       parameters:
       - name: layerId
         in: path
@@ -310,60 +316,10 @@ paths:
           description: Not Found
           content: {}
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Query API v1 quadTreeIndexVolatile
 components:
   schemas:
-    Partitions:
-      required:
-      - partitions
-      type: object
-      properties:
-        partitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Partition'
-      description: Describes a list of partitions for a given layer and layer version.
-    SubQuad:
-      required:
-      - dataHandle
-      - subQuadKey
-      - version
-      type: object
-      properties:
-        additionalMetadata:
-          type: string
-          description: Optional value for the additional meta-data specified by the publisher.
-          example: <Additional metadata>
-        checksum:
-          type: string
-          example: 291f66029c232400e3403cd6e9cfd36e
-          description: The checksum field is optional. The response only includes this information if you specify checksum in the request (using `additionalFields` query parameter), and if the request for the commit of the partition  a checksum was provided during commit of the partition. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of checksum field is 128 characters.
-        compressedDataSize:
-          type: integer
-          description: Optional value for the size of the compressed partition data in bytes. Compressed size of the data when using Blob API in the data client with compression enabled to commit to Data Service.  The response only includes this information if you specify the compressedDataSize field in the request, and if the request for the commit of the partition specifies compressedDataSize.
-          format: int64
-          example: 200
-        dataHandle:
-          type: string
-          description: To store data in the directly dataHandle, use the `data` URL scheme (RFC 2397). The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field can have an empty value. When comparing two versions and if the dataHandle is not present, the partition was deleted. The maximum length of dataHandle is 1024 characters.
-          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
-        dataSize:
-          type: integer
-          description: Optional value for the size of the partition data in bytes. Uncompressed size of the data when using Blob API in the data client with compression enabled or disabled to commit to Data Service. The response only includes this information if you specify the dataSize field in the requested, and if the request for the commit of the partition specifies dataSize.
-          format: int64
-          example: 1024
-        crc:
-          type: string
-          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
-          example: c3f276d7
-        subQuadKey:
-          type: string
-          description: Variable length string defining the child of the passed in quadKey tile. Depending on the partitioning scheme of the layer, either a `quadtree` (deprecated) or a `heretile` formatted id from the sub quad will be returned. When the quadKey is referenced in the response (e.g. when depth is 0), subQuadKey is an empty string for `quadtree` partitioning, and `1` for `heretile` partitioning.
-          example: 1
-        version:
-          type: integer
-          description: Version of the catalog when this partition was first published.
-          format: int64
-          example: 1
     ParentQuad:
       required:
       - dataHandle
@@ -420,6 +376,48 @@ components:
           description: Result of the index resource call. For each tile that contains data in the requested quadKey, one element with the respective sub-quad data is contained in the array.
           items:
             $ref: '#/components/schemas/SubQuad'
+    SubQuad:
+      required:
+      - dataHandle
+      - subQuadKey
+      - version
+      type: object
+      properties:
+        additionalMetadata:
+          type: string
+          description: Optional value for the additional meta-data specified by the publisher.
+          example: <Additional metadata>
+        checksum:
+          type: string
+          example: 291f66029c232400e3403cd6e9cfd36e
+          description: The checksum field is optional. The response only includes this information if you specify checksum in the request (using `additionalFields` query parameter), and if the request for the commit of the partition  a checksum was provided during commit of the partition. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of checksum field is 128 characters.
+        compressedDataSize:
+          type: integer
+          description: Optional value for the size of the compressed partition data in bytes. Compressed size of the data when using Blob API in the data client with compression enabled to commit to Data Service.  The response only includes this information if you specify the compressedDataSize field in the request, and if the request for the commit of the partition specifies compressedDataSize.
+          format: int64
+          example: 200
+        dataHandle:
+          type: string
+          description: To store data in the directly dataHandle, use the `data` URL scheme (RFC 2397). The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field can have an empty value. When comparing two versions and if the dataHandle is not present, the partition was deleted. The maximum length of dataHandle is 1024 characters.
+          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
+        dataSize:
+          type: integer
+          description: Optional value for the size of the partition data in bytes. Uncompressed size of the data when using Blob API in the data client with compression enabled or disabled to commit to Data Service. The response only includes this information if you specify the dataSize field in the requested, and if the request for the commit of the partition specifies dataSize.
+          format: int64
+          example: 1024
+        crc:
+          type: string
+          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
+          example: c3f276d7
+        subQuadKey:
+          type: string
+          description: Variable length string defining the child of the passed in quadKey tile. Depending on the partitioning scheme of the layer, either a `quadtree` (deprecated) or a `heretile` formatted id from the sub quad will be returned. When the quadKey is referenced in the response (e.g. when depth is 0), subQuadKey is an empty string for `quadtree` partitioning, and `1` for `heretile` partitioning.
+          example: 1
+        version:
+          type: integer
+          description: Version of the catalog when this partition was first published.
+          format: int64
+          example: 1
     Partition:
       required:
       - partition
@@ -459,6 +457,16 @@ components:
           format: int64
           example: 2
       description: Describes the partition object which is unique within a layer.
+    Partitions:
+      required:
+      - partitions
+      type: object
+      properties:
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partition'
+      description: Describes a list of partitions for a given layer and layer version.
   parameters:
     Context:
       name: context

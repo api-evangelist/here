@@ -323,181 +323,38 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  parameters:
-    externalId:
-      in: query
-      name: externalId
-      example: A-S00001234
-      required: false
-      description: For external resource this ID needs to be provided.
-      schema:
-        type: string
-    resource:
-      in: path
-      name: resource
-      schema:
-        type: string
-      required: true
-      description: 'The hrn that identifies the resource.
-
-        '
-      example: hrn:here:data::myrealm:my-catalog
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    Type:
-      in: query
-      name: type
-      required: false
-      description: The type of the resource.
-      schema:
-        $ref: '#/components/schemas/Type'
-    ResourceRelation:
-      in: query
-      name: relation
-      required: true
-      description: The relation of the resource. Must be home or reference(link)
-      schema:
-        $ref: '#/components/schemas/ResourceRelation'
-    ProjectResourceType:
-      in: query
-      name: type
-      required: false
-      description: The type of the resource. Required for resource=home. For adding resources of multiple types, use the type property in the request body instead.
-      schema:
-        $ref: '#/components/schemas/Type'
-    Relation:
-      in: query
-      name: relation
-      required: false
-      description: The relation of the resource. A resource is only returned in the response if it matches the requested relation.
-      schema:
-        $ref: '#/components/schemas/Relation'
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    project:
-      in: path
-      name: project
-      required: true
-      description: HRN identifying the project
-      schema:
-        type: string
-      example: hrn:here:authorization::myrealm:project/my-project-0000
-    externalIdDelete:
-      in: query
-      name: externalId
-      example: A-S00001234
-      required: false
-      description: Delete only the linkedOption with this matching externalId. Note an empty string value for this parameter matches the linkedOption with no externalId value.  If this parameter is omitted, the entire relation and all linkedOptions are removed.  Only relevant when relation=reference.
-      schema:
-        type: string
   schemas:
-    Type:
-      type: string
-      example: catalog
-      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
-    allowedActions:
+    subresources:
       type: array
+      maxItems: 10
       items:
         type: string
-        example: readResource
-      description: 'The list of actions made available for referencing for the resourceType.
-
-        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
-
-        reserved resource prefix of the resource in the path.
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
 
         '
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    ErrorResponse:
+    PageWithToken:
       type: object
       required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
+      - limit
+      - total
+      - items
       properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
+        limit:
           type: integer
-          example: 400
-        code:
-          description: Service specific error code
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
           type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
     ResourceRelationResponse:
       type: object
       properties:
@@ -547,6 +404,36 @@ components:
 
             '
           example: hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000
+    InactiveReason:
+      type: array
+      items:
+        type: string
+        enum:
+        - linkableResourceMissing
+        - crossRealmTrustMissing
+        - resourceHomeNotFound
+        - actionNotPermitted
+        - resourceHomeNotReferencable
+        - resourceLinkInactive
+      example:
+      - linkableResourceMissing
+      description: 'Diagnostics information which gives description of reasons in case of active property is ''false''. Developers can always choose to ignore the `InactiveReason` and take no action.
+
+        However, the InactiveReason gives a hint as to how the `ResourceLink` could become active again.
+
+        * linkableResourceMissing: the grantor removed the linkable resource.  Developers can either ask the grantor to add the LinkableResource again, or remove this ResourceLink as clean-up.
+
+        * crossRealmTrustMissing: either the grantor''s or the grantee''s Project/Realm, or both, must complete the Cross-Realm Trust.  Alternatively, remove this ResourceLink as clean-up.
+
+        * resourceHomeNotFound: indicates the ResourceHome no longer exists, which indicates the Resource has been deleted from its home catalog.  Remove this ResourceLink to clean-up.
+
+        * actionNotPermitted: the service''s authorizationDescriptor no longer supports the action identified in this ResourceLink.  Either contact the service developer to add support for the action back to the linkable actions, or remove this ResourceLink as clean-up.
+
+        * resourceHomeNotReferenceable: the owner of the Resource has marked the Resource to no longer be referenceable.  Either contact the owner to mark it as referenceable again, or remove this ResourceLink as clean-up.
+
+        * resourceLinkInactive: the ProjectAdmin has marked this ResourceLink as inactive.  Either ask the ProjectAdmin to make it active again, remove the ResourceLink.
+
+        '
     ResourceLinkActionBody:
       type: object
       properties:
@@ -562,71 +449,35 @@ components:
             ''/resources/{resource}/linkable'' API
 
             '
-    linkedOptions:
-      type: array
-      maxItems: 50
-      description: 'This list contains all links for the given resource in the project. It
-
-        will repeat the main entry (with an empty `externalId`), as well as any
-
-        additional entries with unique `externalId` values.
-
-        '
-      example:
-      - allowedActions:
-        - readResource
-        active: true
-      - externalId: A-S0001234
-        allowedActions:
-        - readResource
-        subresources:
-        - usa-il-chicago
-        - deu
-        active: true
-      items:
-        $ref: '#/components/schemas/linkedOption'
-    Relation:
-      type: string
-      enum:
-      - home
-      - reference
-      example: home
-      description: 'The relation of the resource with the Project.
-
-        '
-    subresources:
-      type: array
-      maxItems: 10
-      items:
-        type: string
-        maxLength: 24
-      example:
-      - usa-il-chicago
-      - deu
-      description: 'The list of associated subresource identifiers.
-
-        '
-    ResourceRelationList:
+    ResourceRelationRequest:
       type: object
       required:
-      - resources
+      - resource
       properties:
-        items:
+        resource:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        externalId:
+          $ref: '#/components/schemas/externalId'
+        type:
+          $ref: '#/components/schemas/Type'
+        allowedActions:
           type: array
-          description: The list of resource relations to create. A max of 20 Resource Relation create requests accepted at a time.
           items:
-            $ref: '#/components/schemas/ResourceRelationRequest'
-    ResourceInProjectListWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourceInProjectResponse'
-            description: List of Resources.
+            type: string
+            example: readResource
+          description: 'The list of actions to add as a link to the project. The actions must be one of the ''projectLinkingEnabled''
+
+            action of the service and must be made linkable to the project or the realm via the
+
+            ''/resources/{resource}/linkable'' API
+
+            Note: Resource Relation of type Home by default allows access to all ''projectEnabled'' actions unless otherwise specified via a Project Policy.
+
+            '
     ResourceInProjectResponse:
       type: object
       properties:
@@ -682,55 +533,42 @@ components:
 
             '
           example: hrn:here:authorization::HERE:serviceDescriptor/SERVICE-00000000-0000-0000-0000-000000000000
-    PageWithToken:
+    ResourceRelationList:
       type: object
       required:
-      - limit
-      - total
-      - items
+      - resources
       properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
-    InactiveReason:
+        items:
+          type: array
+          description: The list of resource relations to create. A max of 20 Resource Relation create requests accepted at a time.
+          items:
+            $ref: '#/components/schemas/ResourceRelationRequest'
+    allowedActions:
       type: array
       items:
         type: string
-        enum:
-        - linkableResourceMissing
-        - crossRealmTrustMissing
-        - resourceHomeNotFound
-        - actionNotPermitted
-        - resourceHomeNotReferencable
-        - resourceLinkInactive
-      example:
-      - linkableResourceMissing
-      description: 'Diagnostics information which gives description of reasons in case of active property is ''false''. Developers can always choose to ignore the `InactiveReason` and take no action.
+        example: readResource
+      description: 'The list of actions made available for referencing for the resourceType.
 
-        However, the InactiveReason gives a hint as to how the `ResourceLink` could become active again.
+        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
 
-        * linkableResourceMissing: the grantor removed the linkable resource.  Developers can either ask the grantor to add the LinkableResource again, or remove this ResourceLink as clean-up.
-
-        * crossRealmTrustMissing: either the grantor''s or the grantee''s Project/Realm, or both, must complete the Cross-Realm Trust.  Alternatively, remove this ResourceLink as clean-up.
-
-        * resourceHomeNotFound: indicates the ResourceHome no longer exists, which indicates the Resource has been deleted from its home catalog.  Remove this ResourceLink to clean-up.
-
-        * actionNotPermitted: the service''s authorizationDescriptor no longer supports the action identified in this ResourceLink.  Either contact the service developer to add support for the action back to the linkable actions, or remove this ResourceLink as clean-up.
-
-        * resourceHomeNotReferenceable: the owner of the Resource has marked the Resource to no longer be referenceable.  Either contact the owner to mark it as referenceable again, or remove this ResourceLink as clean-up.
-
-        * resourceLinkInactive: the ProjectAdmin has marked this ResourceLink as inactive.  Either ask the ProjectAdmin to make it active again, remove the ResourceLink.
+        reserved resource prefix of the resource in the path.
 
         '
+    ResourceRelationResponseList:
+      type: object
+      required:
+      - resources
+      properties:
+        items:
+          type: array
+          description: The list of resource relations created
+          items:
+            $ref: '#/components/schemas/ResourceRelationResponse'
+    Type:
+      type: string
+      example: catalog
+      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
     externalId:
       type: string
       maxLength: 80
@@ -744,6 +582,104 @@ components:
         implicit value used for resource made explicitly linkable.
 
         '
+    ResourceInProjectListWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceInProjectResponse'
+            description: List of Resources.
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    Relation:
+      type: string
+      enum:
+      - home
+      - reference
+      example: home
+      description: 'The relation of the resource with the Project.
+
+        '
+    ResourceRelation:
+      type: string
+      enum:
+      - home
+      - reference
+      example: home
+      description: 'The relation of the resource with the Project
+
+        '
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
     linkedOption:
       type: object
       properties:
@@ -775,54 +711,118 @@ components:
             the resource link is detached from the realm.
 
             '
-    ResourceRelationRequest:
-      type: object
-      required:
-      - resource
-      properties:
-        resource:
-          type: string
-          example: hrn:here:data::myrealm:my-catalog
-          description: 'The hrn of the resource
+    linkedOptions:
+      type: array
+      maxItems: 50
+      description: 'This list contains all links for the given resource in the project. It
 
-            '
-        externalId:
-          $ref: '#/components/schemas/externalId'
-        type:
-          $ref: '#/components/schemas/Type'
-        allowedActions:
-          type: array
-          items:
-            type: string
-            example: readResource
-          description: 'The list of actions to add as a link to the project. The actions must be one of the ''projectLinkingEnabled''
+        will repeat the main entry (with an empty `externalId`), as well as any
 
-            action of the service and must be made linkable to the project or the realm via the
-
-            ''/resources/{resource}/linkable'' API
-
-            Note: Resource Relation of type Home by default allows access to all ''projectEnabled'' actions unless otherwise specified via a Project Policy.
-
-            '
-    ResourceRelationResponseList:
-      type: object
-      required:
-      - resources
-      properties:
-        items:
-          type: array
-          description: The list of resource relations created
-          items:
-            $ref: '#/components/schemas/ResourceRelationResponse'
-    ResourceRelation:
-      type: string
-      enum:
-      - home
-      - reference
-      example: home
-      description: 'The relation of the resource with the Project
+        additional entries with unique `externalId` values.
 
         '
+      example:
+      - allowedActions:
+        - readResource
+        active: true
+      - externalId: A-S0001234
+        allowedActions:
+        - readResource
+        subresources:
+        - usa-il-chicago
+        - deu
+        active: true
+      items:
+        $ref: '#/components/schemas/linkedOption'
+  parameters:
+    project:
+      in: path
+      name: project
+      required: true
+      description: HRN identifying the project
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    ProjectResourceType:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource. Required for resource=home. For adding resources of multiple types, use the type property in the request body instead.
+      schema:
+        $ref: '#/components/schemas/Type'
+    externalIdDelete:
+      in: query
+      name: externalId
+      example: A-S00001234
+      required: false
+      description: Delete only the linkedOption with this matching externalId. Note an empty string value for this parameter matches the linkedOption with no externalId value.  If this parameter is omitted, the entire relation and all linkedOptions are removed.  Only relevant when relation=reference.
+      schema:
+        type: string
+    Type:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    ResourceRelation:
+      in: query
+      name: relation
+      required: true
+      description: The relation of the resource. Must be home or reference(link)
+      schema:
+        $ref: '#/components/schemas/ResourceRelation'
+    externalId:
+      in: query
+      name: externalId
+      example: A-S00001234
+      required: false
+      description: For external resource this ID needs to be provided.
+      schema:
+        type: string
+    resource:
+      in: path
+      name: resource
+      schema:
+        type: string
+      required: true
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    Relation:
+      in: query
+      name: relation
+      required: false
+      description: The relation of the resource. A resource is only returned in the response if it matches the requested relation.
+      schema:
+        $ref: '#/components/schemas/Relation'
   headers:
     XCorrelationId:
       schema:
@@ -841,13 +841,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    NoContent:
-      description: No Content
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-    Forbidden:
-      description: You do not have permission to perform this action
+    BadRequestForDeleteProjectResourceReference:
+      description: 'An error has occurred.
+
+        * 404903: No resource home exists with the given Id.
+
+        '
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -864,6 +863,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
     BadRequest:
       description: Invalid input provided, see error response for details
       headers:
@@ -873,12 +877,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    BadRequestForDeleteProjectResourceReference:
-      description: 'An error has occurred.
-
-        * 404903: No resource home exists with the given Id.
-
-        '
+    Forbidden:
+      description: You do not have permission to perform this action
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'

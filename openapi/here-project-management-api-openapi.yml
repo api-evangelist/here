@@ -254,6 +254,63 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: my-project-0000
+          description: 'The id of the Project
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+          description: 'The hrn of the Project
+
+            '
+        name:
+          type: string
+          example: My Project
+          description: 'The name of the Project
+
+            '
+        description:
+          type: string
+          example: This is my demo Project
+          description: 'The description of the Project
+
+            '
+    ProjectListWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectResponse'
+            description: List of Projects.
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
     PatchProject:
       type: object
       properties:
@@ -269,32 +326,6 @@ components:
           description: 'The description of the Project
 
             '
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
     ErrorResponse:
       type: object
       required:
@@ -362,72 +393,64 @@ components:
           description: 'The description of the Project
 
             '
-    ProjectListWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProjectResponse'
-            description: List of Projects.
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
-    ProjectResponse:
+    ErrorDetail:
       type: object
       properties:
-        id:
+        title:
           type: string
-          example: my-project-0000
-          description: 'The id of the Project
-
-            '
-        hrn:
+          description: Error message
+          example: Invalid size value
+        source:
           type: string
-          example: hrn:here:authorization::myrealm:project/my-project-0000
-          description: 'The hrn of the Project
-
-            '
-        name:
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
           type: string
-          example: My Project
-          description: 'The name of the Project
-
-            '
-        description:
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
           type: string
-          example: This is my demo Project
-          description: 'The description of the Project
-
-            '
-  headers:
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+  parameters:
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    project:
+      in: path
+      name: project
+      required: true
+      description: HRN identifying the project
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+    realmProjectSearch:
+      in: query
+      name: q
+      required: false
+      description: A free text query string used to filter the results.  A search against projects in the realm will consider the 'id', 'name', 'description', fields of the projects. The precise search algorithm used to match projects is not specified, but generally any projects where one of the considered fields has a full or partial match should be included in the results.
+      schema:
+        type: string
     XCorrelationId:
+      in: header
+      name: X-Correlation-ID
       schema:
         type: string
       required: false
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
 
         '
-  parameters:
     limit:
       in: query
       name: limit
@@ -438,15 +461,6 @@ components:
         minimum: 0
         maximum: 100
         default: 100
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
     isMember:
       in: query
       name: isMember
@@ -461,31 +475,26 @@ components:
       description: if true returns all projects of which the caller(user/app) is a project admin.
       schema:
         type: boolean
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
+  headers:
+    XCorrelationId:
       schema:
         type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    realmProjectSearch:
-      in: query
-      name: q
       required: false
-      description: A free text query string used to filter the results.  A search against projects in the realm will consider the 'id', 'name', 'description', fields of the projects. The precise search algorithm used to match projects is not specified, but generally any projects where one of the considered fields has a full or partial match should be included in the results.
-      schema:
-        type: string
-    project:
-      in: path
-      name: project
-      required: true
-      description: HRN identifying the project
-      schema:
-        type: string
-      example: hrn:here:authorization::myrealm:project/my-project-0000
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
   responses:
     NotFound:
       description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -504,15 +513,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    BadRequest:
-      description: Invalid input provided, see error response for details
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'

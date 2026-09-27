@@ -23,7 +23,7 @@ paths:
       - Metadata
       summary: Gets layer versions for catalog version
       description: Returns information about layer versions for the catalog version. It will return an error if the catalog does not have any versions or if the version passed in the query parameter does not exist. If a layer does not have any data for the requested version it is excluded from the response.
-      operationId: Metadata API v1 getLayersVersion
+      operationId: MetadataAPIV1GetLayersVersion
       parameters:
       - name: version
         in: query
@@ -59,6 +59,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 getLayersVersion
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/changes:
@@ -67,7 +69,7 @@ paths:
       - Metadata
       summary: Gets changes for the version range
       description: Gets the latest partition metadata in a version range for a versioned layer or a time range for a volatile layer. For versioned layers the range is expressed as a start and end version and returns only the latest changes for the partitions which were added and removed inbetween the specified start and end versions. If a partition was created and deleted between the versions specified in the `startVersion` and `endVersion` parameters, the partition is included in the response with an empty `dataHandle` value. For example, if you request versions `0` to `10`, and a partition was created in version `3` and then deleted in version `7`, it is included in the response with an empty `dataHandle` value.
-      operationId: Metadata API v1 getChanges
+      operationId: MetadataAPIV1GetChanges
       parameters:
       - name: layerId
         in: path
@@ -174,6 +176,8 @@ paths:
       x-fullurl-type: nextUrl
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 getChanges
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/changes/parts:
@@ -182,7 +186,7 @@ paths:
       - Metadata
       summary: Get partIds for parallel queries of changes for the version range
       description: Returns a list of Part Ids which represent the parts that can be used to limit the scope of queries of changes for the version range. This allows to run parallel queries with multiple parts. The user has to provide the desired number of parts and the service will return a list of Part Ids. Please note in some cases the requested number of parts will make them too small and in this case the service might return lesser amount of the parts than requested.
-      operationId: Metadata API v1 getChangesParts
+      operationId: MetadataAPIV1GetChangesParts
       parameters:
       - name: layerId
         in: path
@@ -216,6 +220,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 getChangesParts
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/partitions:
@@ -224,7 +230,7 @@ paths:
       - Metadata
       summary: Gets partitions
       description: Gets the metadata for all partitions in a specific layer.
-      operationId: Metadata API v1 getPartitions
+      operationId: MetadataAPIV1GetPartitions
       parameters:
       - name: layerId
         in: path
@@ -319,6 +325,8 @@ paths:
       x-fullurl-type: nextUrl
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 getPartitions
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/partitions/parts:
@@ -327,7 +335,7 @@ paths:
       - Metadata
       summary: Get partIds for parallel queries of the metadata for all partitions in a…
       description: Returns a list of Part Ids which represent the parts that can be used to limit the scope of queries of the metadata for all partitions in a specific layer. This allows to run parallel queries with multiple parts. The user has to provide the desired number of parts and the service will return a list of Part Ids. Please note in some cases the requested number of parts will make them too small and in this case the service might return lesser amount of the parts than requested.
-      operationId: Metadata API v1 getPartitionsParts
+      operationId: MetadataAPIV1GetPartitionsParts
       parameters:
       - name: layerId
         in: path
@@ -361,6 +369,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 getPartitionsParts
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /versions:
@@ -371,7 +381,7 @@ paths:
       description: 'Returns information about specific catalog version(s). If the catalog doesn''t contain any versions 404 will be returned. Maximum number of versions to be returned per call is 1000 versions. If requested range is bigger than 1000 versions 400 Bad Request will be returned.
 
         Expected either pair ''startVersion'' and ''endVersion'', or ''version'' query parameter, otherwise 400 Bad Request will be returned.'
-      operationId: Metadata API v1 listVersions
+      operationId: MetadataAPIV1ListVersions
       parameters:
       - name: startVersion
         in: query
@@ -435,6 +445,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 listVersions
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /versions/compatibles:
@@ -443,7 +455,7 @@ paths:
       - Metadata
       summary: Gets a list of available catalog versions that respect the given dependencies
       description: Given a list of HRNs and versions provided by the user, returns a list of versions of this catalog for which the listed HRN are either present in the direct or indirect dependencies with the same version, or are not present. Depending on 'strict' flag versions that don't depend on any of the provided catalog HRNs, can also be considered compatible. The compatible versions are returned in reverse order, from the newest to the oldest. When there is no compatible version the service returns an empty list. When the catalog has no version a 404 is returned.
-      operationId: Metadata API v1 compatibleVersions
+      operationId: MetadataAPIV1CompatibleVersions
       parameters:
       - in: query
         name: limit
@@ -492,6 +504,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 compatibleVersions
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /versions/latest:
@@ -500,7 +514,7 @@ paths:
       - Metadata
       summary: Gets the latest available catalog version
       description: Returns information about the latest version for the given catalog. If the catalog doesn't contain any versions a 404 will be returned.
-      operationId: Metadata API v1 latestVersion
+      operationId: MetadataAPIV1LatestVersion
       parameters:
       - name: startVersion
         in: query
@@ -536,6 +550,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 latestVersion
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /versions/minimum:
@@ -544,7 +560,7 @@ paths:
       - Metadata
       summary: Gets the earliest available catalog version
       description: Returns minimum version for the given catalog. If the catalog doesn't contain any versions 404 will be returned.
-      operationId: Metadata API v1 minimumVersion
+      operationId: MetadataAPIV1MinimumVersion
       parameters:
       - name: billingTag
         in: query
@@ -573,12 +589,14 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 minimumVersion
     post:
       tags:
       - Metadata
       summary: Sets the earliest available catalog version
       description: Sets minimum version for the given catalog. All prior versions will be deleted. If the catalog doesn't contain any versions, a 404 will be returned.
-      operationId: Metadata API v1 setMinimumVersion
+      operationId: MetadataAPIV1SetMinimumVersion
       parameters:
       - name: billingTag
         in: query
@@ -611,6 +629,8 @@ paths:
       x-olp-access-type: resource
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Metadata API v1 setMinimumVersion
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /info:
@@ -3468,14 +3488,13 @@ paths:
     - url: https://tracking.api.here.com/
 components:
   schemas:
-    Dependencies:
-      type: object
-      properties:
-        dependencies:
-          type: array
-          description: A list of catalog versions.
-          items:
-            $ref: '#/components/schemas/CatalogVersion'
+    AdditionalFieldsEnum:
+      type: string
+      enum:
+      - dataSize
+      - checksum
+      - compressedDataSize
+      - crc
     MinimumVersionInfo:
       required:
       - version
@@ -3486,21 +3505,6 @@ components:
           description: The minimum version of the catalog metadata to update.
           format: int64
       description: The minumum version of the catalog.
-    Partitions:
-      required:
-      - partitions
-      type: object
-      properties:
-        partitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Partition'
-        next:
-          type: string
-          description: If the number of results exceeds the limit, then this uri will be present and will provide the path to the next batch of results.
-          format: uri
-          example: /uri/to/next/page
-      description: Describes a list of partitions for a given layer and layer version.
     LayerVersion:
       required:
       - layer
@@ -3544,91 +3548,6 @@ components:
           format: int64
           example: 23
       description: Describes the properties of the version dependencies.
-    LayerVersions:
-      required:
-      - layerVersions
-      - version
-      type: object
-      properties:
-        layerVersions:
-          type: array
-          description: List of layer versions
-          items:
-            $ref: '#/components/schemas/LayerVersion'
-        version:
-          type: integer
-          description: Catalog version
-          format: int64
-          example: 1
-      description: Describes the list of the layer versions for a given catalog version.
-    CatalogVersion:
-      type: object
-      required:
-      - hrn
-      - version
-      properties:
-        hrn:
-          type: string
-          example: hrn:here:data:::my-catalog
-          description: The HERE Resource Name (HRN) of a catalog.
-        version:
-          type: integer
-          format: int64
-          example: 24
-          description: The version of the catalog metadata.
-    PartsResponse:
-      type: object
-      properties:
-        parts:
-          type: array
-          example:
-          - eyJwYXJ0SW5kZXgiOjEsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
-          - eyJwYXJ0SW5kZXgiOjMsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
-          items:
-            type: string
-      title: PartsResponse
-    VersionInfo:
-      required:
-      - dependencies
-      - timestamp
-      - version
-      type: object
-      properties:
-        dependencies:
-          type: array
-          description: A list of the catalog dependencies.
-          items:
-            $ref: '#/components/schemas/VersionDependency'
-        partitionCounts:
-          type: object
-          additionalProperties:
-            type: integer
-            format: int64
-          description: A map of the layers in the catalog and their partition counts. The map is expressed in key value pairs.
-        timestamp:
-          type: integer
-          description: A `timestamp` that indicates when the version was created. The `timestamp` is in milliseconds since UNIX Epoch time.
-          format: int64
-          example: 1516397474657
-        version:
-          type: integer
-          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
-          format: int64
-          example: 1
-        hasKnownIssues:
-          type: boolean
-          description: Indicates whether this catalog version has known issues. A value of true usually means that HERE had to delete selected partitions for this catalog version in incidental mode due to legal or other reasons. If you want to avoid using catalog versions with known issues, use this flag in your application logic. A common SDK use case is clearing the local cache based on this information.
-      description: Describes properties for the catalog version.
-    VersionResponse:
-      required:
-      - version
-      type: object
-      properties:
-        version:
-          type: integer
-          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
-          format: int64
-      description: The version of the catalog.
     VersionsResponse:
       type: object
       properties:
@@ -3652,6 +3571,32 @@ components:
           description: If the number of results exceeds the provided limit then this uri will be present and will provide the path to the next batch of results.
           format: uri
           example: /uri/to/next/page
+    PartsResponse:
+      type: object
+      properties:
+        parts:
+          type: array
+          example:
+          - eyJwYXJ0SW5kZXgiOjEsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
+          - eyJwYXJ0SW5kZXgiOjMsIm1heFBhcnRzIjo1LCJzY29wZSI6InBwIn0
+          items:
+            type: string
+      title: PartsResponse
+    CatalogVersion:
+      type: object
+      required:
+      - hrn
+      - version
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:data:::my-catalog
+          description: The HERE Resource Name (HRN) of a catalog.
+        version:
+          type: integer
+          format: int64
+          example: 24
+          description: The version of the catalog metadata.
     VersionInfos:
       required:
       - versions
@@ -3662,13 +3607,31 @@ components:
           items:
             $ref: '#/components/schemas/VersionInfo'
       description: Describes the list of version information for a catalog.
-    AdditionalFieldsEnum:
-      type: string
-      enum:
-      - dataSize
-      - checksum
-      - compressedDataSize
-      - crc
+    Dependencies:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          description: A list of catalog versions.
+          items:
+            $ref: '#/components/schemas/CatalogVersion'
+    LayerVersions:
+      required:
+      - layerVersions
+      - version
+      type: object
+      properties:
+        layerVersions:
+          type: array
+          description: List of layer versions
+          items:
+            $ref: '#/components/schemas/LayerVersion'
+        version:
+          type: integer
+          description: Catalog version
+          format: int64
+          example: 1
+      description: Describes the list of the layer versions for a given catalog version.
     Partition:
       required:
       - partition
@@ -3712,10 +3675,111 @@ components:
           format: int64
           example: 1
       description: Describes the partition object which is unique within a layer.
-    ProjectionSchema:
+    Partitions:
+      required:
+      - partitions
+      type: object
+      properties:
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partition'
+        next:
+          type: string
+          description: If the number of results exceeds the limit, then this uri will be present and will provide the path to the next batch of results.
+          format: uri
+          example: /uri/to/next/page
+      description: Describes a list of partitions for a given layer and layer version.
+    VersionInfo:
+      required:
+      - dependencies
+      - timestamp
+      - version
+      type: object
+      properties:
+        dependencies:
+          type: array
+          description: A list of the catalog dependencies.
+          items:
+            $ref: '#/components/schemas/VersionDependency'
+        partitionCounts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: A map of the layers in the catalog and their partition counts. The map is expressed in key value pairs.
+        timestamp:
+          type: integer
+          description: A `timestamp` that indicates when the version was created. The `timestamp` is in milliseconds since UNIX Epoch time.
+          format: int64
+          example: 1516397474657
+        version:
+          type: integer
+          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
+          format: int64
+          example: 1
+        hasKnownIssues:
+          type: boolean
+          description: Indicates whether this catalog version has known issues. A value of true usually means that HERE had to delete selected partitions for this catalog version in incidental mode due to legal or other reasons. If you want to avoid using catalog versions with known issues, use this flag in your application logic. A common SDK use case is clearing the local cache based on this information.
+      description: Describes properties for the catalog version.
+    VersionResponse:
+      required:
+      - version
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the catalog metadata. It is incremented every time a catalog metadata is changed e.g. by publishing new partitions to durable layers.
+          format: int64
+      description: The version of the catalog.
+    InternalServerErrorResponseSchema:
+      type: object
+      description: Internal Error | Indicates a server malfunction and an unexpected error.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 500
+        code:
+          type: string
+          description: Error code. Possible error codes include E622050,E622051,E622052,E622053, and E622054.
+          example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    LanguageSchema:
       type: string
-      example: mc
-      description: The map projection type used when rendering images.
+      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
+      example: en
+      description: 'Indicates that the map supports the returned language.
+
+        The values follow the BCP47 language code limited to ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
+
+        '
     CopyrightSchema:
       type: object
       properties:
@@ -3762,126 +3826,159 @@ components:
           type: integer
           example: 11
           description: Minimum zoom level for the specified copyright label.
-    CopyrightResourcesSchema:
-      type: object
-      description: The copyright style mappings for this particular resource.
-      additionalProperties:
-        $ref: '#/components/schemas/CopyrightLayersSchema'
-      example:
-        base:
-          styles:
-            explore.satellite.day:
-            - in
-            - sat
-        background:
-          styles:
-            explore.satellite.day:
-            - in
-            - sat
-    ForbiddenErrorSchema:
-      type: object
-      description: Custom error response schema returned as a result of authentication.
-      properties:
-        error:
-          type: string
-          pattern: ^Forbidden$
-        error_description:
-          type: string
-    IconTypesSchema:
+    FormatsSchema:
+      description: List of supported image formats.
       type: array
       items:
-        $ref: '#/components/schemas/IconTypeSchema'
+        $ref: '#/components/schemas/FormatSchema'
+    ZoomLevelsSchema:
+      type: object
+      description: The range of available zoom levels.
+      properties:
+        max:
+          type: integer
+          description: The maximum value for the zoom parameter.
+          example: 20
+        min:
+          type: integer
+          description: The minimum value for the zoom parameter.
+          example: 0
+    IconTypeSchema:
+      type: string
+      example: roadShield
+      description: Name of the underlying icon type for the icon image.
     MapVersionSchema:
       description: The current encoded map version which is valid for 24 hours. After that period, this value must be refreshed.
       type: string
       pattern: ^([a-z]{2,3}[0-9]+)+
       example: in123jp45
-    IconTypeSchema:
-      type: string
-      example: roadShield
-      description: Name of the underlying icon type for the icon image.
-    StylesSchema:
-      type: array
-      description: List of available styles.
-      items:
-        $ref: '#/components/schemas/StyleSchema'
-    PoliticalViewsSchema:
+    SizesSchema:
+      description: List of supported image sizes.
       type: object
-      description: 'Map resource to list of supported geopolitical views for that resource.
-
-        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
-
-        '
-      additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/PoliticalViewSchema'
-      example:
-        base:
-        - AR
-        - CY
-        - EG
-        - IN
-    InternalServerErrorResponseSchema:
-      type: object
-      description: Internal Error | Indicates a server malfunction and an unexpected error.
       properties:
-        title:
-          type: string
-          description: User-friendly error description.
-          example: Input data failed validation
-        status:
-          type: integer
-          description: HTTP status code.
-          example: 500
-        code:
-          type: string
-          description: Error code. Possible error codes include E622050,E622051,E622052,E622053, and E622054.
-          example: E622050
-        cause:
-          type: string
-          description: Human-readable explanation for the error.
-          example: The input data in question does not comply with validation rules
-        action:
-          type: string
-          description: Human-readable description of the action that you can take to correct the error.
-          example: Request a valid id
-        correlationId:
-          type: string
-          description: Auto-generated id that uniquely identifies the request.
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+        width:
+          $ref: '#/components/schemas/AllowedSizesSchema'
+        height:
+          $ref: '#/components/schemas/AllowedSizesSchema'
+    InfoSchema:
+      type: object
+      properties:
+        resources:
+          $ref: '#/components/schemas/ResourcesSchema'
+        projections:
+          $ref: '#/components/schemas/ProjectionsSchema'
+        imageFormats:
+          $ref: '#/components/schemas/FormatsSchema'
+        iconImageFormats:
+          $ref: '#/components/schemas/FormatsSchema'
+        iconTypes:
+          $ref: '#/components/schemas/IconTypesSchema'
+        styles:
+          $ref: '#/components/schemas/StylesSchema'
+        mapVersion:
+          $ref: '#/components/schemas/MapVersionSchema'
+        imageSizes:
+          $ref: '#/components/schemas/SizesSchema'
+        iconSizes:
+          $ref: '#/components/schemas/SizesSchema'
+        zoomLevels:
+          $ref: '#/components/schemas/ZoomLevelsSchema'
+    IconTypesSchema:
+      type: array
+      items:
+        $ref: '#/components/schemas/IconTypeSchema'
+    ResourcesSchema:
+      description: List of available resource types.
+      type: array
+      items:
+        $ref: '#/components/schemas/ResourceSchema'
     ProjectionsSchema:
       type: array
       description: List of available map projection types.
       items:
         $ref: '#/components/schemas/ProjectionSchema'
-    StyleFeatureSchema:
+    PoliticalViewSchema:
+      type: string
+      example: IN
+      description: 'Indicates a certain geopolitical view applied to the map.
+
+        The values follow the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code schema.
+
+        '
+      pattern: ^[A-Z]{2}$
+    FeaturesSchema:
       type: object
-      description: Defines a single feature.
+      description: Provides the information about supported features.
       properties:
-        name:
+        features:
+          $ref: '#/components/schemas/StylesFeaturesSchema'
+    StyleSchema:
+      type: string
+      example: explore.day
+    LanguagesSchema:
+      type: object
+      description: List of languages supported for a specific resource type.
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/LanguageSchema'
+      example:
+        base:
+        - en
+        - es
+        - ru
+    CopyrightStylesSchema:
+      type: object
+      additionalProperties:
+        type: array
+        items:
           type: string
-          description: Feature name.
-          example: environmental_zones
-        modes:
-          type: array
-          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in the image request.
-          items:
-            type: string
-          example:
+          example: in
+      example:
+        explore.satellite.day:
+        - in
+        - sat
+    UnauthorizedErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
+    StylesFeaturesSchema:
+      type: object
+      description: Features and their corresponding modes available for each style.
+      additionalProperties:
+        $ref: '#/components/schemas/StyleFeaturesSchema'
+      example:
+        explore.day:
+        - name: environmental_zones
+          modes:
           - disabled
           - all
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+        - name: pois
+          modes:
+          - all
+          - disabled
+        - name: vehicle_restrictions
+          modes:
+          - disabled
+          - active_and_inactive
+        explore.night:
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+    ProjectionSchema:
+      type: string
+      example: mc
+      description: The map projection type used when rendering images.
     ErrorResponseSchema:
       type: object
       description: Response in case of error.
@@ -3921,83 +4018,36 @@ components:
       - cause
       - action
       - correlationId
-    FeaturesSchema:
-      type: object
-      description: Provides the information about supported features.
-      properties:
-        features:
-          $ref: '#/components/schemas/StylesFeaturesSchema'
-    CopyrightStylesSchema:
-      type: object
-      additionalProperties:
-        type: array
-        items:
-          type: string
-          example: in
-      example:
-        explore.satellite.day:
-        - in
-        - sat
-    CopyrightsObjectSchema:
-      type: object
-      description: The copyright objects.
-      additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/CopyrightSchema'
-      example:
-        base:
-        - boundingBoxes:
-          - east: 90
-            north: 90
-            south: -90
-            west: -90
-          copyrightText: copyright IGN 2009 - BD TOPO
-          label: IGN
-          maxLevel: 20
-          minLevel: 11
-    StylesFeaturesSchema:
-      type: object
-      description: Features and their corresponding modes available for each style.
-      additionalProperties:
-        $ref: '#/components/schemas/StyleFeaturesSchema'
-      example:
-        explore.day:
-        - name: environmental_zones
-          modes:
-          - disabled
-          - all
-        - name: congestion_zones
-          modes:
-          - disabled
-          - all
-        - name: pois
-          modes:
-          - all
-          - disabled
-        - name: vehicle_restrictions
-          modes:
-          - disabled
-          - active_and_inactive
-        explore.night:
-        - name: congestion_zones
-          modes:
-          - disabled
-          - all
-    LanguageSchema:
-      type: string
-      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
-      example: en
-      description: 'Indicates that the map supports the returned language.
-
-        The values follow the BCP47 language code limited to ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
-
-        '
-    ResourcesSchema:
-      description: List of available resource types.
+    StyleFeaturesSchema:
       type: array
+      description: Defines all features supported by a particular style.
       items:
-        $ref: '#/components/schemas/ResourceSchema'
+        $ref: '#/components/schemas/StyleFeatureSchema'
+    StyleFeatureSchema:
+      type: object
+      description: Defines a single feature.
+      properties:
+        name:
+          type: string
+          description: Feature name.
+          example: environmental_zones
+        modes:
+          type: array
+          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in the image request.
+          items:
+            type: string
+          example:
+          - disabled
+          - all
+    ForbiddenErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
     NotFoundErrorResponseSchema:
       type: object
       description: Not Found | Indicates that the resource was not found.
@@ -4037,32 +4087,41 @@ components:
       - cause
       - action
       - correlationId
-    LanguagesSchema:
+    CopyrightLayersSchema:
       type: object
-      description: List of languages supported for a specific resource type.
+      description: The mapping that matches styles with copyright bounding box definitions.
+      properties:
+        styles:
+          $ref: '#/components/schemas/CopyrightStylesSchema'
+      example:
+        styles:
+          explore.satellite.day:
+          - in
+          - sat
+    PoliticalViewsSchema:
+      type: object
+      description: 'Map resource to list of supported geopolitical views for that resource.
+
+        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
+
+        '
       additionalProperties:
         type: array
         items:
-          $ref: '#/components/schemas/LanguageSchema'
+          $ref: '#/components/schemas/PoliticalViewSchema'
       example:
         base:
-        - en
-        - es
-        - ru
-    UnauthorizedErrorSchema:
+        - AR
+        - CY
+        - EG
+        - IN
+    AllowedSizesSchema:
       type: object
-      description: Custom error response schema returned as a result of authentication.
       properties:
-        error:
-          type: string
-          pattern: ^Unauthorized$
-        error_description:
-          type: string
-    StyleFeaturesSchema:
-      type: array
-      description: Defines all features supported by a particular style.
-      items:
-        $ref: '#/components/schemas/StyleFeatureSchema'
+        min:
+          type: integer
+        max:
+          type: integer
     ErrorResponseDetailsSchema:
       type: object
       description: Detailed information about the error.
@@ -4071,6 +4130,44 @@ components:
           type: string
           description: Error message
           example: output parameter matches none of the supported values
+    CopyrightsObjectSchema:
+      type: object
+      description: The copyright objects.
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/CopyrightSchema'
+      example:
+        base:
+        - boundingBoxes:
+          - east: 90
+            north: 90
+            south: -90
+            west: -90
+          copyrightText: copyright IGN 2009 - BD TOPO
+          label: IGN
+          maxLevel: 20
+          minLevel: 11
+    CopyrightResourcesSchema:
+      type: object
+      description: The copyright style mappings for this particular resource.
+      additionalProperties:
+        $ref: '#/components/schemas/CopyrightLayersSchema'
+      example:
+        base:
+          styles:
+            explore.satellite.day:
+            - in
+            - sat
+        background:
+          styles:
+            explore.satellite.day:
+            - in
+            - sat
+    ResourceSchema:
+      type: string
+      example: mapview
+      description: Name of the underlying resource type for the map image.
     CopyrightsSchema:
       type: object
       description: Copyright objects and a mapping of "resource" paths to a set of copyright objects associated with the resource.
@@ -4117,95 +4214,58 @@ components:
       type: string
       description: Supported image format types.
       example: png
-    ResourceSchema:
-      type: string
-      example: mapview
-      description: Name of the underlying resource type for the map image.
-    FormatsSchema:
-      description: List of supported image formats.
+    StylesSchema:
       type: array
+      description: List of available styles.
       items:
-        $ref: '#/components/schemas/FormatSchema'
-    SizesSchema:
-      description: List of supported image sizes.
-      type: object
+        $ref: '#/components/schemas/StyleSchema'
+    InternalServerErrorResponseSchema_2:
+      description: Internal Error | Indicates a server malfunction and an unexpected error.
       properties:
-        width:
-          $ref: '#/components/schemas/AllowedSizesSchema'
-        height:
-          $ref: '#/components/schemas/AllowedSizesSchema'
-    PoliticalViewSchema:
+        title:
+          type: string
+          description: User-friendly error description
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code
+          example: 500
+        code:
+          type: string
+          description: Error code. Possible error codes E622050,E622051,E622052,E622053,E622054
+          example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema_2'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    LanguageSchema_2:
       type: string
-      example: IN
-      description: 'Indicates a certain geopolitical view applied to the map.
+      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
+      example: en
+      description: 'Indicates that the map on this layer supports the returned language language.
 
-        The values follow the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code schema.
+        The values follow ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
 
         '
-      pattern: ^[A-Z]{2}$
-    StyleSchema:
-      type: string
-      example: explore.day
-    InfoSchema:
-      type: object
-      properties:
-        resources:
-          $ref: '#/components/schemas/ResourcesSchema'
-        projections:
-          $ref: '#/components/schemas/ProjectionsSchema'
-        imageFormats:
-          $ref: '#/components/schemas/FormatsSchema'
-        iconImageFormats:
-          $ref: '#/components/schemas/FormatsSchema'
-        iconTypes:
-          $ref: '#/components/schemas/IconTypesSchema'
-        styles:
-          $ref: '#/components/schemas/StylesSchema'
-        mapVersion:
-          $ref: '#/components/schemas/MapVersionSchema'
-        imageSizes:
-          $ref: '#/components/schemas/SizesSchema'
-        iconSizes:
-          $ref: '#/components/schemas/SizesSchema'
-        zoomLevels:
-          $ref: '#/components/schemas/ZoomLevelsSchema'
-    AllowedSizesSchema:
-      type: object
-      properties:
-        min:
-          type: integer
-        max:
-          type: integer
-    ZoomLevelsSchema:
-      type: object
-      description: The range of available zoom levels.
-      properties:
-        max:
-          type: integer
-          description: The maximum value for the zoom parameter.
-          example: 20
-        min:
-          type: integer
-          description: The minimum value for the zoom parameter.
-          example: 0
-    CopyrightLayersSchema:
-      type: object
-      description: The mapping that matches styles with copyright bounding box definitions.
-      properties:
-        styles:
-          $ref: '#/components/schemas/CopyrightStylesSchema'
-      example:
-        styles:
-          explore.satellite.day:
-          - in
-          - sat
-    ProjectionSchema_2:
-      type: string
-      example: mc
-      description: The projection used when rendering tiles
-    GenericError:
-      description: generic error
-      type: object
     CopyrightSchema_2:
       type: object
       properties:
@@ -4252,88 +4312,128 @@ components:
           type: integer
           example: 11
           description: Minimum zoom level for the specified copyright label.
-    SizeSchema:
-      type: integer
-      description: Supported image size
-      example: 512
-    ForbiddenErrorSchema_2:
+    FormatsSchema_2:
+      description: List of supported formats
+      type: array
+      items:
+        $ref: '#/components/schemas/FormatSchema_2'
+    ZoomLevelsSchema_2:
       type: object
-      description: Custom error response schema returned by authentication
+      description: The range of available zoom levels
       properties:
-        error:
-          type: string
-          pattern: ^Forbidden$
-        error_description:
-          type: string
+        max:
+          type: integer
+          description: The maximum value for the zoom parameter
+          example: 20
+        min:
+          type: integer
+          description: The minimum value for the zoom parameter
+          example: 0
     MapVersionSchema_2:
       description: The current encoded map version. Lasts for 24 hours. After that period, this value should be refreshed.
       type: string
       pattern: ^([a-z]{2,3}[0-9]+)+$
       example: in123jp45
-    StylesSchema_2:
+    SizesSchema_2:
+      description: List of supported image sizes
       type: array
-      description: List of available styles
       items:
-        $ref: '#/components/schemas/StyleSchema'
-    InternalServerErrorResponseSchema_2:
-      description: Internal Error | Indicates a server malfunction and an unexpected error.
+        $ref: '#/components/schemas/SizeSchema'
+    InfoSchema_2:
+      type: object
       properties:
-        title:
-          type: string
-          description: User-friendly error description
-          example: Input data failed validation
-        status:
-          type: integer
-          description: HTTP status code
-          example: 500
-        code:
-          type: string
-          description: Error code. Possible error codes E622050,E622051,E622052,E622053,E622054
-          example: E622050
-        cause:
-          type: string
-          description: Human-readable explanation for the error
-          example: The input data in question does not comply with validation rules
-        action:
-          type: string
-          description: Human-readable description of the action that can be taken to correct the error
-          example: Request a valid id
-        correlationId:
-          type: string
-          description: Auto-generated id that uniquely identifies the request
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseDetailsSchema_2'
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+        imageFormats:
+          $ref: '#/components/schemas/FormatsSchema_2'
+        imageSizes:
+          $ref: '#/components/schemas/SizesSchema_2'
+        mapVersion:
+          $ref: '#/components/schemas/MapVersionSchema_2'
+        resources:
+          $ref: '#/components/schemas/ResourcesSchema_2'
+        projections:
+          $ref: '#/components/schemas/ProjectionsSchema_2'
+        styles:
+          $ref: '#/components/schemas/StylesSchema_2'
+        zoomLevels:
+          $ref: '#/components/schemas/ZoomLevelsSchema_2'
+    ResourcesSchema_2:
+      description: List of available resources
+      type: array
+      items:
+        $ref: '#/components/schemas/ResourceSchema_2'
     ProjectionsSchema_2:
       type: array
       description: List of available projections
       items:
         $ref: '#/components/schemas/ProjectionSchema_2'
-    StyleFeatureSchema_2:
+    PoliticalViewSchema_2:
+      type: string
+      example: IN
+      description: 'Indicates a certain geopolitical view of the map.
+
+        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
+
+        '
+      pattern: ^[A-Z]{2,3}$
+    FeaturesSchema_2:
       type: object
-      description: Defines a single feature.
+      description: Provides information about supported features.
       properties:
-        name:
+        features:
+          $ref: '#/components/schemas/StylesFeaturesSchema_2'
+    LanguagesSchema_2:
+      type: object
+      description: Map resource to list of supported languages for that resource
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/LanguageSchema_2'
+      example:
+        base:
+        - en
+        - es
+        - ru
+    UnauthorizedErrorSchema_2:
+      type: object
+      description: Custom error response schema returned by authentication
+      properties:
+        error:
           type: string
-          description: Feature name.
-          example: environmental_zones
-        modes:
-          type: array
-          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in tile request.
-          items:
-            type: string
-          example:
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
+    StylesFeaturesSchema_2:
+      type: object
+      description: Mapping of a style to all supported features for the style.
+      additionalProperties:
+        $ref: '#/components/schemas/StyleFeaturesSchema_2'
+      example:
+        explore.day:
+        - name: environmental_zones
+          modes:
           - disabled
           - all
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+        - name: pois
+          modes:
+          - all
+          - disabled
+        - name: vehicle_restrictions
+          modes:
+          - disabled
+          - active_and_inactive
+        explore.night:
+        - name: congestion_zones
+          modes:
+          - disabled
+          - all
+    ProjectionSchema_2:
+      type: string
+      example: mc
+      description: The projection used when rendering tiles
     ErrorResponseSchema_2:
       description: Response in case of error
       properties:
@@ -4372,54 +4472,40 @@ components:
       - cause
       - action
       - correlationId
-    FeaturesSchema_2:
-      type: object
-      description: Provides information about supported features.
-      properties:
-        features:
-          $ref: '#/components/schemas/StylesFeaturesSchema_2'
-    StylesFeaturesSchema_2:
-      type: object
-      description: Mapping of a style to all supported features for the style.
-      additionalProperties:
-        $ref: '#/components/schemas/StyleFeaturesSchema_2'
-      example:
-        explore.day:
-        - name: environmental_zones
-          modes:
-          - disabled
-          - all
-        - name: congestion_zones
-          modes:
-          - disabled
-          - all
-        - name: pois
-          modes:
-          - all
-          - disabled
-        - name: vehicle_restrictions
-          modes:
-          - disabled
-          - active_and_inactive
-        explore.night:
-        - name: congestion_zones
-          modes:
-          - disabled
-          - all
-    LanguageSchema_2:
-      type: string
-      pattern: ^[a-z]{2}(-[a-zA-Z]{1,4})?$
-      example: en
-      description: 'Indicates that the map on this layer supports the returned language language.
-
-        The values follow ISO 639-1 two-letter language code and, optionally, ISO 15924 four-letter script code.
-
-        '
-    ResourcesSchema_2:
-      description: List of available resources
+    StyleFeaturesSchema_2:
       type: array
+      description: Defines all the features supported by a particular style.
       items:
-        $ref: '#/components/schemas/ResourceSchema_2'
+        $ref: '#/components/schemas/StyleFeatureSchema_2'
+    StyleFeatureSchema_2:
+      type: object
+      description: Defines a single feature.
+      properties:
+        name:
+          type: string
+          description: Feature name.
+          example: environmental_zones
+        modes:
+          type: array
+          description: Applicable feature modes. The first entry is the default mode. The default mode is used if no other mode is specified in tile request.
+          items:
+            type: string
+          example:
+          - disabled
+          - all
+    SizeSchema:
+      type: integer
+      description: Supported image size
+      example: 512
+    ForbiddenErrorSchema_2:
+      type: object
+      description: Custom error response schema returned by authentication
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
     NotFoundErrorResponseSchema_2:
       description: Not Found | Indicates that the requested resource was not found.
       properties:
@@ -4458,32 +4544,6 @@ components:
       - cause
       - action
       - correlationId
-    LanguagesSchema_2:
-      type: object
-      description: Map resource to list of supported languages for that resource
-      additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/LanguageSchema_2'
-      example:
-        base:
-        - en
-        - es
-        - ru
-    UnauthorizedErrorSchema_2:
-      type: object
-      description: Custom error response schema returned by authentication
-      properties:
-        error:
-          type: string
-          pattern: ^Unauthorized$
-        error_description:
-          type: string
-    StyleFeaturesSchema_2:
-      type: array
-      description: Defines all the features supported by a particular style.
-      items:
-        $ref: '#/components/schemas/StyleFeatureSchema_2'
     ErrorResponseDetailsSchema_2:
       description: Detailed information about the error
       properties:
@@ -4491,62 +4551,22 @@ components:
           type: string
           description: Error message
           example: output parameter matches none of the supported values
-    FormatSchema_2:
-      type: string
-      description: Supported image format
-      example: png
+    GenericError:
+      description: generic error
+      type: object
     ResourceSchema_2:
       type: string
       description: Name of a tile resource
       example: base
-    FormatsSchema_2:
-      description: List of supported formats
-      type: array
-      items:
-        $ref: '#/components/schemas/FormatSchema_2'
-    SizesSchema_2:
-      description: List of supported image sizes
-      type: array
-      items:
-        $ref: '#/components/schemas/SizeSchema'
-    PoliticalViewSchema_2:
+    FormatSchema_2:
       type: string
-      example: IN
-      description: 'Indicates a certain geopolitical view of the map.
-
-        The values follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes schema.
-
-        '
-      pattern: ^[A-Z]{2,3}$
-    InfoSchema_2:
-      type: object
-      properties:
-        imageFormats:
-          $ref: '#/components/schemas/FormatsSchema_2'
-        imageSizes:
-          $ref: '#/components/schemas/SizesSchema_2'
-        mapVersion:
-          $ref: '#/components/schemas/MapVersionSchema_2'
-        resources:
-          $ref: '#/components/schemas/ResourcesSchema_2'
-        projections:
-          $ref: '#/components/schemas/ProjectionsSchema_2'
-        styles:
-          $ref: '#/components/schemas/StylesSchema_2'
-        zoomLevels:
-          $ref: '#/components/schemas/ZoomLevelsSchema_2'
-    ZoomLevelsSchema_2:
-      type: object
-      description: The range of available zoom levels
-      properties:
-        max:
-          type: integer
-          description: The maximum value for the zoom parameter
-          example: 20
-        min:
-          type: integer
-          description: The minimum value for the zoom parameter
-          example: 0
+      description: Supported image format
+      example: png
+    StylesSchema_2:
+      type: array
+      description: List of available styles
+      items:
+        $ref: '#/components/schemas/StyleSchema'
   parameters:
     Context:
       name: context
@@ -4592,6 +4612,11 @@ components:
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
+    Cache-Control:
+      description: Specifies how the response can be cached. For more information, see [Cache control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control).
+      schema:
+        type: string
+      example: max-age=86400
     X-Request-ID:
       description: 'User-provided token that you can use to trace a request or a group of requests sent to the service.
 
@@ -4599,11 +4624,6 @@ components:
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
-    Cache-Control:
-      description: Specifies how the response can be cached. For more information, see [Cache control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control).
-      schema:
-        type: string
-      example: max-age=86400
     X-Correlation-ID_2:
       description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
 
@@ -4617,8 +4637,8 @@ components:
         type: string
       example: max-age=86400
   responses:
-    ErrorResponse:
-      description: API response in case of an error.
+    InternalServerErrorResponse:
+      description: API response that indicates a server malfunction or an unexpected error.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -4628,7 +4648,7 @@ components:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/ErrorResponseSchema'
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema'
     NotFoundErrorResponse:
       description: API response that indicates that the requested resource was not found.
       headers:
@@ -4641,6 +4661,18 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/NotFoundErrorResponseSchema'
+    ErrorResponse:
+      description: API response in case of an error.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponseSchema'
     ForbiddenError:
       description: API response that indicates that the access token does not authorize access.
       headers:
@@ -4665,20 +4697,15 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/UnauthorizedErrorSchema'
-    InternalServerErrorResponse:
-      description: API response that indicates a server malfunction or an unexpected error.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
+    GatewayTimeoutErrorResponse:
+      description: API response indicates indicates that the server, while acting as a gateway or proxy, did not get a response in time from the upstream server that it needed in order to complete the request. Try later for the same resource and the request might succeed.
       content:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/InternalServerErrorResponseSchema'
-    ErrorResponse_2:
-      description: API response in case of errors.
+            - $ref: '#/components/schemas/GenericError'
+    InternalServerErrorResponse_2:
+      description: API response indicates a server malfunction and an unexpected error.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID_2'
@@ -4686,7 +4713,7 @@ components:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/ErrorResponseSchema_2'
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema_2'
     NotFoundErrorResponse_2:
       description: API response indicates that the resource was not found.
       headers:
@@ -4697,8 +4724,18 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/NotFoundErrorResponseSchema_2'
-    GatewayTimeoutErrorResponse:
-      description: API response indicates indicates that the server, while acting as a gateway or proxy, did not get a response in time from the upstream server that it needed in order to complete the request. Try later for the same resource and the request might succeed.
+    ErrorResponse_2:
+      description: API response in case of errors.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_2'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponseSchema_2'
+    ServiceUnavailableErrorResponse:
+      description: API response indicates indicates that the service is temporarily unavailable due to system overload or maintenance. Try later for the same resource and the request might succeed.
       content:
         application/json:
           schema:
@@ -4724,23 +4761,6 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/UnauthorizedErrorSchema_2'
-    InternalServerErrorResponse_2:
-      description: API response indicates a server malfunction and an unexpected error.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID_2'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/InternalServerErrorResponseSchema_2'
-    ServiceUnavailableErrorResponse:
-      description: API response indicates indicates that the service is temporarily unavailable due to system overload or maintenance. Try later for the same resource and the request might succeed.
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/GenericError'
   securitySchemes:
     Bearer:
       type: http

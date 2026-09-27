@@ -16,7 +16,7 @@ paths:
       tags:
       - Client Registration
       summary: Dynamically register a MCP client
-      operationId: OAuth 2.0 Access Token RegisterMcpClient
+      operationId: OAuth2.0AccessTokenRegisterMcpClient
       description: 'Registers a new public OAuth client for use with the MCP Authorization Code
 
         + PKCE flow, per RFC 7591.
@@ -49,6 +49,8 @@ paths:
             '
         default:
           $ref: '#/components/responses/CommonError'
+      x-operation-id-source: normalized
+      x-operation-id-original: OAuth 2.0 Access Token RegisterMcpClient
 components:
   schemas:
     McpClientRegistrationResponse:

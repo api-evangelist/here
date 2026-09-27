@@ -24,7 +24,7 @@ paths:
         * Sort API response records alphabetically in ascending order by subscription ID, category, and charge item (name in the response), respectively.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 getUsageByRealm
+      operationId: CostManagementUsageAPIV2GetUsageByRealm
       parameters:
       - $ref: '#/components/parameters/Realm'
       - $ref: '#/components/parameters/StartDate'
@@ -333,6 +333,8 @@ paths:
           $ref: '#/components/responses/NotFound'
       security:
       - token: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 getUsageByRealm
   /usage/realms/{realmId}/csv:
     get:
       tags:
@@ -343,7 +345,7 @@ paths:
         * Sort API response records alphabetically in ascending order by subscription ID, category, and the charge item (name in the response) respectively.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 getUsageCsvByRealm
+      operationId: CostManagementUsageAPIV2GetUsageCsvByRealm
       parameters:
       - $ref: '#/components/parameters/Realm'
       - $ref: '#/components/parameters/StartDate'
@@ -384,6 +386,8 @@ paths:
           $ref: '#/components/responses/NotFound'
       security:
       - token: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 getUsageCsvByRealm
   /usage/realms/{realmId}/reports:
     post:
       summary: Create usage reports for partner subaccounts
@@ -392,7 +396,7 @@ paths:
         * API response has the current status of the request and also a header containing the URL for the "get report status" request.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 createUsageReport
+      operationId: CostManagementUsageAPIV2CreateUsageReport
       tags:
       - Usage
       parameters:
@@ -445,6 +449,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 createUsageReport
     get:
       summary: Retrieve status for all usage report requests
       description: 'The Async API retrieves the status of all usage report requests. The response contains the status of the usage report and the download URL.
@@ -452,7 +458,7 @@ paths:
         * Sort API response records based on the created date in ascending or descending order, as the sort parameter in the API request.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 getAllUsageReportRequestsStatus
+      operationId: CostManagementUsageAPIV2GetAllUsageReportRequestsStatus
       tags:
       - Usage
       parameters:
@@ -521,6 +527,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 getAllUsageReportRequestsStatus
   /usage/realms/{realmId}/reports/{reportId}:
     get:
       summary: Retrieve status for a usage report request by ID
@@ -529,7 +537,7 @@ paths:
         * API response has a single record having the status of the report request.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 getUsageReportRequestStatus
+      operationId: CostManagementUsageAPIV2GetUsageReportRequestStatus
       tags:
       - Usage
       parameters:
@@ -592,6 +600,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 getUsageReportRequestStatus
   /usage/realms/{realmId}/reports/{reportId}/output:
     get:
       summary: Download a usage report
@@ -600,7 +610,7 @@ paths:
         * The API responds with the usage report encoded in gzip format.
 
         * The API supports usage by app ID.'
-      operationId: Cost Management Usage API v2 fetchCreatedReport
+      operationId: CostManagementUsageAPIV2FetchCreatedReport
       tags:
       - Usage
       parameters:
@@ -633,13 +643,280 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Cost Management Usage API v2 fetchCreatedReport
 components:
-  headers:
-    Location:
+  parameters:
+    categoryQueryParam:
+      name: category
+      in: query
+      required: false
+      description: The category is the name of the billable service you select, such as location services or pipelines.
+      example: Pipelines
+      schema:
+        type: string
+        maxLength: 128
+    ProjectIdQueryParam:
+      name: projectHrn
+      in: query
+      required: false
+      description: HRN identifying the project.
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+      schema:
+        type: string
+        maxLength: 256
+    Sort:
+      in: query
+      name: sort
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      description: Returns sage report status in ascending or descending order of the creation date of the report.
+    Detail:
+      in: query
+      name: detailLevel
       required: false
       schema:
         type: string
-      description: The URL which polls the status for a request receiving a 202 response, such as ta/get/{clientId}?xCorrelationId=4199533b-6290-41db-8d79-edf4f4019a74.
+        example: hour
+        enum:
+        - summarized
+        - hour
+        - day
+        - month
+      description: "You can use this query parameter to select one of the levels of detail to view in your usage records. Levels of detail include: summarized, hour, day, or month. \nThe summarized detail level is the default and shows you a summary of your usage."
+    FeatureId:
+      name: featureId
+      in: query
+      required: false
+      example: hrn:here:service::olp-here:search-geocoding-1
+      description: Identify features by feature HERE Resource Names (HRNs). Feature HRNs are necessary to acquire your usage using API requests.
+      schema:
+        type: string
+        maxLength: 256
+    billingTagQueryParam:
+      name: billingTag
+      in: query
+      required: false
+      description: Use billing tags for combining expenses from your invoices.
+      example: testtag
+      schema:
+        type: string
+        maxLength: 500
+    Limit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      description: Returns the maximum number of records. The default and maximum is 100 records.
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    ReportId:
+      name: reportId
+      in: path
+      description: Report ID.
+      required: true
+      example: REPORT-1346
+      schema:
+        type: string
+        minLength: 11
+        maxLength: 30
+    StartDate:
+      in: query
+      name: startDate
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: yyyy-MM-dd'T'HH:mm:ss
+      description: Start date for search.
+    Realm:
+      name: realmId
+      in: path
+      description: Organization ID.
+      required: true
+      example: olp-here
+      schema:
+        type: string
+        minLength: 5
+        maxLength: 30
+    ChannelIdQueryParam:
+      name: channelId
+      in: query
+      required: false
+      description: When you provide this parameter, the results are filtered by the ID identifying the channel used for the usage reporting. A cold channel is a new billing data processing pipeline, whereas the hot channel is the old billing data processing pipeline. Use ChannelId for testing purposes.
+      example: cold
+      schema:
+        type: string
+        enum:
+        - hot
+        - cold
+        - ds
+    UsageFieldSet:
+      name: usageFields
+      in: query
+      required: false
+      example: realmId,featureId,category
+      description: A set of unique and distinct usage field names which filter responses.
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - realmId
+          - featureId
+          - billingSubscriptionId
+          - billingChargeNumber
+          - category
+          - name
+          - valueDriver
+          - usageValue
+          - billableValue
+          - resource
+        uniqueItems: true
+    AppIdQueryParam:
+      name: appId
+      in: query
+      required: false
+      description: Client app ID. This is the app ID created in the platform.
+      example: j1dasda012edasfgne
+      schema:
+        type: string
+        maxLength: 128
+        pattern: ^[a-zA-Z0-9-_]*$
+    Offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: The offset page number determines the current page number in the search results view. The default value is zero.
+    ChargeTypeQueryParam:
+      name: chargeType
+      in: query
+      required: false
+      description: When this parameter is provided, the results are filtered by usages of a specific charge type.
+      example: all
+      schema:
+        type: string
+        default: all
+        enum:
+        - all
+        - billable
+        - nonBillable
+    billingSubscriptionIdQueryParam:
+      name: billingSubscriptionId
+      in: query
+      required: false
+      explode: false
+      description: A comma-separated list of billing subscription IDs, with a minimum of 1 item and a maximum of 20.
+      example: A-S0000231,A-S0000233,A-S0000254
+      schema:
+        type: array
+        items:
+          type: string
+        minItems: 1
+        maxItems: 20
+    GroupBy:
+      name: groupBy
+      in: query
+      required: false
+      example: appId, billingTag, project
+      description: 'The groupBy parameter is a comma seperated list of parameters which you combine to form groups. Supported values are project, billingTag, appId, featureId, and subscription ID. The default groupBy parameters are featureId and subscription ID.
+
+        When Add groupBy parameters in the query, so that they add to featureId and subscription ID.'
+      schema:
+        type: string
+        maxLength: 256
+    EndDate:
+      in: query
+      name: endDate
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: yyyy-MM-dd'T'HH:mm:ss
+      description: End date for search.
+    xCorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: true
+      description: 'Auto-generated ID, which uniquely identifies the request and is in the response. When contacting the support team with an inquiry regarding a specific request, provide the value of this header to assist with troubleshooting.
+
+        '
+      schema:
+        type: string
+  examples:
+    InvalidLimit:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706002
+        cause: Invalid Limit
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid Limit.
+          message: Limit value should not be greater than 100.
+    UnauthorizedErrorResponse:
+      value:
+        error: Unauthorized
+        error_description: No credentials found.
+    InvalidGroupBy:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706004
+        cause: Invalid group by field. Supported are appId, billingTag, and project
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid group by field.
+          message: Invalid group by field. Supported values are appId, billingTag, and project.
+    InvalidDateRange:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706003
+        cause: start or end Date validation failed
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid Start or end date.
+          message: Invalid Start or end date.
+    InvalidRealm:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+        status: 400
+        code: E706001
+        cause: Invalid Realm
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid Realm {realm}
+          message: Realm  {realm} has invalid characters.
+    ForbiddenErrorResponse:
+      value:
+        error: Forbidden
+        error_description: These credentials do not provide authorized access.
+  headers:
     XCorrelationId:
       schema:
         type: string
@@ -653,7 +930,77 @@ components:
         '
       schema:
         type: string
+    Location:
+      required: false
+      schema:
+        type: string
+      description: The URL which polls the status for a request receiving a 202 response, such as ta/get/{clientId}?xCorrelationId=4199533b-6290-41db-8d79-edf4f4019a74.
   schemas:
+    UsageReportStatusResponseList:
+      type: object
+      description: The input object which has a list of subaccounts.
+      required:
+      - total
+      - limit
+      - count
+      - nextOffset
+      - lastOffset
+      properties:
+        total:
+          type: integer
+          description: The total number of items.
+          example: 100
+        limit:
+          type: integer
+          description: The maximum number of items specified in your request.
+          example: 10
+        count:
+          type: integer
+          description: The number of records returned in this query.
+          example: 10
+        nextOffset:
+          type: integer
+          description: Next offset
+        lastOffset:
+          type: integer
+          description: Last offset
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageReportStatusResponse'
+          example:
+          - org112135
+          - org124566
+          - org134564
+    UsagePaginationResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items.
+          example: 10
+        limit:
+          type: integer
+          description: Maximum number of items specified in a request.
+          example: 2
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageResponse'
+        nextOffset:
+          type: integer
+          description: Next offset.
+        lastOffset:
+          type: integer
+          description: Last offset.
+    AuthErrorResponse:
+      properties:
+        error:
+          type: string
+          description: Human-readable error.
+        error_description:
+          type: string
+          description: Human-readable error description.
     UsageResponse:
       type: object
       properties:
@@ -734,29 +1081,6 @@ components:
           type: number
           description: Billable Usage Units calculated by a cold channel. As an example, it's the number of transactions for a given API. A transaction is the billable Unit which is calculated based on UsageUnits
           example: '1'
-    PostUsageReportStatusResponse:
-      type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: string
-          description: Usage report to request the status ID.
-          example: REPORT-100
-        status:
-          type: string
-          description: Usage report request status
-          enum:
-          - pending
-          - inProgress
-          - completed
-          - failed
-          - archived
-          example: inProgress
-      example:
-        id: REPORT-1006
-        status: inProgress
     UsageReportRequest:
       type: object
       description: The input object which contains a list of subaccounts.
@@ -771,36 +1095,6 @@ components:
           - org112135
           - org124566
           - org134564
-    ErrorDetail:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Error Code.
-          example: ASYNC_API_DISABLED_FOR_USER
-        title:
-          type: string
-          description: Error message.
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to a JSON path.
-          example: $.taFeatures.size
-        message:
-          type: string
-          description: Detailed error message.
-          example: Size must be between 1 and 3
-        messageTemplate:
-          type: string
-          description: Optional error template.
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 1
-            max: 3
     ErrorResponse:
       type: object
       required:
@@ -845,14 +1139,59 @@ components:
           description: Collection of error details.
           items:
             $ref: '#/components/schemas/ErrorDetail'
-    AuthErrorResponse:
+    PostUsageReportStatusResponse:
+      type: object
+      required:
+      - id
+      - status
       properties:
-        error:
+        id:
           type: string
-          description: Human-readable error.
-        error_description:
+          description: Usage report to request the status ID.
+          example: REPORT-100
+        status:
           type: string
-          description: Human-readable error description.
+          description: Usage report request status
+          enum:
+          - pending
+          - inProgress
+          - completed
+          - failed
+          - archived
+          example: inProgress
+      example:
+        id: REPORT-1006
+        status: inProgress
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error Code.
+          example: ASYNC_API_DISABLED_FOR_USER
+        title:
+          type: string
+          description: Error message.
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to a JSON path.
+          example: $.taFeatures.size
+        message:
+          type: string
+          description: Detailed error message.
+          example: Size must be between 1 and 3
+        messageTemplate:
+          type: string
+          description: Optional error template.
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 1
+            max: 3
     UsageReportStatusResponse:
       type: object
       required:
@@ -986,333 +1325,6 @@ components:
             startDate: '2022-03-01'
             EndDate: '2022-07-01'
             emailId: example@here.com
-    UsagePaginationResponse:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: Total number of items.
-          example: 10
-        limit:
-          type: integer
-          description: Maximum number of items specified in a request.
-          example: 2
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UsageResponse'
-        nextOffset:
-          type: integer
-          description: Next offset.
-        lastOffset:
-          type: integer
-          description: Last offset.
-    UsageReportStatusResponseList:
-      type: object
-      description: The input object which has a list of subaccounts.
-      required:
-      - total
-      - limit
-      - count
-      - nextOffset
-      - lastOffset
-      properties:
-        total:
-          type: integer
-          description: The total number of items.
-          example: 100
-        limit:
-          type: integer
-          description: The maximum number of items specified in your request.
-          example: 10
-        count:
-          type: integer
-          description: The number of records returned in this query.
-          example: 10
-        nextOffset:
-          type: integer
-          description: Next offset
-        lastOffset:
-          type: integer
-          description: Last offset
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UsageReportStatusResponse'
-          example:
-          - org112135
-          - org124566
-          - org134564
-  examples:
-    InvalidLimit:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706002
-        cause: Invalid Limit
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Limit.
-          message: Limit value should not be greater than 100.
-    InvalidGroupBy:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706004
-        cause: Invalid group by field. Supported are appId, billingTag, and project
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid group by field.
-          message: Invalid group by field. Supported values are appId, billingTag, and project.
-    InvalidDateRange:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706003
-        cause: start or end Date validation failed
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Start or end date.
-          message: Invalid Start or end date.
-    UnauthorizedErrorResponse:
-      value:
-        error: Unauthorized
-        error_description: No credentials found.
-    ForbiddenErrorResponse:
-      value:
-        error: Forbidden
-        error_description: These credentials do not provide authorized access.
-    InvalidRealm:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-        status: 400
-        code: E706001
-        cause: Invalid Realm
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Realm {realm}
-          message: Realm  {realm} has invalid characters.
-  parameters:
-    UsageFieldSet:
-      name: usageFields
-      in: query
-      required: false
-      example: realmId,featureId,category
-      description: A set of unique and distinct usage field names which filter responses.
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - realmId
-          - featureId
-          - billingSubscriptionId
-          - billingChargeNumber
-          - category
-          - name
-          - valueDriver
-          - usageValue
-          - billableValue
-          - resource
-        uniqueItems: true
-    billingSubscriptionIdQueryParam:
-      name: billingSubscriptionId
-      in: query
-      required: false
-      explode: false
-      description: A comma-separated list of billing subscription IDs, with a minimum of 1 item and a maximum of 20.
-      example: A-S0000231,A-S0000233,A-S0000254
-      schema:
-        type: array
-        items:
-          type: string
-        minItems: 1
-        maxItems: 20
-    Limit:
-      in: query
-      name: limit
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 100
-      description: Returns the maximum number of records. The default and maximum is 100 records.
-    ChargeTypeQueryParam:
-      name: chargeType
-      in: query
-      required: false
-      description: When this parameter is provided, the results are filtered by usages of a specific charge type.
-      example: all
-      schema:
-        type: string
-        default: all
-        enum:
-        - all
-        - billable
-        - nonBillable
-    EndDate:
-      in: query
-      name: endDate
-      required: true
-      schema:
-        type: string
-        format: date-time
-        example: yyyy-MM-dd'T'HH:mm:ss
-      description: End date for search.
-    GroupBy:
-      name: groupBy
-      in: query
-      required: false
-      example: appId, billingTag, project
-      description: 'The groupBy parameter is a comma seperated list of parameters which you combine to form groups. Supported values are project, billingTag, appId, featureId, and subscription ID. The default groupBy parameters are featureId and subscription ID.
-
-        When Add groupBy parameters in the query, so that they add to featureId and subscription ID.'
-      schema:
-        type: string
-        maxLength: 256
-    Sort:
-      in: query
-      name: sort
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-        default: desc
-      description: Returns sage report status in ascending or descending order of the creation date of the report.
-    ReportId:
-      name: reportId
-      in: path
-      description: Report ID.
-      required: true
-      example: REPORT-1346
-      schema:
-        type: string
-        minLength: 11
-        maxLength: 30
-    Realm:
-      name: realmId
-      in: path
-      description: Organization ID.
-      required: true
-      example: olp-here
-      schema:
-        type: string
-        minLength: 5
-        maxLength: 30
-    ProjectIdQueryParam:
-      name: projectHrn
-      in: query
-      required: false
-      description: HRN identifying the project.
-      example: hrn:here:authorization::myrealm:project/my-project-0000
-      schema:
-        type: string
-        maxLength: 256
-    AppIdQueryParam:
-      name: appId
-      in: query
-      required: false
-      description: Client app ID. This is the app ID created in the platform.
-      example: j1dasda012edasfgne
-      schema:
-        type: string
-        maxLength: 128
-        pattern: ^[a-zA-Z0-9-_]*$
-    StartDate:
-      in: query
-      name: startDate
-      required: true
-      schema:
-        type: string
-        format: date-time
-        example: yyyy-MM-dd'T'HH:mm:ss
-      description: Start date for search.
-    categoryQueryParam:
-      name: category
-      in: query
-      required: false
-      description: The category is the name of the billable service you select, such as location services or pipelines.
-      example: Pipelines
-      schema:
-        type: string
-        maxLength: 128
-    xRequestId:
-      name: X-Request-ID
-      in: header
-      description: User-provided token used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    xCorrelationId:
-      name: X-Correlation-ID
-      in: header
-      required: true
-      description: 'Auto-generated ID, which uniquely identifies the request and is in the response. When contacting the support team with an inquiry regarding a specific request, provide the value of this header to assist with troubleshooting.
-
-        '
-      schema:
-        type: string
-    ChannelIdQueryParam:
-      name: channelId
-      in: query
-      required: false
-      description: When you provide this parameter, the results are filtered by the ID identifying the channel used for the usage reporting. A cold channel is a new billing data processing pipeline, whereas the hot channel is the old billing data processing pipeline. Use ChannelId for testing purposes.
-      example: cold
-      schema:
-        type: string
-        enum:
-        - hot
-        - cold
-        - ds
-    FeatureId:
-      name: featureId
-      in: query
-      required: false
-      example: hrn:here:service::olp-here:search-geocoding-1
-      description: Identify features by feature HERE Resource Names (HRNs). Feature HRNs are necessary to acquire your usage using API requests.
-      schema:
-        type: string
-        maxLength: 256
-    Detail:
-      in: query
-      name: detailLevel
-      required: false
-      schema:
-        type: string
-        example: hour
-        enum:
-        - summarized
-        - hour
-        - day
-        - month
-      description: "You can use this query parameter to select one of the levels of detail to view in your usage records. Levels of detail include: summarized, hour, day, or month. \nThe summarized detail level is the default and shows you a summary of your usage."
-    billingTagQueryParam:
-      name: billingTag
-      in: query
-      required: false
-      description: Use billing tags for combining expenses from your invoices.
-      example: testtag
-      schema:
-        type: string
-        maxLength: 500
-    Offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-      description: The offset page number determines the current page number in the search results view. The default value is zero.
   responses:
     NotFound:
       content:
@@ -1320,6 +1332,26 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
       description: The requested resource was not found, see the error response for details.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InvalidRealm:
+              $ref: '#/components/examples/InvalidRealm'
+            InvalidLimit:
+              $ref: '#/components/examples/InvalidLimit'
+            InvalidDateRange:
+              $ref: '#/components/examples/InvalidDateRange'
+            InvalidGroupBy:
+              $ref: '#/components/examples/InvalidGroupBy'
+      description: Invalid input provided, see error response for details.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -1353,26 +1385,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/UnauthorizedErrorResponse'
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            InvalidRealm:
-              $ref: '#/components/examples/InvalidRealm'
-            InvalidLimit:
-              $ref: '#/components/examples/InvalidLimit'
-            InvalidDateRange:
-              $ref: '#/components/examples/InvalidDateRange'
-            InvalidGroupBy:
-              $ref: '#/components/examples/InvalidGroupBy'
-      description: Invalid input provided, see error response for details.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
   securitySchemes:
     token:
       type: http

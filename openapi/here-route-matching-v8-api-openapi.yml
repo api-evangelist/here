@@ -23,7 +23,7 @@ paths:
       - Route Matching V8
       summary: Match GPS traces to get the most probably driven path.
       description: 'Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
-      operationId: HERE Route Matching V8 API matchRouteV8compatibilityToV2GET
+      operationId: HERERouteMatchingV8APIMatchRouteV8compatibilityToV2GET
       parameters:
       - name: routeMatch
         in: query
@@ -876,11 +876,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: HERE Route Matching V8 API matchRouteV8compatibilityToV2GET
     post:
       tags:
       - Route Matching V8
       summary: Match GPS traces to get the most probable driven path.
-      operationId: HERE Route Matching V8 API matchRouteV8compatibilityToV2POST
+      operationId: HERERouteMatchingV8APIMatchRouteV8compatibilityToV2POST
       parameters:
       - name: routeMatch
         in: query
@@ -1814,13 +1816,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: HERE Route Matching V8 API matchRouteV8compatibilityToV2POST
   /v8/maps/overlays/upload:
     post:
       tags:
       - Route Matching V8
       summary: Submit an overlay map for customized route matching.- Deprecated
       description: 'Submit an overlay map with custom modifications, such as block road links, remove restrictions from road links, or insert new road links into the network. The modifications that you submit, as part of your overlay maps, are only visible to you but not to other customers. Also, these modifications are not uploaded to the official HERE map. Route matching can consider overlay maps. Note: This feature is deprecated.'
-      operationId: HERE Route Matching V8 API overlayUploadV8
+      operationId: HERERouteMatchingV8APIOverlayUploadV8
       parameters:
       - name: overlay_spec
         in: query
@@ -1956,258 +1960,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OverlaySubmitResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: HERE Route Matching V8 API overlayUploadV8
 components:
   schemas:
-    VehicleSpecification:
+    Pass:
       type: object
       properties:
-        trailerType:
-          type: string
-        hybrid:
-          type: boolean
-        emissionType:
-          type: string
-        disabledEquipped:
-          type: boolean
-        hov:
-          type: boolean
-        commercial:
-          type: boolean
-        personFee:
-          type: boolean
-        tollVehicleType:
-          type: string
-        trailersCount:
-          type: integer
-          format: int32
-        vehicleNumberAxlesMin:
-          type: integer
-          format: int32
-        vehicleNumberAxlesMax:
-          type: integer
-          format: int32
-        trailerNumberAxlesMin:
-          type: integer
-          format: int32
-        trailerNumberAxlesMax:
-          type: integer
-          format: int32
-        heightMin:
-          type: integer
-          format: int32
-        heightMax:
-          type: integer
-          format: int32
-        trailerHeightMin:
-          type: integer
-          format: int32
-        trailerHeightMax:
-          type: integer
-          format: int32
-        vehicleWeightMin:
-          type: integer
-          format: int32
-        vehicleWeightMax:
-          type: integer
-          format: int32
-        limitedWeightMin:
-          type: integer
-          format: int32
-        limitedWeightMax:
-          type: integer
-          format: int32
-        minimalPollution:
-          type: boolean
-        passengersCountMin:
-          type: integer
-          format: int32
-        passengersCountMax:
-          type: integer
-          format: int32
-        tiresCountMin:
-          type: integer
-          format: int32
-        tiresCountMax:
-          type: integer
-          format: int32
-        shippedHazardousGoods:
-          type: string
-        heightAbove1stAxleMin:
-          type: integer
-          format: int32
-        heightAbove1stAxleMax:
-          type: integer
-          format: int32
-        lengthMin:
-          type: integer
-          format: int32
-        lengthMax:
-          type: integer
-          format: int32
-        fuelType:
-          type: string
-        co2EmissionClass:
-          type: integer
-          format: int32
-    CurrencyAmount:
-      type: object
-      properties:
-        country:
-          type: string
-          description: country is the three letter ISO 3166 country code.
-        adminId:
-          type: string
-          description: adminId is the country's admin place id.
-          example: DEU
-        tollSystemId:
-          type: string
-          description: tollSystemId is the unique toll system identifier.
-        name:
-          type: string
-          description: Toll system name
-        languageCode:
-          type: string
-          description: Language code of toll system name
-        amountInTargetCurrency:
-          type: number
-          format: double
-      description: totalCost is the sum of all cost elements.
-    CostDetails:
-      type: object
-      properties:
-        driverCost:
-          type: string
-          description: computed from request's driver_cost value and the travel time (with or without ferry time)
-          example: '430.8'
-        vehicleCost:
-          type: string
-          description: computed from request's vehicle_cost value and the travel distance (with or without ferry travel)
-          example: '330.0'
-        tollCost:
-          type: string
-          description: total toll fee
-          example: '130.1'
-        optionalValue:
-          type: string
-          description: value earned by picking + dropping optional waypoints
-        energyCost:
-          type: string
-          description: computed based on request's consumptiondetails
-          example: '233.75'
-        totalCost:
-          type: number
-          format: double
-          example: 500.55
-    JsonSerializable:
-      type: object
-    TurnByTurnManeuver:
-      type: object
-      properties:
-        routeLinkIndex:
-          type: integer
-          format: int32
-        position:
-          $ref: '#/components/schemas/ManeuverPosition'
-        action:
-          type: string
-          description: 'Indicates whether actions should be included in the maneuvers. Supported actions are: depart, arrive, slightLeftTurn, leftTurn, sharpLeftTurn, leftUTurn , continue, slightRightTurn, rightTurn, sharpRightTurn, rightUTurn, RoundaboutExit, exit, uTurn, turn, keep.'
-          example: leftTurn
-        orientation:
-          type: string
-        roadName:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoadName'
-        nextRoadName:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoadName'
-        distanceToNextManeuver:
-          type: integer
-          format: int32
-        firstPoint:
-          type: integer
-          description: Index into the global geometry array, pointing to the first point of the shape subsegment associated with this Maneuver. Must be followed by LastPoint.
-          format: int32
-          example: 2
-        lastPoint:
-          type: integer
-          format: int32
-        travelTime:
-          type: integer
-          description: Time [sec] to drive until to this maneuver point
-          format: int32
-          example: 150
-        instruction:
-          type: string
-          description: tagged driver instruction text in the requested language
-          example: Head West on M1 / Pacific Mtwy. Go for 56 m.
-        instructionBefore:
-          type: string
-        instructionAfter:
-          type: string
-          example: After 56 m, take the exit onto 24
-        length:
-          type: integer
-          description: Distance [meter] to drive until to this maneuver point
-          format: int32
         id:
-          type: string
-        direction:
-          type: string
-          description: 'Indicates whether directions should be included in the maneuvers. Supported directions are: forward, lightRight, right, hardRight, uTurnRight, lightLeft, left, hardLeft, uTurnLeft.'
-        lanes:
-          type: string
-          description: List of lane infos, viewed into driving direction, from left to right. Applicable lanes marked '*', n = not allowed for vehicle or direction, numbers denote arrows, see Map Attributes layer LANE_FCn attribute DIRECTION_CATEGORY.
-    TollCost:
+          type: integer
+          description: Unique identifier for the pass. Id could change from one map release to another.
+          format: int32
+        annual:
+          type: boolean
+          description: Indicates whether the pass is valid for a year or not.
+        extendedAnnual:
+          type: boolean
+          description: Indicates whether the pass is valid for a year plus the month prior to the specified year and the month following the specified year (Dec-Jan).
+        nrOfDays:
+          type: integer
+          description: Indicates The number of days the pass is valid for.
+          format: int32
+        nrOfMonths:
+          type: integer
+          description: Indicates the number of months the pass is valid for.
+          format: int32
+        seniorPass:
+          type: boolean
+          description: Indicates whether the pass is valid for Senior people only.
+        nrOfTravels:
+          type: integer
+          description: Indicates the number of travels the pass is valid for.
+          format: int32
+    TCResponse:
       type: object
       properties:
-        amount:
+        routeTollItems:
+          type: array
+          description: routeTollItems are a list of all toll cost items (for rollups=none).
+          items:
+            $ref: '#/components/schemas/RouteTollItem'
+        costsByTollSystem:
+          type: array
+          description: costsByTollSystem is the total toll cost per toll system.
+          items:
+            $ref: '#/components/schemas/CurrencyAmount'
+        costsByCountry:
+          type: array
+          description: costsByCountry is the total toll cost per country.
+          items:
+            $ref: '#/components/schemas/CurrencyAmount'
+        costsByCountryAndTollSystem:
+          type: array
+          description: costsByCountryAndTollSystem is the total toll cost per country and toll system.
+          items:
+            $ref: '#/components/schemas/CurrencyAmount'
+        totalCost:
+          $ref: '#/components/schemas/CurrencyAmount'
+      description: the requested toll cost rollups
+    BoundingBox:
+      type: object
+      properties:
+        topLeft:
+          $ref: '#/components/schemas/Coordinate'
+        bottomRight:
+          $ref: '#/components/schemas/Coordinate'
+    Coordinate:
+      type: object
+      properties:
+        latitude:
           type: number
-          description: fee in native currency unit
           format: double
+          example: 48.33294
+        longitude:
+          type: number
+          format: double
+          example: 8.13556
+    Costs:
+      type: object
+      properties:
+        totalCost:
+          type: string
+          description: sum of all cost elements
+          example: '1335.7'
         currency:
           type: string
-          description: the native currency unit
-        amountInTargetCurrency:
-          type: number
-          format: double
-        levelOfAccuracy:
-          type: string
-          description: Indicates the accuracy of the toll amount, if it is either ESTIMATED or AVERAGE.
-        time:
-          type: string
-          description: 'Standard core map specification for validity periods. Examples: 1:N:N:XXXXXXX:0112:0000:0730,1:N:N:XXXXXXX:0112:1400:1600, 2:N:N:EASTER::800:1800, A:N:N:20021013:20200101:1000:1900, C:N:N:00010000:00050000:1230:1330, H:N:N:00010000:00120000:500:2400 I:N:N:00010010:00110010:1730:2400'
-        methodOfPayment:
-          type: integer
-          description: 'bitmask: 1=cash, 2=bank card, 4=credit card, 8=pass subscription, 16=transponder, 32=video toll charge, 64=exact cash, 128=travel card'
-          format: int32
-        pass:
-          $ref: '#/components/schemas/Pass'
-        daylightHours:
-          type: integer
-          description: Indicates if toll cost is applicable during daylight hours or during non-daylight hours. 0=non-daylight, 1=daylight, 2=unspecified
-          format: int32
-        discountAvailable:
-          type: integer
-          description: Indicates if under specific circumstances discounts or exemption apply to this standard toll cost. 0=no, 1=yes
-          format: int32
-        returnJourney:
-          type: integer
-          description: Indicates whether the specified toll cost includes a return trip or not. 0=no, 1=yes
-          format: int32
-        ferryType:
-          type: string
-          description: 'Indicates the type of ferry that is operating: either BOAT FERRY, RAIL FERRY or HOVERCRAFT FERRY.'
-        vehicleSpecification:
-          $ref: '#/components/schemas/VehicleSpecification'
-        transponderNames:
-          type: array
-          description: List of transponder names for which the specific cost is applicable
-          items:
-            type: string
-            description: List of transponder names for which the specific cost is applicable
-      description: toll fee alternatives, depending on vehicle type, time of day, day of week, month, payment method, pass, transponder...
+          description: currency unit of the costs
+          example: EUR
+        details:
+          $ref: '#/components/schemas/CostDetails'
     TracePoint:
       type: object
       properties:
@@ -2322,6 +2163,130 @@ components:
         userLabel:
           type: string
           description: Waypoint label specified by user.
+    Link:
+      type: object
+      properties:
+        linkId:
+          type: string
+          description: Permanent version id (HERE core map), negative sign means driven towards reference node
+        length:
+          type: number
+          description: Returns the link length in meter (to match HLS router response) or in centimeter - depending on the setting passed in the constructor.
+          format: double
+        remainDistance:
+          type: number
+          description: meters left when entering this link, for the entire route (not just in between legs)
+          format: double
+        remainTime:
+          type: number
+          description: Seconds left when entering this link, for the entire route (not just in between legs). Millisecond precision if link attributes PRECISETIMEDISTANCE requested.
+          format: double
+        shape:
+          type: array
+          description: List of WGS84 degree latitude/longitude coordinates in driving direction sequence order
+          items:
+            type: number
+            description: List of WGS84 degree latitude/longitude coordinates in driving direction sequence order
+            format: double
+        functionalClass:
+          type: integer
+          description: Functional Class defines a hierarchical network used to determine a logical and efficient route.
+          format: int32
+        confidence:
+          type: number
+          description: 0...1 link match confidence (only for route match mode)
+          format: double
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            description: requested PDE layer attributes for the link
+            items:
+              type: array
+              description: requested PDE layer attributes for the link
+              items:
+                $ref: '#/components/schemas/KeyValue'
+          description: requested PDE layer attributes for the link
+        cost:
+          $ref: '#/components/schemas/CostDetails'
+        remainingDistanceToDestinationCentimeter:
+          type: integer
+          format: int64
+          writeOnly: true
+        warning:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseIssue'
+        consumption:
+          type: number
+          description: energy consumption to traverse the link, in target currency
+          format: double
+        timezone:
+          type: integer
+          description: Timezone offset to UTC in minutes when the time zone of the link changes compared to previous link
+          format: int32
+        segmentRef:
+          type: string
+          description: '<CatalogID> : <CatalogVersion> : <SegmentID> # <+-> OffsetFrom .. OffsetTo where the +- indicates whether the segment is driven algined with the order of its coordinates'
+    TurnByTurnManeuver:
+      type: object
+      properties:
+        routeLinkIndex:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/ManeuverPosition'
+        action:
+          type: string
+          description: 'Indicates whether actions should be included in the maneuvers. Supported actions are: depart, arrive, slightLeftTurn, leftTurn, sharpLeftTurn, leftUTurn , continue, slightRightTurn, rightTurn, sharpRightTurn, rightUTurn, RoundaboutExit, exit, uTurn, turn, keep.'
+          example: leftTurn
+        orientation:
+          type: string
+        roadName:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadName'
+        nextRoadName:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadName'
+        distanceToNextManeuver:
+          type: integer
+          format: int32
+        firstPoint:
+          type: integer
+          description: Index into the global geometry array, pointing to the first point of the shape subsegment associated with this Maneuver. Must be followed by LastPoint.
+          format: int32
+          example: 2
+        lastPoint:
+          type: integer
+          format: int32
+        travelTime:
+          type: integer
+          description: Time [sec] to drive until to this maneuver point
+          format: int32
+          example: 150
+        instruction:
+          type: string
+          description: tagged driver instruction text in the requested language
+          example: Head West on M1 / Pacific Mtwy. Go for 56 m.
+        instructionBefore:
+          type: string
+        instructionAfter:
+          type: string
+          example: After 56 m, take the exit onto 24
+        length:
+          type: integer
+          description: Distance [meter] to drive until to this maneuver point
+          format: int32
+        id:
+          type: string
+        direction:
+          type: string
+          description: 'Indicates whether directions should be included in the maneuvers. Supported directions are: forward, lightRight, right, hardRight, uTurnRight, lightLeft, left, hardLeft, uTurnLeft.'
+        lanes:
+          type: string
+          description: List of lane infos, viewed into driving direction, from left to right. Applicable lanes marked '*', n = not allowed for vehicle or direction, numbers denote arrows, see Map Attributes layer LANE_FCn attribute DIRECTION_CATEGORY.
     RoadName:
       type: object
       properties:
@@ -2331,51 +2296,34 @@ components:
         text:
           type: string
           example: M1 / Pacific Mtwy
-    BaseResponse:
-      type: object
-    Summary:
+    TSystem:
       type: object
       properties:
-        travelTime:
+        id:
           type: integer
-          description: travel time [sec]
-          format: int64
-          example: 455
-        distance:
-          type: integer
-          description: travel distance [meter]
-          format: int64
-        baseTime:
-          type: integer
-          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
-          format: int64
-        trafficTime:
-          type: integer
-          description: travel time [sec] considering traffic impact (use only if mode=traffic:enabled)
-          format: int64
-        flags:
-          type: array
-          description: currently unused
-          example: boatFerry
-          items:
-            type: string
-            description: currently unused
-            example: boatFerry
-        departure:
-          type: string
-          description: same or later than request's departure time
-          example: '2022-11-16T12:54:14+10'
-        arrival:
-          type: string
-          description: same or earlier than request's arrival time
-    TollStructure:
-      type: object
-      properties:
+          format: int32
         name:
           type: string
         languageCode:
           type: string
-          example: DEU
+    SearchMetaResponse:
+      type: object
+      properties:
+        searchParameter:
+          type: string
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
+          type: integer
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
+    ManeuverPosition:
+      type: object
+      properties:
         latitude:
           type: number
           format: double
@@ -2384,59 +2332,6 @@ components:
           type: number
           format: double
           example: 18.13294
-        linkIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-        topologySegmentIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-        conditionId:
-          type: integer
-          format: int32
-      description: Toll booth(s)/bridge(s) at start and/or end of this toll section
-    Costs:
-      type: object
-      properties:
-        totalCost:
-          type: string
-          description: sum of all cost elements
-          example: '1335.7'
-        currency:
-          type: string
-          description: currency unit of the costs
-          example: EUR
-        details:
-          $ref: '#/components/schemas/CostDetails'
-    TCResponse:
-      type: object
-      properties:
-        routeTollItems:
-          type: array
-          description: routeTollItems are a list of all toll cost items (for rollups=none).
-          items:
-            $ref: '#/components/schemas/RouteTollItem'
-        costsByTollSystem:
-          type: array
-          description: costsByTollSystem is the total toll cost per toll system.
-          items:
-            $ref: '#/components/schemas/CurrencyAmount'
-        costsByCountry:
-          type: array
-          description: costsByCountry is the total toll cost per country.
-          items:
-            $ref: '#/components/schemas/CurrencyAmount'
-        costsByCountryAndTollSystem:
-          type: array
-          description: costsByCountryAndTollSystem is the total toll cost per country and toll system.
-          items:
-            $ref: '#/components/schemas/CurrencyAmount'
-        totalCost:
-          $ref: '#/components/schemas/CurrencyAmount'
-      description: the requested toll cost rollups
     Response:
       type: object
       description: Calculate route response
@@ -2461,235 +2356,181 @@ components:
             readOnly: true
             items:
               $ref: '#/components/schemas/ResponseIssue'
-    Coordinate:
+    TollCost:
       type: object
       properties:
-        latitude:
+        amount:
+          type: number
+          description: fee in native currency unit
+          format: double
+        currency:
+          type: string
+          description: the native currency unit
+        amountInTargetCurrency:
           type: number
           format: double
-          example: 48.33294
-        longitude:
-          type: number
-          format: double
-          example: 8.13556
-    SearchMetaResponse:
-      type: object
-      properties:
-        searchParameter:
+        levelOfAccuracy:
           type: string
-          writeOnly: true
-        layerId:
+          description: Indicates the accuracy of the toll amount, if it is either ESTIMATED or AVERAGE.
+        time:
           type: string
-          description: Layer name of geometries in a search response.
-          example: ADAS_ATTRIB_FC4
-        lastUpdateTimeStamp:
+          description: 'Standard core map specification for validity periods. Examples: 1:N:N:XXXXXXX:0112:0000:0730,1:N:N:XXXXXXX:0112:1400:1600, 2:N:N:EASTER::800:1800, A:N:N:20021013:20200101:1000:1900, C:N:N:00010000:00050000:1230:1330, H:N:N:00010000:00120000:500:2400 I:N:N:00010010:00110010:1730:2400'
+        methodOfPayment:
           type: integer
-          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          description: 'bitmask: 1=cash, 2=bank card, 4=credit card, 8=pass subscription, 16=transponder, 32=video toll charge, 64=exact cash, 128=travel card'
+          format: int32
+        pass:
+          $ref: '#/components/schemas/Pass'
+        daylightHours:
+          type: integer
+          description: Indicates if toll cost is applicable during daylight hours or during non-daylight hours. 0=non-daylight, 1=daylight, 2=unspecified
+          format: int32
+        discountAvailable:
+          type: integer
+          description: Indicates if under specific circumstances discounts or exemption apply to this standard toll cost. 0=no, 1=yes
+          format: int32
+        returnJourney:
+          type: integer
+          description: Indicates whether the specified toll cost includes a return trip or not. 0=no, 1=yes
+          format: int32
+        ferryType:
+          type: string
+          description: 'Indicates the type of ferry that is operating: either BOAT FERRY, RAIL FERRY or HOVERCRAFT FERRY.'
+        vehicleSpecification:
+          $ref: '#/components/schemas/VehicleSpecification'
+        transponderNames:
+          type: array
+          description: List of transponder names for which the specific cost is applicable
+          items:
+            type: string
+            description: List of transponder names for which the specific cost is applicable
+      description: toll fee alternatives, depending on vehicle type, time of day, day of week, month, payment method, pass, transponder...
+    ResponseIssue:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          format: int32
+        truckRestrictionCategoryCode:
+          type: integer
+          format: int32
+        isoCountryCode:
+          type: string
+        routeLinkSeqNum:
+          type: integer
+          format: int32
+        tracePointSeqNum:
+          type: integer
+          format: int32
+        wayPointSeqNum:
+          type: integer
+          format: int32
+        toTracePointSeqNum:
+          type: integer
+          format: int32
+        duration:
+          type: integer
           format: int64
-          example: 1756219305792
-    WayPoint:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/TracePoint'
-      - type: object
-        properties:
-          linkId:
-            type: string
-          mappedPosition:
-            $ref: '#/components/schemas/Coordinate'
-          originalPosition:
-            $ref: '#/components/schemas/Coordinate'
-          spot:
-            type: number
-            description: 0...1 relative matched offset on link from reference node
-            format: double
-          sideOfStreet:
-            type: string
-            description: Indicates whether the waypoint is located on the left or right side of the link in the direction of travel. Possible values are "left", "right", or "neither".<br/>The "neither" value indicates that the waypoint is within three meters of the link or segment, which represents the centerline of a road section on the map. Three meters is approximately the width of a typical lane. This parameter is only available if the routeMatch=0 parameter was set.
-          seqNrOnRoute:
-            type: integer
-            description: index of the link in the route (duplicate link entries at start/end of a leg are counted only once)
-            format: int32
-          globalWayPointSeqNr:
-            type: integer
-            format: int32
-          waypointType:
-            type: string
-            description: 'Indicates waypoint type: `plannedWaypoint` - planned intermediate waypoint; `learnedStop` - waypoint derived from the driver''s rest patterns learned by the API; `lastTracepoint` - the last position of the vehicle known by the API, often its current location.'
-          type:
-            type: string
-            description: 'Indicates waypoint type: `passThrough` for a waypoint that doesn''t stop the journey, `stopOver` for a waypoint at which the journey stops for some time before it continues.'
-          mappedRoadName:
-            type: string
-            description: Base name of the road. Empty means unknown or valid unnamed. Only available if parameter routeMatch=0 was set.
-          shapeIndex:
-            type: integer
-            description: index of the first shape coordinate in the shape array
-            format: int32
-          userLabel:
-            type: string
-            description: Waypoint label specified by user.
-    BoundingBox:
+        plannedWayPointSeqNum:
+          type: integer
+          format: int32
+        operation:
+          type: string
+      description: Warnings that are either globally for the request or apply to the first route alternative.
+      readOnly: true
+    VehicleSpecification:
       type: object
       properties:
-        topLeft:
-          $ref: '#/components/schemas/Coordinate'
-        bottomRight:
-          $ref: '#/components/schemas/Coordinate'
-    Maneuver:
-      type: object
-      properties:
-        position:
-          $ref: '#/components/schemas/ManeuverPosition'
-        instruction:
+        trailerType:
           type: string
-          description: tagged driver instruction text in the requested language
-          example: Head West on M1 / Pacific Mtwy. Go for 56 m.
-        instructionBefore:
-          type: string
-        instructionAfter:
-          type: string
-          example: After 56 m, take the exit onto 24
-        travelTime:
-          type: integer
-          description: Time [sec] to drive until to this maneuver point
-          format: int32
-          example: 150
-        length:
-          type: integer
-          description: Distance [meter] to drive until to this maneuver point
-          format: int32
-        id:
-          type: string
-        direction:
-          type: string
-          description: 'Indicates whether directions should be included in the maneuvers. Supported directions are: forward, lightRight, right, hardRight, uTurnRight, lightLeft, left, hardLeft, uTurnLeft.'
-        action:
-          type: string
-          description: 'Indicates whether actions should be included in the maneuvers. Supported actions are: depart, arrive, slightLeftTurn, leftTurn, sharpLeftTurn, leftUTurn , continue, slightRightTurn, rightTurn, sharpRightTurn, rightUTurn, RoundaboutExit, exit, uTurn, turn, keep.'
-          example: leftTurn
-        firstPoint:
-          type: integer
-          description: Index into the global geometry array, pointing to the first point of the shape subsegment associated with this Maneuver. Must be followed by LastPoint.
-          format: int32
-          example: 2
-        lastPoint:
-          type: integer
-          format: int32
-        lanes:
-          type: string
-          description: List of lane infos, viewed into driving direction, from left to right. Applicable lanes marked '*', n = not allowed for vehicle or direction, numbers denote arrows, see Map Attributes layer LANE_FCn attribute DIRECTION_CATEGORY.
-        roadName:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoadName'
-        nextRoadName:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoadName'
-    Pass:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Unique identifier for the pass. Id could change from one map release to another.
-          format: int32
-        annual:
+        hybrid:
           type: boolean
-          description: Indicates whether the pass is valid for a year or not.
-        extendedAnnual:
+        emissionType:
+          type: string
+        disabledEquipped:
           type: boolean
-          description: Indicates whether the pass is valid for a year plus the month prior to the specified year and the month following the specified year (Dec-Jan).
-        nrOfDays:
-          type: integer
-          description: Indicates The number of days the pass is valid for.
-          format: int32
-        nrOfMonths:
-          type: integer
-          description: Indicates the number of months the pass is valid for.
-          format: int32
-        seniorPass:
+        hov:
           type: boolean
-          description: Indicates whether the pass is valid for Senior people only.
-        nrOfTravels:
+        commercial:
+          type: boolean
+        personFee:
+          type: boolean
+        tollVehicleType:
+          type: string
+        trailersCount:
           type: integer
-          description: Indicates the number of travels the pass is valid for.
           format: int32
-    ManeuverPosition:
-      type: object
-      properties:
-        latitude:
-          type: number
-          format: double
-          example: 48.33294
-        longitude:
-          type: number
-          format: double
-          example: 18.13294
-    RouteMode:
-      type: object
-      properties:
-        type:
+        vehicleNumberAxlesMin:
+          type: integer
+          format: int32
+        vehicleNumberAxlesMax:
+          type: integer
+          format: int32
+        trailerNumberAxlesMin:
+          type: integer
+          format: int32
+        trailerNumberAxlesMax:
+          type: integer
+          format: int32
+        heightMin:
+          type: integer
+          format: int32
+        heightMax:
+          type: integer
+          format: int32
+        trailerHeightMin:
+          type: integer
+          format: int32
+        trailerHeightMax:
+          type: integer
+          format: int32
+        vehicleWeightMin:
+          type: integer
+          format: int32
+        vehicleWeightMax:
+          type: integer
+          format: int32
+        limitedWeightMin:
+          type: integer
+          format: int32
+        limitedWeightMax:
+          type: integer
+          format: int32
+        minimalPollution:
+          type: boolean
+        passengersCountMin:
+          type: integer
+          format: int32
+        passengersCountMax:
+          type: integer
+          format: int32
+        tiresCountMin:
+          type: integer
+          format: int32
+        tiresCountMax:
+          type: integer
+          format: int32
+        shippedHazardousGoods:
           type: string
-          description: 'from request: shortest, fastest or matched (route match mode)'
-        transportModes:
-          type: array
-          description: request's vehicle type
-          example: '[car]'
-          items:
-            type: string
-            description: request's vehicle type
-            example: '[car]'
-        trafficMode:
+        heightAbove1stAxleMin:
+          type: integer
+          format: int32
+        heightAbove1stAxleMax:
+          type: integer
+          format: int32
+        lengthMin:
+          type: integer
+          format: int32
+        lengthMax:
+          type: integer
+          format: int32
+        fuelType:
           type: string
-          description: 'from request: disabled or enabled'
-          example: disabled
-      description: from the request
-    OverlaySubmitResponse:
-      type: object
-      properties:
-        warnings:
-          type: array
-          items:
-            type: string
-        layers:
-          type: array
-          description: Names of map layers generated from the overlay submission
-          items:
-            type: string
-            description: Names of map layers generated from the overlay submission
-        meta:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchMetaResponse'
-    RouteSummaryByCountry:
-      type: object
-      properties:
-        distance:
+        co2EmissionClass:
           type: integer
-          description: travel distance [meter]
-          format: int64
-        baseTime:
-          type: integer
-          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
-          format: int64
-        trafficTime:
-          type: integer
-          description: travel time [sec] considering traffic impact (use only if mode=traffic:enabled)
-          format: int64
-        travelTime:
-          type: integer
-          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
-          format: int64
-          example: 360
-        country:
-          type: string
-          description: ISO 3166 country code
-          example: DEU
-        tollRoadDistance:
-          type: integer
-          description: toll road distance [meter]
-          format: int64
+          format: int32
     Leg:
       type: object
       properties:
@@ -2761,188 +2602,57 @@ components:
           description: Indicates battery energy after charging when leaving the recharge waypoint. Only available if the maneuver has a chargingStopOver.
           format: double
       description: one leg traverses between two mandatory stopover waypoints
-    KeyValue:
+    Maneuver:
       type: object
       properties:
-        key:
+        position:
+          $ref: '#/components/schemas/ManeuverPosition'
+        instruction:
           type: string
-        value:
-          type: object
-      description: requested PDE layer attributes for the link
-    Route:
-      type: object
-      properties:
-        waypoint:
-          type: array
-          items:
-            $ref: '#/components/schemas/WayPoint'
-        mode:
-          $ref: '#/components/schemas/RouteMode'
-        leg:
-          type: array
-          description: one leg traverses between two mandatory stopover waypoints
-          items:
-            $ref: '#/components/schemas/Leg'
-        shape:
-          type: array
-          description: route shape geometry points - lat, lon pairs
-          items:
-            type: number
-            description: route shape geometry points - lat, lon pairs
-            format: double
-        summary:
-          $ref: '#/components/schemas/Summary'
-        boatFerry:
-          type: boolean
-          description: set if the route uses a boat ferry
-        railFerry:
-          type: boolean
-          description: set if the route uses a rail ferry
-        routeFlagsInResponse:
-          type: boolean
-          writeOnly: true
-        boundingBox:
-          $ref: '#/components/schemas/BoundingBox'
-        cost:
-          $ref: '#/components/schemas/Costs'
-        matchedVehicleType:
-          type: array
-          description: Most probable vehicle type(s), only for route match mode. Only returned if the input trace contains speed or timestamp information.
-          items:
-            $ref: '#/components/schemas/MatchedVehicleType'
-        tollCost:
-          $ref: '#/components/schemas/TCResponse'
-        summaryByCountry:
-          type: array
-          items:
-            $ref: '#/components/schemas/RouteSummaryByCountry'
-      description: Route alternatives. The first route alternative has the minimum cost.
-      readOnly: true
-    TSystem:
-      type: object
-      properties:
-        id:
+          description: tagged driver instruction text in the requested language
+          example: Head West on M1 / Pacific Mtwy. Go for 56 m.
+        instructionBefore:
+          type: string
+        instructionAfter:
+          type: string
+          example: After 56 m, take the exit onto 24
+        travelTime:
           type: integer
+          description: Time [sec] to drive until to this maneuver point
           format: int32
-        name:
-          type: string
-        languageCode:
-          type: string
-    Link:
-      type: object
-      properties:
-        linkId:
-          type: string
-          description: Permanent version id (HERE core map), negative sign means driven towards reference node
+          example: 150
         length:
-          type: number
-          description: Returns the link length in meter (to match HLS router response) or in centimeter - depending on the setting passed in the constructor.
-          format: double
-        remainDistance:
-          type: number
-          description: meters left when entering this link, for the entire route (not just in between legs)
-          format: double
-        remainTime:
-          type: number
-          description: Seconds left when entering this link, for the entire route (not just in between legs). Millisecond precision if link attributes PRECISETIMEDISTANCE requested.
-          format: double
-        shape:
-          type: array
-          description: List of WGS84 degree latitude/longitude coordinates in driving direction sequence order
-          items:
-            type: number
-            description: List of WGS84 degree latitude/longitude coordinates in driving direction sequence order
-            format: double
-        functionalClass:
           type: integer
-          description: Functional Class defines a hierarchical network used to determine a logical and efficient route.
+          description: Distance [meter] to drive until to this maneuver point
           format: int32
-        confidence:
-          type: number
-          description: 0...1 link match confidence (only for route match mode)
-          format: double
-        attributes:
-          type: object
-          additionalProperties:
-            type: array
-            description: requested PDE layer attributes for the link
-            items:
-              type: array
-              description: requested PDE layer attributes for the link
-              items:
-                $ref: '#/components/schemas/KeyValue'
-          description: requested PDE layer attributes for the link
-        cost:
-          $ref: '#/components/schemas/CostDetails'
-        remainingDistanceToDestinationCentimeter:
+        id:
+          type: string
+        direction:
+          type: string
+          description: 'Indicates whether directions should be included in the maneuvers. Supported directions are: forward, lightRight, right, hardRight, uTurnRight, lightLeft, left, hardLeft, uTurnLeft.'
+        action:
+          type: string
+          description: 'Indicates whether actions should be included in the maneuvers. Supported actions are: depart, arrive, slightLeftTurn, leftTurn, sharpLeftTurn, leftUTurn , continue, slightRightTurn, rightTurn, sharpRightTurn, rightUTurn, RoundaboutExit, exit, uTurn, turn, keep.'
+          example: leftTurn
+        firstPoint:
           type: integer
-          format: int64
-          writeOnly: true
-        warning:
+          description: Index into the global geometry array, pointing to the first point of the shape subsegment associated with this Maneuver. Must be followed by LastPoint.
+          format: int32
+          example: 2
+        lastPoint:
+          type: integer
+          format: int32
+        lanes:
+          type: string
+          description: List of lane infos, viewed into driving direction, from left to right. Applicable lanes marked '*', n = not allowed for vehicle or direction, numbers denote arrows, see Map Attributes layer LANE_FCn attribute DIRECTION_CATEGORY.
+        roadName:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseIssue'
-        consumption:
-          type: number
-          description: energy consumption to traverse the link, in target currency
-          format: double
-        timezone:
-          type: integer
-          description: Timezone offset to UTC in minutes when the time zone of the link changes compared to previous link
-          format: int32
-        segmentRef:
-          type: string
-          description: '<CatalogID> : <CatalogVersion> : <SegmentID> # <+-> OffsetFrom .. OffsetTo where the +- indicates whether the segment is driven algined with the order of its coordinates'
-    MatchedVehicleType:
-      type: object
-      properties:
-        type:
-          type: string
-          description: car, truck or pedestrian
-          example: truck
-        subType:
-          type: string
-          description: light, medium or heavy, applicable only for truck
-        confidence:
-          type: number
-          description: confidence value of the match 0 ... 1
-          format: double
-      description: Most probable vehicle type(s), only for route match mode. Only returned if the input trace contains speed or timestamp information.
-    ResponseIssue:
-      type: object
-      properties:
-        message:
-          type: string
-        code:
-          type: integer
-          format: int32
-        truckRestrictionCategoryCode:
-          type: integer
-          format: int32
-        isoCountryCode:
-          type: string
-        routeLinkSeqNum:
-          type: integer
-          format: int32
-        tracePointSeqNum:
-          type: integer
-          format: int32
-        wayPointSeqNum:
-          type: integer
-          format: int32
-        toTracePointSeqNum:
-          type: integer
-          format: int32
-        duration:
-          type: integer
-          format: int64
-        plannedWayPointSeqNum:
-          type: integer
-          format: int32
-        operation:
-          type: string
-      description: Warnings that are either globally for the request or apply to the first route alternative.
-      readOnly: true
+            $ref: '#/components/schemas/RoadName'
+        nextRoadName:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadName'
     RouteTollItem:
       type: object
       properties:
@@ -2999,6 +2709,302 @@ components:
           description: Index of the last input segment id covered by this toll fee.
           format: int32
       description: routeTollItems are a list of all toll cost items (for rollups=none).
+    JsonSerializable:
+      type: object
+    Summary:
+      type: object
+      properties:
+        travelTime:
+          type: integer
+          description: travel time [sec]
+          format: int64
+          example: 455
+        distance:
+          type: integer
+          description: travel distance [meter]
+          format: int64
+        baseTime:
+          type: integer
+          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
+          format: int64
+        trafficTime:
+          type: integer
+          description: travel time [sec] considering traffic impact (use only if mode=traffic:enabled)
+          format: int64
+        flags:
+          type: array
+          description: currently unused
+          example: boatFerry
+          items:
+            type: string
+            description: currently unused
+            example: boatFerry
+        departure:
+          type: string
+          description: same or later than request's departure time
+          example: '2022-11-16T12:54:14+10'
+        arrival:
+          type: string
+          description: same or earlier than request's arrival time
+    TollStructure:
+      type: object
+      properties:
+        name:
+          type: string
+        languageCode:
+          type: string
+          example: DEU
+        latitude:
+          type: number
+          format: double
+          example: 48.33294
+        longitude:
+          type: number
+          format: double
+          example: 18.13294
+        linkIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        topologySegmentIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        conditionId:
+          type: integer
+          format: int32
+      description: Toll booth(s)/bridge(s) at start and/or end of this toll section
+    Route:
+      type: object
+      properties:
+        waypoint:
+          type: array
+          items:
+            $ref: '#/components/schemas/WayPoint'
+        mode:
+          $ref: '#/components/schemas/RouteMode'
+        leg:
+          type: array
+          description: one leg traverses between two mandatory stopover waypoints
+          items:
+            $ref: '#/components/schemas/Leg'
+        shape:
+          type: array
+          description: route shape geometry points - lat, lon pairs
+          items:
+            type: number
+            description: route shape geometry points - lat, lon pairs
+            format: double
+        summary:
+          $ref: '#/components/schemas/Summary'
+        boatFerry:
+          type: boolean
+          description: set if the route uses a boat ferry
+        railFerry:
+          type: boolean
+          description: set if the route uses a rail ferry
+        routeFlagsInResponse:
+          type: boolean
+          writeOnly: true
+        boundingBox:
+          $ref: '#/components/schemas/BoundingBox'
+        cost:
+          $ref: '#/components/schemas/Costs'
+        matchedVehicleType:
+          type: array
+          description: Most probable vehicle type(s), only for route match mode. Only returned if the input trace contains speed or timestamp information.
+          items:
+            $ref: '#/components/schemas/MatchedVehicleType'
+        tollCost:
+          $ref: '#/components/schemas/TCResponse'
+        summaryByCountry:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouteSummaryByCountry'
+      description: Route alternatives. The first route alternative has the minimum cost.
+      readOnly: true
+    CurrencyAmount:
+      type: object
+      properties:
+        country:
+          type: string
+          description: country is the three letter ISO 3166 country code.
+        adminId:
+          type: string
+          description: adminId is the country's admin place id.
+          example: DEU
+        tollSystemId:
+          type: string
+          description: tollSystemId is the unique toll system identifier.
+        name:
+          type: string
+          description: Toll system name
+        languageCode:
+          type: string
+          description: Language code of toll system name
+        amountInTargetCurrency:
+          type: number
+          format: double
+      description: totalCost is the sum of all cost elements.
+    KeyValue:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: object
+      description: requested PDE layer attributes for the link
+    WayPoint:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TracePoint'
+      - type: object
+        properties:
+          linkId:
+            type: string
+          mappedPosition:
+            $ref: '#/components/schemas/Coordinate'
+          originalPosition:
+            $ref: '#/components/schemas/Coordinate'
+          spot:
+            type: number
+            description: 0...1 relative matched offset on link from reference node
+            format: double
+          sideOfStreet:
+            type: string
+            description: Indicates whether the waypoint is located on the left or right side of the link in the direction of travel. Possible values are "left", "right", or "neither".<br/>The "neither" value indicates that the waypoint is within three meters of the link or segment, which represents the centerline of a road section on the map. Three meters is approximately the width of a typical lane. This parameter is only available if the routeMatch=0 parameter was set.
+          seqNrOnRoute:
+            type: integer
+            description: index of the link in the route (duplicate link entries at start/end of a leg are counted only once)
+            format: int32
+          globalWayPointSeqNr:
+            type: integer
+            format: int32
+          waypointType:
+            type: string
+            description: 'Indicates waypoint type: `plannedWaypoint` - planned intermediate waypoint; `learnedStop` - waypoint derived from the driver''s rest patterns learned by the API; `lastTracepoint` - the last position of the vehicle known by the API, often its current location.'
+          type:
+            type: string
+            description: 'Indicates waypoint type: `passThrough` for a waypoint that doesn''t stop the journey, `stopOver` for a waypoint at which the journey stops for some time before it continues.'
+          mappedRoadName:
+            type: string
+            description: Base name of the road. Empty means unknown or valid unnamed. Only available if parameter routeMatch=0 was set.
+          shapeIndex:
+            type: integer
+            description: index of the first shape coordinate in the shape array
+            format: int32
+          userLabel:
+            type: string
+            description: Waypoint label specified by user.
+    RouteSummaryByCountry:
+      type: object
+      properties:
+        distance:
+          type: integer
+          description: travel distance [meter]
+          format: int64
+        baseTime:
+          type: integer
+          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
+          format: int64
+        trafficTime:
+          type: integer
+          description: travel time [sec] considering traffic impact (use only if mode=traffic:enabled)
+          format: int64
+        travelTime:
+          type: integer
+          description: travel time [sec] without considering traffic impact (use only if mode=traffic:disabled)
+          format: int64
+          example: 360
+        country:
+          type: string
+          description: ISO 3166 country code
+          example: DEU
+        tollRoadDistance:
+          type: integer
+          description: toll road distance [meter]
+          format: int64
+    MatchedVehicleType:
+      type: object
+      properties:
+        type:
+          type: string
+          description: car, truck or pedestrian
+          example: truck
+        subType:
+          type: string
+          description: light, medium or heavy, applicable only for truck
+        confidence:
+          type: number
+          description: confidence value of the match 0 ... 1
+          format: double
+      description: Most probable vehicle type(s), only for route match mode. Only returned if the input trace contains speed or timestamp information.
+    CostDetails:
+      type: object
+      properties:
+        driverCost:
+          type: string
+          description: computed from request's driver_cost value and the travel time (with or without ferry time)
+          example: '430.8'
+        vehicleCost:
+          type: string
+          description: computed from request's vehicle_cost value and the travel distance (with or without ferry travel)
+          example: '330.0'
+        tollCost:
+          type: string
+          description: total toll fee
+          example: '130.1'
+        optionalValue:
+          type: string
+          description: value earned by picking + dropping optional waypoints
+        energyCost:
+          type: string
+          description: computed based on request's consumptiondetails
+          example: '233.75'
+        totalCost:
+          type: number
+          format: double
+          example: 500.55
+    RouteMode:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'from request: shortest, fastest or matched (route match mode)'
+        transportModes:
+          type: array
+          description: request's vehicle type
+          example: '[car]'
+          items:
+            type: string
+            description: request's vehicle type
+            example: '[car]'
+        trafficMode:
+          type: string
+          description: 'from request: disabled or enabled'
+          example: disabled
+      description: from the request
+    OverlaySubmitResponse:
+      type: object
+      properties:
+        warnings:
+          type: array
+          items:
+            type: string
+        layers:
+          type: array
+          description: Names of map layers generated from the overlay submission
+          items:
+            type: string
+            description: Names of map layers generated from the overlay submission
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+    BaseResponse:
+      type: object
   securitySchemes:
     apiKey:
       type: apiKey

@@ -107,36 +107,7 @@ paths:
       security:
       - Bearer: []
 components:
-  headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   parameters:
-    Realm:
-      in: path
-      required: true
-      name: realm
-      schema:
-        type: string
-      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
-      example: hrn:here:account::org123456789:realm/org123456789
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -144,15 +115,6 @@ components:
         type: string
       required: false
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
 
         '
     PageToken:
@@ -167,6 +129,15 @@ components:
         '
       schema:
         type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
     IdentityProvider:
       in: path
       required: true
@@ -177,7 +148,40 @@ components:
 
         '
       example: hrn:here:account::org123456789:identityProvider/example-op
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    Realm:
+      in: path
+      required: true
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
   schemas:
+    App1:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: HRN for the App
+          example: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
+        id:
+          type: string
+          description: ID for the App
+          example: AfRcv675i2zYubYTe17D
+        name:
+          type: string
+          description: Human readable name of the client. This field is required unless a clientId is provided.
+          example: My IdP Federation Application
     ErrorMessage:
       type: object
       required:
@@ -236,21 +240,17 @@ components:
         pageToken:
           type: string
           description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
-    App1:
-      type: object
-      properties:
-        hrn:
-          type: string
-          description: HRN for the App
-          example: hrn:here:account::org123456789:app/AfRcv675i2zYubYTe17D
-        id:
-          type: string
-          description: ID for the App
-          example: AfRcv675i2zYubYTe17D
-        name:
-          type: string
-          description: Human readable name of the client. This field is required unless a clientId is provided.
-          example: My IdP Federation Application
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   securitySchemes:
     UserOrClientBearerToken:
       type: http

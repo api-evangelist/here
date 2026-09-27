@@ -170,22 +170,6 @@ paths:
       summary: Get realm platform service terms history
       x-summary-source: derived
 components:
-  headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
-    WWWAuthenticate:
-      schema:
-        type: string
-      required: true
-      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   schemas:
     AcceptPlatformServiceTermsPageWToken:
       allOf:
@@ -208,25 +192,6 @@ components:
             linkToAcceptedTerms: https://legal.here.com/en-gb/terms-2015
             acceptedEffectiveDate: '2021-05-10'
             offlineContractAcceptance: false
-    PlatformServiceTermsResponse:
-      type: object
-      required:
-      - link
-      - effectiveDate
-      - acceptDueDate
-      properties:
-        link:
-          type: string
-          description: URL of Platform Service Terms after redirections to a fully resolved URL.
-          example: https://legal.here.com/en-gb/terms-2015
-        effectiveDate:
-          type: string
-          description: Date Platform Service Terms goes live, in "yyyy-MM-dd" format.
-          example: '2021-05-10'
-        acceptDueDate:
-          type: string
-          description: Data Platform Service Terms should be accepted by in "yyyy-MM-dd" format.
-          example: '2021-06-10'
     AcceptPlatformServiceTermsResponse:
       type: object
       required:
@@ -283,6 +248,48 @@ components:
 
             '
           example: false
+    Error401Response:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+      properties:
+        title:
+          type: string
+          example: ''
+          description: ''
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 401
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request.
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        message:
+          description: Authorization error message
+          type: string
+          example: Unauthorized to perform this operation.
     Error403Response:
       type: object
       required:
@@ -390,65 +397,41 @@ components:
 
             '
           example: false
-    Error401Response:
+    PlatformServiceTermsResponse:
       type: object
       required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
+      - link
+      - effectiveDate
+      - acceptDueDate
       properties:
-        title:
+        link:
           type: string
-          example: ''
-          description: ''
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 401
-        code:
-          description: Service specific error code
+          description: URL of Platform Service Terms after redirections to a fully resolved URL.
+          example: https://legal.here.com/en-gb/terms-2015
+        effectiveDate:
           type: string
-          example: E202101
-        cause:
-          description: The cause of the error
+          description: Date Platform Service Terms goes live, in "yyyy-MM-dd" format.
+          example: '2021-05-10'
+        acceptDueDate:
           type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request.
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        message:
-          description: Authorization error message
-          type: string
-          example: Unauthorized to perform this operation.
-  parameters:
-    RealmHrnOrMe:
-      in: path
-      name: realmHrnOrMe
-      required: true
-      description: HRN of the realm, or "me". If "me" the "rlm" claim from the access token is used.
+          description: Data Platform Service Terms should be accepted by in "yyyy-MM-dd" format.
+          example: '2021-06-10'
+  headers:
+    XCorrelationId:
       schema:
         type: string
-    RealmHrn:
-      in: path
-      name: realmHrn
-      required: true
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+    WWWAuthenticate:
       schema:
         type: string
-      description: 'Realm is the HRN of the realm.
-
-        '
+      required: true
+      description: Must be included If the protected resource request does not include authentication credentials or does not contain an access token that enables access to the protected resource. The value must have at least one challenge and must be followed by a comma separated list having one or more authentication param values. In case of OAuth2.0, the challenge must use the auth-scheme value "Bearer".
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
   responses:
     Forbidden:
       description: You do not have permission to perform this action
@@ -474,6 +457,23 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error401Response'
+  parameters:
+    RealmHrnOrMe:
+      in: path
+      name: realmHrnOrMe
+      required: true
+      description: HRN of the realm, or "me". If "me" the "rlm" claim from the access token is used.
+      schema:
+        type: string
+    RealmHrn:
+      in: path
+      name: realmHrn
+      required: true
+      schema:
+        type: string
+      description: 'Realm is the HRN of the realm.
+
+        '
   securitySchemes:
     UserOrClientBearerToken:
       type: http

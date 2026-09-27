@@ -24,7 +24,7 @@ paths:
       tags:
       - Map Attributes V8
       summary: Simple and fast access to the rich HERE Map Content
-      operationId: Map Attributes API v8GetMapAttributes
+      operationId: MapAttributesAPIV8GetMapAttributes
       parameters:
       - name: app_id
         in: query
@@ -154,11 +154,13 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesV8Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributes
     post:
       tags:
       - Map Attributes V8
       summary: Simple and fast access to the rich HERE Map Content
-      operationId: Map Attributes API v8GetMapAttributes_1
+      operationId: MapAttributesAPIV8GetMapAttributes_1
       parameters:
       - name: app_id
         in: query
@@ -288,6 +290,8 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesV8Response'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributes_1
   /v8/maps/attributes/segments:
     get:
       tags:
@@ -297,7 +301,7 @@ paths:
 
 
         Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
-      operationId: Map Attributes API v8GetMapAttributesForMultiSegment
+      operationId: MapAttributesAPIV8GetMapAttributesForMultiSegment
       parameters:
       - name: app_id
         in: query
@@ -341,12 +345,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributesForMultiSegment
     post:
       tags:
       - Map Attributes V8
       summary: Map Attributes for individual segments (POST)
       description: The segments endpoint can be used to enrich multiple unconnected segments with HERE Map content attributes. For POST requests, send the segmentRefs parameter in an application/x-www-form-urlencoded request body instead of the query string. Authentication `apiKey` must - and basic configuration parameters can remain in the query string.
-      operationId: Map Attributes API v8GetMapAttributesForMultiSegmentPost
+      operationId: MapAttributesAPIV8GetMapAttributesForMultiSegmentPost
       parameters:
       - name: app_id
         in: query
@@ -398,6 +404,8 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributesForMultiSegmentPost
   /v8/maps/upload:
     post:
       tags:
@@ -407,7 +415,7 @@ paths:
 
 
         Note: The feature to import custom layers is deprecated. It will be only supported in self-hosting in maintenance mode.'
-      operationId: Map Attributes API v8UploadPost
+      operationId: MapAttributesAPIV8UploadPost
       parameters:
       - name: layerId
         in: query
@@ -468,6 +476,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LayerUploadResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8UploadPost
   /v8/maps/modify:
     post:
       tags:
@@ -479,7 +489,7 @@ paths:
 
 
         Note: The feature to modify custom layers is deprecated. It will be only supported in self-hosting in maintenance mode.'
-      operationId: Map Attributes API v8ModifyPost
+      operationId: MapAttributesAPIV8ModifyPost
       parameters:
       - name: layerId
         in: query
@@ -537,13 +547,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LayerModifyResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8ModifyPost
   /v8/maps/routeisoline:
     get:
       tags:
       - Map Attributes V8
       summary: Retrieve the POIs that are reachable within a certain time or distance from the…
       description: Retrieve the POIs that are reachable within a certain time or distance from the main route
-      operationId: Map Attributes API searchRouteIsolineV8
+      operationId: MapAttributesAPISearchRouteIsolineV8
       parameters:
       - name: app_id
         in: query
@@ -874,12 +886,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/GeometrySearchResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API searchRouteIsolineV8
   /v8/maps/list:
     get:
       tags:
       - Map Attributes V8
       summary: List available map (public/private/both) regions/releases available to the app
-      operationId: Map Attributes API v8MapsListJSON
+      operationId: MapAttributesAPIV8MapsListJSON
       parameters:
       - name: mapName
         in: query
@@ -913,12 +927,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapDocResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8MapsListJSON
   /v8/maps/list.html:
     get:
       tags:
       - Map Attributes V8
       summary: List all maps (public/private/both) available to the app in HTML format
-      operationId: Map Attributes API v8MapsListHTML
+      operationId: MapAttributesAPIV8MapsListHTML
       parameters:
       - name: mapName
         in: query
@@ -946,12 +962,14 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8MapsListHTML
   /v8/maps/layers/list:
     get:
       tags:
       - Map Attributes V8
       summary: List the available map layers (public/private/both) in JSON format.
-      operationId: Map Attributes API v8LayersListJSON
+      operationId: MapAttributesAPIV8LayersListJSON
       parameters:
       - name: mapName
         in: query
@@ -987,12 +1005,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LayerDocBean'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayersListJSON
   /v8/maps/layers/list.html:
     get:
       tags:
       - Map Attributes V8
       summary: List the available map layers (public/private/both) in HTML format.
-      operationId: Map Attributes API v8LayersListHTML
+      operationId: MapAttributesAPIV8LayersListHTML
       parameters:
       - name: mapName
         in: query
@@ -1020,12 +1040,14 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayersListHTML
   /v8/maps/layers/doc:
     get:
       tags:
       - Map Attributes V8
       summary: Show the layer documentation for a specific layer (public/private) in JSON…
-      operationId: Map Attributes API v8LayerDocJSON
+      operationId: MapAttributesAPIV8LayerDocJSON
       parameters:
       - name: layer
         in: query
@@ -1060,12 +1082,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LayerDetailDocBean'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayerDocJSON
   /v8/maps/layers/doc.html:
     get:
       tags:
       - Map Attributes V8
       summary: Show the layer documentation for a specific layer (public/private) in HTML…
-      operationId: Map Attributes API v8LayerDocHTML
+      operationId: MapAttributesAPIV8LayerDocHTML
       parameters:
       - name: layer
         in: query
@@ -1092,13 +1116,15 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayerDocHTML
   /v8/maps/layers/attributes:
     get:
       tags:
       - Map Attributes V8
       summary: List the layer attributes across all layers
       description: List the map layer attributes across all layers
-      operationId: Map Attributes API v8LayerAttributesJSON
+      operationId: MapAttributesAPIV8LayerAttributesJSON
       parameters:
       - name: mapName
         in: query
@@ -1134,13 +1160,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AttributeDocBean'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayerAttributesJSON
   /v8/maps/layers/attributes.html:
     get:
       tags:
       - Map Attributes V8
       summary: List the layer attributes across all layers
       description: List the layer attributes across all layers in basic HTML format
-      operationId: Map Attributes API v8LayerAttributesHTML
+      operationId: MapAttributesAPIV8LayerAttributesHTML
       parameters:
       - name: mapName
         in: query
@@ -1168,13 +1196,15 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8LayerAttributesHTML
   /v8/maps/indexes:
     get:
       tags:
       - Map Attributes V8
       summary: List available layer indexes
       description: List the available indexes of custom and public layers.
-      operationId: Map Attributes API v8MapIndexesJSON
+      operationId: MapAttributesAPIV8MapIndexesJSON
       parameters:
       - name: mapName
         in: query
@@ -1204,13 +1234,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/IndexDocBean'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8MapIndexesJSON
   /v8/maps/indexes.html:
     get:
       tags:
       - Map Attributes V8
       summary: List available layer indexes
       description: List the available indexes of custom and public layers.
-      operationId: Map Attributes API v8MapIndexesHTML
+      operationId: MapAttributesAPIV8MapIndexesHTML
       parameters:
       - name: mapName
         in: query
@@ -1238,13 +1270,15 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8MapIndexesHTML
   /v8/maps/index:
     get:
       tags:
       - Map Attributes V8
       summary: Tile IDs containing a given value
       description: Retrieve the IDs of tiles that contain a given (set of) attribute value(s). Does not work for custom layers.
-      operationId: Map Attributes API v8Index
+      operationId: MapAttributesAPIV8Index
       parameters:
       - name: layer
         in: query
@@ -1284,12 +1318,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/IndexResponseV8'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8Index
   /v8/maps/delete:
     get:
       tags:
       - Map Attributes V8
       summary: Delete some of my Geometry Layers.
-      operationId: Map Attributes API v8DeleteMapsLayers
+      operationId: MapAttributesAPIV8DeleteMapsLayers
       parameters:
       - name: layerId
         in: query
@@ -1326,13 +1362,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteLayersResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8DeleteMapsLayers
   /v8/maps/content.html:
     get:
       tags:
       - Map Attributes V8
       summary: Landing page for inline documentation
       description: Landing page for inline documentation in HTML format
-      operationId: Map Attributes API v8ContentHTML
+      operationId: MapAttributesAPIV8ContentHTML
       parameters:
       - name: apikey
         in: query
@@ -1348,13 +1386,15 @@ paths:
             text/html;charset=UTF-8:
               schema:
                 type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8ContentHTML
   /v8/maps/serviceconfiguration:
     get:
       tags:
       - Map Attributes V8
       summary: Service parameter boundary values
       description: Numeric constants and limits for the service calls. Will never become more strict, but can become more relaxed in future releases.
-      operationId: Map Attributes API v8GetServiceConfiguration
+      operationId: MapAttributesAPIV8GetServiceConfiguration
       parameters:
       - name: callback
         in: query
@@ -1376,6 +1416,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceConfigurationResponseV8'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetServiceConfiguration
   /v8/maps/attributes/path:
     get:
       tags:
@@ -1385,7 +1427,7 @@ paths:
 
 
         Note: We recommend using POST requests for large payloads, as GET requests may be constrained by request-line length limits imposed by load balancers.'
-      operationId: Map Attributes API v8GetMapAttributesForAPath
+      operationId: MapAttributesAPIV8GetMapAttributesForAPath
       parameters:
       - name: app_id
         in: query
@@ -1658,12 +1700,14 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributesForAPath
     post:
       tags:
       - Map Attributes V8
       summary: Map Attributes along a route path (POST)
       description: The path endpoint can be used to enrich a given continuous route path with HERE Map content attributes. For POST requests, send the large path parameters (segmentRefs, segments, links or flexiblePolyline) in an application/x-www-form-urlencoded request body instead of the query string. Authentication `apiKey` must - and basic configuration parameters can remain in the query string.
-      operationId: Map Attributes API v8GetMapAttributesForAPathPost
+      operationId: MapAttributesAPIV8GetMapAttributesForAPathPost
       parameters:
       - name: app_id
         in: query
@@ -1940,95 +1984,67 @@ paths:
             application/json;charset=UTF-8:
               schema:
                 $ref: '#/components/schemas/MapAttributesAlongPathResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: Map Attributes API v8GetMapAttributesForAPathPost
 components:
   schemas:
-    MapDocResponse:
+    MapAttributesAlongPathResponse:
       type: object
       properties:
-        maps:
-          type: array
-          items:
-            $ref: '#/components/schemas/MapDocBean'
-    IndexResponseLayerV8:
-      type: object
-      properties:
-        layer:
-          type: string
-          example: ROAD_GEOM_FC3
-        level:
-          type: integer
-          description: Tiling level of the layer
-          format: int32
-          example: 11
-        tileIDs:
-          type: array
-          description: tile IDs
+        refReplacements:
+          type: object
+          additionalProperties:
+            type: string
+            description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
+            example: '{"0":":1755533878934:","1":"here:cm:segment"}'
+          description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
           example:
-          - 6297686
-          - 6297687
+            '0': ':1755533878934:'
+            '1': here:cm:segment
+        segments:
+          type: array
+          description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
           items:
-            type: integer
-            description: tile IDs
-            format: int32
-      description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
-    MapDocBean:
+            $ref: '#/components/schemas/SegmentRefAttributes'
+    IndexDocBean:
       type: object
       properties:
-        name:
+        indexedLayerName:
           type: string
-        coverage:
+        indexedColumnNames:
           type: string
-        version:
-          type: integer
-          format: int64
-        releaseYearAndQuarter:
+        indexType:
           type: string
-        size:
-          type: integer
-          format: int64
-        isLatest:
-          type: boolean
-        layerNames:
-          type: array
-          items:
-            type: string
-        mapType:
+        exampleNames:
           type: string
-        storage:
+        exampleUrlParams:
+          type: string
+        mapName:
           type: string
       example:
-        name: PCBWORLD
-        coverage: PCBWORLD
-        version: 1740384962856
-        releaseYearAndQuarter: 241H0
-        size: 5837578240
-        isLatest: true
-        layerNames:
-        - PSTLCB_MP
-        - PSTLCB_GEN
-        - PSTLCB_UNGEN
-        mapType: public
-        storage: readonly
-    AttributeDocBean:
+        indexedLayerName: ADMIN_PLACE_0
+        indexedColumnNames: ADMIN_PLACE_ID
+        indexType: INDEX
+        exampleNames: JSON
+        exampleUrlParams: maps/index?layer=ADMIN_PLACE_0&attributes=ADMIN_PLACE_ID&values=23060936%2C4711
+        mapName: WEU
+    MapAttributesV8Response:
       type: object
       properties:
-        name:
-          type: string
-        description:
-          type: string
-        layers:
+        geometries:
+          type: array
+          description: List of geometries for spatial search response.
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          description: List of Meta info for spatial search response.
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+        Tiles:
           type: array
           items:
-            type: string
-      example:
-        name: TRANSPORT_SPEED_LIMIT
-        description: 'Defines a speed limit applicable to trucks. Unit: km/h.'
-        layers:
-        - TRUCK_RESTR_FC1
-        - TRUCK_RESTR_FC2
-        - TRUCK_RESTR_FC3
-        - TRUCK_RESTR_FC4
-        - TRUCK_RESTR_FC5
+            $ref: '#/components/schemas/TileResponseV8'
     IndexResponseV8:
       type: object
       properties:
@@ -2037,13 +2053,6 @@ components:
           description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
           items:
             $ref: '#/components/schemas/IndexResponseLayerV8'
-    LayerModifyResponse:
-      type: object
-      properties:
-        action:
-          type: string
-          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
-          example: append
     LayerUploadResponse:
       type: object
       properties:
@@ -2052,33 +2061,13 @@ components:
           description: Number of tiles that were created to store the uploaded layer content
           format: int32
           example: 20
-    ServiceConfigurationResponseV8:
+    LayerModifyResponse:
       type: object
       properties:
-        Configuration:
-          $ref: '#/components/schemas/ServiceConfigurationContentV8'
-    DeleteLayersResponse:
-      type: object
-      properties:
-        deletedLayers:
-          type: array
-          description: List of deleted layers.
-          example:
-          - SAMPLE_LAYER
-          items:
-            type: string
-            description: List of deleted layers.
-            example: '["SAMPLE_LAYER"]'
-    TileResponseV8:
-      type: object
-      properties:
-        rows:
-          type: array
-          description: List of Attribute/value map from a specific layer.
-          items:
-            $ref: '#/components/schemas/TileRow'
-        meta:
-          $ref: '#/components/schemas/MetaResponseV8'
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
     SegmentRefAttributes:
       type: object
       properties:
@@ -2108,28 +2097,6 @@ components:
               ZLEVEL: ',,'
               ELEVATION: ',,'
       description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
-    IndexDocBean:
-      type: object
-      properties:
-        indexedLayerName:
-          type: string
-        indexedColumnNames:
-          type: string
-        indexType:
-          type: string
-        exampleNames:
-          type: string
-        exampleUrlParams:
-          type: string
-        mapName:
-          type: string
-      example:
-        indexedLayerName: ADMIN_PLACE_0
-        indexedColumnNames: ADMIN_PLACE_ID
-        indexType: INDEX
-        exampleNames: JSON
-        exampleUrlParams: maps/index?layer=ADMIN_PLACE_0&attributes=ADMIN_PLACE_ID&values=23060936%2C4711
-        mapName: WEU
     ServiceConfigurationContentV8:
       type: object
       properties:
@@ -2236,23 +2203,291 @@ components:
           description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
           format: int64
           example: 1756219305792
-    MapAttributesV8Response:
+    TileResponseV8:
+      type: object
+      properties:
+        rows:
+          type: array
+          description: List of Attribute/value map from a specific layer.
+          items:
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
+    MapDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        coverage:
+          type: string
+        version:
+          type: integer
+          format: int64
+        releaseYearAndQuarter:
+          type: string
+        size:
+          type: integer
+          format: int64
+        isLatest:
+          type: boolean
+        layerNames:
+          type: array
+          items:
+            type: string
+        mapType:
+          type: string
+        storage:
+          type: string
+      example:
+        name: PCBWORLD
+        coverage: PCBWORLD
+        version: 1740384962856
+        releaseYearAndQuarter: 241H0
+        size: 5837578240
+        isLatest: true
+        layerNames:
+        - PSTLCB_MP
+        - PSTLCB_GEN
+        - PSTLCB_UNGEN
+        mapType: public
+        storage: readonly
+    AttributeDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        layers:
+          type: array
+          items:
+            type: string
+      example:
+        name: TRANSPORT_SPEED_LIMIT
+        description: 'Defines a speed limit applicable to trucks. Unit: km/h.'
+        layers:
+        - TRUCK_RESTR_FC1
+        - TRUCK_RESTR_FC2
+        - TRUCK_RESTR_FC3
+        - TRUCK_RESTR_FC4
+        - TRUCK_RESTR_FC5
+    GeometrySearchResponse:
       type: object
       properties:
         geometries:
           type: array
-          description: List of geometries for spatial search response.
           items:
             $ref: '#/components/schemas/Geometry'
         meta:
           type: array
-          description: List of Meta info for spatial search response.
           items:
             $ref: '#/components/schemas/SearchMetaResponse'
-        Tiles:
+    DeleteLayersResponse:
+      type: object
+      properties:
+        deletedLayers:
+          type: array
+          description: List of deleted layers.
+          example:
+          - SAMPLE_LAYER
+          items:
+            type: string
+            description: List of deleted layers.
+            example: '["SAMPLE_LAYER"]'
+    MapDocResponse:
+      type: object
+      properties:
+        maps:
           type: array
           items:
-            $ref: '#/components/schemas/TileResponseV8'
+            $ref: '#/components/schemas/MapDocBean'
+    LayerDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        tileLevel:
+          type: integer
+          format: int32
+        level:
+          type: integer
+          format: int32
+        attributes:
+          type: array
+          items:
+            type: string
+        layerType:
+          type: string
+        storage:
+          type: string
+        mapName:
+          type: string
+        lastUpdateTimestamp:
+          type: integer
+          format: int64
+        featureMapping:
+          type: string
+        dynamicLayerAttribute:
+          type: boolean
+          writeOnly: true
+        source:
+          type: string
+        version:
+          type: string
+      example:
+        name: SIGNPOST
+        type: geom
+        level: 10
+        attributes:
+        - ZLEVEL
+        - SIGN_ID
+        - ORIGINATING_LINK_ID
+        - DEST_LINK_IDS
+        - STRAIGHT_ON_SIGNS
+        - EXIT_NUMBERS
+        - TEXTS
+        - LAT
+        - LON
+        layerType: public
+        storage: readonly
+        mapName: SAM
+        lastUpdateTimestamp: 1754820593739
+        featureMapping: PDE-Premium-Traffic-Signs
+    TileRow:
+      type: object
+      properties:
+        columns:
+          type: array
+          description: Map of attributes and values.
+          example:
+            LINK_ID: '113421120'
+            LONG_HAUL: N
+            NAME: SR-33 / Commonwealth Ave N
+            NAMES: ''
+            TUNNEL: N
+            BRIDGE: N
+            LAT: 2831248,47,72,46,50,47,21,42,33,31
+            LON: -8183529,6,10,5,7,5,2,5,3,3
+            ZLEVEL: ',,,,,,,,,'
+            ELEVATION: null
+            TOPOLOGY_ID: '399791974'
+            START_OFFSET: '0'
+            END_OFFSET: '100000'
+          items:
+            type: string
+            description: Map of attributes and values.
+            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
+      description: List of Attribute/value map from a specific layer.
+    IndexResponseLayerV8:
+      type: object
+      properties:
+        layer:
+          type: string
+          example: ROAD_GEOM_FC3
+        level:
+          type: integer
+          description: Tiling level of the layer
+          format: int32
+          example: 11
+        tileIDs:
+          type: array
+          description: tile IDs
+          example:
+          - 6297686
+          - 6297687
+          items:
+            type: integer
+            description: tile IDs
+            format: int32
+      description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
+    LayerDetailDocBean:
+      type: object
+      properties:
+        description:
+          type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+        attributesType:
+          type: array
+          items:
+            type: string
+        referencedStaticContents:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        tileRequestsLevel:
+          type: integer
+          format: int32
+        tileX:
+          type: integer
+          format: int32
+        tileY:
+          type: integer
+          format: int32
+        isStaticContent:
+          type: boolean
+        indexes:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexDocBean'
+        staticContent:
+          type: boolean
+        dynamicLayerAttributeDocDescription:
+          type: boolean
+          writeOnly: true
+      example:
+        description: Topology Segment IDs for roads.
+        attributes:
+          LINK_ID: Permanent link ID.
+          TOPOLOGY_ID: Topology segment unique ID.
+          START_OFFSET: Indicating the relative start position of the link inside the topology.
+        attributesType:
+        - NUMBER
+        - NUMBER
+        - NUMBER
+        referencedStaticContents: []
+        tileRequestsLevel: 9
+        tileX: 854
+        tileY: 320
+        isStaticContent: false
+        indexes: []
+        staticContent: false
+    ServiceConfigurationResponseV8:
+      type: object
+      properties:
+        Configuration:
+          $ref: '#/components/schemas/ServiceConfigurationContentV8'
+    MetaResponseV8:
+      type: object
+      properties:
+        layerName:
+          type: string
+          description: Name of layer returned in this tile response.
+          example: ROAD_GEOM_FC4
+        tileId:
+          type: integer
+          description: Tile ID for the tile returned in this response.
+          format: int32
+          example: 22055097
+        level:
+          type: integer
+          description: Level for layer returned in this tile response.
+          format: int32
+          example: 12
+        mapRegion:
+          type: string
+          description: Map region for layer returned in this tile response.
+          example: WEU
+        mapRelease:
+          type: string
+          description: Specific map release that this layer content belongs to.
+          example: '25122'
+      description: Meta info for a specific layer.
     Geometry:
       type: object
       properties:
@@ -2328,195 +2563,6 @@ components:
           - NONE
           - TILED
           - FULL
-    MapAttributesAlongPathResponse:
-      type: object
-      properties:
-        refReplacements:
-          type: object
-          additionalProperties:
-            type: string
-            description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
-            example: '{"0":":1755533878934:","1":"here:cm:segment"}'
-          description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
-          example:
-            '0': ':1755533878934:'
-            '1': here:cm:segment
-        segments:
-          type: array
-          description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
-          items:
-            $ref: '#/components/schemas/SegmentRefAttributes'
-    LayerDetailDocBean:
-      type: object
-      properties:
-        description:
-          type: string
-        attributes:
-          type: object
-          additionalProperties:
-            type: string
-        attributesType:
-          type: array
-          items:
-            type: string
-        referencedStaticContents:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        tileRequestsLevel:
-          type: integer
-          format: int32
-        tileX:
-          type: integer
-          format: int32
-        tileY:
-          type: integer
-          format: int32
-        isStaticContent:
-          type: boolean
-        indexes:
-          type: array
-          items:
-            $ref: '#/components/schemas/IndexDocBean'
-        staticContent:
-          type: boolean
-        dynamicLayerAttributeDocDescription:
-          type: boolean
-          writeOnly: true
-      example:
-        description: Topology Segment IDs for roads.
-        attributes:
-          LINK_ID: Permanent link ID.
-          TOPOLOGY_ID: Topology segment unique ID.
-          START_OFFSET: Indicating the relative start position of the link inside the topology.
-        attributesType:
-        - NUMBER
-        - NUMBER
-        - NUMBER
-        referencedStaticContents: []
-        tileRequestsLevel: 9
-        tileX: 854
-        tileY: 320
-        isStaticContent: false
-        indexes: []
-        staticContent: false
-    TileRow:
-      type: object
-      properties:
-        columns:
-          type: array
-          description: Map of attributes and values.
-          example:
-            LINK_ID: '113421120'
-            LONG_HAUL: N
-            NAME: SR-33 / Commonwealth Ave N
-            NAMES: ''
-            TUNNEL: N
-            BRIDGE: N
-            LAT: 2831248,47,72,46,50,47,21,42,33,31
-            LON: -8183529,6,10,5,7,5,2,5,3,3
-            ZLEVEL: ',,,,,,,,,'
-            ELEVATION: null
-            TOPOLOGY_ID: '399791974'
-            START_OFFSET: '0'
-            END_OFFSET: '100000'
-          items:
-            type: string
-            description: Map of attributes and values.
-            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
-      description: List of Attribute/value map from a specific layer.
-    MetaResponseV8:
-      type: object
-      properties:
-        layerName:
-          type: string
-          description: Name of layer returned in this tile response.
-          example: ROAD_GEOM_FC4
-        tileId:
-          type: integer
-          description: Tile ID for the tile returned in this response.
-          format: int32
-          example: 22055097
-        level:
-          type: integer
-          description: Level for layer returned in this tile response.
-          format: int32
-          example: 12
-        mapRegion:
-          type: string
-          description: Map region for layer returned in this tile response.
-          example: WEU
-        mapRelease:
-          type: string
-          description: Specific map release that this layer content belongs to.
-          example: '25122'
-      description: Meta info for a specific layer.
-    LayerDocBean:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-        tileLevel:
-          type: integer
-          format: int32
-        level:
-          type: integer
-          format: int32
-        attributes:
-          type: array
-          items:
-            type: string
-        layerType:
-          type: string
-        storage:
-          type: string
-        mapName:
-          type: string
-        lastUpdateTimestamp:
-          type: integer
-          format: int64
-        featureMapping:
-          type: string
-        dynamicLayerAttribute:
-          type: boolean
-          writeOnly: true
-        source:
-          type: string
-        version:
-          type: string
-      example:
-        name: SIGNPOST
-        type: geom
-        level: 10
-        attributes:
-        - ZLEVEL
-        - SIGN_ID
-        - ORIGINATING_LINK_ID
-        - DEST_LINK_IDS
-        - STRAIGHT_ON_SIGNS
-        - EXIT_NUMBERS
-        - TEXTS
-        - LAT
-        - LON
-        layerType: public
-        storage: readonly
-        mapName: SAM
-        lastUpdateTimestamp: 1754820593739
-        featureMapping: PDE-Premium-Traffic-Signs
-    GeometrySearchResponse:
-      type: object
-      properties:
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Geometry'
-        meta:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchMetaResponse'
   securitySchemes:
     apiKey:
       type: apiKey

@@ -19,7 +19,7 @@ paths:
       tags:
       - Notification API v2
       summary: Subscribe for Catalog change notifications
-      operationId: Notification API subscribe
+      operationId: NotificationAPISubscribe
       parameters:
       - $ref: '#/components/parameters/billingTag'
       - $ref: '#/components/parameters/Authorization'
@@ -60,12 +60,14 @@ paths:
                 type: string
                 example: Internal Server Error
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Notification API subscribe
   /layers/{notificationStreamLayerId}:
     get:
       tags:
       - Notification API v2
       summary: Get all subscriptions for target layer
-      operationId: Notification API getSubscriptions
+      operationId: NotificationAPIGetSubscriptions
       parameters:
       - $ref: '#/components/parameters/notificationStreamLayerId'
       responses:
@@ -93,11 +95,13 @@ paths:
                 type: string
                 example: Internal Server Error
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Notification API getSubscriptions
     delete:
       tags:
       - Notification API v2
       summary: Delete subscriptions for provided catalogHRN and stream layer ID
-      operationId: Notification API deleteSubscriptions
+      operationId: NotificationAPIDeleteSubscriptions
       parameters:
       - $ref: '#/components/parameters/notificationStreamLayerId'
       requestBody:
@@ -131,15 +135,10 @@ paths:
                 type: string
                 example: Internal Server Error
       x-olp-access-type: resource
+      x-operation-id-source: normalized
+      x-operation-id-original: Notification API deleteSubscriptions
 components:
   parameters:
-    notificationStreamLayerId:
-      name: notificationStreamLayerId
-      in: path
-      description: Stream Layer ID for which we are retrieving subscriptions for.
-      required: true
-      schema:
-        type: string
     Authorization:
       name: Authorization
       in: header
@@ -153,18 +152,27 @@ components:
       description: Billing Tag
       schema:
         type: string
+    notificationStreamLayerId:
+      name: notificationStreamLayerId
+      in: path
+      description: Stream Layer ID for which we are retrieving subscriptions for.
+      required: true
+      schema:
+        type: string
   schemas:
-    DeleteRequest:
+    SubscribeRequest:
       type: object
       properties:
-        deleteAll:
-          type: boolean
-        subscriptionIds:
-          uniqueItems: true
+        attributes:
           type: array
           items:
-            type: string
-            example: 46d1ca2b-cad0-44d1-8a67-099dc08a0d40
+            $ref: '#/components/schemas/Attribute'
+        notificationCatalogHRN:
+          type: string
+          example: hrn:here:data::realm:notification-catalog
+        notificationStreamLayerId:
+          type: string
+          example: notification-layer
     Attribute:
       type: object
       properties:
@@ -181,6 +189,17 @@ components:
           - SHORT
           - LIST
           - FULL
+    DeleteRequest:
+      type: object
+      properties:
+        deleteAll:
+          type: boolean
+        subscriptionIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+            example: 46d1ca2b-cad0-44d1-8a67-099dc08a0d40
     SubscriptionArea:
       type: object
       required:
@@ -195,19 +214,6 @@ components:
           all: '#/components/schemas/SubscriptionAreaAll'
           wkt: '#/components/schemas/SubscriptionAreaInWKT'
           partitions: '#/components/schemas/SubscriptionAreaInPartitions'
-    SubscribeRequest:
-      type: object
-      properties:
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attribute'
-        notificationCatalogHRN:
-          type: string
-          example: hrn:here:data::realm:notification-catalog
-        notificationStreamLayerId:
-          type: string
-          example: notification-layer
   securitySchemes:
     Bearer:
       type: http

@@ -19,7 +19,7 @@ paths:
       - Ingestion
       summary: Endpoint for ingesting generic data
       description: Sends streaming data to a specified layer in the HERE platform
-      operationId: Ingest API v1 ingestData
+      operationId: IngestAPIV1IngestData
       parameters:
       - name: layerId
         in: path
@@ -100,6 +100,8 @@ paths:
       x-codegen-request-body-name: byteArray
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestData
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/partitions:
@@ -108,7 +110,7 @@ paths:
       - Ingestion
       summary: Send a list of partitions to a stream layer
       description: Upload partitions to the given layer. For better performance batch your partitions (e.g. 1000 per request), rather than uploading them individually.
-      operationId: Ingest API v1 ingestPartitions
+      operationId: IngestAPIV1IngestPartitions
       parameters:
       - name: layerId
         in: path
@@ -177,6 +179,8 @@ paths:
       x-codegen-request-body-name: body
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestPartitions
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /layers/{layerId}/sdiiMessageList:
@@ -185,7 +189,7 @@ paths:
       - Ingestion
       summary: Send a list of SDII messages to a stream layer
       description: Consumes individual SDII messages and SDII MessageLists. The endpoint automatically breaks SDII MessageLists down and stores the data as individual SDII messages. Note that this endpoint does not support compression. If you are sending data to stream layer that has compression enabled, you must use the `/layers/` endpoint and all compression and decompression must be handled by your application.
-      operationId: Ingest API v1 ingestSDII
+      operationId: IngestAPIV1IngestSDII
       parameters:
       - name: layerId
         in: path
@@ -266,6 +270,8 @@ paths:
       x-codegen-request-body-name: byteArray
       security:
       - Bearer: []
+      x-operation-id-source: normalized
+      x-operation-id-original: Ingest API v1 ingestSDII
     servers:
     - url: https://use.apilookup.for.a.base.url/
   /v2/health:
@@ -6222,99 +6228,17 @@ paths:
     - url: https://tracking.api.here.com/
 components:
   schemas:
-    Response400:
+    Response404:
       type: object
       properties:
         title:
           type: string
-          description: 'The reason why validation failed. The possible reasons are: Input data failed validation, Message processing error, No handler found'
-          example: Input data failed validation
-        status:
-          type: string
-          description: An HTTP status code.
-          example: '400'
-        code:
-          type: string
-          description: 'Ingestion code E221 + XXX where XXX is an ingestion-specific error number or 000 for general errors. Possible values include: E221000 - Generic error; E221001 - Layer for provided App ID is not found.'
-          example: E221000
-        cause:
-          type: string
-          description: A description of the cause of the error.
-          example: Missing request header Authorization-Claims for method parameter of type AuthClaims
-        action:
-          type: string
-          description: An action that could possibly solve the issue.
-          example: Check request for correctness
-        correlationId:
-          type: string
-          description: A unique ID for the request. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response.  You can use this ID to track your request.
-          example: a739c6e7-cbb6-43d8-bb94-377a2db6439e
-        traceId:
-          type: string
-          description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
-          example: c0d3ebd4-8768-4191-95d6-e5a5dda88f14
-    Response413:
-      type: object
-      properties:
-        title:
-          type: string
-          description: A general description of the error.
-          example: Request Body Too Large
-        status:
-          type: string
-          description: An HTTP status code.
-          example: '413'
-        code:
-          type: string
-          description: Ingestion code E221 + XXX where XXX is an ingestion-specific error number.
-          example: E221002
-        cause:
-          type: string
-          description: A description of the cause of the error.
-          example: Body of request is over than 20Mb
-        action:
-          type: string
-          description: Actions to take to possibly solve the issue.
-          example: Please reduce body size to be lower than 20Mb
-        correlationId:
-          type: string
-          description: Empty as request is terminated on Sentry nginx.
-          example: ''
-    ResponseOk:
-      type: object
-      properties:
-        traceId:
-          type: object
-          properties:
-            parentId:
-              type: string
-              description: A unique ID for the messages list. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
-              example: dafb1f57-23e4-4fbc-9f07-2affe86533b3
-            generatedIds:
-              type: array
-              items:
-                type: string
-                description: Generated list of unique IDs for each message in a list. You can use this ID to track your request and identify the message in the catalog.
-                example: ''
-    PublishPartitions:
-      type: object
-      properties:
-        partitions:
-          type: array
-          description: Array of partitions.
-          items:
-            $ref: '#/components/schemas/PublishPartition'
-    Response415:
-      type: object
-      properties:
-        title:
-          type: string
-          description: 'A general description of the error. Possible values include: Input data failed validation; Message processing error; No handler found.'
+          description: 'A general description of the error. Possible values include: Input data failed validation, Message processing error, No handler found.'
           example: No handler found
         status:
           type: string
           description: An HTTP status code.
-          example: '415'
+          example: '404'
         code:
           type: string
           description: 'Ingestion code E221 + XXX where XXX is an ingestion-specific error number or 000 for general errors. Possible values include: E221000 - Generic error; E221001 - Layer for provided App ID is not found.'
@@ -6322,10 +6246,10 @@ components:
         cause:
           type: string
           description: A description of the cause of the error.
-          example: 'Invalid mime type "wrongMediaType": does not contain ''/'''
+          example: No handler found for POST /not_existing_endpoint/v1/catalogs/a-catalog/layers/data
         action:
           type: string
-          description: Actions to take to possibly solve the issue.
+          description: An action that could possibly solve the issue.
           example: Check request for correctness
         correlationId:
           type: string
@@ -6379,17 +6303,17 @@ components:
           description: User provided CRC of the partition data in bytes. Should be lowercase. Crc is passed as `dsCrc` kafka record header.
           example: c3f276d7
       description: Metadata describing the partition being published.
-    Response404:
+    Response400:
       type: object
       properties:
         title:
           type: string
-          description: 'A general description of the error. Possible values include: Input data failed validation, Message processing error, No handler found.'
-          example: No handler found
+          description: 'The reason why validation failed. The possible reasons are: Input data failed validation, Message processing error, No handler found'
+          example: Input data failed validation
         status:
           type: string
           description: An HTTP status code.
-          example: '404'
+          example: '400'
         code:
           type: string
           description: 'Ingestion code E221 + XXX where XXX is an ingestion-specific error number or 000 for general errors. Possible values include: E221000 - Generic error; E221001 - Layer for provided App ID is not found.'
@@ -6397,7 +6321,7 @@ components:
         cause:
           type: string
           description: A description of the cause of the error.
-          example: No handler found for POST /not_existing_endpoint/v1/catalogs/a-catalog/layers/data
+          example: Missing request header Authorization-Claims for method parameter of type AuthClaims
         action:
           type: string
           description: An action that could possibly solve the issue.
@@ -6410,6 +6334,60 @@ components:
           type: string
           description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
           example: c0d3ebd4-8768-4191-95d6-e5a5dda88f14
+    Response415:
+      type: object
+      properties:
+        title:
+          type: string
+          description: 'A general description of the error. Possible values include: Input data failed validation; Message processing error; No handler found.'
+          example: No handler found
+        status:
+          type: string
+          description: An HTTP status code.
+          example: '415'
+        code:
+          type: string
+          description: 'Ingestion code E221 + XXX where XXX is an ingestion-specific error number or 000 for general errors. Possible values include: E221000 - Generic error; E221001 - Layer for provided App ID is not found.'
+          example: E221000
+        cause:
+          type: string
+          description: A description of the cause of the error.
+          example: 'Invalid mime type "wrongMediaType": does not contain ''/'''
+        action:
+          type: string
+          description: Actions to take to possibly solve the issue.
+          example: Check request for correctness
+        correlationId:
+          type: string
+          description: A unique ID for the request. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response.  You can use this ID to track your request.
+          example: a739c6e7-cbb6-43d8-bb94-377a2db6439e
+        traceId:
+          type: string
+          description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
+          example: c0d3ebd4-8768-4191-95d6-e5a5dda88f14
+    ResponseOk:
+      type: object
+      properties:
+        traceId:
+          type: object
+          properties:
+            parentId:
+              type: string
+              description: A unique ID for the messages list. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
+              example: dafb1f57-23e4-4fbc-9f07-2affe86533b3
+            generatedIds:
+              type: array
+              items:
+                type: string
+                description: Generated list of unique IDs for each message in a list. You can use this ID to track your request and identify the message in the catalog.
+                example: ''
+    ResponseOkSingle:
+      type: object
+      properties:
+        traceId:
+          type: string
+          description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
+          example: cb72fb52-9efa-11e7-abc4-cec278b6b50a
     Response500:
       type: object
       properties:
@@ -6441,13 +6419,41 @@ components:
           type: string
           description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
           example: c0d3ebd4-8768-4191-95d6-e5a5dda88f14
-    ResponseOkSingle:
+    Response413:
       type: object
       properties:
-        traceId:
+        title:
           type: string
-          description: A unique ID for the message. This can be a user-defined trace ID included in the request. If a trace ID was not included in the request, one is generated during ingestion and included in the response. You can use this ID to track your request and identify the message in the catalog.
-          example: cb72fb52-9efa-11e7-abc4-cec278b6b50a
+          description: A general description of the error.
+          example: Request Body Too Large
+        status:
+          type: string
+          description: An HTTP status code.
+          example: '413'
+        code:
+          type: string
+          description: Ingestion code E221 + XXX where XXX is an ingestion-specific error number.
+          example: E221002
+        cause:
+          type: string
+          description: A description of the cause of the error.
+          example: Body of request is over than 20Mb
+        action:
+          type: string
+          description: Actions to take to possibly solve the issue.
+          example: Please reduce body size to be lower than 20Mb
+        correlationId:
+          type: string
+          description: Empty as request is terminated on Sentry nginx.
+          example: ''
+    PublishPartitions:
+      type: object
+      properties:
+        partitions:
+          type: array
+          description: Array of partitions.
+          items:
+            $ref: '#/components/schemas/PublishPartition'
   securitySchemes:
     Bearer:
       type: http

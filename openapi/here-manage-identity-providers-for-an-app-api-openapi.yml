@@ -495,15 +495,67 @@ paths:
       security:
       - Bearer: []
 components:
+  parameters:
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
   schemas:
-    UpdateAppIdentityProviderAttachmentRequest:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
-          default: true
-          example: true
     CreateAppIdentityProviderAttachmentRequest:
       type: object
       properties:
@@ -512,28 +564,6 @@ components:
           description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
           default: true
           example: true
-    AppIdentityProviderAttachmentList:
-      type: object
-      required:
-      - count
-      - total
-      - items
-      properties:
-        count:
-          type: integer
-          description: The number of AppIdentityProviderAttachments in this page of the List.
-        total:
-          type: integer
-          description: The total number of AppIdentityProviderAttachments in the List.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppIdentityProviderAttachment'
-          minItems: 0
-          maxItems: 2
-        pageToken:
-          type: string
-          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
     ErrorMessage:
       type: object
       required:
@@ -571,6 +601,36 @@ components:
         correlationId:
           type: string
           description: The Correlation ID for the request for tracking purposes.
+    UpdateAppIdentityProviderAttachmentRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether or not this AppIdentityProviderAttachment is enabled.
+          default: true
+          example: true
+    AppIdentityProviderAttachmentList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of AppIdentityProviderAttachments in this page of the List.
+        total:
+          type: integer
+          description: The total number of AppIdentityProviderAttachments in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppIdentityProviderAttachment'
+          minItems: 0
+          maxItems: 2
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
     AppIdentityProviderAttachment:
       type: object
       properties:
@@ -636,66 +696,6 @@ components:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-  parameters:
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
-    App:
-      in: path
-      required: true
-      name: app
-      schema:
-        type: string
-      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-
-        '
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
-    IdentityProvider:
-      in: path
-      required: true
-      name: identityProvider
-      schema:
-        type: string
-      description: 'HRN identifying the IdentityProvider.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
   securitySchemes:
     UserOrClientBearerToken:
       type: http
