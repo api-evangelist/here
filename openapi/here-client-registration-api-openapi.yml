@@ -53,6 +53,52 @@ paths:
       x-operation-id-original: OAuth 2.0 Access Token RegisterMcpClient
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        errorId:
+          type: string
+          description: Unique id for the error. This is searchable from HERE Account logs.
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+        httpStatus:
+          type: integer
+          description: HTTP status code of the response
+          example: 401
+        errorCode:
+          type: integer
+          description: 'Error code representing the specific error. If the ''errorFields'' element is present, it will have precise error codes.
+
+            '
+          example: 401300
+        message:
+          type: string
+          description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
+
+            '
+          example: Invalid client credentials.
+        errorFields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: 'Name of the field that had an error. Will be blank in case the error was caused when comparing multiple fields.
+
+                  '
+                example: Received invalid data.  See json element 'errorFields' for more information.
+              errorCode:
+                type: integer
+                description: 'More detailed error code. Needs to be paired with ''errorFields.name'' to get the exact error.
+
+                  '
+                example: 400201
+              message:
+                type: string
+                description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
+
+                  '
+                example: This field is required.
     McpClientRegistrationResponse:
       type: object
       properties:
@@ -102,52 +148,6 @@ components:
 
             '
           example: none
-    ErrorResponse:
-      type: object
-      properties:
-        errorId:
-          type: string
-          description: Unique id for the error. This is searchable from HERE Account logs.
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-        httpStatus:
-          type: integer
-          description: HTTP status code of the response
-          example: 401
-        errorCode:
-          type: integer
-          description: 'Error code representing the specific error. If the ''errorFields'' element is present, it will have precise error codes.
-
-            '
-          example: 401300
-        message:
-          type: string
-          description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
-
-            '
-          example: Invalid client credentials.
-        errorFields:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                description: 'Name of the field that had an error. Will be blank in case the error was caused when comparing multiple fields.
-
-                  '
-                example: Received invalid data.  See json element 'errorFields' for more information.
-              errorCode:
-                type: integer
-                description: 'More detailed error code. Needs to be paired with ''errorFields.name'' to get the exact error.
-
-                  '
-                example: 400201
-              message:
-                type: string
-                description: 'Descriptive message to help with development.  Note that the value of this field is **NOT** guaranteed to be consistent across releases and should **NOT** be coded against.
-
-                  '
-                example: This field is required.
     McpClientRegistrationRequest:
       type: object
       required:

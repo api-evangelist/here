@@ -1248,6 +1248,13 @@ paths:
       x-codegen-request-body-name: body
 components:
   parameters:
+    PipelineVersionIdPathParam:
+      name: versionId
+      in: path
+      description: System generated identifier for the PipelineVersion.
+      required: true
+      schema:
+        type: string
     OperationIdPathParam:
       name: operationId
       in: path
@@ -1262,23 +1269,10 @@ components:
       required: true
       schema:
         type: string
-    RequestIdHeaderParam:
-      name: X-Request-ID
-      in: header
-      description: Identifier for a specific http request. If not present, one will be generated.
-      schema:
-        type: string
     CorrelationIdHeaderParam:
       name: X-Correlation-ID
       in: header
       description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
-      schema:
-        type: string
-    PipelineVersionIdPathParam:
-      name: versionId
-      in: path
-      description: System generated identifier for the PipelineVersion.
-      required: true
       schema:
         type: string
     PipelineVersionVerboseQueryParam:
@@ -1287,141 +1281,25 @@ components:
       description: Include the latest Job and Operation status
       schema:
         type: boolean
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
   schemas:
-    Job:
-      type: object
-      properties:
-        id:
-          type: string
-          description: System generated identifier (UUID) for the Job.
-          format: uuid
-          readOnly: true
-          example: 00112233-4455-6677-8899-aabbccddeeff
-        state:
-          type: string
-          description: The current state of the Job. Immediately after creation, Job has state 'starting'
-          readOnly: true
-          example: running
-          enum:
-          - starting
-          - running
-          - completed
-          - failed
-          - canceled
-        catalogVersions:
-          $ref: '#/components/schemas/JobCatalogVersions'
-        created:
-          type: string
-          description: Time when this Job was created. This is in ISO-8601 calendar system.
-          format: date-time
-          readOnly: true
-          example: '2017-12-03T10:15:30+01:00'
-        updated:
-          type: string
-          description: Time when this Job last updated. This is in ISO-8601 calendar system.
-          format: date-time
-          readOnly: true
-          example: '2017-12-03T10:15:30+01:00'
-        runAsId:
-          type: string
-          description: RunAsId Id that the job was run with.
-          readOnly: true
-        runtimeEnvironmentPatch:
-          description: This field describes the internal runtime environment in format x.y.z
-          example: batch-3.0.0
-          readOnly: true
-          type: string
-        loggingUrl:
-          type: string
-          description: URL pointing to the logs of the running Job.
-          readOnly: true
-          example: https://splunk.metrics.platform.here.com/en-US/app/olp-realm/search?q=search+index%3Dolp-realm+source%3D%22*%2Fapplication_1122334455667_8899%2F*%22+
-        pipelineUIUrl:
-          type: string
-          description: URL pointing to pipeline UI endpoint of running Job.
-          readOnly: true
-          example: https://pipelines.platform.here.com/jobs/bd03d684-3371-40ba-81f8-3ffbede12506/sparkui
-        executionMode:
-          type: string
-          description: 'How this Job was started: ''on-demand'' (i.e. ''run now''), ''scheduled'', or based on a time-based schedule'
-          readOnly: true
-          example: scheduled
-          enum:
-          - on-demand
-          - scheduled
-          - time-schedule
-        highAvailability:
-          type: boolean
-          description: Is High Availability enabled or disabled (true/false) using standby master.
-          readOnly: true
-          example: true
-        actualRegionId:
-          type: string
-          description: This field describes the region where this Pipeline Job is executing or was executed.
-          readOnly: true
-          example: eu-ireland
-        pipelineVersionId:
-          deprecated: true
-          description: System generated identifier (UUID) of the parent PipelineVersion.
-          example: 00112233-4455-6677-8899-aabbccddeeff
-          format: uuid
-          readOnly: true
-          type: string
-      description: Description of one processing Job submitted to the processing cluster by an active PipelineVersion.
-    ClusterConfiguration:
+    Loggers:
       required:
-      - supervisorUnits
-      - workerUnits
-      - workers
+      - root
       type: object
       properties:
-        workers:
-          minimum: 1
-          type: integer
-          description: Number of workers.
-          format: int32
-          example: 4
-        workerUnits:
-          maximum: 15
-          minimum: 1
-          type: integer
-          description: Number of resource units per worker.
-          format: int32
-          example: 2
-        workerResourceProfileId:
-          type: string
-          description: Identifier of the resource profile requested for workers.
-          example: HS1
-        workerAdditionalOverheadMemory:
-          multipleOf: 0.01
-          minimum: 0
-          type: number
-          description: The factor of proportionality of additional overhead memory per worker unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
-          format: float
-          example: 0.02
-        supervisorUnits:
-          maximum: 15
-          minimum: 1
-          type: integer
-          description: Number of resource units per supervisor.
-          format: int32
-          example: 3
-        supervisorResourceProfileId:
-          type: string
-          description: Identifier of the resource profile requested for the supervisor.
-          example: HS1
-        supervisorAdditionalOverheadMemory:
-          multipleOf: 0.01
-          minimum: 0
-          type: number
-          description: The factor of proportionality of additional overhead memory per supervisor unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
-          format: float
-          example: 0.02
-        gcProfile:
-          type: string
-          description: GC selected for this PipelineVersion. Refer to the GcProfileDefinition component for details.
-          example: g1gc
-      description: Configuration for the cluster when submitting a pipeline version.
+        logger:
+          type: array
+          description: List of Loggers.
+          items:
+            $ref: '#/components/schemas/Logger'
+        root:
+          $ref: '#/components/schemas/RootLogger'
     SchedulerConfiguration:
       type: object
       properties:
@@ -1450,21 +1328,201 @@ components:
               - force
           description: The TimeTriggerOptions support running the pipeline version on a window-bounded frequency, optionally based on changes detected on the input catalogs by the version resolver. Either `catalogTriggerOptions` or `timeTriggerOptions` must be present.
       description: The configuration of the scheduler for running the Jobs based on the provided criteria. If scheduler configuration is not provided then the platform runs the version immediately.
-    RootLogger:
-      required:
-      - level
+    JobCatalogVersions:
+      description: Versions of the input and output catalog submitted to be passed to the Job when it is run.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - type: object
+        properties:
+          inputCatalogs:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/InputCatalogVersion'
+            description: Versions of the input catalogs the Job processes, identified by symbolic catalog name.
+          outputCatalog:
+            $ref: '#/components/schemas/OutputCatalogVersion'
+          runAsId:
+            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
+            type: string
+            description: RunAsId Id to run the pipeline
+            example: hrn:here-dev:account::HERE:app/test-runas-id
+          snapshotId:
+            type: string
+            format: uuid
+            description: Optional snapshot id to activate pipeline with
+            example: 183f9bcc-c86e-11e9-1836-2a2ae2d83743
+          useLatestCheckpoint:
+            description: True if the latest available checkpoint should be used to activate this pipeline.  Activation will fail if no checkpoint is found (e.g., the checkpoint has expired).
+            example: false
+            type: boolean
+    ResumeRequest:
+      description: Resume request options containing the request details of PipelineVersion to resume.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - type: object
+    ErrorMessage:
       type: object
       properties:
-        level:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
           type: string
-          description: Logger level.
-          example: debug
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
+    Operation:
+      required:
+      - requestType
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Operation.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        pipelineVersionId:
+          deprecated: true
+          description: System generated identifier (UUID) for the Pipeline Version of the Operation.
+          example: 00112233-4455-6677-8899-aabbccddeeff
+          format: uuid
+          readOnly: true
+          type: string
+        requestType:
+          type: string
+          description: The type of the Operation requested.
+          example: activate
           enum:
-          - error
-          - warn
-          - info
-          - debug
-      description: The Root logger. The level set here will apply to all classes and loggers that don't have a logger configured in the logging configuration.
+          - activate
+          - deactivate
+          - pause
+          - resume
+          - cancel
+          - upgrade
+          - restart
+          - run
+          - job_terminate
+          - job_terminate_to_ready
+          - maintenance
+        state:
+          type: string
+          description: Current state of the Operation.
+          readOnly: true
+          example: accepted
+          enum:
+          - accepted
+          - being_processed
+          - succeeded
+          - failed
+        message:
+          type: string
+          description: Message related to the state of the Operation.
+          readOnly: true
+          example: Operation failed with error - Main class not found
+        userId:
+          type: string
+          description: HERE System generated identifier (UUID) for the user that requested the Operation.
+          readOnly: true
+          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
+        clientId:
+          type: string
+          description: HERE Client identifier for the app used by the user that requested the Operation.
+          readOnly: true
+        runAsId:
+          type: string
+          description: RunAsId that the pipeline will run as.
+          readOnly: true
+        created:
+          type: string
+          description: Time when the Operation event was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2007-12-03T10:15:30+01:00'
+        options:
+          $ref: '#/components/schemas/OperationOptions'
+      description: An Operation represents a request to control, and change state, submitted by the user for a PipelineVersion.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
     PipelineVersion:
       required:
       - inputCatalogs
@@ -1608,24 +1666,60 @@ components:
           readOnly: true
           example: '2007-12-03T10:15:30+01:00'
       description: Model representing a configured PipelineVersion. This includes all the configuration to run actual processing, in particular the PipelineTemplate to be used, that contains the implementation and provides metadata to instantiate and run it, and actual input and output catalog instances, identified via HRNs.
-    UpgradeRequest:
-      description: Upgrade request options containing the request details of PipelineVersion to upgrade to.
-      allOf:
-      - $ref: '#/components/schemas/OperationOptions'
-      - required:
-        - toVersionId
-        type: object
-        properties:
-          runAsId:
-            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
-            type: string
-            description: RunAsId Id to run the pipeline
-            example: hrn:here-dev:account::HERE:app/test-runas-id
-          toVersionId:
-            type: string
-            description: System generated identifier (UUID) for the PipelineVersion to upgrade to.
-            format: uuid
-            example: 00112233-4455-6677-8899-aabbccddeeff
+    ClusterConfiguration:
+      required:
+      - supervisorUnits
+      - workerUnits
+      - workers
+      type: object
+      properties:
+        workers:
+          minimum: 1
+          type: integer
+          description: Number of workers.
+          format: int32
+          example: 4
+        workerUnits:
+          maximum: 15
+          minimum: 1
+          type: integer
+          description: Number of resource units per worker.
+          format: int32
+          example: 2
+        workerResourceProfileId:
+          type: string
+          description: Identifier of the resource profile requested for workers.
+          example: HS1
+        workerAdditionalOverheadMemory:
+          multipleOf: 0.01
+          minimum: 0
+          type: number
+          description: The factor of proportionality of additional overhead memory per worker unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
+          format: float
+          example: 0.02
+        supervisorUnits:
+          maximum: 15
+          minimum: 1
+          type: integer
+          description: Number of resource units per supervisor.
+          format: int32
+          example: 3
+        supervisorResourceProfileId:
+          type: string
+          description: Identifier of the resource profile requested for the supervisor.
+          example: HS1
+        supervisorAdditionalOverheadMemory:
+          multipleOf: 0.01
+          minimum: 0
+          type: number
+          description: The factor of proportionality of additional overhead memory per supervisor unit in fraction, can be greater than or equal to zero. The default maximum value is 0.05 (but that could be raised on a realm basis).
+          format: float
+          example: 0.02
+        gcProfile:
+          type: string
+          description: GC selected for this PipelineVersion. Refer to the GcProfileDefinition component for details.
+          example: g1gc
+      description: Configuration for the cluster when submitting a pipeline version.
     Logger:
       required:
       - level
@@ -1653,133 +1747,86 @@ components:
       properties:
         loggers:
           $ref: '#/components/schemas/Loggers'
-    OutputCatalogVersion:
-      required:
-      - baseVersion
+    Job:
       type: object
       properties:
-        baseVersion:
-          type: integer
-          description: Latest version available in the output catalog when the Job is submitted. The Job commits new data on top of this version.
-          format: int64
-          example: 3
-    Loggers:
-      required:
-      - root
-      type: object
-      properties:
-        logger:
-          type: array
-          description: List of Loggers.
-          items:
-            $ref: '#/components/schemas/Logger'
-        root:
-          $ref: '#/components/schemas/RootLogger'
-    ValidationErrorMessage:
-      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
-      properties:
-        code:
-          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
-          example: E1000
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Job.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        state:
+          type: string
+          description: The current state of the Job. Immediately after creation, Job has state 'starting'
+          readOnly: true
+          example: running
+          enum:
+          - starting
+          - running
+          - completed
+          - failed
+          - canceled
+        catalogVersions:
+          $ref: '#/components/schemas/JobCatalogVersions'
+        created:
+          type: string
+          description: Time when this Job was created. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2017-12-03T10:15:30+01:00'
+        updated:
+          type: string
+          description: Time when this Job last updated. This is in ISO-8601 calendar system.
+          format: date-time
+          readOnly: true
+          example: '2017-12-03T10:15:30+01:00'
+        runAsId:
+          type: string
+          description: RunAsId Id that the job was run with.
+          readOnly: true
+        runtimeEnvironmentPatch:
+          description: This field describes the internal runtime environment in format x.y.z
+          example: batch-3.0.0
           readOnly: true
           type: string
-        errors:
-          description: Set of validation error messages.
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-          readOnly: true
-          type: array
-          uniqueItems: true
-        field:
-          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
-          example: /parent/list/1/value
-          externalDocs:
-            url: https://tools.ietf.org/html/rfc6901
-          readOnly: true
+        loggingUrl:
           type: string
-        invalidValue:
-          description: The invalid value that was sent
-          example: sample string
+          description: URL pointing to the logs of the running Job.
           readOnly: true
-          type: object
-        message:
-          description: This is the message for the error.
-          example: Validation Failed
-          readOnly: true
+          example: https://splunk.metrics.platform.here.com/en-US/app/olp-realm/search?q=search+index%3Dolp-realm+source%3D%22*%2Fapplication_1122334455667_8899%2F*%22+
+        pipelineUIUrl:
           type: string
-        messageTemplate:
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          example: '{validation.error}'
+          description: URL pointing to pipeline UI endpoint of running Job.
           readOnly: true
+          example: https://pipelines.platform.here.com/jobs/bd03d684-3371-40ba-81f8-3ffbede12506/sparkui
+        executionMode:
           type: string
-        status:
-          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
-          example: 400
-          format: int32
+          description: 'How this Job was started: ''on-demand'' (i.e. ''run now''), ''scheduled'', or based on a time-based schedule'
           readOnly: true
-          type: integer
-        templateOptions:
-          additionalProperties:
-            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-            readOnly: true
-            type: object
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-          type: object
-      readOnly: true
-      type: object
-    OperationOptions:
-      type: object
-      properties:
+          example: scheduled
+          enum:
+          - on-demand
+          - scheduled
+          - time-schedule
         highAvailability:
           type: boolean
-          description: Defines if the pipeline is highly available using a standby master
+          description: Is High Availability enabled or disabled (true/false) using standby master.
+          readOnly: true
           example: true
-      description: Common options for an operation.
-    ErrorMessage:
-      type: object
-      properties:
-        status:
-          type: integer
-          description: Duplicate of the HTTP status that is returned.
-          format: int32
-          readOnly: true
-          example: 400
-        code:
+        actualRegionId:
           type: string
-          description: Error code that pertains to a specific error.
+          description: This field describes the region where this Pipeline Job is executing or was executed.
           readOnly: true
-          example: E1000
-        message:
+          example: eu-ireland
+        pipelineVersionId:
+          deprecated: true
+          description: System generated identifier (UUID) of the parent PipelineVersion.
+          example: 00112233-4455-6677-8899-aabbccddeeff
+          format: uuid
+          readOnly: true
           type: string
-          description: This is the message for the error.
-          readOnly: true
-          example: Validation Failed
-        messageTemplate:
-          type: string
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          readOnly: true
-          example: '{validation.error}'
-        templateOptions:
-          type: object
-          additionalProperties:
-            type: object
-            properties: {}
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-        errors:
-          uniqueItems: true
-          type: array
-          description: Set of validation error messages.
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-      description: HTTP Error message thrown by the service
-    ResumeRequest:
-      description: Resume request options containing the request details of PipelineVersion to resume.
-      allOf:
-      - $ref: '#/components/schemas/OperationOptions'
-      - type: object
+      description: Description of one processing Job submitted to the processing cluster by an active PipelineVersion.
     InputCatalogVersion:
       required:
       - processingType
@@ -1804,6 +1851,47 @@ components:
           description: Changes should be processed since this given version.
           format: int64
           example: 1
+    OperationOptions:
+      type: object
+      properties:
+        highAvailability:
+          type: boolean
+          description: Defines if the pipeline is highly available using a standby master
+          example: true
+      description: Common options for an operation.
+    RootLogger:
+      required:
+      - level
+      type: object
+      properties:
+        level:
+          type: string
+          description: Logger level.
+          example: debug
+          enum:
+          - error
+          - warn
+          - info
+          - debug
+      description: The Root logger. The level set here will apply to all classes and loggers that don't have a logger configured in the logging configuration.
+    UpgradeRequest:
+      description: Upgrade request options containing the request details of PipelineVersion to upgrade to.
+      allOf:
+      - $ref: '#/components/schemas/OperationOptions'
+      - required:
+        - toVersionId
+        type: object
+        properties:
+          runAsId:
+            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
+            type: string
+            description: RunAsId Id to run the pipeline
+            example: hrn:here-dev:account::HERE:app/test-runas-id
+          toVersionId:
+            type: string
+            description: System generated identifier (UUID) for the PipelineVersion to upgrade to.
+            format: uuid
+            example: 00112233-4455-6677-8899-aabbccddeeff
     LoggingConfiguration:
       required:
       - configuration
@@ -1812,104 +1900,16 @@ components:
         configuration:
           $ref: '#/components/schemas/LoggingConfigurationWrapper'
       description: A logging configuration. This supports the JSON format for Log4j 2. It will only support the configurable options that are supported by pipeline management. This setting the root logger level as well as adding individual loggers and their respective levels.
-    Operation:
+    OutputCatalogVersion:
       required:
-      - requestType
+      - baseVersion
       type: object
       properties:
-        id:
-          type: string
-          description: System generated identifier (UUID) for the Operation.
-          format: uuid
-          readOnly: true
-          example: 00112233-4455-6677-8899-aabbccddeeff
-        pipelineVersionId:
-          deprecated: true
-          description: System generated identifier (UUID) for the Pipeline Version of the Operation.
-          example: 00112233-4455-6677-8899-aabbccddeeff
-          format: uuid
-          readOnly: true
-          type: string
-        requestType:
-          type: string
-          description: The type of the Operation requested.
-          example: activate
-          enum:
-          - activate
-          - deactivate
-          - pause
-          - resume
-          - cancel
-          - upgrade
-          - restart
-          - run
-          - job_terminate
-          - job_terminate_to_ready
-          - maintenance
-        state:
-          type: string
-          description: Current state of the Operation.
-          readOnly: true
-          example: accepted
-          enum:
-          - accepted
-          - being_processed
-          - succeeded
-          - failed
-        message:
-          type: string
-          description: Message related to the state of the Operation.
-          readOnly: true
-          example: Operation failed with error - Main class not found
-        userId:
-          type: string
-          description: HERE System generated identifier (UUID) for the user that requested the Operation.
-          readOnly: true
-          example: HERE-e6b0d0ee-cf88-344f-a75d-26c678161234
-        clientId:
-          type: string
-          description: HERE Client identifier for the app used by the user that requested the Operation.
-          readOnly: true
-        runAsId:
-          type: string
-          description: RunAsId that the pipeline will run as.
-          readOnly: true
-        created:
-          type: string
-          description: Time when the Operation event was created. This is in ISO-8601 calendar system.
-          format: date-time
-          readOnly: true
-          example: '2007-12-03T10:15:30+01:00'
-        options:
-          $ref: '#/components/schemas/OperationOptions'
-      description: An Operation represents a request to control, and change state, submitted by the user for a PipelineVersion.
-    JobCatalogVersions:
-      description: Versions of the input and output catalog submitted to be passed to the Job when it is run.
-      allOf:
-      - $ref: '#/components/schemas/OperationOptions'
-      - type: object
-        properties:
-          inputCatalogs:
-            type: object
-            additionalProperties:
-              $ref: '#/components/schemas/InputCatalogVersion'
-            description: Versions of the input catalogs the Job processes, identified by symbolic catalog name.
-          outputCatalog:
-            $ref: '#/components/schemas/OutputCatalogVersion'
-          runAsId:
-            pattern: hrn:(here|here-dev|here-cn|here-cn-dev):account:[a-zA-Z-]*:[a-zA-Z-]+:[a-zA-Z0-9/-]{3,63}
-            type: string
-            description: RunAsId Id to run the pipeline
-            example: hrn:here-dev:account::HERE:app/test-runas-id
-          snapshotId:
-            type: string
-            format: uuid
-            description: Optional snapshot id to activate pipeline with
-            example: 183f9bcc-c86e-11e9-1836-2a2ae2d83743
-          useLatestCheckpoint:
-            description: True if the latest available checkpoint should be used to activate this pipeline.  Activation will fail if no checkpoint is found (e.g., the checkpoint has expired).
-            example: false
-            type: boolean
+        baseVersion:
+          type: integer
+          description: Latest version available in the output catalog when the Job is submitted. The Job commits new data on top of this version.
+          format: int64
+          example: 3
   securitySchemes:
     Bearer:
       type: http

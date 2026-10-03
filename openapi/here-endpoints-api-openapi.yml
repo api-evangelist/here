@@ -78,7 +78,55 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Rate Limit Rules API v1 getEndpoint
 components:
+  responses:
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
   schemas:
+    Endpoint:
+      type: object
+      required:
+      - id
+      - url
+      properties:
+        id:
+          type: string
+          description: User defined id for the endpoint
+          example: search-geocode
+        url:
+          type: string
+          description: URL of the endpoint
+          example: https://geocode.search.hereapi.com
     EndpointPageWithToken:
       allOf:
       - $ref: '#/components/schemas/PageWithToken'
@@ -88,6 +136,63 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Endpoint'
+    AuthErrorResponse:
+      type: object
+      required:
+      - error
+      - error_description
+      properties:
+        error:
+          type: string
+          description: Error title
+        error_description:
+          type: string
+          description: Error description
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    PageWithToken:
+      type: object
+      properties:
+        total:
+          example: 10
+          type: integer
+          description: Total number of items
+        pageToken:
+          example: 7afd7f8e94eb4844ba45
+          type: string
+          description: The pageToken used to retrieve the next page of items.  Present only if there is an additional page of items to view.
+        count:
+          example: 2
+          type: integer
+          description: Count of items returned in this query
+        limit:
+          example: 5
+          type: integer
+          description: Maximum number of items as specified in request
     ErrorResponse:
       type: object
       required:
@@ -132,93 +237,7 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
-    Endpoint:
-      type: object
-      required:
-      - id
-      - url
-      properties:
-        id:
-          type: string
-          description: User defined id for the endpoint
-          example: search-geocode
-        url:
-          type: string
-          description: URL of the endpoint
-          example: https://geocode.search.hereapi.com
-    PageWithToken:
-      type: object
-      properties:
-        total:
-          example: 10
-          type: integer
-          description: Total number of items
-        pageToken:
-          example: 7afd7f8e94eb4844ba45
-          type: string
-          description: The pageToken used to retrieve the next page of items.  Present only if there is an additional page of items to view.
-        count:
-          example: 2
-          type: integer
-          description: Count of items returned in this query
-        limit:
-          example: 5
-          type: integer
-          description: Maximum number of items as specified in request
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    AuthErrorResponse:
-      type: object
-      required:
-      - error
-      - error_description
-      properties:
-        error:
-          type: string
-          description: Error title
-        error_description:
-          type: string
-          description: Error description
   parameters:
-    endpointId:
-      name: endpointId
-      in: path
-      description: Identifier for the endpoint
-      required: true
-      example: search-geocode
-      schema:
-        type: string
-    pageToken:
-      name: pageToken
-      schema:
-        type: string
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
     limit:
       name: limit
       in: query
@@ -231,13 +250,22 @@ components:
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.
       schema:
         type: string
-  headers:
-    X-Request-ID:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
+    pageToken:
+      name: pageToken
       schema:
         type: string
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    endpointId:
+      name: endpointId
+      in: path
+      description: Identifier for the endpoint
+      required: true
+      example: search-geocode
+      schema:
+        type: string
+  headers:
     X-Correlation-ID:
       description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
 
@@ -245,40 +273,12 @@ components:
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
-  responses:
-    Unauthorized:
-      description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+    X-Request-ID:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
   securitySchemes:
     token:
       type: http

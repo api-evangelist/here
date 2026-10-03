@@ -473,149 +473,50 @@ paths:
 
             '
 components:
-  parameters:
-    groupEntityType:
-      in: query
-      name: entityType
-      required: false
-      description: 'The type of members to return in the result.  One of ''user'', ''app'', or ''invite''.  If this parameter is omitted, all entity types will be returned. '
-      schema:
-        type: string
-        enum:
-        - user
-        - app
-        - invite
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    permissionServiceId:
-      in: query
-      name: serviceId
-      required: false
-      description: Only include permissions associated with the requested service
-      schema:
-        type: string
-      example: SERVICE-00000000-0000-0000-0000-000000000000
-    count:
-      in: query
-      name: count
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    groupsSearch:
-      in: query
-      name: q
-      required: false
-      description: A free text query string used to filter the results.  A search against groups in the realm will consider the 'id', 'name', and 'description' fields of the groups.  The precise search algorithm used to match groups is not specified, but generally any member where one of the considered fields has a full or partial match should be included in the results.
-      schema:
-        type: string
-    groupId:
-      name: groupId
-      in: path
-      required: true
-      description: HRN identifying a group.
-      schema:
-        type: string
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    member:
-      in: path
-      name: member
-      required: true
-      description: HRN identifying member
-      schema:
-        type: string
-      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    policyHrn:
-      in: path
-      name: policy
-      required: true
-      description: 'HRN identifying the policy.
-
-        '
-      schema:
-        type: string
-      example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
-  requestBodies:
-    Group:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Group'
-      required: true
   schemas:
-    InviteInfo:
+    GroupMemberInfo:
+      description: 'Details about the group member. The provided fields are dependent on the entityType as provided.<p> User: userId, userHrn, realm, firstname, lastname, email, state<p> App: clientId, clientHrn, realm, name, description, ownerId, ownerHrn, defaultScope, isRestrictedScope<p> Invite: inviteId, inviteHrn, realm, email
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/UserInfo'
+      - $ref: '#/components/schemas/AppInfo'
+      - $ref: '#/components/schemas/InviteInfo'
+      example:
+        userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
+        userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        realm: myrealm
+        firstname: John
+        lastname: Williams
+        email: john.williams@example.com
+        state: enabled
+    PageWToken:
       type: object
       properties:
-        inviteId:
+        total:
           readOnly: true
-          type: string
-          description: The unique identifier of the invite
-          example: AUTHINVITE-bd1d1f02-c8f3-4a20-ba57-49b7ddcd9b33
-        inviteHrn:
+          example: 10
+          type: integer
+          description: Total entities
+        pageToken:
           readOnly: true
+          example: 7afd7f8e94eb4844ba45
           type: string
-          description: The HRN of the invite
-          example: hrn:here:account::myrealm:invite/AUTHINVITE-bd1d1f02-c8f3-4a20-ba57-49b7ddcd9b33
-        realm:
+          description: The pageToken used to retrieve the next page of entities
+        count:
           readOnly: true
-          type: string
-          description: The realm which the invite is associated with
-          example: myrealm
-        firstname:
-          readOnly: true
-          type: string
-          description: The first name of the user this invite is for.
-          example: John
-        lastname:
-          readOnly: true
-          type: string
-          description: The last name of the user this invite is for.
-          example: Williams
-        email:
-          readOnly: true
-          type: string
-          description: Email address of the user this invite is for.
-          example: john.williams@example.com
-    AttachedUnscopedPolicy:
-      type: object
-      properties:
-        hrn:
-          type: string
-          description: 'The hrn of the policy
-
-            '
-          example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
-        serviceId:
-          type: string
-          description: 'The id of the service associated with the policy
-
-            '
-          example: SERVICE-00000000-0000-0000-0000-000000000000
+          example: 2
+          type: integer
+          description: number of items returned
+    PermissionPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
     PageWithToken:
       type: object
       required:
@@ -635,354 +536,6 @@ components:
           type: integer
           example: 1
           description: Total number of items matching the search criteria.
-    Role:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the role
-          example: ROLE-c1662138-a170-4264-ba18-7b506a708c37
-        hrn:
-          type: string
-          description: Unique identifier for this role with partition/realm/etc, an HRN
-          example: hrn:here:authorization::myrealm:role/ROLE-c1662138-a170-4264-ba18-7b506a708c37
-        name:
-          type: string
-          description: System defined name for the role
-          example: GroupAdmin
-        resource:
-          type: string
-          description: Represents either Group or Realm HRN for which object is scoped for
-          example: hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
-    Group:
-      type: object
-      required:
-      - name
-      properties:
-        id:
-          type: string
-          example: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
-          readOnly: true
-        hrn:
-          type: string
-          example: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
-          readOnly: true
-        name:
-          type: string
-          description: 'A user defined name for the group.
-
-            The following characters are not allowed in the group name: control characters, non-breaking space, and * / < > \  |
-
-            '
-          example: Power Users
-        realm:
-          type: string
-          example: HERE
-          readOnly: true
-        description:
-          type: string
-          maxLength: 500
-          description: 'An optional user defined description for the group.
-
-
-            The following characters are not allowed in the group name: control
-
-            characters, non-breaking space, and * / < > \  |
-
-            '
-          example: This is the power users group
-    UserInfo:
-      type: object
-      properties:
-        userId:
-          readOnly: true
-          type: string
-          description: The unique identifier of the user.
-          example: HERE-00000000-0000-0000-0000-000000000000
-        userHrn:
-          readOnly: true
-          type: string
-          description: The HRN of the user.
-          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-        realm:
-          readOnly: true
-          type: string
-          description: A realm which the user belongs to.
-          example: myrealm
-        firstname:
-          readOnly: true
-          type: string
-          description: The first name of the user. Only included if entityType is user
-          example: John
-        lastname:
-          readOnly: true
-          type: string
-          description: The lastname of the user.  Only included if entityType is user
-          example: Williams
-        email:
-          readOnly: true
-          type: string
-          description: Email address of the user.  Only included if entityType is user
-          example: john.williams@example.com
-        state:
-          readOnly: true
-          type: string
-          description: The status of this user.
-          example: enabled
-          enum:
-          - deleted
-          - disabled
-          - locked
-          - enabled
-        realmInfo:
-          $ref: '#/components/schemas/CompactRealmInfo'
-        roles:
-          type: array
-          items:
-            type: string
-          maxItems: 100
-          description: 'The list of roles assigned to the user.
-
-            '
-          example:
-          - OrgAdmin
-          - GroupAdmin
-    AttachedUnscopedPolicyPageWithToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/AttachedUnscopedPolicy'
-    CompactRealmInfo:
-      type: object
-      required:
-      - realmId
-      - realm
-      - name
-      - inviteOnly
-      - enabled
-      properties:
-        realmId:
-          readOnly: true
-          type: string
-          description: The unique identifier of the realm.
-          example: myrealm
-        realm:
-          readOnly: true
-          type: string
-          description: HRN for the realm.
-          example: hrn:here:account::myrealm:realm/myrealm
-        name:
-          readOnly: true
-          type: string
-          description: HERE realm for OLP.
-        realmType:
-          type: string
-          description: Realm type of the realm.
-          example: olp
-          enum:
-          - olp
-          - auto
-          - consumer
-        inviteOnly:
-          type: boolean
-          description: Whether the realm can be joined with an invitation only.
-          example: false
-        enabled:
-          type: boolean
-          description: The realm status.
-          example: true
-        allowedLogins:
-          type: array
-          description: allowed authentication methods for this realm
-          items:
-            type: object
-            description: Authentication methods allowed for this realm
-            required:
-            - method
-            properties:
-              method:
-                type: string
-                description: the authentication method.
-                example: saml
-                enum:
-                - password
-                - saml
-                - mtls
-              url:
-                type: string
-                description: Https URL callback function required when method is saml
-                example: https://api.example.com/saml/
-    ActivePermission:
-      allOf:
-      - $ref: '#/components/schemas/ActivePermissionNoResource'
-      - type: object
-        properties:
-          resource:
-            readOnly: true
-            type: string
-            description: The resource identifier that this permission is controlling access to for the given action.
-            example: hrn:here:data:::service-catalog
-    PageWToken:
-      type: object
-      properties:
-        total:
-          readOnly: true
-          example: 10
-          type: integer
-          description: Total entities
-        pageToken:
-          readOnly: true
-          example: 7afd7f8e94eb4844ba45
-          type: string
-          description: The pageToken used to retrieve the next page of entities
-        count:
-          readOnly: true
-          example: 2
-          type: integer
-          description: number of items returned
-    GroupMemberPageWToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWToken'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/GroupMember'
-    GroupPageWToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWToken'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Group'
-        example:
-          total: 10
-          pageToken: 7afd7f8e94eb4844ba45
-          count: 2
-          data:
-          - id: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
-            hrn: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
-            name: Power Users
-            description: This is the Power Users group
-          - id: GROUP-85e5c3f7-a866-1248-3690-18c94689be17
-            hrn: hrn:here:authorization::myrealm:group/GROUP-85e5c3f7-a866-1248-3690-18c94689be17
-            name: Data scientist
-            description: This is the Data scientist group
-    GroupMember:
-      type: object
-      properties:
-        memberHrn:
-          type: string
-          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
-        entityType:
-          type: string
-          enum:
-          - user
-          - app
-          - invite
-        info:
-          $ref: '#/components/schemas/GroupMemberInfo'
-    GroupMemberInfo:
-      description: 'Details about the group member. The provided fields are dependent on the entityType as provided.<p> User: userId, userHrn, realm, firstname, lastname, email, state<p> App: clientId, clientHrn, realm, name, description, ownerId, ownerHrn, defaultScope, isRestrictedScope<p> Invite: inviteId, inviteHrn, realm, email
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/UserInfo'
-      - $ref: '#/components/schemas/AppInfo'
-      - $ref: '#/components/schemas/InviteInfo'
-      example:
-        userId: HERE-64badba9-4242-4859-88d5-74563a8f0899
-        userHrn: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
-        realm: myrealm
-        firstname: John
-        lastname: Williams
-        email: john.williams@example.com
-        state: enabled
-    ActivePermissionNoResource:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
-          readOnly: true
-          example: PERM-00000000-0000-0000-0000-000000000000
-        action:
-          type: string
-          description: The specific action identifier that this permission is controlling access to for the specific associated service.
-          readOnly: true
-          example: read
-        effect:
-          readOnly: true
-          type: string
-          description: One of "allow" or "deny"
-          enum:
-          - allow
-          - deny
-          example: allow
-        serviceId:
-          readOnly: true
-          type: string
-          description: Identifies the service that this permission is associated with.
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-    RolePageWToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWToken'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Role'
     AppInfo:
       type: object
       properties:
@@ -1064,6 +617,180 @@ components:
           example:
           - OrgAdmin
           - GroupAdmin
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the role
+          example: ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        hrn:
+          type: string
+          description: Unique identifier for this role with partition/realm/etc, an HRN
+          example: hrn:here:authorization::myrealm:role/ROLE-c1662138-a170-4264-ba18-7b506a708c37
+        name:
+          type: string
+          description: System defined name for the role
+          example: GroupAdmin
+        resource:
+          type: string
+          description: Represents either Group or Realm HRN for which object is scoped for
+          example: hrn:here:authorization::myrealm:group/GROUP-8e270653-f592-45a8-88d7-46d409ccfa8a
+    GroupMember:
+      type: object
+      properties:
+        memberHrn:
+          type: string
+          example: hrn:here:account::myrealm:user/HERE-64badba9-4242-4859-88d5-74563a8f0899
+        entityType:
+          type: string
+          enum:
+          - user
+          - app
+          - invite
+        info:
+          $ref: '#/components/schemas/GroupMemberInfo'
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    AttachedUnscopedPolicyPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttachedUnscopedPolicy'
+    GroupPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Group'
+        example:
+          total: 10
+          pageToken: 7afd7f8e94eb4844ba45
+          count: 2
+          data:
+          - id: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+            hrn: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+            name: Power Users
+            description: This is the Power Users group
+          - id: GROUP-85e5c3f7-a866-1248-3690-18c94689be17
+            hrn: hrn:here:authorization::myrealm:group/GROUP-85e5c3f7-a866-1248-3690-18c94689be17
+            name: Data scientist
+            description: This is the Data scientist group
+    GroupMemberPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/GroupMember'
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    RolePageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWToken'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Role'
     ErrorDetail:
       type: object
       properties:
@@ -1090,35 +817,197 @@ components:
             field: size
             min: 3
             max: 64
-    PermissionPageWithToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
           items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ActivePermission'
-  headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    Group:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          example: GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+          readOnly: true
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:group/GROUP-99b7c7d7-867a-4573-8730-4689be1718c9
+          readOnly: true
+        name:
+          type: string
+          description: 'A user defined name for the group.
 
-        '
+            The following characters are not allowed in the group name: control characters, non-breaking space, and * / < > \  |
+
+            '
+          example: Power Users
+        realm:
+          type: string
+          example: HERE
+          readOnly: true
+        description:
+          type: string
+          maxLength: 500
+          description: 'An optional user defined description for the group.
+
+
+            The following characters are not allowed in the group name: control
+
+            characters, non-breaking space, and * / < > \  |
+
+            '
+          example: This is the power users group
+    InviteInfo:
+      type: object
+      properties:
+        inviteId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the invite
+          example: AUTHINVITE-bd1d1f02-c8f3-4a20-ba57-49b7ddcd9b33
+        inviteHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the invite
+          example: hrn:here:account::myrealm:invite/AUTHINVITE-bd1d1f02-c8f3-4a20-ba57-49b7ddcd9b33
+        realm:
+          readOnly: true
+          type: string
+          description: The realm which the invite is associated with
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user this invite is for.
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The last name of the user this invite is for.
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user this invite is for.
+          example: john.williams@example.com
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    AttachedUnscopedPolicy:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: 'The hrn of the policy
+
+            '
+          example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
+        serviceId:
+          type: string
+          description: 'The id of the service associated with the policy
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
   responses:
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Unauthorized:
-      description: Access is denied due to invalid credentials
+    Forbidden:
+      description: You do not have permission to perform this action
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -1131,8 +1020,8 @@ components:
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
-    Forbidden:
-      description: You do not have permission to perform this action
+    Unauthorized:
+      description: Access is denied due to invalid credentials
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -1140,6 +1029,117 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    groupsSearch:
+      in: query
+      name: q
+      required: false
+      description: A free text query string used to filter the results.  A search against groups in the realm will consider the 'id', 'name', and 'description' fields of the groups.  The precise search algorithm used to match groups is not specified, but generally any member where one of the considered fields has a full or partial match should be included in the results.
+      schema:
+        type: string
+    groupEntityType:
+      in: query
+      name: entityType
+      required: false
+      description: 'The type of members to return in the result.  One of ''user'', ''app'', or ''invite''.  If this parameter is omitted, all entity types will be returned. '
+      schema:
+        type: string
+        enum:
+        - user
+        - app
+        - invite
+    groupId:
+      name: groupId
+      in: path
+      required: true
+      description: HRN identifying a group.
+      schema:
+        type: string
+    member:
+      in: path
+      name: member
+      required: true
+      description: HRN identifying member
+      schema:
+        type: string
+      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+    permissionServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include permissions associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    policyHrn:
+      in: path
+      name: policy
+      required: true
+      description: 'HRN identifying the policy.
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::HERE:policy/POLICY-99b7c7d7-867a-4573-8730-4689be1718c9
+    count:
+      in: query
+      name: count
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+  requestBodies:
+    Group:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Group'
+      required: true
   securitySchemes:
     Bearer:
       type: http

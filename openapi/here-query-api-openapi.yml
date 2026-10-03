@@ -320,62 +320,6 @@ paths:
       x-operation-id-original: Query API v1 quadTreeIndexVolatile
 components:
   schemas:
-    ParentQuad:
-      required:
-      - dataHandle
-      - partition
-      - version
-      type: object
-      properties:
-        additionalMetadata:
-          type: string
-          description: Optional value for the additional metadata specified by the publisher
-          example: <Additional metadata>
-        checksum:
-          type: string
-          description: The checksum field is optional. The response includes the checksum only if you specify `checksum` in the `additionalFields` query parameter, and if a checksum was specified in the partition metadata when it was published. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters.
-          example: 291f66029c232400e3403cd6e9cfd36e
-        compressedDataSize:
-          type: integer
-          description: Optional value for the size of the compressed partition data in bytes. The response only includes the compressed data size if you specify `compressedDataSize` in the `additionalFields` query parameter, and if compression is enabled, and if `compressedDataSize` was specified in the partition metadata when it was published.
-          format: int64
-        dataHandle:
-          type: string
-          description: The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field must not have an empty value. If the dataHandle is not present when comparing two versions, the partition was deleted. The maximum length of dataHandle is 1024 characters.
-          example: 675911FF6236B7C7604BF8B105F1BB58
-        dataSize:
-          type: integer
-          description: Optional value for the size of the partition data in bytes. The response only includes the data size if you specify `dataSize` in the `additionalFields` query parameter, and if `dataSize` was specified in the partition metadata when it was published.
-          format: int64
-        crc:
-          type: string
-          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
-          example: c3f276d7
-        partition:
-          type: string
-          pattern: \d+
-          description: The id of the tile
-          example: '73982'
-        version:
-          type: integer
-          description: Version of the catalog when this partition was first published
-          format: int64
-    Index:
-      required:
-      - parentQuads
-      - subQuads
-      type: object
-      properties:
-        parentQuads:
-          type: array
-          description: Result of the index resource call. For each parent tile, one element with the respective parent-quad data is contained in the array.
-          items:
-            $ref: '#/components/schemas/ParentQuad'
-        subQuads:
-          type: array
-          description: Result of the index resource call. For each tile that contains data in the requested quadKey, one element with the respective sub-quad data is contained in the array.
-          items:
-            $ref: '#/components/schemas/SubQuad'
     SubQuad:
       required:
       - dataHandle
@@ -418,6 +362,72 @@ components:
           description: Version of the catalog when this partition was first published.
           format: int64
           example: 1
+    Partitions:
+      required:
+      - partitions
+      type: object
+      properties:
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partition'
+      description: Describes a list of partitions for a given layer and layer version.
+    Index:
+      required:
+      - parentQuads
+      - subQuads
+      type: object
+      properties:
+        parentQuads:
+          type: array
+          description: Result of the index resource call. For each parent tile, one element with the respective parent-quad data is contained in the array.
+          items:
+            $ref: '#/components/schemas/ParentQuad'
+        subQuads:
+          type: array
+          description: Result of the index resource call. For each tile that contains data in the requested quadKey, one element with the respective sub-quad data is contained in the array.
+          items:
+            $ref: '#/components/schemas/SubQuad'
+    ParentQuad:
+      required:
+      - dataHandle
+      - partition
+      - version
+      type: object
+      properties:
+        additionalMetadata:
+          type: string
+          description: Optional value for the additional metadata specified by the publisher
+          example: <Additional metadata>
+        checksum:
+          type: string
+          description: The checksum field is optional. The response includes the checksum only if you specify `checksum` in the `additionalFields` query parameter, and if a checksum was specified in the partition metadata when it was published. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters.
+          example: 291f66029c232400e3403cd6e9cfd36e
+        compressedDataSize:
+          type: integer
+          description: Optional value for the size of the compressed partition data in bytes. The response only includes the compressed data size if you specify `compressedDataSize` in the `additionalFields` query parameter, and if compression is enabled, and if `compressedDataSize` was specified in the partition metadata when it was published.
+          format: int64
+        dataHandle:
+          type: string
+          description: The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field must not have an empty value. If the dataHandle is not present when comparing two versions, the partition was deleted. The maximum length of dataHandle is 1024 characters.
+          example: 675911FF6236B7C7604BF8B105F1BB58
+        dataSize:
+          type: integer
+          description: Optional value for the size of the partition data in bytes. The response only includes the data size if you specify `dataSize` in the `additionalFields` query parameter, and if `dataSize` was specified in the partition metadata when it was published.
+          format: int64
+        crc:
+          type: string
+          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
+          example: c3f276d7
+        partition:
+          type: string
+          pattern: \d+
+          description: The id of the tile
+          example: '73982'
+        version:
+          type: integer
+          description: Version of the catalog when this partition was first published
+          format: int64
     Partition:
       required:
       - partition
@@ -457,16 +467,6 @@ components:
           format: int64
           example: 2
       description: Describes the partition object which is unique within a layer.
-    Partitions:
-      required:
-      - partitions
-      type: object
-      properties:
-        partitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Partition'
-      description: Describes a list of partitions for a given layer and layer version.
   parameters:
     Context:
       name: context

@@ -503,71 +503,6 @@ paths:
       x-operation-id-original: Waypoints Sequence API findSequencePOST
 components:
   schemas:
-    WseResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
-          items:
-            $ref: '#/components/schemas/Result'
-        errors:
-          type: array
-          description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
-          items:
-            type: string
-            description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
-        processingTimeDesc:
-          type: string
-          description: Calculation time for the result, including the time unit. If the response does not contains an error, the processing time value is included.
-        responseCode:
-          type: string
-          description: This value is set to the HTTP response code. If the parameter jsonCallback is set in the request, the HTTP response code is always 200. In this case this field gives the actual response code.
-        warnings:
-          $ref: '#/components/schemas/Warnings'
-        requestId:
-          type: string
-          description: Identifier defined in the request and passed through the system. This field is null, if no such value was defined in the request.
-      xml:
-        name: Response
-    Warnings:
-      type: object
-      properties:
-        outOfSequenceWaypoints:
-          type: array
-          description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
-          xml:
-            name: OutOfSequenceWaypoints
-          items:
-            $ref: '#/components/schemas/OutOfSequenceWaypoint'
-        parameterOverrides:
-          type: array
-          description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
-          xml:
-            name: ParameterOverrides
-          items:
-            $ref: '#/components/schemas/ParameterOverride'
-      description: This List contains 0 or more elements with an ordered list of waypoints. This value is set only, if no sequence is found due to constraints.
-    OutOfSequenceWaypoint:
-      type: object
-      properties:
-        id:
-          type: string
-          description: User provided id
-        lat:
-          type: number
-          description: Latitude of the waypoint
-          format: double
-        lng:
-          type: number
-          description: Longitude of the waypoint
-          format: double
-        failedConstraints:
-          type: array
-          description: List containing pairs of unmet constraints and reasons
-          items:
-            $ref: '#/components/schemas/FailedConstraint'
-      description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
     TimeBreakdown:
       type: object
       properties:
@@ -627,46 +562,24 @@ components:
           description: 'ID of the cluster. Example, "cluster": 5'
           format: int32
       description: Waypoints in the order of the calculated sequence
-    WseIssue:
+    Warnings:
       type: object
       properties:
-        message:
-          type: string
-          description: Warning/error message
-        code:
-          type: integer
-          description: Warning/error code
-          format: int32
-      description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
-    Result:
-      type: object
-      properties:
-        waypoints:
+        outOfSequenceWaypoints:
           type: array
-          description: Waypoints in the order of the calculated sequence
+          description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
           xml:
-            name: Waypoints
+            name: OutOfSequenceWaypoints
           items:
-            $ref: '#/components/schemas/Waypoint'
-        distance:
-          type: string
-          description: Overall distance to travel the whole sequence in meter
-          xml:
-            name: Distance
-        time:
-          type: string
-          description: Overall time to travel the whole sequence in seconds
-        interconnections:
+            $ref: '#/components/schemas/OutOfSequenceWaypoint'
+        parameterOverrides:
           type: array
-          description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+          description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
+          xml:
+            name: ParameterOverrides
           items:
-            $ref: '#/components/schemas/Interconnection'
-        description:
-          type: string
-          description: Human readable description of the optimization goals
-        timeBreakdown:
-          $ref: '#/components/schemas/TimeBreakdown'
-      description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
+            $ref: '#/components/schemas/ParameterOverride'
+      description: This List contains 0 or more elements with an ordered list of waypoints. This value is set only, if no sequence is found due to constraints.
     FailedConstraint:
       type: object
       properties:
@@ -726,6 +639,93 @@ components:
           items:
             $ref: '#/components/schemas/WseIssue'
       description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+    OutOfSequenceWaypoint:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User provided id
+        lat:
+          type: number
+          description: Latitude of the waypoint
+          format: double
+        lng:
+          type: number
+          description: Longitude of the waypoint
+          format: double
+        failedConstraints:
+          type: array
+          description: List containing pairs of unmet constraints and reasons
+          items:
+            $ref: '#/components/schemas/FailedConstraint'
+      description: 'List of waypoints that are out of sequence. Waypoints Sequence API computes an optimal sequence (order) of the waypoints. If some waypoints do not fit in that optimal sequence due to certain constraints violation then they will appear in this list. '
+    Result:
+      type: object
+      properties:
+        waypoints:
+          type: array
+          description: Waypoints in the order of the calculated sequence
+          xml:
+            name: Waypoints
+          items:
+            $ref: '#/components/schemas/Waypoint'
+        distance:
+          type: string
+          description: Overall distance to travel the whole sequence in meter
+          xml:
+            name: Distance
+        time:
+          type: string
+          description: Overall time to travel the whole sequence in seconds
+        interconnections:
+          type: array
+          description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+          items:
+            $ref: '#/components/schemas/Interconnection'
+        description:
+          type: string
+          description: Human readable description of the optimization goals
+        timeBreakdown:
+          $ref: '#/components/schemas/TimeBreakdown'
+      description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
+    WseResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
+          items:
+            $ref: '#/components/schemas/Result'
+        errors:
+          type: array
+          description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
+          items:
+            type: string
+            description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
+        processingTimeDesc:
+          type: string
+          description: Calculation time for the result, including the time unit. If the response does not contains an error, the processing time value is included.
+        responseCode:
+          type: string
+          description: This value is set to the HTTP response code. If the parameter jsonCallback is set in the request, the HTTP response code is always 200. In this case this field gives the actual response code.
+        warnings:
+          $ref: '#/components/schemas/Warnings'
+        requestId:
+          type: string
+          description: Identifier defined in the request and passed through the system. This field is null, if no such value was defined in the request.
+      xml:
+        name: Response
+    WseIssue:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Warning/error message
+        code:
+          type: integer
+          description: Warning/error code
+          format: int32
+      description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
   securitySchemes:
     apiKey:
       type: apiKey

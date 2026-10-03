@@ -316,6 +316,14 @@ paths:
       x-operation-id-original: Volatile Blob API v1 deleteVolatileBlob
 components:
   schemas:
+    PatchProperties:
+      type: object
+      properties:
+        ttl:
+          type: integer
+          format: int64
+          example: 3600000
+          description: The expiry time in milliseconds. Data is automatically removed after the specified time limit has elapsed. The TTL value must be between 60000 (1 minute) and 604800000 (7 days).
     AuthorizationMessage:
       properties:
         error:
@@ -344,14 +352,6 @@ components:
           example: Token Validation Failure - invalid time in token
       description: HTTP unauthenticated error message thrown by the service.
       type: object
-    PatchProperties:
-      type: object
-      properties:
-        ttl:
-          type: integer
-          format: int64
-          example: 3600000
-          description: The expiry time in milliseconds. Data is automatically removed after the specified time limit has elapsed. The TTL value must be between 60000 (1 minute) and 604800000 (7 days).
   securitySchemes:
     Bearer:
       type: http

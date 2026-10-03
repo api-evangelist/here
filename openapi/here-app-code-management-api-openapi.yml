@@ -99,16 +99,16 @@ components:
 
         '
   headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
     XRequestId:
       schema:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   schemas:
     AppCode:
       deprecated: true

@@ -108,15 +108,16 @@ paths:
       - Bearer: []
 components:
   parameters:
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
+    IdentityProvider:
+      in: path
+      required: true
+      name: identityProvider
       schema:
         type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+      description: 'HRN identifying the IdentityProvider.
 
         '
+      example: hrn:here:account::org123456789:identityProvider/example-op
     PageToken:
       name: pageToken
       in: query
@@ -129,25 +130,6 @@ components:
         '
       schema:
         type: string
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
-    IdentityProvider:
-      in: path
-      required: true
-      name: identityProvider
-      schema:
-        type: string
-      description: 'HRN identifying the IdentityProvider.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
     Limit:
       in: query
       name: limit
@@ -166,7 +148,46 @@ components:
         type: string
       description: "HRN identifying the Realm.  You can also use the shorthand \"me\" to refer to the Realm HRN indicated by your \naccess token context.\n"
       example: hrn:here:account::org123456789:realm/org123456789
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
   schemas:
+    AppList:
+      type: object
+      required:
+      - count
+      - total
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of Apps in this page of the List.
+        total:
+          type: integer
+          description: The total number of Apps in the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/App1'
+          description: List of Apps.
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
     App1:
       type: object
       properties:
@@ -219,38 +240,17 @@ components:
         correlationId:
           type: string
           description: The Correlation ID for the request for tracking purposes.
-    AppList:
-      type: object
-      required:
-      - count
-      - total
-      - items
-      properties:
-        count:
-          type: integer
-          description: The number of Apps in this page of the List.
-        total:
-          type: integer
-          description: The total number of Apps in the List.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/App1'
-          description: List of Apps.
-        pageToken:
-          type: string
-          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
   headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
     XRequestId:
       schema:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   securitySchemes:
     UserOrClientBearerToken:
       type: http

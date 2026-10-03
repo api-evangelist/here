@@ -203,8 +203,8 @@ paths:
       x-operation-id-original: Interactive Map API v1 deleteFeature
 components:
   responses:
-    ErrorResponse403:
-      description: Forbidden request. Insufficient rights to perform the request.
+    ErrorResponse404:
+      description: Not found.
       content:
         application/json:
           schema:
@@ -213,13 +213,7 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: Insufficient rights + <Request specific access error details>
-    EmptyResponse:
-      description: An empty response as a result of a user-request with accepted MIME type application/x-empty.
-      content:
-        application/x-empty:
-          schema:
-            type: string
+            errorMessage: The requested resource does not exist.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -265,8 +259,35 @@ components:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse404:
-      description: Not found.
+    ErrorResponse413:
+      description: Request entity too large.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            error: Exception
+            errorMessage: Request entity too large.
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    EmptyResponse:
+      description: An empty response as a result of a user-request with accepted MIME type application/x-empty.
+      content:
+        application/x-empty:
+          schema:
+            type: string
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
       content:
         application/json:
           schema:
@@ -275,12 +296,7 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: The requested resource does not exist.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
+            errorMessage: Insufficient rights + <Request specific access error details>
     ErrorResponse400:
       description: Malformed or Bad Request.
       content:
@@ -292,6 +308,22 @@ components:
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
             errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse513:
+      description: Response payload too large.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -324,95 +356,6 @@ components:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse513:
-      description: Response payload too large.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse413:
-      description: Request entity too large.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            error: Exception
-            errorMessage: Request entity too large.
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-  parameters:
-    FeatureId:
-      name: featureId
-      in: path
-      description: The unique identifier of a feature in the layer.
-      required: true
-      schema:
-        type: string
-    VersionRef:
-      name: versionRef
-      in: query
-      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
-      required: false
-      schema:
-        type: string
-        default: HEAD
-    LayerId:
-      name: layerId
-      in: path
-      description: The unique identifier of the layer.
-      required: true
-      schema:
-        type: string
-    Ids:
-      name: id
-      in: query
-      description: "A comma separated list of unique feature identifiers. These are the acceptable formats for this field:\n  * id=value1,value2\n  * id=value1,id=value2\n\n\nnot required when eraseContent=true is used."
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-  requestBodies:
-    FeatureRequest:
-      description: A feature request.
-      required: true
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/Feature'
-    FeatureCollectionRequest:
-      description: A feature collection request.
-      required: true
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/FeatureCollection'
-    FeatureCollectionOrFeatureModificationListRequest:
-      description: A FeatureCollection object or a FeatureModificationList object.
-      required: true
-      content:
-        application/geo+json:
-          schema:
-            $ref: '#/components/schemas/FeatureCollection'
-        application/vnd.here.feature-modification-list:
-          schema:
-            $ref: '#/components/schemas/FeatureModificationList'
   schemas:
     FeatureModificationList:
       type: object
@@ -454,13 +397,57 @@ components:
                 amenity: Football Stadium
                 capacity: 54074
                 description: Home of the Liverpool Football Club.
-    OnMergeConflict:
+    OnFeatureNotExists:
       type: string
       enum:
-      - error
       - retain
-      - replace
-      default: error
+      - error
+      - create
+      default: create
+    FeatureCollectionModification:
+      allOf:
+      - $ref: '#/components/schemas/FeatureCollection'
+      - type: object
+        properties:
+          inserted:
+            type: array
+            description: List of inserted feature IDs.
+            items:
+              type: string
+          updated:
+            type: array
+            description: List of updated features IDs.
+            items:
+              type: string
+          deleted:
+            type: array
+            description: List of deleted features IDs.
+            items:
+              type: string
+        example:
+          type: FeatureCollection
+          etag: b9be03f253c53c23
+          inserted:
+          - BfiimUxHjj
+          updated:
+          - cuiImUxOjj
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+                space: 0FzlE2wX
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
     Error:
       type: object
       description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
@@ -533,80 +520,13 @@ components:
               amenity: Football Stadium
               capacity: 54074
               description: Home of the Liverpool Football Club.
-    OnFeatureExists:
+    OnMergeConflict:
       type: string
       enum:
-      - merge
-      - patch
-      - replace
-      - delete
-      - retain
       - error
-      default: patch
-    FeatureCollectionModification:
-      allOf:
-      - $ref: '#/components/schemas/FeatureCollection'
-      - type: object
-        properties:
-          inserted:
-            type: array
-            description: List of inserted feature IDs.
-            items:
-              type: string
-          updated:
-            type: array
-            description: List of updated features IDs.
-            items:
-              type: string
-          deleted:
-            type: array
-            description: List of deleted features IDs.
-            items:
-              type: string
-        example:
-          type: FeatureCollection
-          etag: b9be03f253c53c23
-          inserted:
-          - BfiimUxHjj
-          updated:
-          - cuiImUxOjj
-          features:
-          - type: Feature
-            id: BfiimUxHjj
-            geometry:
-              type: Point
-              coordinates:
-              - -2.960847
-              - 53.430828
-            properties:
-              name: Anfield
-              '@ns:com:here:xyz':
-                createdAt: 1517504700726
-                updatedAt: 1517504700726
-                space: 0FzlE2wX
-              amenity: Football Stadium
-              capacity: 54074
-              description: Home of the Liverpool Football Club.
-    GeoJSON:
-      type: object
-      description: The base type for all possible GeoJSON objects.
-      required:
-      - type
-      properties:
-        type:
-          type: string
-        bbox:
-          type: array
-          description: Describes the coordinate range of the GeoJSON object.
-          items:
-            type: number
-      discriminator:
-        propertyName: type
-        mapping:
-          Feature: '#/components/schemas/Feature'
-          FeatureCollection: '#/components/schemas/FeatureCollection'
-          Geometry: '#/components/schemas/Geometry'
-      additionalProperties: true
+      - retain
+      - replace
+      default: error
     Feature:
       allOf:
       - $ref: '#/components/schemas/GeoJSON'
@@ -635,6 +555,50 @@ components:
             amenity: Football Stadium
             capacity: 54074
             description: Home of the Liverpool Football Club.
+    GeoJSON:
+      type: object
+      description: The base type for all possible GeoJSON objects.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        bbox:
+          type: array
+          description: Describes the coordinate range of the GeoJSON object.
+          items:
+            type: number
+      discriminator:
+        propertyName: type
+        mapping:
+          Feature: '#/components/schemas/Feature'
+          FeatureCollection: '#/components/schemas/FeatureCollection'
+          Geometry: '#/components/schemas/Geometry'
+      additionalProperties: true
+    OnFeatureExists:
+      type: string
+      enum:
+      - merge
+      - patch
+      - replace
+      - delete
+      - retain
+      - error
+      default: patch
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
     FeatureCollection:
       allOf:
       - $ref: '#/components/schemas/GeoJSON'
@@ -671,37 +635,73 @@ components:
               amenity: Football Stadium
               capacity: 54074
               description: Home of the Liverpool Football Club.
-    OnFeatureNotExists:
-      type: string
-      enum:
-      - retain
-      - error
-      - create
-      default: create
-    Geometry:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
-        discriminator:
-          propertyName: type
-          mapping:
-            MultiPoint: '#/components/schemas/MultiPoint'
-            MultiLineString: '#/components/schemas/MultiLineString'
-            LineString: '#/components/schemas/LineString'
-            MultiPolygon: '#/components/schemas/MultiPolygon'
-            Point: '#/components/schemas/Point'
-            Polygon: '#/components/schemas/Polygon'
+  requestBodies:
+    FeatureCollectionRequest:
+      description: A feature collection request.
+      required: true
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollection'
+    FeatureCollectionOrFeatureModificationListRequest:
+      description: A FeatureCollection object or a FeatureModificationList object.
+      required: true
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/FeatureCollection'
+        application/vnd.here.feature-modification-list:
+          schema:
+            $ref: '#/components/schemas/FeatureModificationList'
+    FeatureRequest:
+      description: A feature request.
+      required: true
+      content:
+        application/geo+json:
+          schema:
+            $ref: '#/components/schemas/Feature'
   headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
     X-Correlation-ID:
       description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+  parameters:
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
       schema:
         type: string
+    FeatureId:
+      name: featureId
+      in: path
+      description: The unique identifier of a feature in the layer.
+      required: true
+      schema:
+        type: string
+    Ids:
+      name: id
+      in: query
+      description: "A comma separated list of unique feature identifiers. These are the acceptable formats for this field:\n  * id=value1,value2\n  * id=value1,id=value2\n\n\nnot required when eraseContent=true is used."
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    VersionRef:
+      name: versionRef
+      in: query
+      description: "The query parameter used to specify the target version reference when reading or writing features.\nA reference describes a target tag or a version.\n\nDefault is: `HEAD`\n\n<br>\nDepending on the use-case it can be necessary to specify a range of versions rather than\nonly one version. In such a case the version part of the Ref would look like:\n`<start>..<end>`\n\nWhere `<start>` is the start of the range (exclusive) and `<end>` is the end of the range\n(inclusive).\n\nAnother way of specifying a version range is using the star-symbol: `*`\n\nUsing `*` refers to \"all available versions\" in the space or branch and is only\napplicable in the cases in which a version range may be provided.\n\n<br>\nSamples:\n  - `42` points to version 42\n  - `HEAD` points to the latest version\n  - `myTag` points to the version of the tag with ID \"myTag\"\n  - `0..HEAD` points to all available versions\n  - `*` also points to all versions (short form)\n  - `5..10` points to the versions in the interval `]5, 10]`\n"
+      required: false
+      schema:
+        type: string
+        default: HEAD
   securitySchemes:
     Bearer:
       type: http

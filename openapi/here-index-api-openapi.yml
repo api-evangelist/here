@@ -276,78 +276,11 @@ components:
       schema:
         type: string
   schemas:
-    DataResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          example:
-          - id: 7a320ce9-e4d0-4d74-9c7a-19810f99a3a1
-            size: 100
-            checksum: checksum
-            metadata: '{"ingestionTime": "1532018660873"}'
-            timestamp: 1543351987660
-            crc: crc
-            hour: 0
-            tile: 377782527
-            containsProbe: true
-            eventType: vss
-          items:
-            $ref: '#/components/schemas/MapStringObject'
-      title: DataResponse
     MapStringObject:
       type: object
       title: MapStringObject
       additionalProperties:
         type: object
-    PartsResponse:
-      type: object
-      properties:
-        parts:
-          type: array
-          example:
-          - partId: 7a320ce9e4d04d749c7a19810f99a3a1
-          items:
-            $ref: '#/components/schemas/PartId'
-      title: PartsResponse
-    DeleteRequestStatus:
-      type: object
-      properties:
-        deleteId:
-          type: string
-          format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-          example: e07191de-8ab8-49f5-a11d-8240e1b93ab7
-        state:
-          type: string
-          enum:
-          - Scheduled
-          - Processing
-          - Failed
-          - Succeeded
-          description: 'The state of the delete request.
-
-            - `Scheduled` - The delete request was successfully scheduled.
-
-            - `Processing` - The delete request is being executed.
-
-            - `Failed` - The delete request failed. Please try again.
-
-            - `Succeeded` - The delete request finished successfully. The number of deleted records is provided in the `count` field.
-
-            '
-          readOnly: true
-          example: Failed
-        message:
-          type: string
-          description: A message describing the state.
-          readOnly: true
-          example: Delete request failed due to ....
-        count:
-          type: integer
-          description: Number of deleted index records.
-          readOnly: true
-          example: 0
-      title: DeleteRequestStatus
     UpdateIndexRequest:
       type: object
       properties:
@@ -368,6 +301,13 @@ components:
             type: string
             format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
       title: UpdateIndexRequest
+    PartId:
+      type: object
+      properties:
+        partId:
+          type: string
+          example: e07191de8ab849f5a11d8240e1b93ab7
+      title: PartId
     Index:
       type: object
       properties:
@@ -409,13 +349,63 @@ components:
           example: 100
           description: The size of the data being indexed by this index record.
       title: Index
-    PartId:
+    DeleteRequestStatus:
       type: object
       properties:
-        partId:
+        deleteId:
           type: string
-          example: e07191de8ab849f5a11d8240e1b93ab7
-      title: PartId
+          format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+          example: e07191de-8ab8-49f5-a11d-8240e1b93ab7
+        state:
+          type: string
+          enum:
+          - Scheduled
+          - Processing
+          - Failed
+          - Succeeded
+          description: 'The state of the delete request.
+
+            - `Scheduled` - The delete request was successfully scheduled.
+
+            - `Processing` - The delete request is being executed.
+
+            - `Failed` - The delete request failed. Please try again.
+
+            - `Succeeded` - The delete request finished successfully. The number of deleted records is provided in the `count` field.
+
+            '
+          readOnly: true
+          example: Failed
+        message:
+          type: string
+          description: A message describing the state.
+          readOnly: true
+          example: Delete request failed due to ....
+        count:
+          type: integer
+          description: Number of deleted index records.
+          readOnly: true
+          example: 0
+      title: DeleteRequestStatus
+    DataResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          example:
+          - id: 7a320ce9-e4d0-4d74-9c7a-19810f99a3a1
+            size: 100
+            checksum: checksum
+            metadata: '{"ingestionTime": "1532018660873"}'
+            timestamp: 1543351987660
+            crc: crc
+            hour: 0
+            tile: 377782527
+            containsProbe: true
+            eventType: vss
+          items:
+            $ref: '#/components/schemas/MapStringObject'
+      title: DataResponse
     DeleteResponse:
       type: object
       properties:
@@ -424,6 +414,16 @@ components:
           format: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
           example: e07191de-8ab8-49f5-a11d-8240e1b93ab7
       title: DeleteResponse
+    PartsResponse:
+      type: object
+      properties:
+        parts:
+          type: array
+          example:
+          - partId: 7a320ce9e4d04d749c7a19810f99a3a1
+          items:
+            $ref: '#/components/schemas/PartId'
+      title: PartsResponse
   securitySchemes:
     Bearer:
       type: http

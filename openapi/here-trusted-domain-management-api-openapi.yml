@@ -394,7 +394,97 @@ paths:
 
             '
 components:
+  parameters:
+    Limit10:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 10 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 10
+    TrustedDomainUri:
+      in: path
+      required: true
+      name: trustedDomainUri
+      schema:
+        type: string
+      description: "URI for a Trusted Domain. A Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
+      example: https://example.com:1080
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    ListParam:
+      in: query
+      name: list
+      required: true
+      description: Comma separated list of Trusted Domain URIs. Maximum of 10. Must be URL-encoded, if reserved characters ":/?#[]@!$&'()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+      example: 2MZr9AInTFk45NAU8ClIza2Yw7w_AXyUyM4ChvtO7bY
+      schema:
+        type: string
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
   schemas:
+    TrustedDomainsRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrustedDomainsRequestItem'
+          minItems: 1
+          maxItems: 10
+          example:
+          - https://www.example.com:1080
+          - www.example.com
+    TrustedDomainsRequestItem:
+      type: string
+      description: "URI for a Trusted Domain.\n\nA Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
+    GetEnableTrustedDomainsResponse:
+      type: object
+      required:
+      - trustedDomainsEnabled
+      properties:
+        trustedDomainsEnabled:
+          type: boolean
+          example: true
+          description: If Trusted Domains are enabled for the App.
     TrustedDomainPartialSuccessResponse:
       allOf:
       - $ref: '#/components/schemas/PageWithToken'
@@ -411,27 +501,38 @@ components:
           items:
           - trustedDomain: https://www.example.com
             status: 204
-    GetEnableTrustedDomainsResponse:
+    TrustedDomainPageWToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              example: https://www.example.com
+              description: A Trusted Domain URI.
+        example:
+          total: 5
+          pageToken: 7afd7f8e94eb4844ba45
+          limit: 2
+          items:
+          - https://www.example.com
+          - 127.0.0.1
+    TrustedDomainError:
       type: object
       required:
-      - trustedDomainsEnabled
+      - trustedDomain
+      - status
       properties:
-        trustedDomainsEnabled:
-          type: boolean
-          example: true
-          description: If Trusted Domains are enabled for the App.
-    TrustedDomainsRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrustedDomainsRequestItem'
-          minItems: 1
-          maxItems: 10
-          example:
-          - https://www.example.com:1080
-          - www.example.com
+        trustedDomain:
+          type: string
+          example: https://www.example.com
+          description: A Trusted Domain URI.
+        status:
+          type: integer
+          example: 400367
+          description: 204 if successfully added/deleted, else a Here Account error code.
     PageWithToken:
       type: object
       required:
@@ -451,118 +552,17 @@ components:
           type: integer
           example: 1
           description: The number of federations matching the search criteria.
-    TrustedDomainPageWToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              type: string
-              example: https://www.example.com
-              description: A Trusted Domain URI.
-        example:
-          total: 5
-          pageToken: 7afd7f8e94eb4844ba45
-          limit: 2
-          items:
-          - https://www.example.com
-          - 127.0.0.1
-    TrustedDomainsRequestItem:
-      type: string
-      description: "URI for a Trusted Domain.\n\nA Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
-    TrustedDomainError:
-      type: object
-      required:
-      - trustedDomain
-      - status
-      properties:
-        trustedDomain:
-          type: string
-          example: https://www.example.com
-          description: A Trusted Domain URI.
-        status:
-          type: integer
-          example: 400367
-          description: 204 if successfully added/deleted, else a Here Account error code.
-  parameters:
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    App:
-      in: path
-      required: true
-      name: app
-      schema:
-        type: string
-      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-
-        '
-    ListParam:
-      in: query
-      name: list
-      required: true
-      description: Comma separated list of Trusted Domain URIs. Maximum of 10. Must be URL-encoded, if reserved characters ":/?#[]@!$&'()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-      example: 2MZr9AInTFk45NAU8ClIza2Yw7w_AXyUyM4ChvtO7bY
-      schema:
-        type: string
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
-    TrustedDomainUri:
-      in: path
-      required: true
-      name: trustedDomainUri
-      schema:
-        type: string
-      description: "URI for a Trusted Domain. A Trusted Domain must conform to the follow validation rules:\n  * entries must include a domain name (e.g. example.com)\n  * no longer than 2048 characters\n  * use correct URI format\n  * IPv4 addresses are permitted (e.g. 192.168.1.1 or 192.168.1.1:1080)\n  * protocol is optional (e.g. https://example.com)\n  * port is optional (e.g. example.com:1080)\n"
-      example: https://example.com:1080
-    Limit10:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 10 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 10
   headers:
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
     XRequestId:
       schema:
         type: string
       required: false
       description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   securitySchemes:
     UserOrClientBearerToken:
       type: http

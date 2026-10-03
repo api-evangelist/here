@@ -77,64 +77,13 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    qq:
-      name: qq
-      description: "Enter a qualified query. A qualified query is similar to a free-text query, but in a structured manner.\n It can take multiple _sub-parameters_, separated by semicolon, allowing to specify different aspects of a query.\n\nCurrently supported _sub-parameters_ are `country`, `state`, `county`, `city`, `district`, `street`,\n `houseNumber`, and `postalCode`.\n\nFormat: `{sub-parameter}={string}[;{sub-parameter}={string}]*`\n\nExamples:\n * `city=Berlin;country=Germany;street=Friedrichstr;houseNumber=20`\n * `city=Berlin;country=Germany`\n * `postalCode=10969`\n\n_Note: Either `q` or `qq`-parameter is required on this endpoint. Both parameters can be provided in the same request._\n"
+    inGeocode:
+      name: in
+      description: "Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.\n\nA geographic area can be\n\n * a country (or multiple countries), provided as comma-separated [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country codes\n\n   The country codes must be provided in uppercase.\n\n   Format: `countryCode:{countryCode}[,{countryCode}]*`\n\n   Examples:\n    * `countryCode:USA`\n    * `countryCode:CAN,MEX,USA`\n\n"
       in: query
       required: false
       schema:
         type: string
-    atAutocompleteGeocode:
-      name: at
-      description: 'Specify the center of the search context expressed as coordinates.
-
-
-        Format: `{latitude},{longitude}`
-
-
-        Type: `{decimal},{decimal}`
-
-
-        Example: `-13.163068,-72.545128` (Machu Picchu Mountain, Peru)
-
-        '
-      in: query
-      required: false
-      schema:
-        type: string
-    postalCodeMode:
-      name: postalCodeMode
-      description: 'Options to return multiple results in areas where a postal code is associated with more than one district or city area.
-
-        Without these options, the system only provides one result and may leave the district or city name blank or use a default name,
-
-        potentially omitting relevant districts of cities.
-
-
-        Description of supported values:
-
-
-        - `cityLookup`: When a postal code spans multiple cities, this option gives you all possible combinations of the postal code with the corresponding city names.
-
-        - `districtLookup`: When a postal code spans multiple districts (within one city or across multiple cities), this option gives you all possible combinations of the postal code with the corresponding district and city names.'
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: string
-        enum:
-        - cityLookup
-        - districtLookup
-    langAutosuggestBrowseDiscoverGeocodeLookupRevgeocode:
-      name: lang
-      description: Select the language to be used for result rendering from a list of [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) compliant language codes.
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
     X-Request-ID:
       name: X-Request-ID
       description: 'Used to correlate requests with their responses within a customer''s application, for logging and error reporting.
@@ -145,128 +94,31 @@ components:
       required: false
       schema:
         type: string
-    showTranslations:
-      name: showTranslations
-      description: 'Shows translations and alternative names of the provided fields in all available languages.
+    addressNamesMode:
+      name: addressNamesMode
+      description: 'This option allows users to choose between displaying normalized or matched address fields in the response,
 
+        affecting the names in the address block, the address label, and the result title.
 
-        This parameter accepts comma separated list of allowed fields for which translations are required.
+        This option is relevant when there is a difference between administrative naming and postal or common naming conventions, or when addressing with alternative street names.
 
-
-        Description of supported values:
-
-
-        - `city`: shows alternative names and translations available for address field `city`
-
-        - `county`: shows alternative names and translations available for address field `county`
-
-        - `district`: shows alternative names and translations available for address field `district`
-
-        - `state`: shows alternative names and translations available for address field `state`'
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - city
-          - county
-          - district
-          - state
-    showGeocode:
-      name: show
-      description: "Select additional fields to be rendered in the response.\nPlease note that some of the fields involve additional webservice calls and can increase the overall response time.\n\nThe value is a comma-separated list of the sections to be enabled.\nFor some sections there is a long and a short ID.\n\nDescription of supported values:\n\n- `countryInfo`: For each result item renders additional block with the country info, such as\n  [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) and\n  [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country code.\n- `parsing`\n- `postalCodeDetails`: For each result item of types `postalCodePoint` renders block with additional information about this postal code,\n  such as postal code type: ZIP or ZIP+4; ZIP classification code: PO BOX, Unique or military; record type code for ZIP+4 codes.\n  This feature is currently available only in the countries which are using ZIP codes - USA, PRI, VIR, GUM, MNP and ASM.\n- `secondaryUnitInfo`: For each matched unit designator, the geocode endpoint returns an additional block\n  containing the normalized unit type and unit value. GS7 geocode currently supports\n  normalized secondary unit info in the following countries:\n  AUS, AUT, BRA, CAN, ESP, FRA, GBR, HKG, IDN, IND, MEX, NZL, TUR, TWN, USA (with the territory of PRI).\n- `streetInfo`: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.\n- `tz`: Renders result items with additional time zone information.\n- **ALPHA, RESTRICTED** `addressUsage`: For each result item with `types=houseNumber` and `houseNumberType=pointAddress`, returns a flag indicating whether the address is residential."
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - addressUsage
-          - countryInfo
-          - parsing
-          - postalCodeDetails
-          - secondaryUnitInfo
-          - streetInfo
-          - tz
-    typesGeocode:
-      name: types
-      description: "A comma-separated list of the types that should be included in the response.\n\nIf this parameter is not set, all types are considered for the response.\n\nDescription of supported values:\n\n- `address`: restricting results to result types `houseNumber`, `street`, `postalCodePoint`, `intersection`, or `addressBlock`\n- `area`: restricting results to result types `locality` or `administrativeArea` including all the sub-types\n- `city`: restricting results to result type `locality` and locality type `city`\n- `houseNumber`: restricting results to result type: `houseNumber`, including house number types `PA` (Point Address), `MPA` (Micro Point Address) and\n  `interpolated`, including exact house number matches and house number fallbacks\n- `place`: restricting results to result type `place`\n- `postalCode`: restricting results to postal codes: either result type `postalCodePoint` or result type `locality` with locality type `postalCode`.\n\n    Note that in Ireland and Singapore, where each address has unique postal code,\n    `postalCodePoint` results are replaced by `houseNumber` results.\n- `street`: restricting results to result type `street`"
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - address
-          - area
-          - city
-          - houseNumber
-          - place
-          - postalCode
-          - street
-    showMapReferencesGeocodeLookupRevgeocode:
-      name: showMapReferences
-      description: "Return the map references of the location objects\n\nDescription of supported values:\n\n- `adminIds`: Return the ids for the admin hierarchy of the response, to enable cross referencing into other services or data applications based on HERE Map Content\n- `cmVersion`: Return the core map version number of the region where the result is located\n- `links`: Return the link references from the result's access position,\n  to enable cross referencing into other services or data applications\n- **RESTRICTED** `microPointAddress`: Return the reference of the micro point address,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content. This type of reference is only returned by Lookup endpoint or Geocode endpoint.\n- `pointAddress`: Return the reference of the point address,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content\n- `segments`: Return the street segment references from the result's access position,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content\n\n    **NOTE** The previous parameter `show=hmcReference` is deprecated and replaced\n    by `showMapReferences=segments` which serves the same purpose."
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - adminIds
-          - cmVersion
-          - links
-          - microPointAddress
-          - pointAddress
-          - segments
-    qGeocode:
-      name: q
-      description: "Enter a free-text query\n\nExamples:\n * `125, Berliner, berlin`\n * `Beacon, Boston, Hospital`\n * `Schnurrbart German Pub and Restaurant, Hong Kong`\n\n_Note: Either `q` or `qq`-parameter is required on this endpoint. Both parameters can be provided in the same request._\n"
-      in: query
-      required: false
-      schema:
-        type: string
-        example: Invalidenstraße 116 Berlin
-    inGeocode:
-      name: in
-      description: "Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.\n\nA geographic area can be\n\n * a country (or multiple countries), provided as comma-separated [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country codes\n\n   The country codes must be provided in uppercase.\n\n   Format: `countryCode:{countryCode}[,{countryCode}]*`\n\n   Examples:\n    * `countryCode:USA`\n    * `countryCode:CAN,MEX,USA`\n\n"
-      in: query
-      required: false
-      schema:
-        type: string
-    showRelatedGeocode:
-      name: showRelated
-      description: 'allows enriching some types of response items with related items
+        By default, geocoding results provide matched names for administrative places and normalized (official) names for street names.
 
 
         Description of supported values:
 
 
-        - **RESTRICTED** `MPA`: For `type=houseNumber` and `houseNumberType=PA` result items, include a block containing a list of micro point addresses associated to this address, such as buildings, floors (levels) or suites (units). GS7 supports micro point addresses in the following countries: AUS, AUT, CAN, NZL, USA (with the territory of PRI).
+        - `matched`: The service returns matched names for address fields.
 
-        - `intersections`: For street and house number results, include a block containing a list of intersections nearest to the address.
-
-        - **RESTRICTED** `parentPA`: For `type=houseNumber` and `houseNumberType=MPA` result items, include a block containing the "parent" point addresses associated with this micro point address. GS7 supports micro point addresses in the following countries: AUS, AUT, CAN, NZL, USA (with the territory of PRI).'
+        - `normalized`: The service returns normalized (primary) names for address fields.'
       in: query
       explode: false
       required: false
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - MPA
-          - intersections
-          - parentPA
+        type: string
+        enum:
+        - matched
+        - normalized
     politicalView:
       name: politicalView
       description: 'Toggle the political view.
@@ -314,6 +166,116 @@ components:
       required: false
       schema:
         type: string
+    qGeocode:
+      name: q
+      description: "Enter a free-text query\n\nExamples:\n * `125, Berliner, berlin`\n * `Beacon, Boston, Hospital`\n * `Schnurrbart German Pub and Restaurant, Hong Kong`\n\n_Note: Either `q` or `qq`-parameter is required on this endpoint. Both parameters can be provided in the same request._\n"
+      in: query
+      required: false
+      schema:
+        type: string
+        example: Invalidenstraße 116 Berlin
+    showMapReferencesGeocodeLookupRevgeocode:
+      name: showMapReferences
+      description: "Return the map references of the location objects\n\nDescription of supported values:\n\n- `adminIds`: Return the ids for the admin hierarchy of the response, to enable cross referencing into other services or data applications based on HERE Map Content\n- `cmVersion`: Return the core map version number of the region where the result is located\n- `links`: Return the link references from the result's access position,\n  to enable cross referencing into other services or data applications\n- **RESTRICTED** `microPointAddress`: Return the reference of the micro point address,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content. This type of reference is only returned by Lookup endpoint or Geocode endpoint.\n- `pointAddress`: Return the reference of the point address,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content\n- `segments`: Return the street segment references from the result's access position,\n  to enable cross referencing into other services or data applications\n  based on HERE Map Content\n\n    **NOTE** The previous parameter `show=hmcReference` is deprecated and replaced\n    by `showMapReferences=segments` which serves the same purpose."
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - adminIds
+          - cmVersion
+          - links
+          - microPointAddress
+          - pointAddress
+          - segments
+    qq:
+      name: qq
+      description: "Enter a qualified query. A qualified query is similar to a free-text query, but in a structured manner.\n It can take multiple _sub-parameters_, separated by semicolon, allowing to specify different aspects of a query.\n\nCurrently supported _sub-parameters_ are `country`, `state`, `county`, `city`, `district`, `street`,\n `houseNumber`, and `postalCode`.\n\nFormat: `{sub-parameter}={string}[;{sub-parameter}={string}]*`\n\nExamples:\n * `city=Berlin;country=Germany;street=Friedrichstr;houseNumber=20`\n * `city=Berlin;country=Germany`\n * `postalCode=10969`\n\n_Note: Either `q` or `qq`-parameter is required on this endpoint. Both parameters can be provided in the same request._\n"
+      in: query
+      required: false
+      schema:
+        type: string
+    langAutosuggestBrowseDiscoverGeocodeLookupRevgeocode:
+      name: lang
+      description: Select the language to be used for result rendering from a list of [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) compliant language codes.
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    showNavAttributes:
+      name: showNavAttributes
+      description: "Return requested additional attributes for segments in a road network if `showNavAttributes` parameter is specified with valid value and relevant data is available.\n\nThe value is a comma-separated list of the sections to be enabled.\n\nDescription of supported values:\n\n- `access`: Return the vehicle types allowed on a road or lane.\n- `functionalClass`: Return the functional class which is used to classify roads depending on the speed, importance and connectivity of the road.\n- `physical`: Return the values to describe special physical characteristics of a road.\n- `speedLimits`: Include speed limit and travel direction of the road in the results where available in content and when requested by the client application.\n\n  Note on `speedLimits`:\n  - The feature is not supported in Japan.\n  - This feature is subject to premium pricing. For details, contact your HERE customer representative."
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - access
+          - functionalClass
+          - physical
+          - speedLimits
+    showRelatedGeocode:
+      name: showRelated
+      description: 'allows enriching some types of response items with related items
+
+
+        Description of supported values:
+
+
+        - **RESTRICTED** `MPA`: For `type=houseNumber` and `houseNumberType=PA` result items, include a block containing a list of micro point addresses associated to this address, such as buildings, floors (levels) or suites (units). GS7 supports micro point addresses in the following countries: AUS, AUT, CAN, NZL, USA (with the territory of PRI).
+
+        - `intersections`: For street and house number results, include a block containing a list of intersections nearest to the address.
+
+        - **RESTRICTED** `parentPA`: For `type=houseNumber` and `houseNumberType=MPA` result items, include a block containing the "parent" point addresses associated with this micro point address. GS7 supports micro point addresses in the following countries: AUS, AUT, CAN, NZL, USA (with the territory of PRI).'
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - MPA
+          - intersections
+          - parentPA
+    showGeocode:
+      name: show
+      description: "Select additional fields to be rendered in the response.\nPlease note that some of the fields involve additional webservice calls and can increase the overall response time.\n\nThe value is a comma-separated list of the sections to be enabled.\nFor some sections there is a long and a short ID.\n\nDescription of supported values:\n\n- `countryInfo`: For each result item renders additional block with the country info, such as\n  [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) and\n  [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country code.\n- `parsing`\n- `postalCodeDetails`: For each result item of types `postalCodePoint` renders block with additional information about this postal code,\n  such as postal code type: ZIP or ZIP+4; ZIP classification code: PO BOX, Unique or military; record type code for ZIP+4 codes.\n  This feature is currently available only in the countries which are using ZIP codes - USA, PRI, VIR, GUM, MNP and ASM.\n- `secondaryUnitInfo`: For each matched unit designator, the geocode endpoint returns an additional block\n  containing the normalized unit type and unit value. GS7 geocode currently supports\n  normalized secondary unit info in the following countries:\n  AUS, AUT, BRA, CAN, ESP, FRA, GBR, HKG, IDN, IND, MEX, NZL, TUR, TWN, USA (with the territory of PRI).\n- `streetInfo`: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.\n- `tz`: Renders result items with additional time zone information.\n- **ALPHA, RESTRICTED** `addressUsage`: For each result item with `types=houseNumber` and `houseNumberType=pointAddress`, returns a flag indicating whether the address is residential."
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - addressUsage
+          - countryInfo
+          - parsing
+          - postalCodeDetails
+          - secondaryUnitInfo
+          - streetInfo
+          - tz
+    limitGeocode:
+      name: limit
+      description: Maximum number of results to be returned.
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
     withGeocode:
       name: with
       description: 'Activate certain features or consider specific kinds of results, that would not be active or provided by default.
@@ -332,17 +294,47 @@ components:
           type: string
           enum:
           - MPA
-    limitGeocode:
-      name: limit
-      description: Maximum number of results to be returned.
+    postalCodeMode:
+      name: postalCodeMode
+      description: 'Options to return multiple results in areas where a postal code is associated with more than one district or city area.
+
+        Without these options, the system only provides one result and may leave the district or city name blank or use a default name,
+
+        potentially omitting relevant districts of cities.
+
+
+        Description of supported values:
+
+
+        - `cityLookup`: When a postal code spans multiple cities, this option gives you all possible combinations of the postal code with the corresponding city names.
+
+        - `districtLookup`: When a postal code spans multiple districts (within one city or across multiple cities), this option gives you all possible combinations of the postal code with the corresponding district and city names.'
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: string
+        enum:
+        - cityLookup
+        - districtLookup
+    atAutocompleteGeocode:
+      name: at
+      description: 'Specify the center of the search context expressed as coordinates.
+
+
+        Format: `{latitude},{longitude}`
+
+
+        Type: `{decimal},{decimal}`
+
+
+        Example: `-13.163068,-72.545128` (Machu Picchu Mountain, Peru)
+
+        '
       in: query
       required: false
       schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 100
-        default: 20
+        type: string
     addressNamesVariantGeocode:
       name: addressNamesVariant
       description: 'The deep‑object parameter enables the API to return different variants of the component names in the GS7 results.
@@ -373,34 +365,24 @@ components:
 
 
               - `administrative`: Returns the administrative name for the selected component in the address result. This option is currently supported **only in the USA**.'
-    addressNamesMode:
-      name: addressNamesMode
-      description: 'This option allows users to choose between displaying normalized or matched address fields in the response,
+    showTranslations:
+      name: showTranslations
+      description: 'Shows translations and alternative names of the provided fields in all available languages.
 
-        affecting the names in the address block, the address label, and the result title.
 
-        This option is relevant when there is a difference between administrative naming and postal or common naming conventions, or when addressing with alternative street names.
-
-        By default, geocoding results provide matched names for administrative places and normalized (official) names for street names.
+        This parameter accepts comma separated list of allowed fields for which translations are required.
 
 
         Description of supported values:
 
 
-        - `matched`: The service returns matched names for address fields.
+        - `city`: shows alternative names and translations available for address field `city`
 
-        - `normalized`: The service returns normalized (primary) names for address fields.'
-      in: query
-      explode: false
-      required: false
-      schema:
-        type: string
-        enum:
-        - matched
-        - normalized
-    showNavAttributes:
-      name: showNavAttributes
-      description: "Return requested additional attributes for segments in a road network if `showNavAttributes` parameter is specified with valid value and relevant data is available.\n\nThe value is a comma-separated list of the sections to be enabled.\n\nDescription of supported values:\n\n- `access`: Return the vehicle types allowed on a road or lane.\n- `functionalClass`: Return the functional class which is used to classify roads depending on the speed, importance and connectivity of the road.\n- `physical`: Return the values to describe special physical characteristics of a road.\n- `speedLimits`: Include speed limit and travel direction of the road in the results where available in content and when requested by the client application.\n\n  Note on `speedLimits`:\n  - The feature is not supported in Japan.\n  - This feature is subject to premium pricing. For details, contact your HERE customer representative."
+        - `county`: shows alternative names and translations available for address field `county`
+
+        - `district`: shows alternative names and translations available for address field `district`
+
+        - `state`: shows alternative names and translations available for address field `state`'
       in: query
       explode: false
       required: false
@@ -409,11 +391,45 @@ components:
         items:
           type: string
           enum:
-          - access
-          - functionalClass
-          - physical
-          - speedLimits
+          - city
+          - county
+          - district
+          - state
+    typesGeocode:
+      name: types
+      description: "A comma-separated list of the types that should be included in the response.\n\nIf this parameter is not set, all types are considered for the response.\n\nDescription of supported values:\n\n- `address`: restricting results to result types `houseNumber`, `street`, `postalCodePoint`, `intersection`, or `addressBlock`\n- `area`: restricting results to result types `locality` or `administrativeArea` including all the sub-types\n- `city`: restricting results to result type `locality` and locality type `city`\n- `houseNumber`: restricting results to result type: `houseNumber`, including house number types `PA` (Point Address), `MPA` (Micro Point Address) and\n  `interpolated`, including exact house number matches and house number fallbacks\n- `place`: restricting results to result type `place`\n- `postalCode`: restricting results to postal codes: either result type `postalCodePoint` or result type `locality` with locality type `postalCode`.\n\n    Note that in Ireland and Singapore, where each address has unique postal code,\n    `postalCodePoint` results are replaced by `houseNumber` results.\n- `street`: restricting results to result type `street`"
+      in: query
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - address
+          - area
+          - city
+          - houseNumber
+          - place
+          - postalCode
+          - street
   schemas:
+    MicroPointAddressSection:
+      type: object
+      required:
+      - hmcId
+      properties:
+        hmcId:
+          type: string
+          description: The micro point address ID in HERE Map Content
+        partitionId:
+          type: string
+          description: '**ALPHA**
+
+
+            Unique identifier that references a specific subset of geo-location related layers
+
+            (e.g., address, location, street, or place) in the HERE Map Content'
     RelatedAddress:
       type: object
       required:
@@ -499,74 +515,6 @@ components:
           description: 'Return the map references of the location objects. It is only returned by Reverse Geocode endpoint
 
             or Multi-Reverse Geocode endpoint.'
-    MapView:
-      type: object
-      required:
-      - west
-      - south
-      - east
-      - north
-      properties:
-        west:
-          type: number
-          format: double
-          description: 'Longitude of the western-side of the box. For example: "8.80068"'
-        south:
-          type: number
-          format: double
-          description: 'Latitude of the southern-side of the box. For example: "52.19333"'
-        east:
-          type: number
-          format: double
-          description: 'Longitude of the eastern-side of the box. For example: "8.8167"'
-        north:
-          type: number
-          format: double
-          description: 'Latitude of the northern-side of the box. For example: "52.19555"'
-    Name:
-      type: object
-      required:
-      - value
-      - type
-      properties:
-        value:
-          type: string
-          description: The text value of this name.
-        language:
-          type: string
-          description: The [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) language code.
-        type:
-          type: string
-          enum:
-          - abbreviation
-          - areaCode
-          - baseName
-          - exonym
-          - shortened
-          - synonym
-          description: 'The type of this name.
-
-
-            Description of supported values:
-
-
-            - `abbreviation`: Abbreviation is a shortened form of the official name.  For example, "CA" for "California". Abbreviation may also be an area code.
-
-            - `areaCode`: Area code is a code representation of an admin. For example for countries this can be an ISO-3 or ISO-2 Code: "USA", "US" for "United States".
-
-            - `baseName`: Base name represents the official name in one of the country official languages. For example, "Frankfurt am Main".
-
-            - `exonym`: Exonym is a translation of the official name to a language that is not one of the country official languages. For example "Francfort-sur-le-Main" for "Frankfurt am Main".
-
-            - `shortened`: A shortened variant of a long name where optional parts are omitted. For example, "Bad Soden" for "Bad Soden am Taunus".
-
-            - `synonym`: A synonym is an additional commonly used name that is different than the official name, in the same language as the official name. For example, "Frankfurt" for "Frankfurt am Main".'
-        primary:
-          type: boolean
-          description: Flag indicating whether it is a primary name. This is the name which is exposed in the result by default. This field is visible only when the value is `true`.
-        transliterated:
-          type: boolean
-          description: Flag indicating whether the name is transliterated. Additional transliterated form of the name is included for all non-Latin-1 names. This field is visible only when the value is `true`.
     MapReferenceSection:
       type: object
       properties:
@@ -621,133 +569,103 @@ components:
           allOf:
           - $ref: '#/components/schemas/CmVersionSection'
           description: cmVerison info in HERE Map Content
-    BasicAccessPoint:
-      type: object
-      required:
-      - lat
-      - lng
-      properties:
-        lat:
-          type: number
-          format: double
-          description: 'Latitude of the address. For example: `"52.19404"`'
-        lng:
-          type: number
-          format: double
-          description: 'Longitude of the address. For example: `"8.80135"`'
-    RelatedResultAddress:
+    Physical:
       type: object
       properties:
-        label:
-          type: string
-          description: 'Assembled address value built out of the address components according to the regional postal rules.
+        boatFerry:
+          type: boolean
+          description: 'The segment represents a generalised route of a boat ferry for passengers or vehicles over water,
 
-            These are the same rules for all endpoints. It may not include all the input terms.'
-        countryCode:
-          type: string
-          description: 'A three-letter country code. For example: "DEU"'
-        countryName:
-          type: string
-          description: 'The localised country name. For example: "Deutschland"'
-        stateCode:
-          type: string
-          description: 'A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.'
-        state:
-          type: string
-          description: 'The state division of a country. For example: "North Rhine-Westphalia"'
-        countyCode:
-          type: string
-          description: 'A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.'
-        county:
-          type: string
-          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
-        city:
-          type: string
-          description: 'The name of the primary locality of the place. For example: "Bad Oyenhausen"'
-        district:
-          type: string
-          description: 'A division of city; typically an administrative unit within a larger city or a customary name of a city''s neighborhood. For example: "Bad Oyenhausen"'
-        subdistrict:
-          type: string
-          description: 'A subdivision of a district. For example: "Minden-Lübbecke"'
-        street:
-          type: string
-          description: 'Name of street. For example: "Schulstrasse"'
-        streets:
-          type: array
-          items:
-            type: string
-          description: 'Names of streets in case of intersection result. For example: ["Friedrichstraße","Unter den Linden"]'
-        block:
-          type: string
-          description: Name of block.
-        subblock:
-          type: string
-          description: Name of sub-block.
-        postalCode:
-          type: string
-          description: 'An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"'
-        houseNumber:
-          type: string
-          description: 'House number. For example: "4"'
-        building:
-          type: string
-          description: Name of building.
-        unit:
-          type: string
-          description: 'defining a Micro Point Address. Combines unit name (suite, flat, etc.), level name (floor) and
-
-            building unit name for a Micro Point Address'
-    SpeedLimit:
-      type: object
-      required:
-      - maxSpeed
-      - speedUnit
-      properties:
-        maxSpeed:
-          type: integer
-          format: int32
-          description: Used in combination with speed limit unit to indicate allowable speed limit at a location, for unlimited speed, the value is "999"
-        direction:
-          type: string
-          enum:
-          - E
-          - N
-          - NE
-          - NW
-          - S
-          - SE
-          - SW
-          - W
-          description: Rendered in compass value, which is N, S, E, W, NE, SE, NW, SW
-        speedUnit:
-          type: string
-          enum:
-          - kph
-          - mph
-          description: Country defined speed unit
-        source:
-          type: string
-          enum:
-          - derived
-          - posted
-          description: 'A generalised identification of the source of `Speed Limit` information.
+            including routes to pedestrian only islands, tourist areas, commuter ferry routes open to only pedestrians, etc.
 
 
-            Description of supported values:
+            - `true`: The road is a boat ferry.
+
+            - `false`: The road isn''t a boat ferry.'
+        bridge:
+          type: boolean
+          description: 'Identifies a structure that allows a road, railway, or walkway to pass over another road,
+
+            railway, waterway, or valley serving map display and route guidance functionalities.
 
 
-            - `derived`: Based on administrative regulations, for example: highway exit/entry ramps that do not have posted speed limits.
+            - `true`: The road is a bridge.
 
-            - `posted`: Based on a posted speed limit sign, speed limit information painted on the road, or data obtained from official sources.'
-    MicroPointAddressSection:
+            - `false`: The road isn''t a bridge.'
+        deliveryRoad:
+          type: boolean
+          description: 'Indication of a delivery road.
+
+
+            - `true`: The physical characteristic of the road is that it functions as a delivery road.
+
+            - `false`: The physical characteristic of the road is that it doesn''t function as a delivery road.'
+        movableBridge:
+          type: boolean
+          description: 'Movable Bridge indicates a bridge that moves to allow passage (usually) for boats or barges.
+
+
+            - `true`: The road is a movable bridge.
+
+            - `false`: The road isn''t a movable bridge.
+
+            '
+        multiplyDigitized:
+          type: boolean
+          description: 'Multiply Digitised identifies separately digitised roads, i.e., roads that are digitised with one line per
+
+            direction of traffic instead of one line per road.
+
+
+            - `true`: The physical characteristic of the road is that it functions as multiplyDigitized.
+
+            - `false`: The physical characteristic of the road is that it doesn''t function as multiplyDigitized.'
+        paved:
+          type: boolean
+          description: 'Indicates whether the navigable segment is paved.
+
+
+            - `true`: The physical characteristic of the road is paved.
+
+            - `false`: The physical characteristic of the road isn''t paved.'
+        private:
+          type: boolean
+          description: 'Private identifies roads that are not maintained by an organisation responsible for maintenance of
+
+            public roads.
+
+
+            - `true`: The road is private..
+
+            - `false`: The road isn''t private.'
+        railFerry:
+          type: boolean
+          description: 'The segment represents a generalised route of a ferry for passengers or vehicles via rail.
+
+
+            - `true`: The road is a rail flerry.
+
+            - `false`: The road isn''t a rail flerry.
+
+            '
+        tunnel:
+          type: boolean
+          description: 'Identifies an enclosed (on all sides) passageway through or under an obstruction.
+
+
+            - `true`: The road is a tunnel.
+
+            - `false`: The road isn''t a tunnel.
+
+            '
+    PointAddressSection:
       type: object
       required:
       - hmcId
       properties:
         hmcId:
           type: string
-          description: The micro point address ID in HERE Map Content
+          description: The point address ID in HERE Map Content
         partitionId:
           type: string
           description: '**ALPHA**
@@ -756,95 +674,59 @@ components:
             Unique identifier that references a specific subset of geo-location related layers
 
             (e.g., address, location, street, or place) in the HERE Map Content'
-    TimeZoneInfo:
+    Category:
       type: object
       required:
-      - name
-      - utcOffset
+      - id
       properties:
+        id:
+          type: string
+          description: 'Identifier number for an associated category. For example: `"600-6600-0082"`'
         name:
           type: string
-          description: 'The name of the time zone as defined in the [tz database](https://en.wikipedia.org/wiki/Tz_database). For example: "Europe/Berlin"'
-        utcOffset:
-          type: string
-          description: The UTC offset for this time zone at request time. For example "+02:00"
-    CountryInfo:
-      type: object
-      properties:
-        alpha2:
-          type: string
-          description: '[ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code'
-        alpha3:
-          type: string
-          description: '[ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country code'
-    SecondaryUnitInfo:
+          description: Name of the place category in the result item language.
+        primary:
+          type: boolean
+          description: Whether or not it is a primary category. This field is visible only when the value is `true`.
+    FunctionalClass:
       type: object
       required:
-      - normalizedUnitType
-      - unitValue
+      - value
       properties:
-        normalizedUnitType:
+        value:
           type: string
-          description: The secondary unit designator is provided in a normalized, country-specific format. If the secondary unit designator is omitted or unrecognized, it is returned as "unknown".
-        unitValue:
-          type: string
-          description: The unit value in normalized form. It may be empty when secondary unit designator has no unit value, for example "Basement".
-    PostalCodeDetails_Usps_ZipPlus4:
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          description: '
+
+
+            Description of supported values:
+
+
+            - `1`: allowing for high volume, maximum speed traffic movement
+
+            - `2`: allowing for high volume, high speed traffic movement
+
+            - `3`: providing a high volume of traffic movement
+
+            - `4`: providing for a high volume of traffic movement at moderate speeds between neighbourhoods
+
+            - `5`: roads whose volume and traffic movement are below the level of any functional class'
+    AddressUsage:
       type: object
       required:
-      - postalCode
+      - usageType
       properties:
-        postalCode:
-          type: string
-          description: The postal code.
-        postalEntity:
+        usageType:
           type: string
           enum:
-          - USPS
-          description: 'The postal entity. This could be a governmental authority, a regulatory authority, or a designated postal operator.
-
-
-            Description of supported values:
-
-
-            - `USPS`: The USPS postal code system.'
-        postalCodeType:
-          type: string
-          enum:
-          - ZIP+4
-          description: 'The postal code type. Currently supported values: `ZIP` and `ZIP+4`
-
-
-            Description of supported values:
-
-
-            - `ZIP+4`: Nine-digit code that identifies a small geographic delivery area that is serviceable by a single carrier; appears in the last line of the address on a mail piece.'
-        recordTypeCode:
-          type: string
-          enum:
-          - F
-          - G
-          - H
-          - P
-          - R
-          - S
-          description: 'The USPS ZIP+4 Record Type Code.
-
-
-            Description of supported values:
-
-
-            - `F`: Firm
-
-            - `G`: General delivery
-
-            - `H`: High-rise
-
-            - `P`: PO Box
-
-            - `R`: Rural route/contract
-
-            - `S`: Street'
+          - nonResidential
+          - residential
+          description: A flag specifying whether the address is residential. (only rendered if `show=addressUsage` is provided.)
     GeocodeResultItem:
       type: object
       required:
@@ -1049,6 +931,105 @@ components:
             allOf:
             - $ref: '#/components/schemas/SecondaryUnitInfo'
           description: Secondary unit designator and unit value for each secondary unit recognized in the query in normalized country specific form (only returned if `show=secondaryUnitInfo` is provided.)
+    FieldScore:
+      type: object
+      properties:
+        country:
+          type: number
+          format: double
+          description: Indicates how good the result country name or [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
+        countryCode:
+          type: number
+          format: double
+          description: Indicates how good the result [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
+        state:
+          type: number
+          format: double
+          description: Indicates how good the result state name matches to the freeform or qualified input.
+        stateCode:
+          type: number
+          format: double
+          description: Indicates how good the result state code matches to the freeform or qualified input.
+        county:
+          type: number
+          format: double
+          description: Indicates how good the result county name matches to the freeform or qualified input.
+        countyCode:
+          type: number
+          format: double
+          description: Indicates how good the result county code matches to the freeform or qualified input.
+        city:
+          type: number
+          format: double
+          description: Indicates how good the result city name matches to the freeform or qualified input.
+        district:
+          type: number
+          format: double
+          description: Indicates how good the result district name matches to the freeform or qualified input.
+        subdistrict:
+          type: number
+          format: double
+          description: Indicates how good the result sub-district name matches to the freeform or qualified input.
+        streets:
+          type: array
+          items:
+            type: number
+            format: double
+          description: 'Indicates how good the result street names match to the freeform or qualified input. If the input
+
+            contains multiple street names, the field score is calculated and returned for each of them
+
+            individually.'
+        block:
+          type: number
+          format: double
+          description: Indicates how good the result block name matches to the freeform or qualified input.
+        subblock:
+          type: number
+          format: double
+          description: Indicates how good the result sub-block name matches to the freeform or qualified input.
+        houseNumber:
+          type: number
+          format: double
+          description: 'Indicates how good the result house number matches to the freeform or qualified input. It may
+
+            happen, that the house number, which one is looking for, is not yet in the map data. For such cases,
+
+            the Geocode endpoint returns the nearest known house number on the same street. This represents the
+
+            numeric difference between the requested and the returned house numbers.'
+        postalCode:
+          type: number
+          format: double
+          description: Indicates how good the result postal code matches to the freeform or qualified input.
+        building:
+          type: number
+          format: double
+          description: Indicates how good the result building name matches to the freeform or qualified input.
+        unit:
+          type: number
+          format: double
+          description: Indicates whether a secondary unit (such as building, floor or suite) has been recognized in the freeform or qualified input.
+        placeName:
+          type: number
+          format: double
+          description: Indicates how good the result place name matches to the freeform or qualified input.
+        ontologyName:
+          type: number
+          format: double
+          description: Indicates how good the result ontology name matches to the freeform or qualified input.
+    CmVersionSection:
+      type: object
+      required:
+      - region
+      - dvn
+      properties:
+        region:
+          type: string
+          description: Region ID
+        dvn:
+          type: string
+          description: "Map version details (DVN) containing the base line for the map schema and an identifier for the weekly or quarterly update.\n\n- Format: YYQ<weekly/quaterly update>\n  - Example: 23150 (map schema: Q1/2023, weekly update 50)\n"
     Parsing:
       type: object
       properties:
@@ -1142,309 +1123,60 @@ components:
             allOf:
             - $ref: '#/components/schemas/MatchInfo'
           description: Additional information extracted from the query that do not correspond to any recognized address components in the map data.
-    PointAddressSection:
+    SpeedLimit:
       type: object
       required:
-      - hmcId
+      - maxSpeed
+      - speedUnit
       properties:
-        hmcId:
-          type: string
-          description: The point address ID in HERE Map Content
-        partitionId:
-          type: string
-          description: '**ALPHA**
-
-
-            Unique identifier that references a specific subset of geo-location related layers
-
-            (e.g., address, location, street, or place) in the HERE Map Content'
-    LinkInfoSection:
-      type: object
-      required:
-      - cmId
-      - side
-      properties:
-        cmId:
-          type: string
-          description: link ID in HERE core map
-        side:
-          type: string
-          description: "The side of the link the attribute is applicable to\n\n- for `resultType=houseNumber` and `resultType=place`: side of the entity to the link\n- for `resultType=street`:\n  - on endpoints *Geocode* and *Lookup*: side of the entity to the link, it is always \"both\"\n  - on endpoints *Reverse Geocode* and *Multi-Reverse Geocode*: relative side from input to the link\n"
-    TranslationsGeocode:
-      type: object
-      properties:
-        stateNames:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AdminNames'
-          description: 'The list of all state names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
-        countyNames:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AdminNames'
-          description: 'The list of all county names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
-        cityNames:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AdminNames'
-          description: 'The list of all city names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
-        districtNames:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AdminNames'
-          description: 'The list of all district names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
-    Segment:
-      type: object
-      properties:
-        ref:
-          type: string
-          description: 'The segment reference follows the format `{segmentId}(#{offset})?`,
-
-            representing its relative position from the result location to a segment.'
-        side:
-          type: string
-          description: "The side of the link the attribute is applicable to\n\n- for `resultType=houseNumber` and `resultType=place`: side of the entity to the link\n- for `resultType=street`:\n  - on endpoints *Geocode* and *Lookup*: side of the entity to the link, it is always \"both\"\n  - on endpoints *Reverse Geocode* and *Multi-Reverse Geocode*: relative side from input to the link\n"
-    PostalCodeDetails_JapanPost:
-      type: object
-      required:
-      - postalCode
-      properties:
-        postalCode:
-          type: string
-          description: '**ALPHA**
-
-
-            7-digit business postal code in `XXX-XXXX` format (separated by dash)'
-        postalEntity:
+        maxSpeed:
+          type: integer
+          format: int32
+          description: Used in combination with speed limit unit to indicate allowable speed limit at a location, for unlimited speed, the value is "999"
+        direction:
           type: string
           enum:
-          - Japan Post
-          description: '**ALPHA**
-
-
-            The postal entity. This could be a governmental authority, a regulatory authority, or a designated postal operator.
+          - E
+          - N
+          - NE
+          - NW
+          - S
+          - SE
+          - SW
+          - W
+          description: Rendered in compass value, which is N, S, E, W, NE, SE, NW, SW
+        speedUnit:
+          type: string
+          enum:
+          - kph
+          - mph
+          description: Country defined speed unit
+        source:
+          type: string
+          enum:
+          - derived
+          - posted
+          description: 'A generalised identification of the source of `Speed Limit` information.
 
 
             Description of supported values:
 
 
-            - **ALPHA** `Japan Post`: Field indicating the data source (fixed as `Japan Post` for Japan)'
-        postalCodeType:
-          type: string
-          enum:
-          - ZIP
-          description: '**ALPHA**
+            - `derived`: Based on administrative regulations, for example: highway exit/entry ramps that do not have posted speed limits.
 
-
-            The postal code type.
-
-
-            Description of supported values:
-
-
-            - **ALPHA** `ZIP`: Field describing the postal code type (fixed as `ZIP` for Japan)'
-        businessName:
-          type: string
-          description: '**ALPHA**
-
-
-            Detailed information specifies company name, building name, floor number, etc. mapped to the corresponding business postal code'
-    Category:
+            - `posted`: Based on a posted speed limit sign, speed limit information painted on the road, or data obtained from official sources.'
+    TimeZoneInfo:
       type: object
       required:
-      - id
+      - name
+      - utcOffset
       properties:
-        id:
-          type: string
-          description: 'Identifier number for an associated category. For example: `"600-6600-0082"`'
         name:
           type: string
-          description: Name of the place category in the result item language.
-        primary:
-          type: boolean
-          description: Whether or not it is a primary category. This field is visible only when the value is `true`.
-    Address:
-      type: object
-      properties:
-        label:
+          description: 'The name of the time zone as defined in the [tz database](https://en.wikipedia.org/wiki/Tz_database). For example: "Europe/Berlin"'
+        utcOffset:
           type: string
-          description: 'Assembled address value built out of the address components according to the regional postal rules.
-
-            These are the same rules for all endpoints. It may not include all the input terms. For example:
-
-            "Schulstraße 4, 32547 Bad Oeynhausen, Germany"'
-        countryCode:
-          type: string
-          description: 'A three-letter country code. For example: "DEU"'
-        countryName:
-          type: string
-          description: 'The localised country name. For example: "Deutschland"'
-        stateCode:
-          type: string
-          description: 'A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.'
-        state:
-          type: string
-          description: 'The state division of a country. For example: "North Rhine-Westphalia"'
-        countyCode:
-          type: string
-          description: 'A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.'
-        county:
-          type: string
-          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
-        city:
-          type: string
-          description: 'The name of the primary locality of the place. For example: "Bad Oyenhausen"'
-        district:
-          type: string
-          description: 'A division of city; typically an administrative unit within a larger city or a customary name of a city''s neighborhood. For example: "Bad Oyenhausen"'
-        subdistrict:
-          type: string
-          description: 'A subdivision of a district. For example: "Minden-Lübbecke"'
-        street:
-          type: string
-          description: 'Name of street. For example: "Schulstrasse"'
-        streets:
-          type: array
-          items:
-            type: string
-          description: 'Names of streets in case of intersection result. For example: ["Friedrichstraße","Unter den Linden"]'
-        block:
-          type: string
-          description: Name of block.
-        subblock:
-          type: string
-          description: Name of sub-block.
-        postalCode:
-          type: string
-          description: 'An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"'
-        houseNumber:
-          type: string
-          description: 'House number. For example: "4"'
-        building:
-          type: string
-          description: Name of building.
-        unit:
-          type: string
-          description: Secondary unit information. It may include building, floor (level), and suite (unit) details. This field is returned by Geocode, Autocomplete, (Multi) Reverse Geocode and Lookup endpoints only.
-    FunctionalClass:
-      type: object
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          enum:
-          - '1'
-          - '2'
-          - '3'
-          - '4'
-          - '5'
-          description: '
-
-
-            Description of supported values:
-
-
-            - `1`: allowing for high volume, maximum speed traffic movement
-
-            - `2`: allowing for high volume, high speed traffic movement
-
-            - `3`: providing a high volume of traffic movement
-
-            - `4`: providing for a high volume of traffic movement at moderate speeds between neighbourhoods
-
-            - `5`: roads whose volume and traffic movement are below the level of any functional class'
-    FieldScore:
-      type: object
-      properties:
-        country:
-          type: number
-          format: double
-          description: Indicates how good the result country name or [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
-        countryCode:
-          type: number
-          format: double
-          description: Indicates how good the result [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
-        state:
-          type: number
-          format: double
-          description: Indicates how good the result state name matches to the freeform or qualified input.
-        stateCode:
-          type: number
-          format: double
-          description: Indicates how good the result state code matches to the freeform or qualified input.
-        county:
-          type: number
-          format: double
-          description: Indicates how good the result county name matches to the freeform or qualified input.
-        countyCode:
-          type: number
-          format: double
-          description: Indicates how good the result county code matches to the freeform or qualified input.
-        city:
-          type: number
-          format: double
-          description: Indicates how good the result city name matches to the freeform or qualified input.
-        district:
-          type: number
-          format: double
-          description: Indicates how good the result district name matches to the freeform or qualified input.
-        subdistrict:
-          type: number
-          format: double
-          description: Indicates how good the result sub-district name matches to the freeform or qualified input.
-        streets:
-          type: array
-          items:
-            type: number
-            format: double
-          description: 'Indicates how good the result street names match to the freeform or qualified input. If the input
-
-            contains multiple street names, the field score is calculated and returned for each of them
-
-            individually.'
-        block:
-          type: number
-          format: double
-          description: Indicates how good the result block name matches to the freeform or qualified input.
-        subblock:
-          type: number
-          format: double
-          description: Indicates how good the result sub-block name matches to the freeform or qualified input.
-        houseNumber:
-          type: number
-          format: double
-          description: 'Indicates how good the result house number matches to the freeform or qualified input. It may
-
-            happen, that the house number, which one is looking for, is not yet in the map data. For such cases,
-
-            the Geocode endpoint returns the nearest known house number on the same street. This represents the
-
-            numeric difference between the requested and the returned house numbers.'
-        postalCode:
-          type: number
-          format: double
-          description: Indicates how good the result postal code matches to the freeform or qualified input.
-        building:
-          type: number
-          format: double
-          description: Indicates how good the result building name matches to the freeform or qualified input.
-        unit:
-          type: number
-          format: double
-          description: Indicates whether a secondary unit (such as building, floor or suite) has been recognized in the freeform or qualified input.
-        placeName:
-          type: number
-          format: double
-          description: Indicates how good the result place name matches to the freeform or qualified input.
-        ontologyName:
-          type: number
-          format: double
-          description: Indicates how good the result ontology name matches to the freeform or qualified input.
+          description: The UTC offset for this time zone at request time. For example "+02:00"
     PostalCodeDetails_Usps_Zip:
       type: object
       required:
@@ -1506,22 +1238,158 @@ components:
           type: number
           format: double
           description: 'Longitude of the address. For example: `"8.80135"`'
-    AdminIdSection:
+    SecondaryUnitInfo:
       type: object
       required:
-      - hmcId
+      - normalizedUnitType
+      - unitValue
       properties:
-        hmcId:
+        normalizedUnitType:
           type: string
-          description: Admin ID in HERE Map Content
-        partitionId:
+          description: The secondary unit designator is provided in a normalized, country-specific format. If the secondary unit designator is omitted or unrecognized, it is returned as "unknown".
+        unitValue:
           type: string
-          description: '**ALPHA**
+          description: The unit value in normalized form. It may be empty when secondary unit designator has no unit value, for example "Basement".
+    PostalCodeDetails_Usps_ZipPlus4:
+      type: object
+      required:
+      - postalCode
+      properties:
+        postalCode:
+          type: string
+          description: The postal code.
+        postalEntity:
+          type: string
+          enum:
+          - USPS
+          description: 'The postal entity. This could be a governmental authority, a regulatory authority, or a designated postal operator.
 
 
-            Unique identifier that references a specific subset of geo-location related layers
+            Description of supported values:
 
-            (e.g., address, location, street, or place) in the HERE Map Content'
+
+            - `USPS`: The USPS postal code system.'
+        postalCodeType:
+          type: string
+          enum:
+          - ZIP+4
+          description: 'The postal code type. Currently supported values: `ZIP` and `ZIP+4`
+
+
+            Description of supported values:
+
+
+            - `ZIP+4`: Nine-digit code that identifies a small geographic delivery area that is serviceable by a single carrier; appears in the last line of the address on a mail piece.'
+        recordTypeCode:
+          type: string
+          enum:
+          - F
+          - G
+          - H
+          - P
+          - R
+          - S
+          description: 'The USPS ZIP+4 Record Type Code.
+
+
+            Description of supported values:
+
+
+            - `F`: Firm
+
+            - `G`: General delivery
+
+            - `H`: High-rise
+
+            - `P`: PO Box
+
+            - `R`: Rural route/contract
+
+            - `S`: Street'
+    BasicAccessPoint:
+      type: object
+      required:
+      - lat
+      - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: 'Latitude of the address. For example: `"52.19404"`'
+        lng:
+          type: number
+          format: double
+          description: 'Longitude of the address. For example: `"8.80135"`'
+    NavigationAttributes:
+      type: object
+      properties:
+        speedLimits:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SpeedLimit'
+          description: 'Speed limit for the navigable road following the direction of traffic on the street. If traffic is allowed in both directions
+
+            two value sets will be returned. If the request contained a bearing parameter, then the first entry will match the returned
+
+            direction.'
+        functionalClass:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/FunctionalClass'
+          description: 'The value represents one of the five levels:'
+        access:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Access'
+          description: 'The following boolean values are available for access attributes:'
+        physical:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Physical'
+          description: 'The following boolean values are available for physical attributes:'
+    TranslationsGeocode:
+      type: object
+      properties:
+        stateNames:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminNames'
+          description: 'The list of all state names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
+        countyNames:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminNames'
+          description: 'The list of all county names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
+        cityNames:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminNames'
+          description: 'The list of all city names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
+        districtNames:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminNames'
+          description: 'The list of all district names and translations applicable to an address field, grouped by alternative views on it. For example, if subdivision of a country from administrative and postal views is different, some administrative levels may have two groups of names: from administrative and from postal views.'
+    LinkInfoSection:
+      type: object
+      required:
+      - cmId
+      - side
+      properties:
+        cmId:
+          type: string
+          description: link ID in HERE core map
+        side:
+          type: string
+          description: "The side of the link the attribute is applicable to\n\n- for `resultType=houseNumber` and `resultType=place`: side of the entity to the link\n- for `resultType=street`:\n  - on endpoints *Geocode* and *Lookup*: side of the entity to the link, it is always \"both\"\n  - on endpoints *Reverse Geocode* and *Multi-Reverse Geocode*: relative side from input to the link\n"
     OpenSearchGeocodeResponse:
       type: object
       required:
@@ -1533,6 +1401,17 @@ components:
             allOf:
             - $ref: '#/components/schemas/GeocodeResultItem'
           description: The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+    Segment:
+      type: object
+      properties:
+        ref:
+          type: string
+          description: 'The segment reference follows the format `{segmentId}(#{offset})?`,
+
+            representing its relative position from the result location to a segment.'
+        side:
+          type: string
+          description: "The side of the link the attribute is applicable to\n\n- for `resultType=houseNumber` and `resultType=place`: side of the entity to the link\n- for `resultType=street`:\n  - on endpoints *Geocode* and *Lookup*: side of the entity to the link, it is always \"both\"\n  - on endpoints *Reverse Geocode* and *Multi-Reverse Geocode*: relative side from input to the link\n"
     MatchInfo:
       type: object
       required:
@@ -1563,175 +1442,185 @@ components:
           - state
           - street
           description: The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
-    ErrorResponse:
+    PostalCodeDetails_JapanPost:
       type: object
       required:
-      - status
-      - title
-      - correlationId
-      - requestId
+      - postalCode
       properties:
-        status:
-          type: integer
-          format: int32
-          description: The HTTP status code
-        title:
+        postalCode:
           type: string
-          description: Human-readable error description
-        code:
-          type: string
-          description: Error code
-        cause:
-          type: string
-          description: Human-readable explanation for the error
-        action:
-          type: string
-          description: Human-readable action for the user
-        correlationId:
-          type: string
-          description: Auto-generated ID univocally identifying this request
-        requestId:
-          type: string
-          description: Request identifier provided by the user
-    Scoring:
-      type: object
-      properties:
-        queryScore:
-          type: number
-          format: double
-          description: Indicates how good the input matches the returned address. It is equal to 1 if all input tokens are recognized and matched.
-        fieldScore:
-          allOf:
-          - $ref: '#/components/schemas/FieldScore'
-          description: 'Indicates how good the individual result fields match to the corresponding part of the query. Is
-
-            included only for the result fields that are actually matched to the query.'
-    CmVersionSection:
-      type: object
-      required:
-      - region
-      - dvn
-      properties:
-        region:
-          type: string
-          description: Region ID
-        dvn:
-          type: string
-          description: "Map version details (DVN) containing the base line for the map schema and an identifier for the weekly or quarterly update.\n\n- Format: YYQ<weekly/quaterly update>\n  - Example: 23150 (map schema: Q1/2023, weekly update 50)\n"
-    Physical:
-      type: object
-      properties:
-        boatFerry:
-          type: boolean
-          description: 'The segment represents a generalised route of a boat ferry for passengers or vehicles over water,
-
-            including routes to pedestrian only islands, tourist areas, commuter ferry routes open to only pedestrians, etc.
+          description: '**ALPHA**
 
 
-            - `true`: The road is a boat ferry.
-
-            - `false`: The road isn''t a boat ferry.'
-        bridge:
-          type: boolean
-          description: 'Identifies a structure that allows a road, railway, or walkway to pass over another road,
-
-            railway, waterway, or valley serving map display and route guidance functionalities.
-
-
-            - `true`: The road is a bridge.
-
-            - `false`: The road isn''t a bridge.'
-        deliveryRoad:
-          type: boolean
-          description: 'Indication of a delivery road.
-
-
-            - `true`: The physical characteristic of the road is that it functions as a delivery road.
-
-            - `false`: The physical characteristic of the road is that it doesn''t function as a delivery road.'
-        movableBridge:
-          type: boolean
-          description: 'Movable Bridge indicates a bridge that moves to allow passage (usually) for boats or barges.
-
-
-            - `true`: The road is a movable bridge.
-
-            - `false`: The road isn''t a movable bridge.
-
-            '
-        multiplyDigitized:
-          type: boolean
-          description: 'Multiply Digitised identifies separately digitised roads, i.e., roads that are digitised with one line per
-
-            direction of traffic instead of one line per road.
-
-
-            - `true`: The physical characteristic of the road is that it functions as multiplyDigitized.
-
-            - `false`: The physical characteristic of the road is that it doesn''t function as multiplyDigitized.'
-        paved:
-          type: boolean
-          description: 'Indicates whether the navigable segment is paved.
-
-
-            - `true`: The physical characteristic of the road is paved.
-
-            - `false`: The physical characteristic of the road isn''t paved.'
-        private:
-          type: boolean
-          description: 'Private identifies roads that are not maintained by an organisation responsible for maintenance of
-
-            public roads.
-
-
-            - `true`: The road is private..
-
-            - `false`: The road isn''t private.'
-        railFerry:
-          type: boolean
-          description: 'The segment represents a generalised route of a ferry for passengers or vehicles via rail.
-
-
-            - `true`: The road is a rail flerry.
-
-            - `false`: The road isn''t a rail flerry.
-
-            '
-        tunnel:
-          type: boolean
-          description: 'Identifies an enclosed (on all sides) passageway through or under an obstruction.
-
-
-            - `true`: The road is a tunnel.
-
-            - `false`: The road isn''t a tunnel.
-
-            '
-    AdminNames:
-      type: object
-      required:
-      - names
-      properties:
-        names:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/Name'
-          description: The list of all values for a name. Those might be for different languages or different name types.
-        preference:
+            7-digit business postal code in `XXX-XXXX` format (separated by dash)'
+        postalEntity:
           type: string
           enum:
-          - alternative
-          - primary
-          description: 'The preference of the view on an address field expressed by this group of names.
+          - Japan Post
+          description: '**ALPHA**
+
+
+            The postal entity. This could be a governmental authority, a regulatory authority, or a designated postal operator.
 
 
             Description of supported values:
 
 
-            - `alternative`: Alternative view on this address field. Names of this group are exposed in the result only if matching to the query so that the end-user can better recognize the result.
+            - **ALPHA** `Japan Post`: Field indicating the data source (fixed as `Japan Post` for Japan)'
+        postalCodeType:
+          type: string
+          enum:
+          - ZIP
+          description: '**ALPHA**
 
-            - `primary`: The default or only view on this address filed. These are the names which are exposed in the result by default.'
+
+            The postal code type.
+
+
+            Description of supported values:
+
+
+            - **ALPHA** `ZIP`: Field describing the postal code type (fixed as `ZIP` for Japan)'
+        businessName:
+          type: string
+          description: '**ALPHA**
+
+
+            Detailed information specifies company name, building name, floor number, etc. mapped to the corresponding business postal code'
+    RelatedResultAddress:
+      type: object
+      properties:
+        label:
+          type: string
+          description: 'Assembled address value built out of the address components according to the regional postal rules.
+
+            These are the same rules for all endpoints. It may not include all the input terms.'
+        countryCode:
+          type: string
+          description: 'A three-letter country code. For example: "DEU"'
+        countryName:
+          type: string
+          description: 'The localised country name. For example: "Deutschland"'
+        stateCode:
+          type: string
+          description: 'A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.'
+        state:
+          type: string
+          description: 'The state division of a country. For example: "North Rhine-Westphalia"'
+        countyCode:
+          type: string
+          description: 'A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.'
+        county:
+          type: string
+          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+        city:
+          type: string
+          description: 'The name of the primary locality of the place. For example: "Bad Oyenhausen"'
+        district:
+          type: string
+          description: 'A division of city; typically an administrative unit within a larger city or a customary name of a city''s neighborhood. For example: "Bad Oyenhausen"'
+        subdistrict:
+          type: string
+          description: 'A subdivision of a district. For example: "Minden-Lübbecke"'
+        street:
+          type: string
+          description: 'Name of street. For example: "Schulstrasse"'
+        streets:
+          type: array
+          items:
+            type: string
+          description: 'Names of streets in case of intersection result. For example: ["Friedrichstraße","Unter den Linden"]'
+        block:
+          type: string
+          description: Name of block.
+        subblock:
+          type: string
+          description: Name of sub-block.
+        postalCode:
+          type: string
+          description: 'An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"'
+        houseNumber:
+          type: string
+          description: 'House number. For example: "4"'
+        building:
+          type: string
+          description: Name of building.
+        unit:
+          type: string
+          description: 'defining a Micro Point Address. Combines unit name (suite, flat, etc.), level name (floor) and
+
+            building unit name for a Micro Point Address'
+    StreetInfo:
+      type: object
+      properties:
+        baseName:
+          type: string
+          description: Base name part of the street name.
+        streetType:
+          type: string
+          description: Street type part of the street name.
+        streetTypePrecedes:
+          type: boolean
+          description: Defines if the street type is before or after the base name.
+        streetTypeAttached:
+          type: boolean
+          description: Defines if the street type is attached or unattached to the base name.
+        prefix:
+          type: string
+          description: A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+        suffix:
+          type: string
+          description: A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+        direction:
+          type: string
+          description: Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+        language:
+          type: string
+          description: BCP 47 compliant language code
+    Name:
+      type: object
+      required:
+      - value
+      - type
+      properties:
+        value:
+          type: string
+          description: The text value of this name.
+        language:
+          type: string
+          description: The [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) language code.
+        type:
+          type: string
+          enum:
+          - abbreviation
+          - areaCode
+          - baseName
+          - exonym
+          - shortened
+          - synonym
+          description: 'The type of this name.
+
+
+            Description of supported values:
+
+
+            - `abbreviation`: Abbreviation is a shortened form of the official name.  For example, "CA" for "California". Abbreviation may also be an area code.
+
+            - `areaCode`: Area code is a code representation of an admin. For example for countries this can be an ISO-3 or ISO-2 Code: "USA", "US" for "United States".
+
+            - `baseName`: Base name represents the official name in one of the country official languages. For example, "Frankfurt am Main".
+
+            - `exonym`: Exonym is a translation of the official name to a language that is not one of the country official languages. For example "Francfort-sur-le-Main" for "Frankfurt am Main".
+
+            - `shortened`: A shortened variant of a long name where optional parts are omitted. For example, "Bad Soden" for "Bad Soden am Taunus".
+
+            - `synonym`: A synonym is an additional commonly used name that is different than the official name, in the same language as the official name. For example, "Frankfurt" for "Frankfurt am Main".'
+        primary:
+          type: boolean
+          description: Flag indicating whether it is a primary name. This is the name which is exposed in the result by default. This field is visible only when the value is `true`.
+        transliterated:
+          type: boolean
+          description: Flag indicating whether the name is transliterated. Additional transliterated form of the name is included for all non-Latin-1 names. This field is visible only when the value is `true`.
     Access:
       type: object
       properties:
@@ -1845,75 +1734,186 @@ components:
             - `false`: The road doesn''t allow trucks.
 
             '
-    AddressUsage:
+    AdminIdSection:
       type: object
       required:
-      - usageType
+      - hmcId
       properties:
-        usageType:
+        hmcId:
+          type: string
+          description: Admin ID in HERE Map Content
+        partitionId:
+          type: string
+          description: '**ALPHA**
+
+
+            Unique identifier that references a specific subset of geo-location related layers
+
+            (e.g., address, location, street, or place) in the HERE Map Content'
+    MapView:
+      type: object
+      required:
+      - west
+      - south
+      - east
+      - north
+      properties:
+        west:
+          type: number
+          format: double
+          description: 'Longitude of the western-side of the box. For example: "8.80068"'
+        south:
+          type: number
+          format: double
+          description: 'Latitude of the southern-side of the box. For example: "52.19333"'
+        east:
+          type: number
+          format: double
+          description: 'Longitude of the eastern-side of the box. For example: "8.8167"'
+        north:
+          type: number
+          format: double
+          description: 'Latitude of the northern-side of the box. For example: "52.19555"'
+    Scoring:
+      type: object
+      properties:
+        queryScore:
+          type: number
+          format: double
+          description: Indicates how good the input matches the returned address. It is equal to 1 if all input tokens are recognized and matched.
+        fieldScore:
+          allOf:
+          - $ref: '#/components/schemas/FieldScore'
+          description: 'Indicates how good the individual result fields match to the corresponding part of the query. Is
+
+            included only for the result fields that are actually matched to the query.'
+    CountryInfo:
+      type: object
+      properties:
+        alpha2:
+          type: string
+          description: '[ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code'
+        alpha3:
+          type: string
+          description: '[ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) country code'
+    Address:
+      type: object
+      properties:
+        label:
+          type: string
+          description: 'Assembled address value built out of the address components according to the regional postal rules.
+
+            These are the same rules for all endpoints. It may not include all the input terms. For example:
+
+            "Schulstraße 4, 32547 Bad Oeynhausen, Germany"'
+        countryCode:
+          type: string
+          description: 'A three-letter country code. For example: "DEU"'
+        countryName:
+          type: string
+          description: 'The localised country name. For example: "Deutschland"'
+        stateCode:
+          type: string
+          description: 'A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.'
+        state:
+          type: string
+          description: 'The state division of a country. For example: "North Rhine-Westphalia"'
+        countyCode:
+          type: string
+          description: 'A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.'
+        county:
+          type: string
+          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+        city:
+          type: string
+          description: 'The name of the primary locality of the place. For example: "Bad Oyenhausen"'
+        district:
+          type: string
+          description: 'A division of city; typically an administrative unit within a larger city or a customary name of a city''s neighborhood. For example: "Bad Oyenhausen"'
+        subdistrict:
+          type: string
+          description: 'A subdivision of a district. For example: "Minden-Lübbecke"'
+        street:
+          type: string
+          description: 'Name of street. For example: "Schulstrasse"'
+        streets:
+          type: array
+          items:
+            type: string
+          description: 'Names of streets in case of intersection result. For example: ["Friedrichstraße","Unter den Linden"]'
+        block:
+          type: string
+          description: Name of block.
+        subblock:
+          type: string
+          description: Name of sub-block.
+        postalCode:
+          type: string
+          description: 'An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"'
+        houseNumber:
+          type: string
+          description: 'House number. For example: "4"'
+        building:
+          type: string
+          description: Name of building.
+        unit:
+          type: string
+          description: Secondary unit information. It may include building, floor (level), and suite (unit) details. This field is returned by Geocode, Autocomplete, (Multi) Reverse Geocode and Lookup endpoints only.
+    ErrorResponse:
+      type: object
+      required:
+      - status
+      - title
+      - correlationId
+      - requestId
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code
+        title:
+          type: string
+          description: Human-readable error description
+        code:
+          type: string
+          description: Error code
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+        action:
+          type: string
+          description: Human-readable action for the user
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+        requestId:
+          type: string
+          description: Request identifier provided by the user
+    AdminNames:
+      type: object
+      required:
+      - names
+      properties:
+        names:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Name'
+          description: The list of all values for a name. Those might be for different languages or different name types.
+        preference:
           type: string
           enum:
-          - nonResidential
-          - residential
-          description: A flag specifying whether the address is residential. (only rendered if `show=addressUsage` is provided.)
-    NavigationAttributes:
-      type: object
-      properties:
-        speedLimits:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/SpeedLimit'
-          description: 'Speed limit for the navigable road following the direction of traffic on the street. If traffic is allowed in both directions
+          - alternative
+          - primary
+          description: 'The preference of the view on an address field expressed by this group of names.
 
-            two value sets will be returned. If the request contained a bearing parameter, then the first entry will match the returned
 
-            direction.'
-        functionalClass:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/FunctionalClass'
-          description: 'The value represents one of the five levels:'
-        access:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/Access'
-          description: 'The following boolean values are available for access attributes:'
-        physical:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/Physical'
-          description: 'The following boolean values are available for physical attributes:'
-    StreetInfo:
-      type: object
-      properties:
-        baseName:
-          type: string
-          description: Base name part of the street name.
-        streetType:
-          type: string
-          description: Street type part of the street name.
-        streetTypePrecedes:
-          type: boolean
-          description: Defines if the street type is before or after the base name.
-        streetTypeAttached:
-          type: boolean
-          description: Defines if the street type is attached or unattached to the base name.
-        prefix:
-          type: string
-          description: A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
-        suffix:
-          type: string
-          description: A suffix is a directional identifier that follows, but is not included in, the base name of a road.
-        direction:
-          type: string
-          description: Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
-        language:
-          type: string
-          description: BCP 47 compliant language code
+            Description of supported values:
+
+
+            - `alternative`: Alternative view on this address field. Names of this group are exposed in the result only if matching to the query so that the end-user can better recognize the result.
+
+            - `primary`: The default or only view on this address filed. These are the names which are exposed in the result by default.'
   securitySchemes:
     Bearer:
       description: 'A token obtained from a separate endpoint using client credentials and an OAuth 1.0a HMAC-SHA256 signed request.

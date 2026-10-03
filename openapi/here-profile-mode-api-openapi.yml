@@ -87,26 +87,35 @@ paths:
                 $ref: '#/components/schemas/ErrorMessage'
 components:
   schemas:
-    TollTransponders:
-      type: string
-      enum:
-      - all
-    LicensePlate:
-      description: 'Specifies the information about the vehicle''s license plate number.
+    Profile:
+      type: object
+      description: 'A profile specifies predefined request options that can be used for matrix routing in
 
-        This information is used to evaluate whether certain vehicle restrictions in environmental zones apply.
-
-        Currently, only the last character of the license plate can be provided.
+        the whole world.
 
         '
-      type: object
       properties:
-        lastCharacter:
-          description: Specifies the last character of the license plate.
+        profileId:
+          description: Unique machine- and human-readable profile ID
           type: string
-          pattern: ^.$
-      example:
-        lastCharacter: '7'
+        departureTime:
+          $ref: '#/components/schemas/DepartureTimeWithAny'
+        routingMode:
+          $ref: '#/components/schemas/RoutingMode'
+        transportMode:
+          $ref: '#/components/schemas/TransportMode'
+        avoid:
+          $ref: '#/components/schemas/Avoid'
+        allow:
+          $ref: '#/components/schemas/Allow'
+        maxSpeedOnSegment:
+          $ref: '#/components/schemas/MaxSpeedOnSegment'
+        exclude:
+          $ref: '#/components/schemas/Exclude'
+        regionDefinition:
+          $ref: '#/components/schemas/RegionDefinition'
+        truck:
+          $ref: '#/components/schemas/Vehicle'
     StateCode:
       description: 'Country code according ISO 3166-1 alpha-3 code and array of its state
 
@@ -119,39 +128,162 @@ components:
         codes:
         - NY
         - PA
-    VehicleType:
-      description: 'Specifies the type of the vehicle
+    AvoidZoneCategories:
+      description: 'Specify avoidance of entire categories of routing zones, with the provision to add individual exceptions.
 
 
-        * `straightTruck`: A truck on a single frame with a permanently attached cargo area. **Note:**
+        **Note**: Zones that don''t apply to the current vehicle aren''t avoided.
 
-        default value when truck routing mode is used.
-
-        * `tractor`: A towing vehicle that can pull one or more semi-trailers (also known as a semi-truck).
-
-
-        **Limitations:** only valid for `transportMode=truck`.
+        Time-dependent zones are avoided only during the validity period.
 
         '
+      type: object
+      required:
+      - categories
+      properties:
+        categories:
+          description: "Items extensible enum: `congestionPricing` `environmental` `vignette` `...`  \nAn array of routing zone categories to avoid.\n"
+          type: array
+          minItems: 1
+          items:
+            type: string
+            x-extensible-enum:
+            - congestionPricing
+            - environmental
+            - vignette
+        exceptZoneIds:
+          description: 'An array of zone identifiers, which will not be taken into account for evaluation of zone categories to avoid
+
+            '
+          type: array
+          minItems: 1
+          items:
+            type: string
+    CountryCode:
+      description: ISO-3166-1 alpha-3 code
+      type: string
+      example: FRA
+    Avoid:
+      description: Avoid routes that violate these properties.
+      type: object
+      properties:
+        features:
+          $ref: '#/components/schemas/AvoidFeatures'
+        areas:
+          $ref: '#/components/schemas/Areas'
+        segments:
+          description: "An array of segment identifiers that routes will avoid going through.\n\nEach entry has the following structure:\n`{segmentId}(#{direction})?`\n\nThe individual parts are:\n* segmentId: The identifier of the referenced topology segment inside the catalog, example: `here:cm:segment:207551710`\n* direction (optional): Either '*' for bidirectional (default), '+' for positive direction, or '-' for negative direction\n\nExample of a parameter value excluding two segments:\n`[\"here:cm:segment:207551710#+\", \"here:cm:segment:76771992#*\"]`\n\n**Notes**: Maximum amount of penalized segments in one request cannot be greater than 1000.\n        \"Penalized segments\" refers to segments that have a restriction on maximum baseSpeed with `maxSpeedOnSegment` or are avoided with `avoid[segments]`.\n"
+          type: array
+          minItems: 1
+          items:
+            type: string
+        zoneIdentifiers:
+          description: "An array of routing zone identifiers that routes will avoid going through.\n\n**Note**: Zones specified by id in this manner are avoided even if their conditions don't apply to the current vehicle.\nTime-dependent zones are avoided by id even outside of the validity period. \n\nFor example the identifier `here:cm:envzone:2` references the `Berlin Umweltzone` environmental zone\n"
+          type: array
+          minItems: 1
+          items:
+            type: string
+        truckRoadTypes:
+          description: 'An array of truck road type identifiers that routes will avoid going through.
+
+
+            A truck road type identifier is associated with roads that have additional regulations applied by local administration for traversal by heavy vehicles like trucks.
+
+            For example, the BK Bearing Class regulations in Sweden, and ET categories in Mexico.
+
+            Identifiers for supported truck road types are specified at HERE Map Content
+
+            [TruckRoadType](https://docs.here.com/map-content/docs/truckroadtypeattribute-truckroadtype).
+
+            '
+          type: array
+          minItems: 1
+          items:
+            type: string
+        tollTransponders:
+          description: 'Specifies that routes should avoid roads where the specified toll transponders are the only payment method.
+
+
+            The value of the parameter is a comma-separated list of transponder systems that the user has. Alternatively,
+
+            the user can also specify `all` as a list element to state they have all required transponders along any potential route.
+
+
+            **Note**: Currently, the only valid value is `all`.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/TollTransponders'
+          example:
+          - all
+        zoneCategories:
+          $ref: '#/components/schemas/AvoidZoneCategories'
+    Area:
+      description: 'Defines an explicit area to avoid/exclude when calculating the routes.
+
+        Areas to be avoided/excluded can be specified by boundingBoxes or polygons (as an encoded polyline or as a list of WGS-84 coordinates).
+
+
+        Notes:
+
+        * Minimum count of coordinates in any single polygon is 3. If less the corresponding error will be returned.
+
+        * Maximum count of coordinates in any single polygon is 16. If more the corresponding error will be returned.
+
+        * Self-intersecting polygons are not supported. If they are present in the request, the corresponding error will be returned.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/BoundingBox'
+      - $ref: '#/components/schemas/Polygon'
+      - $ref: '#/components/schemas/EncodedPolygon'
+      discriminator:
+        propertyName: type
+        mapping:
+          boundingBox: '#/components/schemas/BoundingBox'
+          polygon: '#/components/schemas/Polygon'
+          encodedPolygon: '#/components/schemas/EncodedPolygon'
+    RoutingMode:
+      description: "Specifies which optimization is applied during the calculation.\n\n* `fast`: Route calculation from start to destination optimized by travel time. In many\n  cases, the route returned by `fast` mode may not be the route with the fastest\n  possible travel time. For example, the routing service may favor a route that remains on\n  a highway, even if a faster travel time can be achieved by taking a detour or shortcut\n  through an inconvenient side road.\n* `short`: Route calculation from start to destination disregarding any speed information.\n  In this mode, the distance of the route is minimized, while keeping the route sensible.\n  This includes, for example, penalizing turns. Because of that, the resulting route will\n  not necessarily be the one with minimal distance.\n\nNotes:\n* The following Transport modes only support `fast` routingMode\n  - `bicycle`\n  - `bus`\n  - `pedestrian`\n  - `privateBus`\n  - `scooter`\n  - `taxi`\n"
       type: string
       enum:
-      - straightTruck
-      - tractor
-    DepartureTimeWithAny:
-      description: 'Time of departure at all origins, in ISO 8601 (RFC 3339) format: the time zone offset is required, e.g., `2025-08-06T11:20:00+02:00`
-
-
-        When `departureTime` is not specified, it is implicitly assumed to be the current time.
-
-        The special value `any` enforces non time-aware routing.
-
-
-        In particular, dynamic traffic information is not taken into account in this case and only
-
-        free-flow speeds based on historical traffic are applied.
+      - fast
+      - short
+      default: fast
+    TollTransponders:
+      type: string
+      enum:
+      - all
+    Polygon:
+      type: object
+      description: 'A polygon defined as a list of coordinates.
 
         '
-      type: string
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          enum:
+          - polygon
+        outer:
+          type: array
+          description: 'List of coordinates defining the outline of the polygon.
+
+
+            Notes:
+
+            * The polygon is automatically closed, so repeating the first vertex is not required.
+
+            * Self-intersecting polygons are not supported.
+
+            '
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          minItems: 3
+          maxItems: 100
     BoundingBox:
       type: object
       description: A bounding box defined by two longitudes and two latitudes.
@@ -186,23 +318,56 @@ components:
           type: number
           minimum: -180
           maximum: 180
-    Coordinate:
+    DepartureTimeWithAny:
+      description: 'Time of departure at all origins, in ISO 8601 (RFC 3339) format: the time zone offset is required, e.g., `2025-08-06T11:20:00+02:00`
+
+
+        When `departureTime` is not specified, it is implicitly assumed to be the current time.
+
+        The special value `any` enforces non time-aware routing.
+
+
+        In particular, dynamic traffic information is not taken into account in this case and only
+
+        free-flow speeds based on historical traffic are applied.
+
+        '
+      type: string
+    World:
       type: object
+      description: 'Unbounded region referring to the whole world.
+
+
+        The world region is only supported when a predefined profile is specified and no other
+
+        options are provided. For more information, refer to the documentation of the `profile`
+
+        request parameter.
+
+        '
       required:
-      - lat
-      - lng
+      - type
       properties:
-        lat:
-          type: number
-          format: double
-          description: Latitude in WGS-84 degrees.
-        lng:
-          type: number
-          format: double
-          description: Longitude in WGS-84 degrees.
-      example:
-        lat: 52.53787
-        lng: 13.40896
+        type:
+          type: string
+          enum:
+          - world
+    EncodedPolygon:
+      type: object
+      description: 'A [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string that defines the outline of the polygon.
+
+        '
+      required:
+      - type
+      - outer
+      properties:
+        type:
+          type: string
+          enum:
+          - encodedPolygon
+        outer:
+          type: string
+          description: "A [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string that defines the outline of the polygon.\n\nNotes:\n * Support only 2D polyline (without `elevation` specified).\n * Minimum count of vertices in polygon is 3.\n * Maximum count of vertices in polygon is 100.\n * The polygon is automatically closed, so repeating the first vertex is not required.\n * Self-intersecting polygons are not supported.\n"
     Vehicle:
       type: object
       properties:
@@ -570,456 +735,6 @@ components:
           type: boolean
         type:
           $ref: '#/components/schemas/VehicleType'
-    WeightPerAxleGroup:
-      description: 'Specifies the weights of different axle groups, like single and tandem axles.
-
-
-        This allows specification of axle weights in a more fine-grained way than `weightPerAxle`. This
-
-        is relevant in countries with signs and regulations that specify different limits for different
-
-        axle groups, like the USA and Sweden.
-
-
-        Weights are specified in kilograms (kg) and are the total weight of the axle group.
-
-
-        **Note:** `weightPerAxleGroup` and `weightPerAxle` are incompatible.
-
-        '
-      type: object
-      properties:
-        single:
-          description: single axle group
-          type: integer
-          format: int32
-          minimum: 0
-        tandem:
-          description: tandem axle group
-          type: integer
-          format: int32
-          minimum: 0
-        triple:
-          description: triple axle group
-          type: integer
-          format: int32
-          minimum: 0
-        quad:
-          description: quad axle group
-          type: integer
-          format: int32
-          minimum: 0
-        quint:
-          description: quint axle group
-          type: integer
-          format: int32
-          minimum: 0
-      example:
-        single: 11000
-        tandem: 18000
-    AvoidFeatures:
-      description: "`\"avoid\": {\"features\": [...]}`: Array of features avoided during matrix calculation.\n Available avoid feature options:\n  * `seasonalClosure`\n  * `tollRoad`\n  * `controlledAccessHighway`\n  * `ferry`\n  * `carShuttleTrain`\n  * `tunnel`\n  * `dirtRoad`\n  * `difficultTurns`: **Deprecated** (see Notes for details). This option avoids difficult turns, sharp turns and U-turns on multi-digitized roads, intersections and stopover-type waypoints. It is only supported for the `truck` transport mode.\n  * `uTurns`: This option avoids U-turns on multi-digitized roads, intersections and stopover-type waypoints. It is not supported for pedestrian, bicycle and scooter transport modes.\n\n    **Notes**\n      - Using `avoid[features]=tollRoad` is not recommended for large vehicles, e.g., trucks or buses.\n      - `avoid[features]=difficultTurns` is currently deprecated and will be ignored in the future. Using `avoid[features]=difficultTurns` together with `avoid[features]=controlledAccessHighway` or `avoid[features]=tollRoads` is not recommended, as it may lead to routes which could include difficult turns.\n"
-      type: array
-      uniqueItems: true
-      items:
-        type: string
-        enum:
-        - seasonalClosure
-        - tollRoad
-        - controlledAccessHighway
-        - ferry
-        - carShuttleTrain
-        - tunnel
-        - dirtRoad
-        - difficultTurns
-        - uTurns
-    RoutingMode:
-      description: "Specifies which optimization is applied during the calculation.\n\n* `fast`: Route calculation from start to destination optimized by travel time. In many\n  cases, the route returned by `fast` mode may not be the route with the fastest\n  possible travel time. For example, the routing service may favor a route that remains on\n  a highway, even if a faster travel time can be achieved by taking a detour or shortcut\n  through an inconvenient side road.\n* `short`: Route calculation from start to destination disregarding any speed information.\n  In this mode, the distance of the route is minimized, while keeping the route sensible.\n  This includes, for example, penalizing turns. Because of that, the resulting route will\n  not necessarily be the one with minimal distance.\n\nNotes:\n* The following Transport modes only support `fast` routingMode\n  - `bicycle`\n  - `bus`\n  - `pedestrian`\n  - `privateBus`\n  - `scooter`\n  - `taxi`\n"
-      type: string
-      enum:
-      - fast
-      - short
-      default: fast
-    Polygon:
-      type: object
-      description: 'A polygon defined as a list of coordinates.
-
-        '
-      required:
-      - type
-      - outer
-      properties:
-        type:
-          type: string
-          enum:
-          - polygon
-        outer:
-          type: array
-          description: 'List of coordinates defining the outline of the polygon.
-
-
-            Notes:
-
-            * The polygon is automatically closed, so repeating the first vertex is not required.
-
-            * Self-intersecting polygons are not supported.
-
-            '
-          items:
-            $ref: '#/components/schemas/Coordinate'
-          minItems: 3
-          maxItems: 100
-    CountryCode:
-      description: ISO-3166-1 alpha-3 code
-      type: string
-      example: FRA
-    Avoid:
-      description: Avoid routes that violate these properties.
-      type: object
-      properties:
-        features:
-          $ref: '#/components/schemas/AvoidFeatures'
-        areas:
-          $ref: '#/components/schemas/Areas'
-        segments:
-          description: "An array of segment identifiers that routes will avoid going through.\n\nEach entry has the following structure:\n`{segmentId}(#{direction})?`\n\nThe individual parts are:\n* segmentId: The identifier of the referenced topology segment inside the catalog, example: `here:cm:segment:207551710`\n* direction (optional): Either '*' for bidirectional (default), '+' for positive direction, or '-' for negative direction\n\nExample of a parameter value excluding two segments:\n`[\"here:cm:segment:207551710#+\", \"here:cm:segment:76771992#*\"]`\n\n**Notes**: Maximum amount of penalized segments in one request cannot be greater than 1000.\n        \"Penalized segments\" refers to segments that have a restriction on maximum baseSpeed with `maxSpeedOnSegment` or are avoided with `avoid[segments]`.\n"
-          type: array
-          minItems: 1
-          items:
-            type: string
-        zoneIdentifiers:
-          description: "An array of routing zone identifiers that routes will avoid going through.\n\n**Note**: Zones specified by id in this manner are avoided even if their conditions don't apply to the current vehicle.\nTime-dependent zones are avoided by id even outside of the validity period. \n\nFor example the identifier `here:cm:envzone:2` references the `Berlin Umweltzone` environmental zone\n"
-          type: array
-          minItems: 1
-          items:
-            type: string
-        truckRoadTypes:
-          description: 'An array of truck road type identifiers that routes will avoid going through.
-
-
-            A truck road type identifier is associated with roads that have additional regulations applied by local administration for traversal by heavy vehicles like trucks.
-
-            For example, the BK Bearing Class regulations in Sweden, and ET categories in Mexico.
-
-            Identifiers for supported truck road types are specified at HERE Map Content
-
-            [TruckRoadType](https://docs.here.com/map-content/docs/truckroadtypeattribute-truckroadtype).
-
-            '
-          type: array
-          minItems: 1
-          items:
-            type: string
-        tollTransponders:
-          description: 'Specifies that routes should avoid roads where the specified toll transponders are the only payment method.
-
-
-            The value of the parameter is a comma-separated list of transponder systems that the user has. Alternatively,
-
-            the user can also specify `all` as a list element to state they have all required transponders along any potential route.
-
-
-            **Note**: Currently, the only valid value is `all`.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/TollTransponders'
-          example:
-          - all
-        zoneCategories:
-          $ref: '#/components/schemas/AvoidZoneCategories'
-    Area:
-      description: 'Defines an explicit area to avoid/exclude when calculating the routes.
-
-        Areas to be avoided/excluded can be specified by boundingBoxes or polygons (as an encoded polyline or as a list of WGS-84 coordinates).
-
-
-        Notes:
-
-        * Minimum count of coordinates in any single polygon is 3. If less the corresponding error will be returned.
-
-        * Maximum count of coordinates in any single polygon is 16. If more the corresponding error will be returned.
-
-        * Self-intersecting polygons are not supported. If they are present in the request, the corresponding error will be returned.
-
-        '
-      oneOf:
-      - $ref: '#/components/schemas/BoundingBox'
-      - $ref: '#/components/schemas/Polygon'
-      - $ref: '#/components/schemas/EncodedPolygon'
-      discriminator:
-        propertyName: type
-        mapping:
-          boundingBox: '#/components/schemas/BoundingBox'
-          polygon: '#/components/schemas/Polygon'
-          encodedPolygon: '#/components/schemas/EncodedPolygon'
-    AutoCircle:
-      type: object
-      description: 'Region definition variant defining an automatically derived circle.
-
-
-        The resulting circle contains all origins and destinations with a margin.
-
-        '
-      required:
-      - type
-      properties:
-        type:
-          type: string
-          enum:
-          - autoCircle
-        margin:
-          description: 'The minimal distance in meters between a given origin or destination and the perimeter
-
-            of the region.
-
-            '
-          type: integer
-          maximum: 200000
-          default: 10000
-        maxRadius:
-          description: 'Allows for limiting the radius (in meters) of the `autoCircle` to be used. The `autoCircle` will try to include most waypoints sent in the request.
-
-            Any waypoints that are outside of the generated `autoCircle` will not be used for travel time or distance calculations. Instead, the `errorCodes` field of the response will contain a value of 4 for the affected entries of the matrix.
-
-            The `maxRadius` does not include the margin specified, and `maxRadius` + `margin` must be less than or equal to 200000.
-
-            '
-          type: integer
-          maximum: 200000
-    World:
-      type: object
-      description: 'Unbounded region referring to the whole world.
-
-
-        The world region is only supported when a predefined profile is specified and no other
-
-        options are provided. For more information, refer to the documentation of the `profile`
-
-        request parameter.
-
-        '
-      required:
-      - type
-      properties:
-        type:
-          type: string
-          enum:
-          - world
-    AvoidZoneCategories:
-      description: 'Specify avoidance of entire categories of routing zones, with the provision to add individual exceptions.
-
-
-        **Note**: Zones that don''t apply to the current vehicle aren''t avoided.
-
-        Time-dependent zones are avoided only during the validity period.
-
-        '
-      type: object
-      required:
-      - categories
-      properties:
-        categories:
-          description: "Items extensible enum: `congestionPricing` `environmental` `vignette` `...`  \nAn array of routing zone categories to avoid.\n"
-          type: array
-          minItems: 1
-          items:
-            type: string
-            x-extensible-enum:
-            - congestionPricing
-            - environmental
-            - vignette
-        exceptZoneIds:
-          description: 'An array of zone identifiers, which will not be taken into account for evaluation of zone categories to avoid
-
-            '
-          type: array
-          minItems: 1
-          items:
-            type: string
-    TransportMode:
-      type: string
-      description: 'Depending on the transport mode special constraints, speed attributes and weights are
-
-        taken into account during route calculation.
-
-
-        * `car`: Route calculation for cars.
-
-        * `truck`: Route calculation for trucks. This mode considers truck access- and physical limitations. It also
-
-        uses different speed assumptions when calculating the route.
-
-        * `pedestrian`: Route calculation for pedestrians.
-
-        * `bicycle`: Route calculation for bicycles.
-
-        * `taxi`: Route calculation for taxis. This mode takes into account taxi restricted streets as well as streets
-
-        reserved for exclusive taxi access. It does not, however, consider exclusive lanes in otherwise shared streets.
-
-        Also, the taxi exclusive streets are used only if either the origin or destination are on them.
-
-        * `scooter`: Route calculation for scooters. This mode takes into account roads that are allowed for scooters,
-
-        however dedicated scooter lanes are not supported. It does not consider highways, unless the special parameter
-
-        `allowHighway` is provided.
-
-        * `bus`: Route calculation for buses that are allowed to drive through the bus-only roads.
-
-        * `privateBus`: Route calculation for buses that are not allowed to drive through the bus-only roads.
-
-
-        Note:
-
-        `bicycle`, `bus` and `privateBus` modes are currently provided as Beta, with limited functionality.
-
-        Please refer to the Developer Guide for more details [here](https://docs.here.com/routing/docs/routing-v8-transport-modes-overview).
-
-        '
-      enum:
-      - car
-      - truck
-      - pedestrian
-      - bicycle
-      - taxi
-      - scooter
-      - bus
-      - privateBus
-      default: car
-    Areas:
-      description: 'List of explicit areas to avoid/exclude when calculating the routes.
-
-
-        Notes:
-
-        * Maximum count of avoided and excluded polygons is 20.
-
-        * Maximum total count of avoided and excluded bounding boxes and polygons is 250.
-
-        '
-      type: array
-      maxItems: 250
-      items:
-        $ref: '#/components/schemas/Area'
-      example:
-      - type: polygon
-        outer:
-        - lat: 35.821612
-          lng: 139.530864
-        - lat: 35.775531
-          lng: 139.502459
-        - lat: 35.775531
-          lng: 139.559269
-      - type: boundingBox
-        north: 35.808034
-        south: 35.776278
-        west: 139.491693
-        east: 139.532521
-      - type: encodedPolygon
-        outer: BG8mnlkD6-9wZAmrR19DAAlrR
-    Exclude:
-      type: object
-      description: 'Defines properties which will be strictly excluded from route calculation.
-
-
-        Note - Exclude options guarantees exclusion, but doesn''t guarantee
-
-        finding a route.
-
-        '
-      properties:
-        countries:
-          description: 'A list of three-letter country codes (ISO-3166-1 alpha-3 code) that
-
-            routes will exclude.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/CountryCode'
-        states:
-          description: "A list of state codes specifying states that should be excluded\nfrom routing. Each entry consists of a 3-letter country code\n(ISO 3166-1 alpha-3) and a list of 1-3 character alphanumeric codes\nrepresenting subdivision region (ISO 3166-2).\n\nFor example, to exclude USA's New York, Pennsylvania states and\nCanada's Quebec state\n  [\n      {\n        \"country\": \"CAN\",\n        \"codes\": [\"QC\"]\n      },\n      {\n        \"country\": \"USA\",\n        \"codes\": [\"NY\", \"PA\"]\n      }\n  ]\n\nNote - Exclude states guarantees exclusion, but doesn't guarantee\nfinding a route.\n"
-          type: array
-          items:
-            $ref: '#/components/schemas/StateCode'
-        areas:
-          $ref: '#/components/schemas/Areas'
-    RegionDefinition:
-      description: 'Definition of a region in which the matrix will be calculated.
-
-
-        Only the data **inside** of the region will be used for the calculation of the matrix. All
-
-        origins and destinations outside of the region are considered as invalid. The corresponding
-
-        values in the response matrix will be undefined.
-
-
-        If the region diameter is too large (cf. corresponding limits), the calculation will not be
-
-        done and an error will be returned by the service.
-
-
-        The special variant `world` is used to enable calculation of matrices with routes of
-
-        arbitrary length. Additionally, a profile can be selected from the list of supported
-
-        predefined profiles. For more information, refer to the documentation of the `profile`
-
-        request parameter.
-
-        '
-      oneOf:
-      - $ref: '#/components/schemas/Circle'
-      - $ref: '#/components/schemas/BoundingBox'
-      - $ref: '#/components/schemas/Polygon'
-      - $ref: '#/components/schemas/AutoCircle'
-      - $ref: '#/components/schemas/World'
-      discriminator:
-        propertyName: type
-        mapping:
-          circle: '#/components/schemas/Circle'
-          boundingBox: '#/components/schemas/BoundingBox'
-          polygon: '#/components/schemas/Polygon'
-          autoCircle: '#/components/schemas/AutoCircle'
-          world: '#/components/schemas/World'
-      example:
-        type: circle
-        center:
-          lat: 52.53787
-          lng: 13.40896
-        radius: 10000
-    EncodedPolygon:
-      type: object
-      description: 'A [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string that defines the outline of the polygon.
-
-        '
-      required:
-      - type
-      - outer
-      properties:
-        type:
-          type: string
-          enum:
-          - encodedPolygon
-        outer:
-          type: string
-          description: "A [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoded string that defines the outline of the polygon.\n\nNotes:\n * Support only 2D polyline (without `elevation` specified).\n * Minimum count of vertices in polygon is 3.\n * Maximum count of vertices in polygon is 100.\n * The polygon is automatically closed, so repeating the first vertex is not required.\n * Self-intersecting polygons are not supported.\n"
-    Allow:
-      description: Explicitly allow features that require users to opt in.
-      type: object
-      properties:
-        hov:
-          description: "This parameter specifies whether HOV lanes can be used in the calculation.\n\nAn HOV (High occupancy Vehicle) lane or carpool lane is reserved for carpool usage.\nCarpool lane requires a minimum number of passengers in order for the car to use the\ncarpool lane.\n\n**Note**:\n  - This parameter should be used with `vehicle[occupancy]`. If `vehicle[occupancy]` is set, then only HOV lanes allowing this number of occupants will be allowed. If `vehicle[occupancy]` is not set, occupancy requirements are always considered fulfilled.\n"
-          type: boolean
-          default: false
-        hot:
-          description: "This parameter specifies whether HOT lanes can be used in the calculation.\n\nHOT (high-occupancy toll) lanes are HOV lanes where vehicles that do not qualify as high-occupancy are allowed to pass by paying a toll.\n\n**Notes**:\n  - This parameter can be used with `allow[hov]`.\n  - No toll information is returned for HOT lanes since it is dynamic information.\n"
-          type: boolean
-          default: false
     ErrorMessage:
       type: object
       required:
@@ -1230,48 +945,112 @@ components:
           type: integer
           minimum: 0
           maximum: 200000
-    Profile:
+    Exclude:
       type: object
-      description: 'A profile specifies predefined request options that can be used for matrix routing in
+      description: 'Defines properties which will be strictly excluded from route calculation.
 
-        the whole world.
+
+        Note - Exclude options guarantees exclusion, but doesn''t guarantee
+
+        finding a route.
 
         '
       properties:
-        profileId:
-          description: Unique machine- and human-readable profile ID
-          type: string
-        departureTime:
-          $ref: '#/components/schemas/DepartureTimeWithAny'
-        routingMode:
-          $ref: '#/components/schemas/RoutingMode'
-        transportMode:
-          $ref: '#/components/schemas/TransportMode'
-        avoid:
-          $ref: '#/components/schemas/Avoid'
-        allow:
-          $ref: '#/components/schemas/Allow'
-        maxSpeedOnSegment:
-          $ref: '#/components/schemas/MaxSpeedOnSegment'
-        exclude:
-          $ref: '#/components/schemas/Exclude'
-        regionDefinition:
-          $ref: '#/components/schemas/RegionDefinition'
-        truck:
-          $ref: '#/components/schemas/Vehicle'
-    AuthError:
-      description: Error object reported in case of authentication or authorization errors.
+        countries:
+          description: 'A list of three-letter country codes (ISO-3166-1 alpha-3 code) that
+
+            routes will exclude.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryCode'
+        states:
+          description: "A list of state codes specifying states that should be excluded\nfrom routing. Each entry consists of a 3-letter country code\n(ISO 3166-1 alpha-3) and a list of 1-3 character alphanumeric codes\nrepresenting subdivision region (ISO 3166-2).\n\nFor example, to exclude USA's New York, Pennsylvania states and\nCanada's Quebec state\n  [\n      {\n        \"country\": \"CAN\",\n        \"codes\": [\"QC\"]\n      },\n      {\n        \"country\": \"USA\",\n        \"codes\": [\"NY\", \"PA\"]\n      }\n  ]\n\nNote - Exclude states guarantees exclusion, but doesn't guarantee\nfinding a route.\n"
+          type: array
+          items:
+            $ref: '#/components/schemas/StateCode'
+        areas:
+          $ref: '#/components/schemas/Areas'
+    TransportMode:
+      type: string
+      description: 'Depending on the transport mode special constraints, speed attributes and weights are
+
+        taken into account during route calculation.
+
+
+        * `car`: Route calculation for cars.
+
+        * `truck`: Route calculation for trucks. This mode considers truck access- and physical limitations. It also
+
+        uses different speed assumptions when calculating the route.
+
+        * `pedestrian`: Route calculation for pedestrians.
+
+        * `bicycle`: Route calculation for bicycles.
+
+        * `taxi`: Route calculation for taxis. This mode takes into account taxi restricted streets as well as streets
+
+        reserved for exclusive taxi access. It does not, however, consider exclusive lanes in otherwise shared streets.
+
+        Also, the taxi exclusive streets are used only if either the origin or destination are on them.
+
+        * `scooter`: Route calculation for scooters. This mode takes into account roads that are allowed for scooters,
+
+        however dedicated scooter lanes are not supported. It does not consider highways, unless the special parameter
+
+        `allowHighway` is provided.
+
+        * `bus`: Route calculation for buses that are allowed to drive through the bus-only roads.
+
+        * `privateBus`: Route calculation for buses that are not allowed to drive through the bus-only roads.
+
+
+        Note:
+
+        `bicycle`, `bus` and `privateBus` modes are currently provided as Beta, with limited functionality.
+
+        Please refer to the Developer Guide for more details [here](https://docs.here.com/routing/docs/routing-v8-transport-modes-overview).
+
+        '
+      enum:
+      - car
+      - truck
+      - pedestrian
+      - bicycle
+      - taxi
+      - scooter
+      - bus
+      - privateBus
+      default: car
+    Allow:
+      description: Explicitly allow features that require users to opt in.
       type: object
       properties:
-        error:
-          type: string
-          description: Error message
-        error_description:
-          type: string
-          description: Detailed information about the error
-      example:
-        error: Unauthorized
-        error_description: ApiKey invalid. ApiKey not found.
+        hov:
+          description: "This parameter specifies whether HOV lanes can be used in the calculation.\n\nAn HOV (High occupancy Vehicle) lane or carpool lane is reserved for carpool usage.\nCarpool lane requires a minimum number of passengers in order for the car to use the\ncarpool lane.\n\n**Note**:\n  - This parameter should be used with `vehicle[occupancy]`. If `vehicle[occupancy]` is set, then only HOV lanes allowing this number of occupants will be allowed. If `vehicle[occupancy]` is not set, occupancy requirements are always considered fulfilled.\n"
+          type: boolean
+          default: false
+        hot:
+          description: "This parameter specifies whether HOT lanes can be used in the calculation.\n\nHOT (high-occupancy toll) lanes are HOV lanes where vehicles that do not qualify as high-occupancy are allowed to pass by paying a toll.\n\n**Notes**:\n  - This parameter can be used with `allow[hov]`.\n  - No toll information is returned for HOT lanes since it is dynamic information.\n"
+          type: boolean
+          default: false
+    AvoidFeatures:
+      description: "`\"avoid\": {\"features\": [...]}`: Array of features avoided during matrix calculation.\n Available avoid feature options:\n  * `seasonalClosure`\n  * `tollRoad`\n  * `controlledAccessHighway`\n  * `ferry`\n  * `carShuttleTrain`\n  * `tunnel`\n  * `dirtRoad`\n  * `difficultTurns`: **Deprecated** (see Notes for details). This option avoids difficult turns, sharp turns and U-turns on multi-digitized roads, intersections and stopover-type waypoints. It is only supported for the `truck` transport mode.\n  * `uTurns`: This option avoids U-turns on multi-digitized roads, intersections and stopover-type waypoints. It is not supported for pedestrian, bicycle and scooter transport modes.\n\n    **Notes**\n      - Using `avoid[features]=tollRoad` is not recommended for large vehicles, e.g., trucks or buses.\n      - `avoid[features]=difficultTurns` is currently deprecated and will be ignored in the future. Using `avoid[features]=difficultTurns` together with `avoid[features]=controlledAccessHighway` or `avoid[features]=tollRoads` is not recommended, as it may lead to routes which could include difficult turns.\n"
+      type: array
+      uniqueItems: true
+      items:
+        type: string
+        enum:
+        - seasonalClosure
+        - tollRoad
+        - controlledAccessHighway
+        - ferry
+        - carShuttleTrain
+        - tunnel
+        - dirtRoad
+        - difficultTurns
+        - uTurns
     MaxSpeedOnSegment:
       type: array
       items:
@@ -1304,6 +1083,227 @@ components:
         or are avoided with `avoid[segments]`
 
         '
+    Coordinate:
+      type: object
+      required:
+      - lat
+      - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          description: Latitude in WGS-84 degrees.
+        lng:
+          type: number
+          format: double
+          description: Longitude in WGS-84 degrees.
+      example:
+        lat: 52.53787
+        lng: 13.40896
+    AutoCircle:
+      type: object
+      description: 'Region definition variant defining an automatically derived circle.
+
+
+        The resulting circle contains all origins and destinations with a margin.
+
+        '
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - autoCircle
+        margin:
+          description: 'The minimal distance in meters between a given origin or destination and the perimeter
+
+            of the region.
+
+            '
+          type: integer
+          maximum: 200000
+          default: 10000
+        maxRadius:
+          description: 'Allows for limiting the radius (in meters) of the `autoCircle` to be used. The `autoCircle` will try to include most waypoints sent in the request.
+
+            Any waypoints that are outside of the generated `autoCircle` will not be used for travel time or distance calculations. Instead, the `errorCodes` field of the response will contain a value of 4 for the affected entries of the matrix.
+
+            The `maxRadius` does not include the margin specified, and `maxRadius` + `margin` must be less than or equal to 200000.
+
+            '
+          type: integer
+          maximum: 200000
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
+    Areas:
+      description: 'List of explicit areas to avoid/exclude when calculating the routes.
+
+
+        Notes:
+
+        * Maximum count of avoided and excluded polygons is 20.
+
+        * Maximum total count of avoided and excluded bounding boxes and polygons is 250.
+
+        '
+      type: array
+      maxItems: 250
+      items:
+        $ref: '#/components/schemas/Area'
+      example:
+      - type: polygon
+        outer:
+        - lat: 35.821612
+          lng: 139.530864
+        - lat: 35.775531
+          lng: 139.502459
+        - lat: 35.775531
+          lng: 139.559269
+      - type: boundingBox
+        north: 35.808034
+        south: 35.776278
+        west: 139.491693
+        east: 139.532521
+      - type: encodedPolygon
+        outer: BG8mnlkD6-9wZAmrR19DAAlrR
+    RegionDefinition:
+      description: 'Definition of a region in which the matrix will be calculated.
+
+
+        Only the data **inside** of the region will be used for the calculation of the matrix. All
+
+        origins and destinations outside of the region are considered as invalid. The corresponding
+
+        values in the response matrix will be undefined.
+
+
+        If the region diameter is too large (cf. corresponding limits), the calculation will not be
+
+        done and an error will be returned by the service.
+
+
+        The special variant `world` is used to enable calculation of matrices with routes of
+
+        arbitrary length. Additionally, a profile can be selected from the list of supported
+
+        predefined profiles. For more information, refer to the documentation of the `profile`
+
+        request parameter.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/Circle'
+      - $ref: '#/components/schemas/BoundingBox'
+      - $ref: '#/components/schemas/Polygon'
+      - $ref: '#/components/schemas/AutoCircle'
+      - $ref: '#/components/schemas/World'
+      discriminator:
+        propertyName: type
+        mapping:
+          circle: '#/components/schemas/Circle'
+          boundingBox: '#/components/schemas/BoundingBox'
+          polygon: '#/components/schemas/Polygon'
+          autoCircle: '#/components/schemas/AutoCircle'
+          world: '#/components/schemas/World'
+      example:
+        type: circle
+        center:
+          lat: 52.53787
+          lng: 13.40896
+        radius: 10000
+    WeightPerAxleGroup:
+      description: 'Specifies the weights of different axle groups, like single and tandem axles.
+
+
+        This allows specification of axle weights in a more fine-grained way than `weightPerAxle`. This
+
+        is relevant in countries with signs and regulations that specify different limits for different
+
+        axle groups, like the USA and Sweden.
+
+
+        Weights are specified in kilograms (kg) and are the total weight of the axle group.
+
+
+        **Note:** `weightPerAxleGroup` and `weightPerAxle` are incompatible.
+
+        '
+      type: object
+      properties:
+        single:
+          description: single axle group
+          type: integer
+          format: int32
+          minimum: 0
+        tandem:
+          description: tandem axle group
+          type: integer
+          format: int32
+          minimum: 0
+        triple:
+          description: triple axle group
+          type: integer
+          format: int32
+          minimum: 0
+        quad:
+          description: quad axle group
+          type: integer
+          format: int32
+          minimum: 0
+        quint:
+          description: quint axle group
+          type: integer
+          format: int32
+          minimum: 0
+      example:
+        single: 11000
+        tandem: 18000
+    VehicleType:
+      description: 'Specifies the type of the vehicle
+
+
+        * `straightTruck`: A truck on a single frame with a permanently attached cargo area. **Note:**
+
+        default value when truck routing mode is used.
+
+        * `tractor`: A towing vehicle that can pull one or more semi-trailers (also known as a semi-truck).
+
+
+        **Limitations:** only valid for `transportMode=truck`.
+
+        '
+      type: string
+      enum:
+      - straightTruck
+      - tractor
+    LicensePlate:
+      description: 'Specifies the information about the vehicle''s license plate number.
+
+        This information is used to evaluate whether certain vehicle restrictions in environmental zones apply.
+
+        Currently, only the last character of the license plate can be provided.
+
+        '
+      type: object
+      properties:
+        lastCharacter:
+          description: Specifies the last character of the license plate.
+          type: string
+          pattern: ^.$
+      example:
+        lastCharacter: '7'
   headers:
     X-Correlation-Id:
       description: Auto-generated id that univocally identifies the request.

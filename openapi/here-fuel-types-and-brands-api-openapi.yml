@@ -221,15 +221,6 @@ components:
       - cause
       - action
       - correlationId
-    FuelTypes:
-      type: object
-      description: Fuel type list
-      properties:
-        fuelTypes:
-          description: List of available fuel types
-          type: array
-          items:
-            $ref: '#/components/schemas/FuelType'
     FuelBrands:
       type: object
       description: Fuel station brand list
@@ -252,6 +243,15 @@ components:
       example:
         error: Unauthorized
         error_description: ApiKey invalid. ApiKey not found.
+    FuelTypes:
+      type: object
+      description: Fuel type list
+      properties:
+        fuelTypes:
+          description: List of available fuel types
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelType'
     FuelType:
       type: object
       description: Fuel type
@@ -292,6 +292,18 @@ components:
           items:
             $ref: '#/components/schemas/FuelBrand'
   examples:
+    FuelBrandsExample:
+      value:
+        fuelBrands:
+        - 1 Stop
+        - 1-2-3
+        - 1a autoservice
+        - 25 Chasov
+        - 3A Barontini
+        - 4 Petroli
+        - 7-Eleven
+        - Agip
+        - Shell
     FuelTypesExample:
       value:
         fuelTypes:
@@ -319,18 +331,6 @@ components:
           name: Red-Diesel
           parentIds:
           - -2
-    FuelBrandsExample:
-      value:
-        fuelBrands:
-        - 1 Stop
-        - 1-2-3
-        - 1a autoservice
-        - 25 Chasov
-        - 3A Barontini
-        - 4 Petroli
-        - 7-Eleven
-        - Agip
-        - Shell
     InternalServerErrorExample:
       value:
         status: 500
@@ -339,13 +339,13 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: c1281609-7a9a-45d0-8438-f4ac82c4e2c2
-    502errorResponseExample:
+    504errorResponseExample:
       value:
-        title: Bad Gateway
-        status: 502
-        code: E612201
-        cause: Bad Gateway
-        action: Failure of communication with external system.
+        title: Gateway timeout
+        status: 504
+        code: E612101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
         correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     FuelBrandsExample_2:
       value:
@@ -367,14 +367,26 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
-    504errorResponseExample:
+    502errorResponseExample:
       value:
-        title: Gateway timeout
-        status: 504
-        code: E612101
-        cause: Gateway Timeout
-        action: Did not receive a timely response from an upstream server
+        title: Bad Gateway
+        status: 502
+        code: E612201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
         correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+  headers:
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
   responses:
     Error500Response:
       description: API response in case of internal server error
@@ -418,20 +430,6 @@ components:
           example:
             error: Unauthorized
             error_description: No credentials found
-    Error502Response:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
     Error429Response:
       description: API response in case of too many requests
       headers:
@@ -450,20 +448,6 @@ components:
             cause: Request rate limit reached
             action: Retry later, lower the request rate
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
-    Error504Response:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample'
     Error503Response:
       description: API response in case of service unavailable
       headers:
@@ -482,18 +466,34 @@ components:
             cause: Service current not available
             action: Retry later
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
-  headers:
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
   parameters:
     X-Request-Id:
       name: X-Request-Id

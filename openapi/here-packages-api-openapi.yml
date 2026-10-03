@@ -111,7 +111,87 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 components:
+  parameters:
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
   schemas:
+    ModelPackage:
+      required:
+      - fileName
+      type: object
+      properties:
+        id:
+          type: string
+          description: System generated identifier (UUID) for the Package.
+          format: uuid
+          readOnly: true
+          example: 00112233-4455-6677-8899-aabbccddeeff
+        fileName:
+          type: string
+          description: Name of the uploaded .jar file (200 character max length)
+          example: streaming_traffic_analyzer.jar
+        mainClass:
+          type: string
+          description: Main class found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to indicate a default main class, for example. To set this in the Manifest file, the conventional label of 'Main-Class' is expected.
+          readOnly: true
+          example: com.here.Pipeline
+        entryPoints:
+          type: array
+          description: 'Entry points Entry points found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to recommend possible main class choices, for example. To set this in the Manifest file, the label of ''Entry-Point'' (singular) is expected. Note: although the label ''Entry-Point'' is singular, this will provide a list of one or more fully-qualified classnames  (separated by spaces) in the Manifest file.'
+          readOnly: true
+          example: com.here.Pipeline1, com.here.Pipeline2
+          items:
+            type: string
+      description: A Package is JAR file that contains the implementation code of a Pipeline and is used in one or more PipelineTemplates.
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
     ValidationErrorMessage:
       description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
       properties:
@@ -165,86 +245,6 @@ components:
           type: object
       readOnly: true
       type: object
-    ErrorMessage:
-      type: object
-      properties:
-        status:
-          type: integer
-          description: Duplicate of the HTTP status that is returned.
-          format: int32
-          readOnly: true
-          example: 400
-        code:
-          type: string
-          description: Error code that pertains to a specific error.
-          readOnly: true
-          example: E1000
-        message:
-          type: string
-          description: This is the message for the error.
-          readOnly: true
-          example: Validation Failed
-        messageTemplate:
-          type: string
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          readOnly: true
-          example: '{validation.error}'
-        templateOptions:
-          type: object
-          additionalProperties:
-            type: object
-            properties: {}
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-        errors:
-          uniqueItems: true
-          type: array
-          description: Set of validation error messages.
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-      description: HTTP Error message thrown by the service
-    ModelPackage:
-      required:
-      - fileName
-      type: object
-      properties:
-        id:
-          type: string
-          description: System generated identifier (UUID) for the Package.
-          format: uuid
-          readOnly: true
-          example: 00112233-4455-6677-8899-aabbccddeeff
-        fileName:
-          type: string
-          description: Name of the uploaded .jar file (200 character max length)
-          example: streaming_traffic_analyzer.jar
-        mainClass:
-          type: string
-          description: Main class found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to indicate a default main class, for example. To set this in the Manifest file, the conventional label of 'Main-Class' is expected.
-          readOnly: true
-          example: com.here.Pipeline
-        entryPoints:
-          type: array
-          description: 'Entry points Entry points found in the Manifest file of the Package jar file. This is optional and can be utilized by a client to recommend possible main class choices, for example. To set this in the Manifest file, the label of ''Entry-Point'' (singular) is expected. Note: although the label ''Entry-Point'' is singular, this will provide a list of one or more fully-qualified classnames  (separated by spaces) in the Manifest file.'
-          readOnly: true
-          example: com.here.Pipeline1, com.here.Pipeline2
-          items:
-            type: string
-      description: A Package is JAR file that contains the implementation code of a Pipeline and is used in one or more PipelineTemplates.
-  parameters:
-    RequestIdHeaderParam:
-      name: X-Request-ID
-      in: header
-      description: Identifier for a specific http request. If not present, one will be generated.
-      schema:
-        type: string
-    CorrelationIdHeaderParam:
-      name: X-Correlation-ID
-      in: header
-      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
-      schema:
-        type: string
   securitySchemes:
     Bearer:
       type: http

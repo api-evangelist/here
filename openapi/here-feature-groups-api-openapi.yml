@@ -185,104 +185,6 @@ paths:
       - apiKey: []
 components:
   schemas:
-    FeatureGroupWithFeaturesDto:
-      required:
-      - featureGroup
-      type: object
-      properties:
-        featureGroup:
-          $ref: '#/components/schemas/FeatureGroupFeatureDto'
-    FeatureGroupFeatureDto:
-      required:
-      - createdAt
-      - description
-      - features
-      - id
-      - modifiedAt
-      - name
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the feature group.
-          format: uuid
-          example: 878bb615-3fbd-415f-85cf-e496da3596cb
-        name:
-          type: string
-          description: The name of the new feature group.
-          example: New Feature Group
-        description:
-          type: string
-          description: A brief description of the feature.
-          example: Feature Group Description
-        createdAt:
-          type: string
-          description: The date and time when the feature was created.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        modifiedAt:
-          type: string
-          description: The date and time when the feature was last modified.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        features:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/FeatureDto'
-    FeatureGroupDto:
-      required:
-      - createdAt
-      - description
-      - id
-      - modifiedAt
-      - name
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the feature group.
-          format: uuid
-          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
-        name:
-          type: string
-          description: The name of the new feature group.
-          example: New Feature Group
-        description:
-          type: string
-          description: A brief description of the feature group.
-          example: Feature Group Description
-        createdAt:
-          type: string
-          description: The date and time when the feature group was created.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        modifiedAt:
-          type: string
-          description: The date and time when the feature group was last modified.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-    PageFeatureGroupDto:
-      required:
-      - content
-      - totalElements
-      - totalPages
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/FeatureGroupDto'
-        totalElements:
-          type: integer
-          description: Total number of elements
-          format: int64
-          example: 2
-        totalPages:
-          type: integer
-          description: Total number of pages
-          format: int32
-          example: 1
     FeatureDto:
       required:
       - createdAt
@@ -325,20 +227,66 @@ components:
           description: The date and time when the feature was last modified.
           format: date-time
           example: '2023-07-24T17:29:03Z'
-    UnauthorizedErrorResponseDto:
+    FeatureGroupWithFeaturesDto:
       required:
-      - error
-      - error_description
+      - featureGroup
       type: object
       properties:
-        error:
+        featureGroup:
+          $ref: '#/components/schemas/FeatureGroupFeatureDto'
+    PageFeatureGroupDto:
+      required:
+      - content
+      - totalElements
+      - totalPages
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureGroupDto'
+        totalElements:
+          type: integer
+          description: Total number of elements
+          format: int64
+          example: 2
+        totalPages:
+          type: integer
+          description: Total number of pages
+          format: int32
+          example: 1
+    FeatureGroupDto:
+      required:
+      - createdAt
+      - description
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
           type: string
-          description: The error type indicating the request is unauthorized.
-          example: Unauthorized
-        error_description:
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
+        name:
           type: string
-          description: A description providing more details about the unauthorized error.
-          example: No credentials found
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature group.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature group was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature group was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
     ErrorResponseDto:
       required:
       - correlationId
@@ -375,6 +323,58 @@ components:
           type: string
           description: Request identifier provided by the user via `x-request-id` header
           example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+    FeatureGroupFeatureDto:
+      required:
+      - createdAt
+      - description
+      - features
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 878bb615-3fbd-415f-85cf-e496da3596cb
+        name:
+          type: string
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature was created.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
+        features:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureDto'
+    UnauthorizedErrorResponseDto:
+      required:
+      - error
+      - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: The error type indicating the request is unauthorized.
+          example: Unauthorized
+        error_description:
+          type: string
+          description: A description providing more details about the unauthorized error.
+          example: No credentials found
   securitySchemes:
     Bearer:
       type: http

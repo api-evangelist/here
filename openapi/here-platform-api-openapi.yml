@@ -125,6 +125,22 @@ paths:
       x-operation-id-original: API Lookup Service v1 platformAPI
 components:
   schemas:
+    Error:
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Repetition of the HTTP error code
+          format: int32
+        message:
+          type: string
+          description: Short description of the error
+        description:
+          type: string
+          description: Complete description of the error
     API:
       required:
       - api
@@ -147,22 +163,6 @@ components:
           description: 'The base URL to use when constructing HTTP calls to the API. Concatenate the base URL with the API path shown in the API specification. For example, for the ''config'' API''s catalog list endpoint, you would construct the URL as follows: ''https://config.data.api.platform.here.com/config/v1'' + ''/catalogs'' where the first part of the URL is the base URL and the second part is the API path.'
           format: url
           example: https://config.data.api.platform.here.com/config/v1
-    Error:
-      required:
-      - code
-      - message
-      type: object
-      properties:
-        code:
-          type: integer
-          description: Repetition of the HTTP error code
-          format: int32
-        message:
-          type: string
-          description: Short description of the error
-        description:
-          type: string
-          description: Complete description of the error
   securitySchemes:
     Bearer:
       type: apiKey

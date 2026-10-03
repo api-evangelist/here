@@ -566,127 +566,85 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Blob API v2 listKeys
 components:
-  parameters:
-    pageToken:
-      name: pageToken
-      in: query
-      description: If specified, will return the specific page based on the token.
-      schema:
-        type: string
-    multipartToken:
-      name: multipartToken
-      in: path
-      description: The identifier of the multipart upload (token). This token is returned when the multipart upload is initiated.
-      required: true
-      schema:
-        type: string
-    deep:
-      name: deep
-      in: query
-      description: Use deep (recursive) listing of objects instead of hierarchical listing. Deep listing will not produce any common prefixes.
-      schema:
-        type: boolean
-    digestHeader:
-      name: X-HERE-Digest
-      in: header
-      description: "This header can be used as a data integrity check to verify that the data received by the server is the same data that was originally sent by the client. \nThis header specifies the lowercase Hex encoded 32-bit CRC32C checksum of the object or 128-bit MD5 digest or 160-bit SHA1 digest or 256-bit SHA256 digest.\nYou can choose one of the following Secure Hash Algorithms (SHA) or Cyclic Redundancy Check (CRC) checksum algorithms to calculate the digest value:\n  - CRC-32C\n  - MD5\n  - SHA1\n  - SHA256\n\nValue of the header is a combination algorithm name and digest in following format: \"Algorithm:Digest\".\nIf the digest values calculated on the client side doesn't match to the digest on the server side, server generates Bad Request error."
-      schema:
-        type: string
-      example: CRC-32C:f23c6e4e
-    limit:
-      name: limit
-      in: query
-      description: Number of results to return per page.
-      schema:
-        type: integer
-        format: int32
-    key:
-      name: key
-      in: path
-      description: 'The key identifies a specific blob so that you can get that blob''s contents. Key can only contain allowed characters: a-zA-Z0-9.[]=(){}/_-`.'
-      required: true
-      schema:
-        type: string
-        pattern: '[a-zA-Z0-9.\[\]=(){}/_\-]{1,450}'
-        minLength: 1
-        maxLength: 450
-    layerId:
-      name: layerId
-      in: path
-      description: The ID of the parent layer for this blob.
-      required: true
-      schema:
-        type: string
-    parent:
-      name: parent
-      in: query
-      description: Common prefix to a list.
-      schema:
-        type: string
-  responses:
-    RangeNotSatisfiable:
-      description: Request range is not valid - request made from a client has invalid range.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    NotFound:
-      description: Not Found - the specified resource was not found
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    EntityTooLarge:
-      description: Request entity too large - request made from a client is too large to be processed by the server.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    ServerError:
-      description: Server unavailable or internal server error
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ServerError'
-    Forbidden:
-      description: Forbidden - the specific account doesn't have correct privileges to perform the operation
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    Unauthorized:
-      description: Unauthorized - the request didn't provide correct authentication details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    UserError:
-      description: User Error - Invalid input is provided
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
   schemas:
-    MultipartUploadByKeyMetadata:
+    MultipartKeyUploadStatus:
       type: object
       required:
-      - contentType
+      - status
       properties:
-        contentType:
+        status:
           type: string
-          example: application/json
-          description: Content type of the uploaded object.
-        contentEncoding:
+          description: The status of the multipart upload.
+          example: completed
+          enum:
+          - failed
+          - processing
+          - completed
+      description: Describes a status of the multipart upload.
+    PartId:
+      type: object
+      required:
+      - id
+      properties:
+        id:
           type: string
-          example: gzip
-          description: Content encoding of the uploaded object.
-      description: Multipart upload metadata by key
+          description: The identifier assigned by the system to identify the uploaded part.
+          example: 1a6ef....
+    MultipartCompletePayload:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultipartCompletePayloadPart'
+    ServerError:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error.
+          example: Input data failed validation.
+        status:
+          type: integer
+          description: Unexpected Server error.
+          example: 400
+        code:
+          type: string
+          description: Error.
+          example: E215101
+        message:
+          type: string
+          description: Unexpected server error
+          example: Unexpected server error
+        correlationId:
+          type: string
+          description: Unique request ID
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+    MultipartInitResponse:
+      type: object
+      required:
+      - multipartToken
+      properties:
+        multipartToken:
+          type: string
+          description: The identifier of the multipart upload (token).
+          example: 7767cf80...
+      description: The identifier of the multipart upload (token).
+    MultipartCompletePayloadPart:
+      type: object
+      required:
+      - id
+      - number
+      properties:
+        id:
+          type: string
+          description: The identifier assigned by the system to identify the uploaded part. The `id` is returned by the upload part operation after successfully uploading a part.
+          example: 1a6ef....
+        number:
+          type: integer
+          description: The number of the part of the multipart upload. This is the same number used in the `partNumber` parameter in the upload part operation. If an error occurs during upload, do not reuse the `partNumber` when retrying the upload.
+          format: int32
+          example: 1
     KeysListObjectItemResponse:
       type: object
       description: Object or common prefix stored in Object Store layer.
@@ -715,15 +673,20 @@ components:
           enum:
           - object
           - commonPrefix
-    PartId:
+    MultipartUploadByKeyMetadata:
       type: object
       required:
-      - id
+      - contentType
       properties:
-        id:
+        contentType:
           type: string
-          description: The identifier assigned by the system to identify the uploaded part.
-          example: 1a6ef....
+          example: application/json
+          description: Content type of the uploaded object.
+        contentEncoding:
+          type: string
+          example: gzip
+          description: Content encoding of the uploaded object.
+      description: Multipart upload metadata by key
     KeysListResponse:
       type: object
       required:
@@ -737,52 +700,6 @@ components:
           items:
             $ref: '#/components/schemas/KeysListObjectItemResponse'
       description: Paginated response of keys and common prefixes.
-    MultipartKeyUploadStatus:
-      type: object
-      required:
-      - status
-      properties:
-        status:
-          type: string
-          description: The status of the multipart upload.
-          example: completed
-          enum:
-          - failed
-          - processing
-          - completed
-      description: Describes a status of the multipart upload.
-    MultipartInitResponse:
-      type: object
-      required:
-      - multipartToken
-      properties:
-        multipartToken:
-          type: string
-          description: The identifier of the multipart upload (token).
-          example: 7767cf80...
-      description: The identifier of the multipart upload (token).
-    MultipartCompletePayload:
-      type: object
-      properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MultipartCompletePayloadPart'
-    MultipartCompletePayloadPart:
-      type: object
-      required:
-      - id
-      - number
-      properties:
-        id:
-          type: string
-          description: The identifier assigned by the system to identify the uploaded part. The `id` is returned by the upload part operation after successfully uploading a part.
-          example: 1a6ef....
-        number:
-          type: integer
-          description: The number of the part of the multipart upload. This is the same number used in the `partNumber` parameter in the upload part operation. If an error occurs during upload, do not reuse the `partNumber` when retrying the upload.
-          format: int32
-          example: 1
     ValidationError:
       type: object
       required:
@@ -809,30 +726,12 @@ components:
           type: string
           description: Unique request ID
           example: 4199533b-6290-41db-8d79-edf4f4019a74
-    ServerError:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error.
-          example: Input data failed validation.
-        status:
-          type: integer
-          description: Unexpected Server error.
-          example: 400
-        code:
-          type: string
-          description: Error.
-          example: E215101
-        message:
-          type: string
-          description: Unexpected server error
-          example: Unexpected server error
-        correlationId:
-          type: string
-          description: Unique request ID
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
   headers:
+    Content-Type:
+      description: 'A standard MIME type describing the format of the blob data. For more information, see [RFC 2616, section 14.17: Content-Type](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17).'
+      example: application/json
+      schema:
+        type: string
     X-Correlation-ID:
       description: Unique ID to correlate client request with server response.
       schema:
@@ -844,11 +743,6 @@ components:
         type: integer
         format: int64
       example: 325
-    Content-Type:
-      description: 'A standard MIME type describing the format of the blob data. For more information, see [RFC 2616, section 14.17: Content-Type](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17).'
-      example: application/json
-      schema:
-        type: string
     Last-Modified:
       description: Last modified date and time. For more information, see [RFC 3339](https://tools.ietf.org/html/rfc3339) or omitted if the `type` field is `commonPrefix`.
       schema:
@@ -858,6 +752,112 @@ components:
     Content-Encoding:
       description: 'Content-encoding of the object. This header is optional. For more information, see [RFC 2616, section 14.11: Content-Encoding](https://tools.ietf.org/html/rfc2616#section-14.11)'
       example: gzip
+      schema:
+        type: string
+  responses:
+    Forbidden:
+      description: Forbidden - the specific account doesn't have correct privileges to perform the operation
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+    UserError:
+      description: User Error - Invalid input is provided
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    EntityTooLarge:
+      description: Request entity too large - request made from a client is too large to be processed by the server.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+    RangeNotSatisfiable:
+      description: Request range is not valid - request made from a client has invalid range.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+    Unauthorized:
+      description: Unauthorized - the request didn't provide correct authentication details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+    ServerError:
+      description: Server unavailable or internal server error
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
+    NotFound:
+      description: Not Found - the specified resource was not found
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Number of results to return per page.
+      schema:
+        type: integer
+        format: int32
+    key:
+      name: key
+      in: path
+      description: 'The key identifies a specific blob so that you can get that blob''s contents. Key can only contain allowed characters: a-zA-Z0-9.[]=(){}/_-`.'
+      required: true
+      schema:
+        type: string
+        pattern: '[a-zA-Z0-9.\[\]=(){}/_\-]{1,450}'
+        minLength: 1
+        maxLength: 450
+    multipartToken:
+      name: multipartToken
+      in: path
+      description: The identifier of the multipart upload (token). This token is returned when the multipart upload is initiated.
+      required: true
+      schema:
+        type: string
+    deep:
+      name: deep
+      in: query
+      description: Use deep (recursive) listing of objects instead of hierarchical listing. Deep listing will not produce any common prefixes.
+      schema:
+        type: boolean
+    digestHeader:
+      name: X-HERE-Digest
+      in: header
+      description: "This header can be used as a data integrity check to verify that the data received by the server is the same data that was originally sent by the client. \nThis header specifies the lowercase Hex encoded 32-bit CRC32C checksum of the object or 128-bit MD5 digest or 160-bit SHA1 digest or 256-bit SHA256 digest.\nYou can choose one of the following Secure Hash Algorithms (SHA) or Cyclic Redundancy Check (CRC) checksum algorithms to calculate the digest value:\n  - CRC-32C\n  - MD5\n  - SHA1\n  - SHA256\n\nValue of the header is a combination algorithm name and digest in following format: \"Algorithm:Digest\".\nIf the digest values calculated on the client side doesn't match to the digest on the server side, server generates Bad Request error."
+      schema:
+        type: string
+      example: CRC-32C:f23c6e4e
+    parent:
+      name: parent
+      in: query
+      description: Common prefix to a list.
+      schema:
+        type: string
+    layerId:
+      name: layerId
+      in: path
+      description: The ID of the parent layer for this blob.
+      required: true
+      schema:
+        type: string
+    pageToken:
+      name: pageToken
+      in: query
+      description: If specified, will return the specific page based on the token.
       schema:
         type: string
   securitySchemes:

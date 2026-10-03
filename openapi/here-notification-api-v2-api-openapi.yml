@@ -139,17 +139,17 @@ paths:
       x-operation-id-original: Notification API deleteSubscriptions
 components:
   parameters:
+    billingTag:
+      name: billingTag
+      in: query
+      description: Billing Tag
+      schema:
+        type: string
     Authorization:
       name: Authorization
       in: header
       description: User authorization token
       required: false
-      schema:
-        type: string
-    billingTag:
-      name: billingTag
-      in: query
-      description: Billing Tag
       schema:
         type: string
     notificationStreamLayerId:
@@ -160,6 +160,17 @@ components:
       schema:
         type: string
   schemas:
+    DeleteRequest:
+      type: object
+      properties:
+        deleteAll:
+          type: boolean
+        subscriptionIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+            example: 46d1ca2b-cad0-44d1-8a67-099dc08a0d40
     SubscribeRequest:
       type: object
       properties:
@@ -189,17 +200,6 @@ components:
           - SHORT
           - LIST
           - FULL
-    DeleteRequest:
-      type: object
-      properties:
-        deleteAll:
-          type: boolean
-        subscriptionIds:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-            example: 46d1ca2b-cad0-44d1-8a67-099dc08a0d40
     SubscriptionArea:
       type: object
       required:

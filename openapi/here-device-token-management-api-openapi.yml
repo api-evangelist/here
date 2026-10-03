@@ -73,17 +73,6 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: OAuth 2.0 Access Token deleteDeviceToken
 components:
-  headers:
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   schemas:
     ErrorMessage:
       type: object
@@ -119,6 +108,17 @@ components:
         correlationId:
           type: string
           description: The Correlation ID for the request for tracking purposes.
+  headers:
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
   securitySchemes:
     OAuth:
       type: apiKey

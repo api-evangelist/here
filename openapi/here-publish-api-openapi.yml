@@ -223,85 +223,6 @@ paths:
       x-operation-id-original: Publish API v2 uploadPartitions
 components:
   schemas:
-    VersionDependency:
-      type: object
-      properties:
-        direct:
-          type: boolean
-          description: Indicates the type of data dependency. If this value is set to false, this dependency is an indirect dependency. This means that data from this catalog was not directly used by a data processing pipeline to update the current version of the catalog. Instead, the data was only used by upstream pipelines to generate the input data for a data processing pipeline.
-          example: true
-        hrn:
-          type: string
-          description: The HERE Resource Name (HRN) of the catalog that the publication depends on.
-          example: hrn:here:data::olp-here:my-catalog
-        version:
-          type: integer
-          description: The version of the catalog metadata that the publication depends on.
-          format: int64
-          example: 1
-      description: Metadata about any dependencies on other catalogs that the publication may have.
-    PublishPartition:
-      required:
-      - partition
-      - dataHandle
-      type: object
-      properties:
-        partition:
-          type: string
-          pattern: '[a-zA-Z0-9_\-\.:]'
-          description: A key that specifies the partition that the content is related to. It is required. If the layer's partitioning scheme is set to `heretile`, the partition key is the tile key. The maximum length of the partition key is 500 characters.
-          example: '314010583'
-        checksum:
-          type: string
-          description: The checksum of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. The algorithm used to calculate the checksum is user specific. Algorithms that you can use are, for example, MD5 or SHA1. This is not a secure hash, so you should only use it to detect changes in content.
-          format: '[0-9a-fA-F]+'
-          example: ff7494d6f17da702862e550c907c0a91
-        compressedDataSize:
-          type: integer
-          description: The compressed size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. Applicable when Content-Encoding is set to gzip when uploading and downloading data in the Blob API.
-          format: int64
-          example: 152417
-        dataSize:
-          type: integer
-          description: The nominal size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. When compression is enabled, this is the size of the uncompressed content.
-          format: int64
-          example: 250110
-        dataHandle:
-          type: string
-          description: The handle created when uploading the content to the Blob API, that is used to retrieve the content at a later stage.
-          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
-        crc:
-          type: string
-          description: User provided CRC of the partition data in bytes. Should be lowercase.
-          example: c3f276d7
-      description: Metadata describing the partition being published.
-    Publication:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the publication.
-          readOnly: true
-          example: 34bc2a16-0373-4157-8ccc-19ba08a6672b
-        details:
-          $ref: '#/components/schemas/Details'
-        layerIds:
-          type: array
-          items:
-            type: string
-            description: The ID of a layer in the publication
-            example: my-layer
-        catalogVersion:
-          type: integer
-          description: The current version of the catalog. If this is the catalog's first publication, the version is `-1`. After the first publication, the catalog version becomes 0. Each subsequent publication increments the catalog version by 1.
-          format: int64
-          readOnly: true
-          example: 1
-        versionDependencies:
-          type: array
-          description: The upstream version dependencies for the publication.
-          items:
-            $ref: '#/components/schemas/VersionDependency'
     Details:
       type: object
       properties:
@@ -340,6 +261,85 @@ components:
           readOnly: true
           example: 1523459129829
       description: Details of the publication.
+    VersionDependency:
+      type: object
+      properties:
+        direct:
+          type: boolean
+          description: Indicates the type of data dependency. If this value is set to false, this dependency is an indirect dependency. This means that data from this catalog was not directly used by a data processing pipeline to update the current version of the catalog. Instead, the data was only used by upstream pipelines to generate the input data for a data processing pipeline.
+          example: true
+        hrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the catalog that the publication depends on.
+          example: hrn:here:data::olp-here:my-catalog
+        version:
+          type: integer
+          description: The version of the catalog metadata that the publication depends on.
+          format: int64
+          example: 1
+      description: Metadata about any dependencies on other catalogs that the publication may have.
+    Publication:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the publication.
+          readOnly: true
+          example: 34bc2a16-0373-4157-8ccc-19ba08a6672b
+        details:
+          $ref: '#/components/schemas/Details'
+        layerIds:
+          type: array
+          items:
+            type: string
+            description: The ID of a layer in the publication
+            example: my-layer
+        catalogVersion:
+          type: integer
+          description: The current version of the catalog. If this is the catalog's first publication, the version is `-1`. After the first publication, the catalog version becomes 0. Each subsequent publication increments the catalog version by 1.
+          format: int64
+          readOnly: true
+          example: 1
+        versionDependencies:
+          type: array
+          description: The upstream version dependencies for the publication.
+          items:
+            $ref: '#/components/schemas/VersionDependency'
+    PublishPartition:
+      required:
+      - partition
+      - dataHandle
+      type: object
+      properties:
+        partition:
+          type: string
+          pattern: '[a-zA-Z0-9_\-\.:]'
+          description: A key that specifies the partition that the content is related to. It is required. If the layer's partitioning scheme is set to `heretile`, the partition key is the tile key. The maximum length of the partition key is 500 characters.
+          example: '314010583'
+        checksum:
+          type: string
+          description: The checksum of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. The algorithm used to calculate the checksum is user specific. Algorithms that you can use are, for example, MD5 or SHA1. This is not a secure hash, so you should only use it to detect changes in content.
+          format: '[0-9a-fA-F]+'
+          example: ff7494d6f17da702862e550c907c0a91
+        compressedDataSize:
+          type: integer
+          description: The compressed size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. Applicable when Content-Encoding is set to gzip when uploading and downloading data in the Blob API.
+          format: int64
+          example: 152417
+        dataSize:
+          type: integer
+          description: The nominal size in bytes of the content published to Blob API, applicable when the layer storage volume type is `durable` and therefore the content is constant over time. When compression is enabled, this is the size of the uncompressed content.
+          format: int64
+          example: 250110
+        dataHandle:
+          type: string
+          description: The handle created when uploading the content to the Blob API, that is used to retrieve the content at a later stage.
+          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
+        crc:
+          type: string
+          description: User provided CRC of the partition data in bytes. Should be lowercase.
+          example: c3f276d7
+      description: Metadata describing the partition being published.
     PublishPartitions:
       type: object
       properties:

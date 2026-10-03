@@ -614,55 +614,72 @@ paths:
       x-operation-id-original: Stream API v2 seekToOffset
 components:
   schemas:
-    SubscribeModeEnum:
-      type: string
-      enum:
-      - serial
-      - parallel
-      default: serial
-    SubscriptionProperties:
-      type: object
-      properties:
-        kafkaConsumerProperties:
-          $ref: '#/components/schemas/KafkaConsumerProperties'
-      title: SubscriptionProperties
-    Message:
+    ConsumeDataResponse:
       type: object
       required:
-      - metaData
-      - offset
+      - messages
       properties:
-        metaData:
-          $ref: '#/components/schemas/Metadata'
-        offset:
-          $ref: '#/components/schemas/StreamOffset'
-    StreamOffset:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    CommitOffsetsRequest:
       type: object
-      description: An offset in a specific partition of the stream layer.
+      properties:
+        offsets:
+          type: array
+          items:
+            $ref: '#/components/schemas/StreamOffset'
+    SeekOffsetsRequest:
+      type: object
+      properties:
+        offsets:
+          type: array
+          items:
+            $ref: '#/components/schemas/StreamOffset'
+    StreamLayerEndpointResponse:
+      type: object
+      description: Information to use to connect to the stream layer.
       required:
-      - partition
-      - offset
+      - kafkaProtocolVersion
+      - topic
+      - topics
+      - clientId
+      - consumerGroupPrefix
+      - bootstrapServers
       properties:
-        partition:
-          type: integer
-          format: int32
-          example: 7
-          description: The partition of the stream layer for which this offset applies. It is not the same as [Partitions object](https://heremaps.github.io/here-workspace-examples-java-scala/scala/com/here/platform/data/client/scaladsl/Partition.html).
-        offset:
-          type: integer
-          format: int64
-          example: 38562
-          description: The offset in the partition of the stream layer.
-    ConsumerSubscribeResponse:
-      type: object
-      properties:
-        nodeBaseURL:
+        kafkaProtocolVersion:
+          type: array
+          items:
+            type: string
+            enum:
+            - '0.10'
+        topic:
           type: string
-          description: 'A subscription/Kafka Consumer is created in a specific server instance. This base URL represents the specific server node on which this subscription/Kafka Consumer was created. This base URL should be used instead of the base URL returned by the `lookup` service when making requests to these endpoints: /partitions, /offsets, /seek and /subscribe (DELETE).'
-          example: https://web-2.streaming.data.api.platform.in.here.com/stream/v2/catalogs/webservice-catalog9fc50b27-4f4b-49e6-beb0-f974eb95863b
-        subscriptionId:
+          example: mycatalogname.mylayername
+          description: This field will be deprecated in next API version. Use topics field instead.
+        topics:
+          type: array
+          items:
+            type: string
+          example:
+          - mycatalogname.mylayername
+          - mycatalogname.mylayername-_-replicated
+        clientId:
           type: string
-          example: -1920183912.123e4567-e89b-12d3-a456-556642440000
+          example: my_realm.mycatalogname.mylayername
+        consumerGroupPrefix:
+          type: string
+          description: If present, this should be used as the prefix of `group.id` [Kafka Consumer properties](https://kafka.apache.org/11/documentation.html#newconsumerconfigs).
+          example: umkrdWxRx74iKsSBcwiN
+        bootstrapServers:
+          type: array
+          items:
+            $ref: '#/components/schemas/BootstrapServer'
+        bootstrapServersInternal:
+          type: array
+          items:
+            $ref: '#/components/schemas/BootstrapServer'
     Metadata:
       type: object
       required:
@@ -701,13 +718,16 @@ components:
           format: int64
           example: 1648139982000
           description: The timestamp of the content, in milliseconds since the Unix epoch. This can be provided by the user while producing to the stream layer. Refer to [NewPartition Object](https://www.here.com/docs/category/data-sdk-for-java-and-scala-api-reference). If not provided by the user, this is the timestamp when the message was produced to the stream layer
-    CommitOffsetsRequest:
+    Message:
       type: object
+      required:
+      - metaData
+      - offset
       properties:
-        offsets:
-          type: array
-          items:
-            $ref: '#/components/schemas/StreamOffset'
+        metaData:
+          $ref: '#/components/schemas/Metadata'
+        offset:
+          $ref: '#/components/schemas/StreamOffset'
     KafkaConsumerProperties:
       type: object
       description: This is the same as [Kafka Consumer properties](https://kafka.apache.org/11/documentation.html#newconsumerconfigs) with some default values changed.
@@ -766,6 +786,12 @@ components:
           default: 500
           example: 500
       title: KafkaConsumerProperties
+    SubscribeModeEnum:
+      type: string
+      enum:
+      - serial
+      - parallel
+      default: serial
     BootstrapServer:
       type: object
       required:
@@ -779,6 +805,39 @@ components:
         port:
           type: integer
           example: 9093
+    StreamOffset:
+      type: object
+      description: An offset in a specific partition of the stream layer.
+      required:
+      - partition
+      - offset
+      properties:
+        partition:
+          type: integer
+          format: int32
+          example: 7
+          description: The partition of the stream layer for which this offset applies. It is not the same as [Partitions object](https://heremaps.github.io/here-workspace-examples-java-scala/scala/com/here/platform/data/client/scaladsl/Partition.html).
+        offset:
+          type: integer
+          format: int64
+          example: 38562
+          description: The offset in the partition of the stream layer.
+    ConsumerSubscribeResponse:
+      type: object
+      properties:
+        nodeBaseURL:
+          type: string
+          description: 'A subscription/Kafka Consumer is created in a specific server instance. This base URL represents the specific server node on which this subscription/Kafka Consumer was created. This base URL should be used instead of the base URL returned by the `lookup` service when making requests to these endpoints: /partitions, /offsets, /seek and /subscribe (DELETE).'
+          example: https://web-2.streaming.data.api.platform.in.here.com/stream/v2/catalogs/webservice-catalog9fc50b27-4f4b-49e6-beb0-f974eb95863b
+        subscriptionId:
+          type: string
+          example: -1920183912.123e4567-e89b-12d3-a456-556642440000
+    SubscriptionProperties:
+      type: object
+      properties:
+        kafkaConsumerProperties:
+          $ref: '#/components/schemas/KafkaConsumerProperties'
+      title: SubscriptionProperties
     ErrorResponse:
       type: object
       properties:
@@ -795,85 +854,11 @@ components:
           type: string
         correlationId:
           type: string
-    ConsumeDataResponse:
-      type: object
-      required:
-      - messages
-      properties:
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-    SeekOffsetsRequest:
-      type: object
-      properties:
-        offsets:
-          type: array
-          items:
-            $ref: '#/components/schemas/StreamOffset'
-    StreamLayerEndpointResponse:
-      type: object
-      description: Information to use to connect to the stream layer.
-      required:
-      - kafkaProtocolVersion
-      - topic
-      - topics
-      - clientId
-      - consumerGroupPrefix
-      - bootstrapServers
-      properties:
-        kafkaProtocolVersion:
-          type: array
-          items:
-            type: string
-            enum:
-            - '0.10'
-        topic:
-          type: string
-          example: mycatalogname.mylayername
-          description: This field will be deprecated in next API version. Use topics field instead.
-        topics:
-          type: array
-          items:
-            type: string
-          example:
-          - mycatalogname.mylayername
-          - mycatalogname.mylayername-_-replicated
-        clientId:
-          type: string
-          example: my_realm.mycatalogname.mylayername
-        consumerGroupPrefix:
-          type: string
-          description: If present, this should be used as the prefix of `group.id` [Kafka Consumer properties](https://kafka.apache.org/11/documentation.html#newconsumerconfigs).
-          example: umkrdWxRx74iKsSBcwiN
-        bootstrapServers:
-          type: array
-          items:
-            $ref: '#/components/schemas/BootstrapServer'
-        bootstrapServersInternal:
-          type: array
-          items:
-            $ref: '#/components/schemas/BootstrapServer'
-  headers:
-    X-Correlation-ID:
-      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
   parameters:
     xRequestId:
       name: X-Request-ID
       in: header
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    layerId:
-      name: layerId
-      in: path
-      description: The ID of the stream layers.
-      required: true
       schema:
         type: string
     nonSubscribeAPIsSubscriptionId:
@@ -889,12 +874,6 @@ components:
       in: query
       schema:
         $ref: '#/components/schemas/SubscribeModeEnum'
-    subscribeModeForSubscribeAPI:
-      name: mode
-      description: Specifies whether to use serial or parallel subscription mode. For more details see [Get Data from a Stream Layer](https://www.here.com/docs/bundle/data-api-developer-guide/page/rest/getting-data-stream.html).
-      in: query
-      schema:
-        $ref: '#/components/schemas/SubscribeModeEnum'
     internalEndpointsBooleanForEndpointAPIs:
       name: internal
       description: Specifies whether internal bootstrap servers will be returned in the response.
@@ -905,6 +884,19 @@ components:
         - 'true'
         - 'false'
         default: 'false'
+    layerId:
+      name: layerId
+      in: path
+      description: The ID of the stream layers.
+      required: true
+      schema:
+        type: string
+    subscribeModeForSubscribeAPI:
+      name: mode
+      description: Specifies whether to use serial or parallel subscription mode. For more details see [Get Data from a Stream Layer](https://www.here.com/docs/bundle/data-api-developer-guide/page/rest/getting-data-stream.html).
+      in: query
+      schema:
+        $ref: '#/components/schemas/SubscribeModeEnum'
   responses:
     Forbidden:
       description: 403 Forbidden
@@ -932,6 +924,14 @@ components:
               error_description:
                 type: string
                 example: Token Validation Failure - invalid time in token
+  headers:
+    X-Correlation-ID:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
   securitySchemes:
     Bearer:
       type: http

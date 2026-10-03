@@ -136,8 +136,8 @@ paths:
       x-operation-id-original: Interactive Map API v1 getChangeset
 components:
   responses:
-    ErrorResponse403:
-      description: Forbidden request. Insufficient rights to perform the request.
+    ErrorResponse404:
+      description: Not found.
       content:
         application/json:
           schema:
@@ -146,7 +146,18 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: Insufficient rights + <Request specific access error details>
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     ChangesetResponse:
       description: One Changeset which contains FeatureCollections grouped by operation.
       content:
@@ -180,14 +191,8 @@ components:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse401:
-      description: Unauthorized to perform the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ErrorResponse404:
-      description: Not found.
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
       content:
         application/json:
           schema:
@@ -196,12 +201,7 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: The requested resource does not exist.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
+            errorMessage: Insufficient rights + <Request specific access error details>
     ErrorResponse400:
       description: Malformed or Bad Request.
       content:
@@ -235,10 +235,31 @@ components:
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
   parameters:
+    VersionPath:
+      name: version
+      in: path
+      description: The version of a Changeset.
+      required: true
+      schema:
+        type: string
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
     PageToken:
       name: pageToken
       in: query
       description: The page token where the iteration will continue.
+      schema:
+        type: string
+    Author:
+      name: author
+      in: query
+      description: Filter the results per author.
+      required: false
       schema:
         type: string
     EndTime:
@@ -252,6 +273,13 @@ components:
         type: integer
         format: int64
         minimum: 0
+    VersionLowerThan:
+      name: version
+      in: query
+      description: "The query parameter used to specify the versions to be deleted. The value must be an integer, bigger than 1, and the comparator should be one of the below list:\n  - <\n  - =lt="
+      required: true
+      schema:
+        type: string
     StartTime:
       name: startTime
       in: query
@@ -269,13 +297,6 @@ components:
       description: The maximum number of features in the response. Default is _30000_. Hard limit is _100000_.
       schema:
         type: integer
-    VersionLowerThan:
-      name: version
-      in: query
-      description: "The query parameter used to specify the versions to be deleted. The value must be an integer, bigger than 1, and the comparator should be one of the below list:\n  - <\n  - =lt="
-      required: true
-      schema:
-        type: string
     VersionRef:
       name: versionRef
       in: query
@@ -284,37 +305,16 @@ components:
       schema:
         type: string
         default: HEAD
-    Author:
-      name: author
-      in: query
-      description: Filter the results per author.
-      required: false
-      schema:
-        type: string
-    VersionPath:
-      name: version
-      in: path
-      description: The version of a Changeset.
-      required: true
-      schema:
-        type: string
-    LayerId:
-      name: layerId
-      in: path
-      description: The unique identifier of the layer.
-      required: true
-      schema:
-        type: string
   headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
     X-Correlation-ID:
       description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
   schemas:
     Error:
       type: object
@@ -418,6 +418,68 @@ components:
               name: Murrayfield Stadium
               sport: rugby union
               capacity: 67144
+    Feature:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Feature object represents a spatially bounded thing.
+        properties:
+          id:
+            description: The unique identifier of the feature.
+            type: string
+          geometry:
+            $ref: '#/components/schemas/Geometry'
+          properties:
+            type: object
+            description: The properties of the feature.
+            additionalProperties: true
+        example:
+          type: Feature
+          id: BfiimUxHjj
+          geometry:
+            type: Point
+            coordinates:
+            - -2.960847
+            - 53.430828
+          properties:
+            name: Anfield
+            amenity: Football Stadium
+            capacity: 54074
+            description: Home of the Liverpool Football Club.
+    GeoJSON:
+      type: object
+      description: The base type for all possible GeoJSON objects.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        bbox:
+          type: array
+          description: Describes the coordinate range of the GeoJSON object.
+          items:
+            type: number
+      discriminator:
+        propertyName: type
+        mapping:
+          Feature: '#/components/schemas/Feature'
+          FeatureCollection: '#/components/schemas/FeatureCollection'
+          Geometry: '#/components/schemas/Geometry'
+      additionalProperties: true
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
     ChangesetCollection:
       description: A ChangesetCollection JSON object.
       properties:
@@ -480,26 +542,6 @@ components:
               type: FeatureCollection
               features: []
         nextPageToken: 1000
-    GeoJSON:
-      type: object
-      description: The base type for all possible GeoJSON objects.
-      required:
-      - type
-      properties:
-        type:
-          type: string
-        bbox:
-          type: array
-          description: Describes the coordinate range of the GeoJSON object.
-          items:
-            type: number
-      discriminator:
-        propertyName: type
-        mapping:
-          Feature: '#/components/schemas/Feature'
-          FeatureCollection: '#/components/schemas/FeatureCollection'
-          Geometry: '#/components/schemas/Geometry'
-      additionalProperties: true
     FeatureCollection:
       allOf:
       - $ref: '#/components/schemas/GeoJSON'
@@ -536,48 +578,6 @@ components:
               amenity: Football Stadium
               capacity: 54074
               description: Home of the Liverpool Football Club.
-    Feature:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A Feature object represents a spatially bounded thing.
-        properties:
-          id:
-            description: The unique identifier of the feature.
-            type: string
-          geometry:
-            $ref: '#/components/schemas/Geometry'
-          properties:
-            type: object
-            description: The properties of the feature.
-            additionalProperties: true
-        example:
-          type: Feature
-          id: BfiimUxHjj
-          geometry:
-            type: Point
-            coordinates:
-            - -2.960847
-            - 53.430828
-          properties:
-            name: Anfield
-            amenity: Football Stadium
-            capacity: 54074
-            description: Home of the Liverpool Football Club.
-    Geometry:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
-        discriminator:
-          propertyName: type
-          mapping:
-            MultiPoint: '#/components/schemas/MultiPoint'
-            MultiLineString: '#/components/schemas/MultiLineString'
-            LineString: '#/components/schemas/LineString'
-            MultiPolygon: '#/components/schemas/MultiPolygon'
-            Point: '#/components/schemas/Point'
-            Polygon: '#/components/schemas/Polygon'
   securitySchemes:
     Bearer:
       type: http

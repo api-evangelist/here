@@ -49,6 +49,16 @@ paths:
                 $ref: '#/components/schemas/HealthResponse'
 components:
   schemas:
+    VersionResponse:
+      description: Retrieves the current versions of all service components.
+      properties:
+        apiVersion:
+          description: The current version of the API.
+          example: 3.1.0
+          type: string
+      required:
+      - apiVersion
+      type: object
     HealthResponse:
       description: Retrieves the current health status of the service.
       properties:
@@ -63,16 +73,6 @@ components:
           - ok
           example: ok
           type: string
-    VersionResponse:
-      description: Retrieves the current versions of all service components.
-      properties:
-        apiVersion:
-          description: The current version of the API.
-          example: 3.1.0
-          type: string
-      required:
-      - apiVersion
-      type: object
   securitySchemes:
     ApiKey:
       type: apiKey

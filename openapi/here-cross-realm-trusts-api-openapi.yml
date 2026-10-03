@@ -193,6 +193,44 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    CrossRealmTrustRequest:
+      type: object
+      properties:
+        requiresLinkableResourceWithTargetProject:
+          type: boolean
+          example: true
+          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
+
+            when offering a LinkableResource.
+
+            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
+
+            in the target Realm such that it could be added to any Project in the target Realm.
+
+            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
+
+            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
+
+            '
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
     CrossRealmTrust:
       description: 'CrossRealmTrust allows LinkableResources to be offered by the source realm HRN or project HRN
 
@@ -247,25 +285,43 @@ components:
             the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
 
             '
-    PageWithToken:
+    CrossRealmTrustListWithPageToken:
       type: object
-      required:
-      - limit
-      - total
-      - items
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CrossRealmTrust'
+            description: List of CrossRealmTrusts.
+    ErrorDetail:
+      type: object
       properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
+        title:
           type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
     ErrorResponse:
       type: object
       required:
@@ -309,94 +365,7 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
-    CrossRealmTrustListWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CrossRealmTrust'
-            description: List of CrossRealmTrusts.
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    CrossRealmTrustRequest:
-      type: object
-      properties:
-        requiresLinkableResourceWithTargetProject:
-          type: boolean
-          example: true
-          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
-
-            when offering a LinkableResource.
-
-            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
-
-            in the target Realm such that it could be added to any Project in the target Realm.
-
-            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
-
-            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
-
-            '
   parameters:
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    targetRealm:
-      in: query
-      name: targetRealm
-      required: false
-      description: HRN identifying the target realm
-      schema:
-        type: string
-      example: hrn:here:account::rlm-b:realm/rlm-b
-    sourceProjectOrRealm:
-      in: path
-      name: sourceProjectOrRealm
-      required: true
-      description: HRN identifying the source realm or project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:project/Project-A
-    sourceProject:
-      in: query
-      name: sourceProject
-      required: false
-      description: HRN identifying the source project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:project/Project-A
     targetProjectOrRealm:
       in: path
       name: targetProjectOrRealm
@@ -405,14 +374,14 @@ components:
       schema:
         type: string
       example: hrn:here:account::rlm-b:project/Project-B
-    targetProject:
+    sourceProject:
       in: query
-      name: targetProject
+      name: sourceProject
       required: false
-      description: HRN identifying the target project
+      description: HRN identifying the source project
       schema:
         type: string
-      example: hrn:here:account::rlm-b:project/Project-B
+      example: hrn:here:account::rlm-a:project/Project-A
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -422,14 +391,6 @@ components:
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
 
         '
-    sourceRealm:
-      in: query
-      name: sourceRealm
-      required: false
-      description: HRN identifying the source realm
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:realm/rlm-a
     limit:
       in: query
       name: limit
@@ -440,33 +401,46 @@ components:
         minimum: 0
         maximum: 100
         default: 100
-  headers:
-    XCorrelationId:
+    targetRealm:
+      in: query
+      name: targetRealm
+      required: false
+      description: HRN identifying the target realm
       schema:
         type: string
+      example: hrn:here:account::rlm-b:realm/rlm-b
+    sourceRealm:
+      in: query
+      name: sourceRealm
       required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
+      description: HRN identifying the source realm
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:realm/rlm-a
+    sourceProjectOrRealm:
+      in: path
+      name: sourceProjectOrRealm
+      required: true
+      description: HRN identifying the source realm or project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:project/Project-A
+    targetProject:
+      in: query
+      name: targetProject
+      required: false
+      description: HRN identifying the target project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:project/Project-B
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
   responses:
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    BadRequest:
-      description: Invalid input provided, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: You do not have permission to perform this action
       headers:
@@ -485,6 +459,32 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
   securitySchemes:
     Bearer:
       type: http

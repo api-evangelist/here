@@ -1040,630 +1040,6 @@ paths:
       x-operation-id-original: Config API v1 getOperationStatus
 components:
   schemas:
-    ContentEncoding:
-      type: string
-      example: gzip
-      description: Identifies whether the data is compressed. Can be updated only for the stream layer.
-      enum:
-      - gzip
-    Coverage:
-      type: object
-      properties:
-        adminAreas:
-          type: array
-          description: A list of ISO 3166 two-letter codes for countries and regions optionally followed by up to three characters codes for subdivisions, such as 'DE', 'PL', or 'CN-HK'.
-          items:
-            type: string
-            example: DE
-      description: The geographic area that this layer covers
-    ObjectstoreLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - hrn
-        - name
-        - summary
-        - description
-        - tags
-        - billingTags
-        - volume
-        - created
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          hrn:
-            $ref: '#/components/schemas/LayerHrn'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          coverage:
-            $ref: '#/components/schemas/Coverage'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          volume:
-            $ref: '#/components/schemas/DurableVolume'
-          created:
-            $ref: '#/components/schemas/LayerCreated'
-          layerType:
-            type: string
-            example: objectstore
-            enum:
-            - objectstore
-            description: The type of data availability that this layer provides
-      description: Describes the catalog objectstore layer properties.
-    CatalogsResultBase:
-      type: object
-      discriminator:
-        propertyName: verbose
-      properties:
-        verbose:
-          type: boolean
-      description: Describes base class.
-    StatusLink:
-      type: object
-      properties:
-        href:
-          type: string
-          description: href of the created/update/delete catalog action
-          example: https://config.data.api.platform.sit.here.com/config/v1/status/02bc9a8d-6dc4-4698-87a0-faf3372e81c1
-        configToken:
-          type: string
-          description: token for getting the status of created/update/delete catalog action
-          example: 02bc9a8d-6dc4-4698-87a0-faf3372e81c1
-        title:
-          type: string
-          description: Title of the action
-          example: Catalog Creation, Catalog Deletion, Catalog Update
-        type:
-          type: string
-          description: Type of the href
-          example: urn:olp-types:status
-      description: Describes the status and href of the create/update/delete resource such as a catalog.
-    PatchCatalog:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Modified catalog name
-          description: The short name for the catalog. Field is optional, Specify a value to modify catalog name. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 200
-        summary:
-          type: string
-          example: Modified catalog summary
-          description: A one-sentence summary of the catalog. You can see this summary when you browse a list of catalogs on the platform portal. Field is optional, Specify a value to modify catalog summary. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 1000
-        description:
-          type: string
-          example: Modified catalog description
-          description: A detailed description of the catalog and what it contains. This information appears on the 'Overview' tab when you open a catalog in the platform portal. Field is optional, Specify a value to modify catalog description. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 10000
-        tags:
-          type: array
-          example:
-          - Traffic
-          - Speed
-          description: Some keywords that help to find the catalog when searching in the platform portal. Field is optional, Specify a value to replace all list of tags. This field is not removable, null value is not allowed.
-          items:
-            type: string
-        areaScheme:
-          $ref: '#/components/schemas/AreaScheme'
-        subsetRestrictions:
-          $ref: '#/components/schemas/SubsetRestrictions'
-        notifications:
-          $ref: '#/components/schemas/Notifications'
-        replication:
-          $ref: '#/components/schemas/Replication'
-        automaticVersionDeletion:
-          $ref: '#/components/schemas/AutomaticVersionDeletion'
-        deleteProtected:
-          type: boolean
-          description: This property can be set to true if the resource needs to be protected from deletion. It can be set to false if the resource does not need to be protected from deletion. By default, catalogs are not protected.
-      description: Describes the modification of the catalog configuration.
-    DataSubset:
-      oneOf:
-      - $ref: '#/components/schemas/DataSubsetAreas'
-      - $ref: '#/components/schemas/DataSubsetLayers'
-      discriminator:
-        propertyName: dataSubsetType
-        mapping:
-          areas: '#/components/schemas/DataSubsetAreas'
-          layers: '#/components/schemas/DataSubsetLayers'
-          ocm-layers: '#/components/schemas/DataSubsetLayers'
-          nds-layers: '#/components/schemas/DataSubsetLayers'
-    DataSubsetsFingerprint:
-      type: object
-      description: DataSubsetFingerprint is a combination of fields that indicate if anything was changed in the set of data subsets or if area scheme version was increased
-      required:
-      - dataSubsetsFingerprint
-      - dataSubsets
-      properties:
-        dataSubsetsFingerprint:
-          type: string
-          description: Fingerprint as a hash of data subsets.
-          example: hash
-        dataSubsets:
-          type: array
-          description: All data subsets the calling identity has access to, including the referenced Area IDs or Layer IDs.
-          items:
-            type: string
-          example:
-          - deu
-          - afg
-          - core-layer-group
-        areas:
-          type: array
-          description: Combined areas from all subsets of this result.
-          items:
-            type: string
-          example:
-          - deu
-          - afg
-          - bra
-        layers:
-          type: array
-          description: Combined layers from all subsets of this result.
-          items:
-            type: string
-          example:
-          - topology
-          - roadnetwork
-        areaScheme:
-          $ref: '#/components/schemas/AreaSchemeFingerprint'
-      x-maturity: beta
-    PatchStreamProperties:
-      type: object
-      properties:
-        dataInThroughputKbps:
-          type: integer
-          format: int64
-          example: 300
-          description: Maximum throughput for incoming data expressed in kilobytes per second. Throttling occurs when the inbound rate exceeds the maximum inbound throughput. The default is 1000 KBps. The minimum is 100 KBps, the maximum is 32800 KBps. Can only be multiple of 100 KBps.
-        dataOutThroughputKbps:
-          type: integer
-          format: int64
-          example: 36500
-          description: Maximum throughput for outgoing data expressed in kilobytes per second. Throttling occurs when the total outbound rate to all consumers exceeds the maximum outbound throughput. The default is 4000 KBps. The minimum is 100 KBps, the maximum is 65500 KBps. Can only be multiple of 100 KBps.
-      description: 'Properties that define the scale of the required streaming layer.
-
-        `dataInThroughputKbps` and `dataOutThroughputKbps` can only be values multiple of 100. For instance, the value 33200 is valid while 32250 is not.'
-    CatalogSuccessStatus:
-      type: object
-      properties:
-        item:
-          $ref: '#/components/schemas/StatusLink'
-        status:
-          type: string
-          description: Status of the operation
-          example: success
-      description: Describes the status of the successful catalog creation operation including its href.
-    StreamProperties:
-      type: object
-      properties:
-        dataInThroughputKbps:
-          type: integer
-          format: int64
-          example: 300
-          description: Maximum throughput for incoming data expressed in kilobytes per second. Throttling occurs when the inbound rate exceeds the maximum inbound throughput. The default is 1000 KBps. The minimum is 100 KBps, the maximum is 32800 KBps. Can only be multiple of 100 KBps. Can be updated by the user.
-        dataOutThroughputKbps:
-          type: integer
-          format: int64
-          example: 36500
-          description: Maximum throughput for outgoing data expressed in kilobytes per second. Throttling occurs when the total outbound rate to all consumers exceeds the maximum outbound throughput. The default is 4000 KBps. The minimum is 100 KBps, the maximum is 65500 KBps. Can only be multiple of 100 KBps. Can be updated by the user.
-        parallelization:
-          type: integer
-          format: int64
-          example: 4
-          description: Number of stream partitions that maps to a Kafka topic partition. The maximum parallelism at which your application may run is determined by the maximum number of stream partitions of the input stream layer the application is reading from in its processing topology. The default is 4. The maximum is 32.
-      description: 'Properties that define the scale of the required streaming layer. It is recommended to provide all 3 properties when creating a streaming layer.
-
-        Either combination of `dataInThroughputKbps` and `dataOutThroughputKbps` or `parallelization` is required.
-
-        `dataInThroughputKbps` and `dataOutThroughputKbps` can only be values multiple of 100. For instance, the value 33200 is valid while 32250 is not.
-
-        Default values for missing field(s) will be calculated according to the following formulas:
-
-        `1 parallelization = 1000 dataInThroughputKbps`,
-
-        `1 parallelization = 2000 dataOutThroughputKbps`.'
-    IndexLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - hrn
-        - name
-        - summary
-        - description
-        - contentType
-        - tags
-        - billingTags
-        - volume
-        - indexProperties
-        - created
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          hrn:
-            $ref: '#/components/schemas/LayerHrn'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          coverage:
-            $ref: '#/components/schemas/Coverage'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          contentType:
-            $ref: '#/components/schemas/ContentType'
-          contentEncoding:
-            $ref: '#/components/schemas/ContentEncoding'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          volume:
-            $ref: '#/components/schemas/DurableVolume'
-          indexProperties:
-            $ref: '#/components/schemas/IndexProperties'
-          created:
-            $ref: '#/components/schemas/LayerCreated'
-          digest:
-            $ref: '#/components/schemas/Digest'
-          crc:
-            $ref: '#/components/schemas/CRC'
-          layerType:
-            type: string
-            example: index
-            enum:
-            - index
-            description: The type of data availability that this layer provides
-      description: Describes the catalog index layer properties.
-    CreateVolatileLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - name
-        - summary
-        - description
-        - contentType
-        - tags
-        - billingTags
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          coverage:
-            $ref: '#/components/schemas/Coverage'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          partitioningScheme:
-            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
-          partitioning:
-            $ref: '#/components/schemas/Partitioning'
-          contentType:
-            $ref: '#/components/schemas/ContentType'
-          contentEncoding:
-            $ref: '#/components/schemas/ContentEncoding'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          ttlHours:
-            $ref: '#/components/schemas/TtlHours'
-          ttl:
-            $ref: '#/components/schemas/Ttl'
-          digest:
-            $ref: '#/components/schemas/Digest'
-          crc:
-            $ref: '#/components/schemas/CRC'
-          volume:
-            $ref: '#/components/schemas/VolatileVolume'
-          volatileProperties:
-            $ref: '#/components/schemas/VolatileProperties'
-          layerType:
-            type: string
-            example: volatile
-            enum:
-            - volatile
-            description: The type of data availability that this layer provides
-          secureHandles:
-            $ref: '#/components/schemas/SecureHandles'
-          subsetRestrictions:
-            $ref: '#/components/schemas/SubsetRestrictions'
-      description: Describes properties of a catalog volatile layer.
-    VolatileProperties:
-      type: object
-      required:
-      - storageCapacityMb
-      properties:
-        dataRedundancy:
-          type: string
-          enum:
-          - single-instance
-          - multi-instance
-          example: volatile
-          description: Volatile storage provision mode.
-        storageCapacityMb:
-          type: integer
-          format: int32
-          example: 100
-          description: Capacity of volatile storage in MB. Value should be divisible by 100. The minimum is 100, the maximum is 21000 MB.
-      description: Properties that define the scale of the volatile layer.
-    DataSubsetAreas:
-      allOf:
-      - $ref: '#/components/schemas/DataSubsetBase'
-      - type: object
-        required:
-        - areaScheme
-        - areas
-        properties:
-          dataSubsetType:
-            type: string
-            enum:
-            - areas
-          areaScheme:
-            type: string
-            description: HRN of the Area Scheme
-            example: hrn:here:areascheme::olp-here:default-countries
-          areas:
-            type: array
-            items:
-              type: string
-              maxLength: 24
-            example:
-            - afg
-            - bra
-            - deu
-    DataSubsetBaseCreate:
-      type: object
-      required:
-      - id
-      - name
-      - dataSubsetType
-      properties:
-        id:
-          type: string
-          maxLength: 100
-          pattern: ^[a-z0-9][a-z0-9\.\-_]*$
-          example: deu
-        name:
-          type: string
-          maxLength: 80
-          example: Germany
-        dataSubsetType:
-          type: string
-          description: Type of the data subset
-    AreaSchemeFingerprint:
-      type: object
-      required:
-      - hrn
-      - version
-      properties:
-        hrn:
-          type: string
-          description: HERE Resource Name (HRN) of the areaScheme in the catalog.
-          example: hrn:here:areascheme::olp-here:default-countries
-        version:
-          type: integer
-          description: Version of the scheme, which increments with any change.
-          example: 1
-      x-maturity: beta
-    CatalogsList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Catalog'
-        next:
-          type: string
-          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
-          description: The link to the next page of catalogs result list
-        previous:
-          type: string
-          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
-          description: The link to the previous page of catalogs result list
-      description: List of the catalog configurations.
-    InteractiveMapsLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - hrn
-        - name
-        - summary
-        - description
-        - contentType
-        - tags
-        - billingTags
-        - created
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          hrn:
-            $ref: '#/components/schemas/LayerHrn'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          contentType:
-            $ref: '#/components/schemas/ContentType'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          interactiveMapProperties:
-            $ref: '#/components/schemas/InteractiveMapProperties'
-          created:
-            $ref: '#/components/schemas/LayerCreated'
-          layerType:
-            type: string
-            example: interactivemap
-            enum:
-            - interactivemap
-            description: The type of data availability that this layer provides
-      description: Describes the catalog interactive maps layer properties.
-    CatalogsSummaryList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CatalogSummary'
-        next:
-          type: string
-          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
-          description: The link to the next page of catalogs result list
-        previous:
-          type: string
-          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
-          description: The link to the previous page of catalogs result list
-      description: List of the catalog summaries
-    PatchObjectStoreProperties:
-      type: object
-      properties:
-        ttl:
-          type: string
-          example: 1.year
-          description: Amount of time data will remain in objectstore layer. If not specified, it defaults to unlimited.
-          enum:
-          - 1.days
-          - 3.days
-          - 7.days
-          - 15.days
-          - 1.month
-          - 2.months
-          - 3.months
-          - 4.months
-          - 6.months
-          - 1.year
-          - 1.5.years
-          - 2.year
-          - 3.years
-          - 5.years
-          - unlimited
-    CRC:
-      type: string
-      description: The CRC algorithm used to calculate the checksum for the partitions in this layers
-      example: CRC-32C
-      enum:
-      - CRC-32C
-    CreateCatalog:
-      type: object
-      required:
-      - id
-      - name
-      - summary
-      - description
-      properties:
-        id:
-          type: string
-          example: olp-traffic
-          description: The ID to use when referring to this catalog programmatically. Catalog IDs must be unique across all catalogs in the Open Location Platform. Do not put private information in the catalog ID. The catalog ID forms a portion of the catalog''s HERE Resource Name (HRN), and HRNs are visible to other users. Only lowercase alphanumeric characters (a-z), digits (0-9) and dash (-) are allowed in a catalog ID and the first and the last character must be a-z or 0-9.
-          minLength: 3
-          maxLength: 63
-          pattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
-        name:
-          type: string
-          example: Traffic Data
-          description: The short name for the catalog
-          minLength: 0
-          maxLength: 200
-        summary:
-          type: string
-          example: This catalog provides traffic flow and incidents information.
-          description: A one-sentence summary of the catalog. You can see this summary when you browse a list of catalogs on the platform portal.
-          minLength: 0
-          maxLength: 1000
-        description:
-          type: string
-          example: The catalog provides aggregated information about traffic incidents, including the type and location of each traffic incident, status, start and end time, and other relevant data. This data is useful to dynamically optimize route calculations. It also provides access to real-time traffic flow data in including information on speed and congestion for specific regions. The catalog also contains additional data such as the geometry of the road segments in relation to the flow.
-          description: A detailed description of the catalog and what it contains. This information appears on the 'Overview' tab when you open a catalog in the platform portal.
-          minLength: 0
-          maxLength: 10000
-        tags:
-          type: array
-          example:
-          - Traffic
-          - Flow
-          - Speed
-          description: Some keywords that help to find the catalog when searching in the platform portal
-          items:
-            type: string
-        layers:
-          type: array
-          x-baseType: CreateBaseLayer
-          description: The layers in the catalog
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/CreateVersionedLayer'
-            - $ref: '#/components/schemas/CreateVolatileLayer'
-            - $ref: '#/components/schemas/CreateStreamLayer'
-            - $ref: '#/components/schemas/CreateIndexLayer'
-            - $ref: '#/components/schemas/CreateObjectstoreLayer'
-            - $ref: '#/components/schemas/CreateInteractiveMapsLayer'
-        areaScheme:
-          $ref: '#/components/schemas/AreaScheme'
-        subsetRestrictions:
-          $ref: '#/components/schemas/SubsetRestrictions'
-        version:
-          type: integer
-          format: int64
-          example: 1
-          description: The version of the catalog configuration. Every change in this number indicates change in catalog configuration. Examples of changes in catalog configuration include changing catalog parameters and adding layers. Note that the catalog configuration version is not the same as the metadata/data version. Configuration and metadata versions are independent of each other and indicate different kinds of changes.
-        notifications:
-          $ref: '#/components/schemas/Notifications'
-        replication:
-          $ref: '#/components/schemas/Replication'
-        automaticVersionDeletion:
-          $ref: '#/components/schemas/AutomaticVersionDeletion'
-      description: Describes the configuration of the catalog including its layer definitions.
-    PatchIndexProperties:
-      type: object
-      properties:
-        ttl:
-          type: string
-          example: 1.year
-          description: Amount of time data will remain in index layer. If not specified, it defaults to 7 days. Can be updated only if not set already.
-          enum:
-          - 7.days
-          - 15.days
-          - 1.month
-          - 2.months
-          - 3.months
-          - 4.months
-          - 6.months
-          - 1.year
-          - 1.5.years
-          - 2.year
-          - unlimited
     VolatileVolume:
       type: object
       required:
@@ -1682,172 +1058,19 @@ components:
           - replaceLessRecentlyUsedKey
           example: failOnWrite
       description: Describes a catalog volatile volume to be used for storing the layer's data content. Specifies volatile properties values if they are not provided.
-    Subset:
+    DataSubsets:
       type: object
-      description: Describes the specific subset based on the included areas.
-      required:
-      - id
-      - hrn
-      - name
-      - areas
-      - created
-      properties:
-        id:
-          type: string
-          example: deu
-          description: Immutable ID that refers to the subset.
-          maxLength: 24
-          pattern: ^[a-z0-9][a-z0-9\.\-_]*$
-        hrn:
-          type: string
-          example: hrn:here:data::olp-here:countries::deu
-          description: HERE Resource Name (HRN) for the subset.
-        name:
-          type: string
-          example: Germany
-          description: Short name for the subset.
-          maxLength: 80
-        areas:
-          type: array
-          description: Various areas covered in the subset.
-          maxLength: 250
-          items:
-            type: string
-            maxLength: 24
-          example:
-          - afg
-          - bra
-          - deu
-        created:
-          type: string
-          description: Creation date and time.
-          example: '2021-12-16T18:20:18.950358Z'
-    ExtendsWithVersion:
-      allOf:
-      - $ref: '#/components/schemas/Extends'
-      - type: object
-        properties:
-          baseVersion:
-            type: integer
-            description: The version of the extended catalog. If provided, then empty publication with version 0 will be created.
-    SecureHandles:
-      type: boolean
-      example: true
-      description: Indicates if the layer metadata and blob are in a mode that secure dataHandles support. It supports only heretile layer partitioning. The produced dataHandles contain a reference partitionId and a secure signature, for example '2423589347~5945c961-e74d-478f-8afe-da53cf4189e3~EAAQuWgWdiwktzMKEeweZA-6HteHy38hXR_NY-qpeSamlJc'."
-      x-maturity: beta
-    Subsets:
-      type: object
-      description: '**BETA** Describes the accessible subsets based on different areas. If subsetRestrictions is not enabled, the result will be empty.'
+      description: Describes the accessible data subsets based on different areas or layers.
       required:
       - items
       properties:
         items:
           type: array
-          description: List of subsets accessible by the caller and based on different areas.
+          description: List of data subsets accessible by the caller and based on different areas or layers.
           maxLength: 8000
           items:
-            $ref: '#/components/schemas/Subset'
+            $ref: '#/components/schemas/DataSubset'
       x-maturity: beta
-    Ttl:
-      type: integer
-      format: int64
-      example: 3600000
-      description: The expiry time in milliseconds for data in this layer. Data is automatically removed after the specified time limit has elapsed. For volatile layers, the TTL value must be between 60000 (1 minute) and 604800000 (7 days). For stream layers the TTL value must be between 600000 (10 minutes) and 259200000 (72 hours). Can be updated for stream and index layers.
-    Owner:
-      type: object
-      properties:
-        creator:
-          $ref: '#/components/schemas/Creator'
-        organisation:
-          $ref: '#/components/schemas/Organisation'
-    DataSubsetAreasCreate:
-      allOf:
-      - $ref: '#/components/schemas/DataSubsetBaseCreate'
-      - type: object
-        required:
-        - areaScheme
-        - areas
-        properties:
-          dataSubsetType:
-            type: string
-            enum:
-            - areas
-          areaScheme:
-            type: string
-            description: HRN of the Area Scheme
-            example: hrn:here:areascheme::olp-here:default-countries
-          areas:
-            type: array
-            items:
-              type: string
-              maxLength: 24
-            example:
-            - afg
-            - bra
-            - deu
-    Creator:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique ID of the user or application that initially created the catalog
-          example: Mejk6DMxAq7kKI5lt2T2
-    LayerSummary:
-      type: string
-      example: This layer provides aggregated information about traffic incidents.
-      description: A one-sentence summary of the layer. You can see this summary when you browse a list of layers on the platform portal.
-      minLength: 0
-      maxLength: 1000
-    EncryptionType:
-      type: string
-      description: Defines type of encryption to apply for data at rest. 'hereEncryption' is default and ensures that encryption keys are managed by HERE, 'cloudEncryption' uses standard cloud providers encryption mechanism like AWS S3 Bucket keys or similar.
-      example: hereEncryption
-      enum:
-      - hereEncryption
-      - cloudEncryption
-    CreateInteractiveMapsLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - name
-        - summary
-        - description
-        - tags
-        - billingTags
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          interactiveMapProperties:
-            $ref: '#/components/schemas/InteractiveMapProperties'
-          layerType:
-            type: string
-            example: interactivemap
-            enum:
-            - interactivemap
-            description: The type of data availability that this layer provides
-      description: Describes properties of a catalog interactive maps layer.
-    CatalogsListResult:
-      allOf:
-      - $ref: '#/components/schemas/CatalogsResultBase'
-      - type: object
-        properties:
-          results:
-            $ref: '#/components/schemas/CatalogsList'
-      description: Contains a list of catalogs the user has access to.
     Notifications:
       type: object
       properties:
@@ -1855,280 +1078,13 @@ components:
           type: boolean
           example: false
       description: When set to true, a notification is written to the notification stream each time the version of the catalog changes. This field is optional, but you can update the value to modify notifications. Additionally, this field is not removable, and a null value is not allowed.
-    Schema:
+    Organisation:
       type: object
-      properties:
-        hrn:
-          type: string
-          example: hrn:here:schema:::com.here.schema.rib:topology-geometry_v2:2.2.0
-      description: Describes a HRN for the layer schema. Can be updated by the user for any kind of layer.
-    AutomaticVersionDeletion:
-      type: object
-      anyOf:
-      - required:
-        - numberOfVersionsToKeep
-      - required:
-        - ttlDays
-      properties:
-        numberOfVersionsToKeep:
-          type: integer
-          format: int64
-          example: 1
-          description: Specifies how many versions to keep. To optimise storage costs, you can specify how many latest versions to keep. The minimum number of versions to keep is 1. The maximum number of versions to keep is 50,000.
-        ttlDays:
-          type: integer
-          format: int64
-          example: 3
-          description: Specifies the number of days to keep versions, counting from their creation time. The minimum ttlDays value is 3 days.
-    CreateVersionedLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - name
-        - summary
-        - description
-        - contentType
-        - tags
-        - billingTags
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          coverage:
-            $ref: '#/components/schemas/Coverage'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          partitioningScheme:
-            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
-          partitioning:
-            $ref: '#/components/schemas/Partitioning'
-          contentType:
-            $ref: '#/components/schemas/ContentType'
-          contentEncoding:
-            $ref: '#/components/schemas/ContentEncoding'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          digest:
-            $ref: '#/components/schemas/Digest'
-          crc:
-            $ref: '#/components/schemas/CRC'
-          layerType:
-            type: string
-            example: versioned
-            enum:
-            - versioned
-            description: The type of data availability that this layer provides
-          secureHandles:
-            $ref: '#/components/schemas/SecureHandles'
-          subsetRestrictions:
-            $ref: '#/components/schemas/SubsetRestrictions'
-          versionedLayerProperties:
-            $ref: '#/components/schemas/VersionedLayerPropertiesInPost'
-      description: Describes properties of a catalog versioned layer.
-    Extends:
-      type: object
-      description: Extension definition that allows a layer's content to be based on an existing layer. Entities in the extension layer override features with the same ID in the extended layer.
-      required:
-      - catalogHrn
-      - layerId
-      properties:
-        catalogHrn:
-          type: string
-          description: Catalog HRN of the layer being extended.
-        layerId:
-          type: string
-          description: Layer ID of the layer being extended.
-    LayerId:
-      type: string
-      example: traffic-incidents
-      description: The ID to use when referring to this layer programmatically.
-      minLength: 1
-      maxLength: 50
-    CatalogStatusRequestBody:
-      required:
-      - disabled
-      properties:
-        disabled:
-          example: true
-          type: boolean
-          description: If set to true, then no data reads and writes can be performed against the catalog while disabled. To re-enable, set to false.
-      type: object
-    ReplicationRegion:
-      type: object
-      required:
-      - id
       properties:
         id:
           type: string
-          description: The ID of the region
-          enum:
-          - eu-ireland
-          - us-oregon
-          - ap-seoul
-        role:
-          description: 'Indicates whether the region is a primary or failover region. You can specify one of the following: `primary` - The region is used by default for reading and writing. `secondary` - The region used as a failover region.'
-          type: string
-          enum:
-          - primary
-          - secondary
-    LayerCreated:
-      type: string
-      example: '2019-02-07T15:24:39.437810Z'
-      description: The layer creation timestamp in ISO 8601 format.
-    CatalogLink:
-      type: object
-      properties:
-        href:
-          type: string
-          description: href of the catalog
-          example: https://config.data.api.platform.sit.here.com/config/v1/catalogs/hrn:here:data:::olp-traffic
-        hrn:
-          type: string
-          description: The HERE Resource Name (HRN) of the catalog
-          example: hrn:here:data:::olp-traffic
-        title:
-          type: string
-          description: Title of the action
-          example: Catalog Creation, Catalog Deletion, Catalog Update
-        type:
-          type: string
-          description: Type of the href
-          example: urn:olp-types:status
-      description: Describes the status and href of the create/update/delete resource such as a catalog.
-    PartitioningScheme:
-      type: string
-      enum:
-      - generic
-      - heretile
-      example: heretile
-      description: The name of the partitioning scheme for the layer
-    SubsetsFingerprint:
-      type: object
-      description: '**BETA** If subsetRestrictions is not enabled, the subsetsFingerprint, subsets, and areas will be empty.'
-      required:
-      - subsetsFingerprint
-      - subsets
-      - areas
-      properties:
-        subsetsFingerprint:
-          type: string
-          description: Fingerprint as a hash of subsets and the areaScheme version.
-          example: hash
-        subsets:
-          type: array
-          description: All subsets the calling identity has access to, including the referenced Area IDs.
-          items:
-            type: string
-          example:
-          - deu
-          - afg
-        areas:
-          type: array
-          description: Combined areas from all subsets of this result.
-          items:
-            type: string
-          example:
-          - deu
-          - afg
-          - bra
-        areaScheme:
-          $ref: '#/components/schemas/AreaSchemeFingerprint'
-      x-maturity: beta
-    PatchLayer:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Modified layer name
-          description: The short name for the layer. Field is optional, Specify a value to modify layer name. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 120
-        summary:
-          type: string
-          example: Modified layer summary
-          description: A one-sentence summary of the layer. You can see this summary when you browse a list of layers on the platform portal. Field is optional, Specify a value to modify layer summary. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 1000
-        description:
-          type: string
-          example: Modified layer description
-          description: A detailed description of the layer and what it contains. This information appears on the 'Overview' tab when you open a layer in the platform portal. Field is optional, Specify a value to modify layer description. This field is not removable, null value is not allowed.
-          minLength: 0
-          maxLength: 10000
-        coverage:
-          description: The geographic areas that this layer covers, grouped by administrative divisions. Field is optional, Specify a value to modify layer coverage. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/Coverage'
-        schema:
-          example: hrn:here:schema:::com.here.schema.rib:topology-geometry_v2:2.2.0
-          description: The HRN of the data schema for this layer. Field is optional, specify a value to modify layer schema. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/Schema'
-        partitioning:
-          description: Defines how data is partitioned within the layer. Field is optional, specify a value to modify layer partitioning. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/Partitioning'
-        indexProperties:
-          description: Defines index properties within the index layer. Field is optional, specify a value to modify layer index properties. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/PatchIndexProperties'
-        objectStoreProperties:
-          description: Defines objectStore properties within the objectStore layer. Field is optional, specify a value to modify layer objectStore properties. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/PatchObjectStoreProperties'
-        streamProperties:
-          description: Defines stream properties within the stream layer. Field is optional, specify a value to modify layer stream properties. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/PatchStreamProperties'
-        interactiveMapProperties:
-          description: Defines interactive maps properties within the interactive maps layer. Field is optional, specify a value to modify interactive maps properties. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/InteractiveMapProperties'
-        secureHandles:
-          $ref: '#/components/schemas/SecureHandles'
-        subsetRestrictions:
-          $ref: '#/components/schemas/SubsetRestrictions'
-        tags:
-          type: array
-          example:
-          - Traffic
-          - Speed
-          description: Some keywords that help to find the layer when searching in the platform portal. Field is optional, Specify a value to replace all list of tags. This field is not removable, null value is not allowed.
-          items:
-            type: string
-        billingTags:
-          type: array
-          example:
-          - Cost-Center_1
-          - Cost-Center_2
-          description: 'List of billing tags a free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alphanumeric ASCII characters [A-Za-z0-9] and the following special characters: - _ (except first and last character). Field is optional, Specify a value to replace all list of billing tags. This field is not removable, null value is not allowed.'
-          items:
-            type: string
-        crc:
-          example: CRC-32C
-          description: The `crc` property specifies the CRC algorithm used by the data publisher to generate a checksum for each partition in the layer. Field is optional, Specify a value to modify layer CRC algorithm only if layer was created with no CRC specified. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/CRC'
-        digest:
-          example: SHA-256
-          description: The digest property specifies the algorithm used by the data publisher to generate a hash for each partition in the layer. Field is optional, Specify a value to modify layer digest algorithm only if layer was created with no digest specified. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/Digest'
-        ttl:
-          description: Defines ttl within the stream layer. Field is optional, Specify a value to modify the ttl of the stream layer. This field is not removable, null value is not allowed. Can be updated only if not set already for stream layer.
-          $ref: '#/components/schemas/Ttl'
-        contentType:
-          description: Defines content type within the stream layer. Field is optional, Specify a value to modify the content type of the stream layer. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/ContentType'
-        contentEncoding:
-          description: Defines content encoding within the stream layer. Field is optional, Specify a value to modify the content encoding of the stream layer. This field is not removable, null value is not allowed.
-          $ref: '#/components/schemas/ContentEncoding'
-      description: Describes the modification of the layer configuration.
-    SubsetRestrictions:
-      type: boolean
-      description: This field is deprecated on the catalog level. Use subsetRestrictions on the layer level only. Indicates if the subsetRestrictions for a layer is enabled or not. Supported only for layers with heretile partitioning. After deprecation setting subsetRestrictions on the catalog level takes no effect. It will simply be ignored.
-      example: true
-      x-maturity: beta
+          example: HERE
+          description: The ID of the customer organisation relating to this catalog
     VersionedLayer:
       allOf:
       - type: object
@@ -2194,145 +1150,117 @@ components:
           versionedLayerProperties:
             $ref: '#/components/schemas/VersionedLayerPropertiesInGet'
       description: Describes the catalog versioned layer properties.
-    Digest:
+    ContentEncoding:
       type: string
-      description: The digest algorithm used to calculate the checksum for the partitions in this layer. If specified, you can assume that all partitions in the layer, at every version, were calculated using this algorithm. Note that it is the responsibility of the data publisher to use this algorithm to calculate partition checksums. The HERE platform services do not verify that the specified algorithm was actually used.
-      example: SHA-1
+      example: gzip
+      description: Identifies whether the data is compressed. Can be updated only for the stream layer.
       enum:
-      - MD5
-      - SHA-1
-      - SHA-256
-    StreamLayer:
-      allOf:
-      - type: object
-        required:
-        - id
-        - hrn
-        - name
-        - summary
-        - description
-        - partitioningScheme
-        - partitioning
-        - contentType
-        - tags
-        - billingTags
-        - ttlHours
-        - ttl
-        - volume
-        - streamProperties
-        - created
-        - layerType
-        properties:
-          id:
-            $ref: '#/components/schemas/LayerId'
-          hrn:
-            $ref: '#/components/schemas/LayerHrn'
-          name:
-            $ref: '#/components/schemas/LayerName'
-          summary:
-            $ref: '#/components/schemas/LayerSummary'
-          description:
-            $ref: '#/components/schemas/LayerDescription'
-          coverage:
-            $ref: '#/components/schemas/Coverage'
-          schema:
-            $ref: '#/components/schemas/Schema'
-          partitioningScheme:
-            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
-          partitioning:
-            $ref: '#/components/schemas/Partitioning'
-          contentType:
-            $ref: '#/components/schemas/ContentType'
-          contentEncoding:
-            $ref: '#/components/schemas/ContentEncoding'
-          tags:
-            $ref: '#/components/schemas/Tags'
-          billingTags:
-            $ref: '#/components/schemas/BillingTags'
-          ttlHours:
-            $ref: '#/components/schemas/TtlHours'
-          ttl:
-            $ref: '#/components/schemas/Ttl'
-          volume:
-            $ref: '#/components/schemas/DurableVolume'
-          streamProperties:
-            $ref: '#/components/schemas/StreamProperties'
-          created:
-            $ref: '#/components/schemas/LayerCreated'
-          layerType:
-            type: string
-            example: stream
-            enum:
-            - stream
-            description: The type of data availability that this layer provides
-      description: Describes the catalog stream layer properties.
-    SubsetsResponse:
+      - gzip
+    IndexDefinition:
       type: object
-      description: '**BETA** Response body for the `get subsets` API that is useful for pagination.'
-      required:
-      - total
-      - limit
-      - count
-      - items
       properties:
-        total:
-          type: integer
-          description: Total number of accessible subsets.
-          example: 2
-        limit:
-          type: integer
-          description: Requested or default limit of subsets on a page.
-          default: 100
-          example: 1
-        count:
-          type: integer
-          description: Number of subsets present on the current page.
-          example: 1
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subsets'
-        nextPageToken:
+        name:
           type: string
-          description: An optional field which is present when there is another page with more subsets that should be queried. The string value should be used in the query parameter of the new request to query the next page.
-          example: MS84
-      x-maturity: beta
-    DurableVolume:
-      type: object
-      required:
-      - volumeType
-      properties:
-        volumeType:
+        type:
           type: string
           enum:
-          - durable
-          example: durable
-      description: Describes a catalog durable volume to be used for storing the layer's data content.
-    DataSubsets:
+          - bool
+          - int
+          - string
+          - heretile
+          - timewindow
+        duration:
+          description: The `timewindow` enum type represents the time slice (*not* just a point in time) and it denotes the finest time granularity at which the data will be indexed and later queried. The `timewindow` type has an attribute duration that represents the time slice length. It is *not* mutable. Both time key value and time type duration are expressed in milliseconds (time value is milliseconds since `Epoch`). Value of duration is between 10 minutes and 1 day in milliseconds.
+          type: integer
+        zoomLevel:
+          type: integer
+          description: The `heretile` enum type represents the tile ID in the HERE tile map tiling scheme. The `heretile` type has an attribute `zoomLevel` that represents the size of the tile and is *not* mutable.
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+    Ttl:
+      type: integer
+      format: int64
+      example: 3600000
+      description: The expiry time in milliseconds for data in this layer. Data is automatically removed after the specified time limit has elapsed. For volatile layers, the TTL value must be between 60000 (1 minute) and 604800000 (7 days). For stream layers the TTL value must be between 600000 (10 minutes) and 259200000 (72 hours). Can be updated for stream and index layers.
+    DataSubsetAreasCreate:
+      allOf:
+      - $ref: '#/components/schemas/DataSubsetBaseCreate'
+      - type: object
+        required:
+        - areaScheme
+        - areas
+        properties:
+          dataSubsetType:
+            type: string
+            enum:
+            - areas
+          areaScheme:
+            type: string
+            description: HRN of the Area Scheme
+            example: hrn:here:areascheme::olp-here:default-countries
+          areas:
+            type: array
+            items:
+              type: string
+              maxLength: 24
+            example:
+            - afg
+            - bra
+            - deu
+    LayerName:
+      type: string
+      example: Traffic Incidents
+      description: The display name for the layer.
+      minLength: 1
+      maxLength: 120
+    AutomaticVersionDeletion:
       type: object
-      description: Describes the accessible data subsets based on different areas or layers.
-      required:
-      - items
+      anyOf:
+      - required:
+        - numberOfVersionsToKeep
+      - required:
+        - ttlDays
       properties:
-        items:
-          type: array
-          description: List of data subsets accessible by the caller and based on different areas or layers.
-          maxLength: 8000
-          items:
-            $ref: '#/components/schemas/DataSubset'
-      x-maturity: beta
-    ObjectStoreProperties:
+        numberOfVersionsToKeep:
+          type: integer
+          format: int64
+          example: 1
+          description: Specifies how many versions to keep. To optimise storage costs, you can specify how many latest versions to keep. The minimum number of versions to keep is 1. The maximum number of versions to keep is 50,000.
+        ttlDays:
+          type: integer
+          format: int64
+          example: 3
+          description: Specifies the number of days to keep versions, counting from their creation time. The minimum ttlDays value is 3 days.
+    CatalogPendingStatus:
       type: object
       properties:
-        encryptionType:
-          $ref: '#/components/schemas/EncryptionType'
+        status:
+          type: string
+          description: Status of the operation
+          example: pending
+      description: Describes the status of the catalog modification action.
+    IndexProperties:
+      type: object
+      properties:
         ttl:
           type: string
           example: 1.year
-          description: Amount of time data will remain in objectstore layer. If not specified, it defaults to unlimited.
+          description: Amount of time data will remain in index layer. If not specified, it defaults to 7 days.
           enum:
-          - 1.days
-          - 3.days
           - 7.days
           - 15.days
           - 1.month
@@ -2342,27 +1270,58 @@ components:
           - 6.months
           - 1.year
           - 1.5.years
-          - 2.years
-          - 3.years
-          - 5.years
+          - 2.year
           - unlimited
-    LayerName:
-      type: string
-      example: Traffic Incidents
-      description: The display name for the layer.
-      minLength: 1
-      maxLength: 120
-    CatalogFailureStatus:
+        indexDefinitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexDefinition'
+    InteractiveMapProperties:
+      type: object
+      additionalProperties: true
+      properties:
+        searchableProperties:
+          type: array
+          description: A list properties that must be indexed for faster queries.
+          example:
+          - incidentType
+          items:
+            type: string
+        extends:
+          $ref: '#/components/schemas/Extends'
+        versionsToKeep:
+          default: 1
+          description: 'Defines how many versions are kept, while older versions may be purged. This value is set to 1 by default, so that there is only one (HEAD) state of the layer and no further versions are kept. If the value is greater than 1, then older versions, up to the "versionsToKeep" version, can be retrieved, such as by ?version=<version_number>.
+
+
+            The value for versionsToKeep cannot be modified when set to 1. The value can be modified when set to a value greater than 1, but it cannot be changed to 1. The maximum value for versionsToKeep can be set to 1000000000.'
+          example: 2
+          type: integer
+        readOnly:
+          type: boolean
+          description: This property can be used to make any interactive map layer read-only. The boolean value true or false defines if the layer is read-only or not.
+          example: true
+    Owner:
       type: object
       properties:
-        reason:
-          type: string
-          example: Operation failed.
-        status:
-          type: string
-          description: Status of the operation
-          example: failure
-      description: Describes the detailed status of the failed catalog creation operation.
+        creator:
+          $ref: '#/components/schemas/Creator'
+        organisation:
+          $ref: '#/components/schemas/Organisation'
+    LayerId:
+      type: string
+      example: traffic-incidents
+      description: The ID to use when referring to this layer programmatically.
+      minLength: 1
+      maxLength: 50
+    VersionedLayerPropertiesInGet:
+      type: object
+      additionalProperties: true
+      properties:
+        extends:
+          $ref: '#/components/schemas/Extends'
+        encryptionType:
+          $ref: '#/components/schemas/EncryptionType'
     CreateObjectstoreLayer:
       allOf:
       - type: object
@@ -2400,51 +1359,190 @@ components:
             - objectstore
             description: The type of data availability that this layer provides
       description: Describes properties of a catalog object store layer.
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          example: HERE
-          description: The ID of the customer organisation relating to this catalog
-    DataSubsetBase:
-      type: object
-      required:
-      - id
-      - name
-      - dataSubsetType
-      - created
-      properties:
-        id:
-          type: string
-          maxLength: 100
-          pattern: ^[a-z0-9][a-z0-9\-_]*$
-          example: deu
-        name:
-          type: string
-          maxLength: 80
-          example: Germany
-        dataSubsetType:
-          type: string
-          description: Type of the data subset
-        created:
-          type: string
-          format: date-time
-          example: '2021-12-16T18:20:18.950358Z'
-    DataSubsetCreate:
+    EncryptionType:
+      type: string
+      description: Defines type of encryption to apply for data at rest. 'hereEncryption' is default and ensures that encryption keys are managed by HERE, 'cloudEncryption' uses standard cloud providers encryption mechanism like AWS S3 Bucket keys or similar.
+      example: hereEncryption
+      enum:
+      - hereEncryption
+      - cloudEncryption
+    DataSubset:
       oneOf:
-      - $ref: '#/components/schemas/DataSubsetAreasCreate'
-      - $ref: '#/components/schemas/DataSubsetLayersCreate'
+      - $ref: '#/components/schemas/DataSubsetAreas'
+      - $ref: '#/components/schemas/DataSubsetLayers'
       discriminator:
         propertyName: dataSubsetType
         mapping:
-          areas: '#/components/schemas/DataSubsetAreasCreate'
-          layers: '#/components/schemas/DataSubsetLayersCreate'
-          ocm-layers: '#/components/schemas/DataSubsetLayersCreate'
-          nds-layers: '#/components/schemas/DataSubsetLayersCreate'
-    DataSubsetsResponse:
+          areas: '#/components/schemas/DataSubsetAreas'
+          layers: '#/components/schemas/DataSubsetLayers'
+          ocm-layers: '#/components/schemas/DataSubsetLayers'
+          nds-layers: '#/components/schemas/DataSubsetLayers'
+    Partitioning:
       type: object
-      description: Response body for the `get data subsets` API that is useful for pagination.
+      required:
+      - scheme
+      properties:
+        scheme:
+          $ref: '#/components/schemas/PartitioningScheme'
+        tileLevels:
+          type: array
+          description: A list of quadtree tile levels which contain data partitions. Only used if the partitioningScheme is heretile.
+          items:
+            type: integer
+            format: int64
+            example: 12
+      description: Describes the way in which data is partitioned within the layer.
+    LayerHrn:
+      type: string
+      example: hrn:here:data:::olp-traffic:traffic-incidents
+      description: The HERE Resource Name (HRN) of the layer.
+    VolatileProperties:
+      type: object
+      required:
+      - storageCapacityMb
+      properties:
+        dataRedundancy:
+          type: string
+          enum:
+          - single-instance
+          - multi-instance
+          example: volatile
+          description: Volatile storage provision mode.
+        storageCapacityMb:
+          type: integer
+          format: int32
+          example: 100
+          description: Capacity of volatile storage in MB. Value should be divisible by 100. The minimum is 100, the maximum is 21000 MB.
+      description: Properties that define the scale of the volatile layer.
+    CatalogOperationSuccessStatus:
+      type: object
+      required:
+      - status
+      properties:
+        item:
+          $ref: '#/components/schemas/CatalogLink'
+        status:
+          type: string
+          description: Status of the operation
+          example: success
+      description: Describes the status of the successful catalog creation operation including its href.
+    PatchObjectStoreProperties:
+      type: object
+      properties:
+        ttl:
+          type: string
+          example: 1.year
+          description: Amount of time data will remain in objectstore layer. If not specified, it defaults to unlimited.
+          enum:
+          - 1.days
+          - 3.days
+          - 7.days
+          - 15.days
+          - 1.month
+          - 2.months
+          - 3.months
+          - 4.months
+          - 6.months
+          - 1.year
+          - 1.5.years
+          - 2.year
+          - 3.years
+          - 5.years
+          - unlimited
+    PatchStreamProperties:
+      type: object
+      properties:
+        dataInThroughputKbps:
+          type: integer
+          format: int64
+          example: 300
+          description: Maximum throughput for incoming data expressed in kilobytes per second. Throttling occurs when the inbound rate exceeds the maximum inbound throughput. The default is 1000 KBps. The minimum is 100 KBps, the maximum is 32800 KBps. Can only be multiple of 100 KBps.
+        dataOutThroughputKbps:
+          type: integer
+          format: int64
+          example: 36500
+          description: Maximum throughput for outgoing data expressed in kilobytes per second. Throttling occurs when the total outbound rate to all consumers exceeds the maximum outbound throughput. The default is 4000 KBps. The minimum is 100 KBps, the maximum is 65500 KBps. Can only be multiple of 100 KBps.
+      description: 'Properties that define the scale of the required streaming layer.
+
+        `dataInThroughputKbps` and `dataOutThroughputKbps` can only be values multiple of 100. For instance, the value 33200 is valid while 32250 is not.'
+    Digest:
+      type: string
+      description: The digest algorithm used to calculate the checksum for the partitions in this layer. If specified, you can assume that all partitions in the layer, at every version, were calculated using this algorithm. Note that it is the responsibility of the data publisher to use this algorithm to calculate partition checksums. The HERE platform services do not verify that the specified algorithm was actually used.
+      example: SHA-1
+      enum:
+      - MD5
+      - SHA-1
+      - SHA-256
+    CatalogFailureStatus:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: Operation failed.
+        status:
+          type: string
+          description: Status of the operation
+          example: failure
+      description: Describes the detailed status of the failed catalog creation operation.
+    InteractiveMapsLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - hrn
+        - name
+        - summary
+        - description
+        - contentType
+        - tags
+        - billingTags
+        - created
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          hrn:
+            $ref: '#/components/schemas/LayerHrn'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          contentType:
+            $ref: '#/components/schemas/ContentType'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          interactiveMapProperties:
+            $ref: '#/components/schemas/InteractiveMapProperties'
+          created:
+            $ref: '#/components/schemas/LayerCreated'
+          layerType:
+            type: string
+            example: interactivemap
+            enum:
+            - interactivemap
+            description: The type of data availability that this layer provides
+      description: Describes the catalog interactive maps layer properties.
+    SecureHandles:
+      type: boolean
+      example: true
+      description: Indicates if the layer metadata and blob are in a mode that secure dataHandles support. It supports only heretile layer partitioning. The produced dataHandles contain a reference partitionId and a secure signature, for example '2423589347~5945c961-e74d-478f-8afe-da53cf4189e3~EAAQuWgWdiwktzMKEeweZA-6HteHy38hXR_NY-qpeSamlJc'."
+      x-maturity: beta
+    PartitioningScheme:
+      type: string
+      enum:
+      - generic
+      - heretile
+      example: heretile
+      description: The name of the partitioning scheme for the layer
+    SubsetsResponse:
+      type: object
+      description: '**BETA** Response body for the `get subsets` API that is useful for pagination.'
       required:
       - total
       - limit
@@ -2453,120 +1551,46 @@ components:
       properties:
         total:
           type: integer
-          description: Total number of accessible data subsets.
+          description: Total number of accessible subsets.
           example: 2
         limit:
           type: integer
-          description: Requested or default limit of data subsets on a page.
+          description: Requested or default limit of subsets on a page.
           default: 100
           example: 1
         count:
           type: integer
-          description: Number of data subsets present on the current page.
+          description: Number of subsets present on the current page.
           example: 1
         items:
           type: array
           items:
-            $ref: '#/components/schemas/DataSubsets'
+            $ref: '#/components/schemas/Subsets'
         nextPageToken:
           type: string
-          description: An optional field which is present when there is another page with more data subsets that should be queried. The string value should be used in the query parameter of the new request to query the next page.
+          description: An optional field which is present when there is another page with more subsets that should be queried. The string value should be used in the query parameter of the new request to query the next page.
           example: MS84
       x-maturity: beta
-    CatalogStatusResult:
+    CatalogSummary:
+      type: object
       properties:
-        disabled:
-          example: true
-          type: boolean
-          description: Disabled status for catalog. If set to true, then no data reads and writes can be performed against the catalog while disabled. To re-enable, set to false.
-        updated:
-          example: '2022-12-12T21:06:24.831916Z'
+        href:
           type: string
-          description: Timestamp, in ISO 8601 format, when the catalog status was last updated.
-        id:
+          example: https://config.data.api.platform.here.com/config/v1/catalogs/hrn:here:data:::olp-traffic
+          description: The link to the catalog details
+        hrn:
           type: string
-          description: The unique ID of the user or application that disabled/re-enabled the catalog.
-          example: Mejk09M4Aq71KI5l1t2T2
-      type: object
-    InteractiveMapProperties:
-      type: object
-      additionalProperties: true
-      properties:
-        searchableProperties:
-          type: array
-          description: A list properties that must be indexed for faster queries.
-          example:
-          - incidentType
-          items:
-            type: string
-        extends:
-          $ref: '#/components/schemas/Extends'
-        versionsToKeep:
-          default: 1
-          description: 'Defines how many versions are kept, while older versions may be purged. This value is set to 1 by default, so that there is only one (HEAD) state of the layer and no further versions are kept. If the value is greater than 1, then older versions, up to the "versionsToKeep" version, can be retrieved, such as by ?version=<version_number>.
-
-
-            The value for versionsToKeep cannot be modified when set to 1. The value can be modified when set to a value greater than 1, but it cannot be changed to 1. The maximum value for versionsToKeep can be set to 1000000000.'
-          example: 2
-          type: integer
-        readOnly:
-          type: boolean
-          description: This property can be used to make any interactive map layer read-only. The boolean value true or false defines if the layer is read-only or not.
-          example: true
-    BillingTags:
-      type: array
-      example:
-      - Cost-Center_1
-      - Cost-Center_2
-      description: 'List of billing tags a free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alphanumeric ASCII characters [A-Za-z0-9] and the following special characters: - _ (except first and last character).'
-      items:
-        type: string
-    VersionedLayerPropertiesInGet:
-      type: object
-      additionalProperties: true
-      properties:
-        extends:
-          $ref: '#/components/schemas/Extends'
-        encryptionType:
-          $ref: '#/components/schemas/EncryptionType'
-    AreaScheme:
-      type: string
-      description: This field is deprecated on the catalog level. Use **/catalogs/{catalogHrn}/dataSubsets** to set areaScheme in the dataSubset instead. HERE Resource Name (HRN) of the Area Scheme used in the data subset. After deprecation setting areaScheme on the catalog level takes no effect. It will simply be ignored.
-      example: hrn:here:areascheme::olp-here:default-countries
-      x-maturity: beta
-    Replication:
-      type: object
-      properties:
-        regions:
-          type: array
-          description: A list of the catalog's replication regions and each region's role. For multi-region replication, catalogs list should contain multiple items where at least one should be with a `primary` role. For single-region replication, catalogs should define `primary` region. Both `eu-ireland` and `us-oregon` are allowed as primary region.
-          items:
-            $ref: '#/components/schemas/ReplicationRegion'
-    DataSubsetLayersCreate:
-      allOf:
-      - $ref: '#/components/schemas/DataSubsetBaseCreate'
-      - type: object
-        required:
-        - layers
-        properties:
-          id:
-            type: string
-            maxLength: 100
-            pattern: ^[a-z0-9][a-z0-9\.\-_]*$
-            example: core-layer-group
-          dataSubsetType:
-            type: string
-            enum:
-            - layers
-            - ocm-layers
-            - nds-layers
-          layers:
-            type: array
-            items:
-              type: string
-            example:
-            - topology
-            - roadnetwork
+          example: hrn:here:data:::olp-traffic
+          description: The HERE Resource Name (HRN) for the catalog
+        title:
+          type: string
+          example: HERE Real Time Traffic
+          description: The name of the catalog as specified in the "name" property when the catalog was created
+        type:
+          type: string
+          example: urn:olp-types:catalog
+          description: The type of the href. All hrefs are currently set to urn:olp-types:catalog.
+      description: Describes the main properties of the catalog.
     VolatileLayer:
       allOf:
       - type: object
@@ -2638,14 +1662,643 @@ components:
           subsetRestrictions:
             $ref: '#/components/schemas/SubsetRestrictions'
       description: Describes the catalog volatile layer properties.
-    CatalogPendingStatus:
+    ContentType:
+      type: string
+      description: The MIME type of the data is stored in this layer. Cannot be updated for `objectstore` and `interactivemap` layers. The default value for interactivemap layer is `application/geo+json` because the data is stored and retrieved in GeoJSON format compatible with RFC-7946 (https://www.rfc-editor.org/rfc/rfc7946).
+      example: application/json
+    Replication:
       type: object
       properties:
+        regions:
+          type: array
+          description: A list of the catalog's replication regions and each region's role. For multi-region replication, catalogs list should contain multiple items where at least one should be with a `primary` role. For single-region replication, catalogs should define `primary` region. Both `eu-ireland` and `us-oregon` are allowed as primary region.
+          items:
+            $ref: '#/components/schemas/ReplicationRegion'
+    Coverage:
+      type: object
+      properties:
+        adminAreas:
+          type: array
+          description: A list of ISO 3166 two-letter codes for countries and regions optionally followed by up to three characters codes for subdivisions, such as 'DE', 'PL', or 'CN-HK'.
+          items:
+            type: string
+            example: DE
+      description: The geographic area that this layer covers
+    LayerDescription:
+      type: string
+      example: This layer provides aggregated information about traffic incidents, including the type and location of each traffic incident, status, start and end time, and other relevant data. This data is useful to dynamically optimize route calculations.
+      description: A detailed description of the layer and what it contains. This information appears on the 'Overview' tab when you open a layer in the platform portal.
+      minLength: 0
+      maxLength: 10000
+    ObjectstoreLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - hrn
+        - name
+        - summary
+        - description
+        - tags
+        - billingTags
+        - volume
+        - created
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          hrn:
+            $ref: '#/components/schemas/LayerHrn'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          coverage:
+            $ref: '#/components/schemas/Coverage'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          volume:
+            $ref: '#/components/schemas/DurableVolume'
+          created:
+            $ref: '#/components/schemas/LayerCreated'
+          layerType:
+            type: string
+            example: objectstore
+            enum:
+            - objectstore
+            description: The type of data availability that this layer provides
+      description: Describes the catalog objectstore layer properties.
+    ExtendsWithVersion:
+      allOf:
+      - $ref: '#/components/schemas/Extends'
+      - type: object
+        properties:
+          baseVersion:
+            type: integer
+            description: The version of the extended catalog. If provided, then empty publication with version 0 will be created.
+    LayerCreated:
+      type: string
+      example: '2019-02-07T15:24:39.437810Z'
+      description: The layer creation timestamp in ISO 8601 format.
+    ObjectStoreProperties:
+      type: object
+      properties:
+        encryptionType:
+          $ref: '#/components/schemas/EncryptionType'
+        ttl:
+          type: string
+          example: 1.year
+          description: Amount of time data will remain in objectstore layer. If not specified, it defaults to unlimited.
+          enum:
+          - 1.days
+          - 3.days
+          - 7.days
+          - 15.days
+          - 1.month
+          - 2.months
+          - 3.months
+          - 4.months
+          - 6.months
+          - 1.year
+          - 1.5.years
+          - 2.years
+          - 3.years
+          - 5.years
+          - unlimited
+    StreamProperties:
+      type: object
+      properties:
+        dataInThroughputKbps:
+          type: integer
+          format: int64
+          example: 300
+          description: Maximum throughput for incoming data expressed in kilobytes per second. Throttling occurs when the inbound rate exceeds the maximum inbound throughput. The default is 1000 KBps. The minimum is 100 KBps, the maximum is 32800 KBps. Can only be multiple of 100 KBps. Can be updated by the user.
+        dataOutThroughputKbps:
+          type: integer
+          format: int64
+          example: 36500
+          description: Maximum throughput for outgoing data expressed in kilobytes per second. Throttling occurs when the total outbound rate to all consumers exceeds the maximum outbound throughput. The default is 4000 KBps. The minimum is 100 KBps, the maximum is 65500 KBps. Can only be multiple of 100 KBps. Can be updated by the user.
+        parallelization:
+          type: integer
+          format: int64
+          example: 4
+          description: Number of stream partitions that maps to a Kafka topic partition. The maximum parallelism at which your application may run is determined by the maximum number of stream partitions of the input stream layer the application is reading from in its processing topology. The default is 4. The maximum is 32.
+      description: 'Properties that define the scale of the required streaming layer. It is recommended to provide all 3 properties when creating a streaming layer.
+
+        Either combination of `dataInThroughputKbps` and `dataOutThroughputKbps` or `parallelization` is required.
+
+        `dataInThroughputKbps` and `dataOutThroughputKbps` can only be values multiple of 100. For instance, the value 33200 is valid while 32250 is not.
+
+        Default values for missing field(s) will be calculated according to the following formulas:
+
+        `1 parallelization = 1000 dataInThroughputKbps`,
+
+        `1 parallelization = 2000 dataOutThroughputKbps`.'
+    CreateStreamLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - summary
+        - description
+        - contentType
+        - tags
+        - billingTags
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          coverage:
+            $ref: '#/components/schemas/Coverage'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          partitioningScheme:
+            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
+          partitioning:
+            $ref: '#/components/schemas/Partitioning'
+          contentType:
+            $ref: '#/components/schemas/ContentType'
+          contentEncoding:
+            $ref: '#/components/schemas/ContentEncoding'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          ttlHours:
+            $ref: '#/components/schemas/TtlHours'
+          ttl:
+            $ref: '#/components/schemas/Ttl'
+          volume:
+            $ref: '#/components/schemas/DurableVolume'
+          streamProperties:
+            $ref: '#/components/schemas/StreamProperties'
+          layerType:
+            type: string
+            example: stream
+            enum:
+            - stream
+            description: The type of data availability that this layer provides
+      description: Describes properties of a catalog stream layer.
+    CatalogsListResult:
+      allOf:
+      - $ref: '#/components/schemas/CatalogsResultBase'
+      - type: object
+        properties:
+          results:
+            $ref: '#/components/schemas/CatalogsList'
+      description: Contains a list of catalogs the user has access to.
+    CatalogLink:
+      type: object
+      properties:
+        href:
+          type: string
+          description: href of the catalog
+          example: https://config.data.api.platform.sit.here.com/config/v1/catalogs/hrn:here:data:::olp-traffic
+        hrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the catalog
+          example: hrn:here:data:::olp-traffic
+        title:
+          type: string
+          description: Title of the action
+          example: Catalog Creation, Catalog Deletion, Catalog Update
+        type:
+          type: string
+          description: Type of the href
+          example: urn:olp-types:status
+      description: Describes the status and href of the create/update/delete resource such as a catalog.
+    DataSubsetsFingerprint:
+      type: object
+      description: DataSubsetFingerprint is a combination of fields that indicate if anything was changed in the set of data subsets or if area scheme version was increased
+      required:
+      - dataSubsetsFingerprint
+      - dataSubsets
+      properties:
+        dataSubsetsFingerprint:
+          type: string
+          description: Fingerprint as a hash of data subsets.
+          example: hash
+        dataSubsets:
+          type: array
+          description: All data subsets the calling identity has access to, including the referenced Area IDs or Layer IDs.
+          items:
+            type: string
+          example:
+          - deu
+          - afg
+          - core-layer-group
+        areas:
+          type: array
+          description: Combined areas from all subsets of this result.
+          items:
+            type: string
+          example:
+          - deu
+          - afg
+          - bra
+        layers:
+          type: array
+          description: Combined layers from all subsets of this result.
+          items:
+            type: string
+          example:
+          - topology
+          - roadnetwork
+        areaScheme:
+          $ref: '#/components/schemas/AreaSchemeFingerprint'
+      x-maturity: beta
+    StatusLink:
+      type: object
+      properties:
+        href:
+          type: string
+          description: href of the created/update/delete catalog action
+          example: https://config.data.api.platform.sit.here.com/config/v1/status/02bc9a8d-6dc4-4698-87a0-faf3372e81c1
+        configToken:
+          type: string
+          description: token for getting the status of created/update/delete catalog action
+          example: 02bc9a8d-6dc4-4698-87a0-faf3372e81c1
+        title:
+          type: string
+          description: Title of the action
+          example: Catalog Creation, Catalog Deletion, Catalog Update
+        type:
+          type: string
+          description: Type of the href
+          example: urn:olp-types:status
+      description: Describes the status and href of the create/update/delete resource such as a catalog.
+    CatalogSuccessStatus:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/StatusLink'
         status:
           type: string
           description: Status of the operation
-          example: pending
-      description: Describes the status of the catalog modification action.
+          example: success
+      description: Describes the status of the successful catalog creation operation including its href.
+    CRC:
+      type: string
+      description: The CRC algorithm used to calculate the checksum for the partitions in this layers
+      example: CRC-32C
+      enum:
+      - CRC-32C
+    CatalogStatusRequestBody:
+      required:
+      - disabled
+      properties:
+        disabled:
+          example: true
+          type: boolean
+          description: If set to true, then no data reads and writes can be performed against the catalog while disabled. To re-enable, set to false.
+      type: object
+    SubsetRestrictions:
+      type: boolean
+      description: This field is deprecated on the catalog level. Use subsetRestrictions on the layer level only. Indicates if the subsetRestrictions for a layer is enabled or not. Supported only for layers with heretile partitioning. After deprecation setting subsetRestrictions on the catalog level takes no effect. It will simply be ignored.
+      example: true
+      x-maturity: beta
+    SubsetsFingerprint:
+      type: object
+      description: '**BETA** If subsetRestrictions is not enabled, the subsetsFingerprint, subsets, and areas will be empty.'
+      required:
+      - subsetsFingerprint
+      - subsets
+      - areas
+      properties:
+        subsetsFingerprint:
+          type: string
+          description: Fingerprint as a hash of subsets and the areaScheme version.
+          example: hash
+        subsets:
+          type: array
+          description: All subsets the calling identity has access to, including the referenced Area IDs.
+          items:
+            type: string
+          example:
+          - deu
+          - afg
+        areas:
+          type: array
+          description: Combined areas from all subsets of this result.
+          items:
+            type: string
+          example:
+          - deu
+          - afg
+          - bra
+        areaScheme:
+          $ref: '#/components/schemas/AreaSchemeFingerprint'
+      x-maturity: beta
+    VersionedLayerPropertiesInPost:
+      type: object
+      additionalProperties: true
+      properties:
+        extends:
+          $ref: '#/components/schemas/ExtendsWithVersion'
+        encryptionType:
+          $ref: '#/components/schemas/EncryptionType'
+    DurableVolume:
+      type: object
+      required:
+      - volumeType
+      properties:
+        volumeType:
+          type: string
+          enum:
+          - durable
+          example: durable
+      description: Describes a catalog durable volume to be used for storing the layer's data content.
+    PatchIndexProperties:
+      type: object
+      properties:
+        ttl:
+          type: string
+          example: 1.year
+          description: Amount of time data will remain in index layer. If not specified, it defaults to 7 days. Can be updated only if not set already.
+          enum:
+          - 7.days
+          - 15.days
+          - 1.month
+          - 2.months
+          - 3.months
+          - 4.months
+          - 6.months
+          - 1.year
+          - 1.5.years
+          - 2.year
+          - unlimited
+    DataSubsetAreas:
+      allOf:
+      - $ref: '#/components/schemas/DataSubsetBase'
+      - type: object
+        required:
+        - areaScheme
+        - areas
+        properties:
+          dataSubsetType:
+            type: string
+            enum:
+            - areas
+          areaScheme:
+            type: string
+            description: HRN of the Area Scheme
+            example: hrn:here:areascheme::olp-here:default-countries
+          areas:
+            type: array
+            items:
+              type: string
+              maxLength: 24
+            example:
+            - afg
+            - bra
+            - deu
+    Subset:
+      type: object
+      description: Describes the specific subset based on the included areas.
+      required:
+      - id
+      - hrn
+      - name
+      - areas
+      - created
+      properties:
+        id:
+          type: string
+          example: deu
+          description: Immutable ID that refers to the subset.
+          maxLength: 24
+          pattern: ^[a-z0-9][a-z0-9\.\-_]*$
+        hrn:
+          type: string
+          example: hrn:here:data::olp-here:countries::deu
+          description: HERE Resource Name (HRN) for the subset.
+        name:
+          type: string
+          example: Germany
+          description: Short name for the subset.
+          maxLength: 80
+        areas:
+          type: array
+          description: Various areas covered in the subset.
+          maxLength: 250
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - afg
+          - bra
+          - deu
+        created:
+          type: string
+          description: Creation date and time.
+          example: '2021-12-16T18:20:18.950358Z'
+    CreateVolatileLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - summary
+        - description
+        - contentType
+        - tags
+        - billingTags
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          coverage:
+            $ref: '#/components/schemas/Coverage'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          partitioningScheme:
+            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
+          partitioning:
+            $ref: '#/components/schemas/Partitioning'
+          contentType:
+            $ref: '#/components/schemas/ContentType'
+          contentEncoding:
+            $ref: '#/components/schemas/ContentEncoding'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          ttlHours:
+            $ref: '#/components/schemas/TtlHours'
+          ttl:
+            $ref: '#/components/schemas/Ttl'
+          digest:
+            $ref: '#/components/schemas/Digest'
+          crc:
+            $ref: '#/components/schemas/CRC'
+          volume:
+            $ref: '#/components/schemas/VolatileVolume'
+          volatileProperties:
+            $ref: '#/components/schemas/VolatileProperties'
+          layerType:
+            type: string
+            example: volatile
+            enum:
+            - volatile
+            description: The type of data availability that this layer provides
+          secureHandles:
+            $ref: '#/components/schemas/SecureHandles'
+          subsetRestrictions:
+            $ref: '#/components/schemas/SubsetRestrictions'
+      description: Describes properties of a catalog volatile layer.
+    DeprecatedPartitioningScheme:
+      type: string
+      deprecated: true
+      enum:
+      - generic
+      - heretile
+      example: heretile
+      description: The name of the partitioning scheme for the layer
+    CreateVersionedLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - summary
+        - description
+        - contentType
+        - tags
+        - billingTags
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          coverage:
+            $ref: '#/components/schemas/Coverage'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          partitioningScheme:
+            $ref: '#/components/schemas/DeprecatedPartitioningScheme'
+          partitioning:
+            $ref: '#/components/schemas/Partitioning'
+          contentType:
+            $ref: '#/components/schemas/ContentType'
+          contentEncoding:
+            $ref: '#/components/schemas/ContentEncoding'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          digest:
+            $ref: '#/components/schemas/Digest'
+          crc:
+            $ref: '#/components/schemas/CRC'
+          layerType:
+            type: string
+            example: versioned
+            enum:
+            - versioned
+            description: The type of data availability that this layer provides
+          secureHandles:
+            $ref: '#/components/schemas/SecureHandles'
+          subsetRestrictions:
+            $ref: '#/components/schemas/SubsetRestrictions'
+          versionedLayerProperties:
+            $ref: '#/components/schemas/VersionedLayerPropertiesInPost'
+      description: Describes properties of a catalog versioned layer.
+    DataSubsetBaseCreate:
+      type: object
+      required:
+      - id
+      - name
+      - dataSubsetType
+      properties:
+        id:
+          type: string
+          maxLength: 100
+          pattern: ^[a-z0-9][a-z0-9\.\-_]*$
+          example: deu
+        name:
+          type: string
+          maxLength: 80
+          example: Germany
+        dataSubsetType:
+          type: string
+          description: Type of the data subset
+    TtlHours:
+      type: integer
+      deprecated: true
+      format: int64
+      example: 24
+      description: The expiry time in hours for data in this layer. Data is automatically removed after the specified time limit has elapsed.
+    CatalogsResultBase:
+      type: object
+      discriminator:
+        propertyName: verbose
+      properties:
+        verbose:
+          type: boolean
+      description: Describes base class.
+    AreaSchemeFingerprint:
+      type: object
+      required:
+      - hrn
+      - version
+      properties:
+        hrn:
+          type: string
+          description: HERE Resource Name (HRN) of the areaScheme in the catalog.
+          example: hrn:here:areascheme::olp-here:default-countries
+        version:
+          type: integer
+          description: Version of the scheme, which increments with any change.
+          example: 1
+      x-maturity: beta
+    DataSubsetBase:
+      type: object
+      required:
+      - id
+      - name
+      - dataSubsetType
+      - created
+      properties:
+        id:
+          type: string
+          maxLength: 100
+          pattern: ^[a-z0-9][a-z0-9\-_]*$
+          example: deu
+        name:
+          type: string
+          maxLength: 80
+          example: Germany
+        dataSubsetType:
+          type: string
+          description: Type of the data subset
+        created:
+          type: string
+          format: date-time
+          example: '2021-12-16T18:20:18.950358Z'
     CreateIndexLayer:
       allOf:
       - type: object
@@ -2692,6 +2345,254 @@ components:
             - index
             description: The type of data availability that this layer provides
       description: Describes properties of a catalog index layer.
+    CatalogsSummaryListResult:
+      allOf:
+      - $ref: '#/components/schemas/CatalogsResultBase'
+      - type: object
+        properties:
+          results:
+            $ref: '#/components/schemas/CatalogsSummaryList'
+      description: Contains a list of catalog summaries the user has access to.
+    DataSubsetsResponse:
+      type: object
+      description: Response body for the `get data subsets` API that is useful for pagination.
+      required:
+      - total
+      - limit
+      - count
+      - items
+      properties:
+        total:
+          type: integer
+          description: Total number of accessible data subsets.
+          example: 2
+        limit:
+          type: integer
+          description: Requested or default limit of data subsets on a page.
+          default: 100
+          example: 1
+        count:
+          type: integer
+          description: Number of data subsets present on the current page.
+          example: 1
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSubsets'
+        nextPageToken:
+          type: string
+          description: An optional field which is present when there is another page with more data subsets that should be queried. The string value should be used in the query parameter of the new request to query the next page.
+          example: MS84
+      x-maturity: beta
+    DataSubsetLayers:
+      allOf:
+      - $ref: '#/components/schemas/DataSubsetBase'
+      - type: object
+        required:
+        - layers
+        properties:
+          id:
+            type: string
+            maxLength: 100
+            pattern: ^[a-z0-9][a-z0-9\-_]*$
+            example: core-layer-group
+          dataSubsetType:
+            type: string
+            enum:
+            - layers
+            - ocm-layers
+            - nds-layers
+          layers:
+            type: array
+            items:
+              type: string
+            example:
+            - topology
+            - roadnetwork
+    PatchCatalog:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Modified catalog name
+          description: The short name for the catalog. Field is optional, Specify a value to modify catalog name. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 200
+        summary:
+          type: string
+          example: Modified catalog summary
+          description: A one-sentence summary of the catalog. You can see this summary when you browse a list of catalogs on the platform portal. Field is optional, Specify a value to modify catalog summary. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 1000
+        description:
+          type: string
+          example: Modified catalog description
+          description: A detailed description of the catalog and what it contains. This information appears on the 'Overview' tab when you open a catalog in the platform portal. Field is optional, Specify a value to modify catalog description. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 10000
+        tags:
+          type: array
+          example:
+          - Traffic
+          - Speed
+          description: Some keywords that help to find the catalog when searching in the platform portal. Field is optional, Specify a value to replace all list of tags. This field is not removable, null value is not allowed.
+          items:
+            type: string
+        areaScheme:
+          $ref: '#/components/schemas/AreaScheme'
+        subsetRestrictions:
+          $ref: '#/components/schemas/SubsetRestrictions'
+        notifications:
+          $ref: '#/components/schemas/Notifications'
+        replication:
+          $ref: '#/components/schemas/Replication'
+        automaticVersionDeletion:
+          $ref: '#/components/schemas/AutomaticVersionDeletion'
+        deleteProtected:
+          type: boolean
+          description: This property can be set to true if the resource needs to be protected from deletion. It can be set to false if the resource does not need to be protected from deletion. By default, catalogs are not protected.
+      description: Describes the modification of the catalog configuration.
+    Schema:
+      type: object
+      properties:
+        hrn:
+          type: string
+          example: hrn:here:schema:::com.here.schema.rib:topology-geometry_v2:2.2.0
+      description: Describes a HRN for the layer schema. Can be updated by the user for any kind of layer.
+    CreateInteractiveMapsLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - summary
+        - description
+        - tags
+        - billingTags
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          interactiveMapProperties:
+            $ref: '#/components/schemas/InteractiveMapProperties'
+          layerType:
+            type: string
+            example: interactivemap
+            enum:
+            - interactivemap
+            description: The type of data availability that this layer provides
+      description: Describes properties of a catalog interactive maps layer.
+    ReplicationRegion:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the region
+          enum:
+          - eu-ireland
+          - us-oregon
+          - ap-seoul
+        role:
+          description: 'Indicates whether the region is a primary or failover region. You can specify one of the following: `primary` - The region is used by default for reading and writing. `secondary` - The region used as a failover region.'
+          type: string
+          enum:
+          - primary
+          - secondary
+    DataSubsetCreate:
+      oneOf:
+      - $ref: '#/components/schemas/DataSubsetAreasCreate'
+      - $ref: '#/components/schemas/DataSubsetLayersCreate'
+      discriminator:
+        propertyName: dataSubsetType
+        mapping:
+          areas: '#/components/schemas/DataSubsetAreasCreate'
+          layers: '#/components/schemas/DataSubsetLayersCreate'
+          ocm-layers: '#/components/schemas/DataSubsetLayersCreate'
+          nds-layers: '#/components/schemas/DataSubsetLayersCreate'
+    LayerSummary:
+      type: string
+      example: This layer provides aggregated information about traffic incidents.
+      description: A one-sentence summary of the layer. You can see this summary when you browse a list of layers on the platform portal.
+      minLength: 0
+      maxLength: 1000
+    IndexLayer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - hrn
+        - name
+        - summary
+        - description
+        - contentType
+        - tags
+        - billingTags
+        - volume
+        - indexProperties
+        - created
+        - layerType
+        properties:
+          id:
+            $ref: '#/components/schemas/LayerId'
+          hrn:
+            $ref: '#/components/schemas/LayerHrn'
+          name:
+            $ref: '#/components/schemas/LayerName'
+          summary:
+            $ref: '#/components/schemas/LayerSummary'
+          description:
+            $ref: '#/components/schemas/LayerDescription'
+          coverage:
+            $ref: '#/components/schemas/Coverage'
+          schema:
+            $ref: '#/components/schemas/Schema'
+          contentType:
+            $ref: '#/components/schemas/ContentType'
+          contentEncoding:
+            $ref: '#/components/schemas/ContentEncoding'
+          tags:
+            $ref: '#/components/schemas/Tags'
+          billingTags:
+            $ref: '#/components/schemas/BillingTags'
+          volume:
+            $ref: '#/components/schemas/DurableVolume'
+          indexProperties:
+            $ref: '#/components/schemas/IndexProperties'
+          created:
+            $ref: '#/components/schemas/LayerCreated'
+          digest:
+            $ref: '#/components/schemas/Digest'
+          crc:
+            $ref: '#/components/schemas/CRC'
+          layerType:
+            type: string
+            example: index
+            enum:
+            - index
+            description: The type of data availability that this layer provides
+      description: Describes the catalog index layer properties.
+    BillingTags:
+      type: array
+      example:
+      - Cost-Center_1
+      - Cost-Center_2
+      description: 'List of billing tags a free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alphanumeric ASCII characters [A-Za-z0-9] and the following special characters: - _ (except first and last character).'
+      items:
+        type: string
     Catalog:
       type: object
       required:
@@ -2793,108 +2694,267 @@ components:
           description: Indicates whether the catalog is ready to be listed in the Marketplace. If the value is `true`, the catalog is ready to be listed in the Marketplace.
           readOnly: true
       description: Describes the catalog properties.
-    IndexProperties:
-      type: object
-      properties:
-        ttl:
-          type: string
-          example: 1.year
-          description: Amount of time data will remain in index layer. If not specified, it defaults to 7 days.
-          enum:
-          - 7.days
-          - 15.days
-          - 1.month
-          - 2.months
-          - 3.months
-          - 4.months
-          - 6.months
-          - 1.year
-          - 1.5.years
-          - 2.year
-          - unlimited
-        indexDefinitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/IndexDefinition'
-    ContentType:
-      type: string
-      description: The MIME type of the data is stored in this layer. Cannot be updated for `objectstore` and `interactivemap` layers. The default value for interactivemap layer is `application/geo+json` because the data is stored and retrieved in GeoJSON format compatible with RFC-7946 (https://www.rfc-editor.org/rfc/rfc7946).
-      example: application/json
-    CatalogOperationSuccessStatus:
-      type: object
-      required:
-      - status
-      properties:
-        item:
-          $ref: '#/components/schemas/CatalogLink'
-        status:
-          type: string
-          description: Status of the operation
-          example: success
-      description: Describes the status of the successful catalog creation operation including its href.
-    IndexDefinition:
+    PatchLayer:
       type: object
       properties:
         name:
           type: string
-        type:
+          example: Modified layer name
+          description: The short name for the layer. Field is optional, Specify a value to modify layer name. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 120
+        summary:
           type: string
-          enum:
-          - bool
-          - int
-          - string
-          - heretile
-          - timewindow
-        duration:
-          description: The `timewindow` enum type represents the time slice (*not* just a point in time) and it denotes the finest time granularity at which the data will be indexed and later queried. The `timewindow` type has an attribute duration that represents the time slice length. It is *not* mutable. Both time key value and time type duration are expressed in milliseconds (time value is milliseconds since `Epoch`). Value of duration is between 10 minutes and 1 day in milliseconds.
-          type: integer
-        zoomLevel:
-          type: integer
-          description: The `heretile` enum type represents the tile ID in the HERE tile map tiling scheme. The `heretile` type has an attribute `zoomLevel` that represents the size of the tile and is *not* mutable.
-          enum:
-          - 0
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          - 7
-          - 8
-          - 9
-          - 10
-          - 11
-          - 12
-          - 13
-          - 14
-    CatalogSummary:
+          example: Modified layer summary
+          description: A one-sentence summary of the layer. You can see this summary when you browse a list of layers on the platform portal. Field is optional, Specify a value to modify layer summary. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 1000
+        description:
+          type: string
+          example: Modified layer description
+          description: A detailed description of the layer and what it contains. This information appears on the 'Overview' tab when you open a layer in the platform portal. Field is optional, Specify a value to modify layer description. This field is not removable, null value is not allowed.
+          minLength: 0
+          maxLength: 10000
+        coverage:
+          description: The geographic areas that this layer covers, grouped by administrative divisions. Field is optional, Specify a value to modify layer coverage. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/Coverage'
+        schema:
+          example: hrn:here:schema:::com.here.schema.rib:topology-geometry_v2:2.2.0
+          description: The HRN of the data schema for this layer. Field is optional, specify a value to modify layer schema. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/Schema'
+        partitioning:
+          description: Defines how data is partitioned within the layer. Field is optional, specify a value to modify layer partitioning. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/Partitioning'
+        indexProperties:
+          description: Defines index properties within the index layer. Field is optional, specify a value to modify layer index properties. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/PatchIndexProperties'
+        objectStoreProperties:
+          description: Defines objectStore properties within the objectStore layer. Field is optional, specify a value to modify layer objectStore properties. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/PatchObjectStoreProperties'
+        streamProperties:
+          description: Defines stream properties within the stream layer. Field is optional, specify a value to modify layer stream properties. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/PatchStreamProperties'
+        interactiveMapProperties:
+          description: Defines interactive maps properties within the interactive maps layer. Field is optional, specify a value to modify interactive maps properties. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/InteractiveMapProperties'
+        secureHandles:
+          $ref: '#/components/schemas/SecureHandles'
+        subsetRestrictions:
+          $ref: '#/components/schemas/SubsetRestrictions'
+        tags:
+          type: array
+          example:
+          - Traffic
+          - Speed
+          description: Some keywords that help to find the layer when searching in the platform portal. Field is optional, Specify a value to replace all list of tags. This field is not removable, null value is not allowed.
+          items:
+            type: string
+        billingTags:
+          type: array
+          example:
+          - Cost-Center_1
+          - Cost-Center_2
+          description: 'List of billing tags a free-form tag which is used for grouping billing records together. If supplied, it must be between 4 - 16 characters, contain only alphanumeric ASCII characters [A-Za-z0-9] and the following special characters: - _ (except first and last character). Field is optional, Specify a value to replace all list of billing tags. This field is not removable, null value is not allowed.'
+          items:
+            type: string
+        crc:
+          example: CRC-32C
+          description: The `crc` property specifies the CRC algorithm used by the data publisher to generate a checksum for each partition in the layer. Field is optional, Specify a value to modify layer CRC algorithm only if layer was created with no CRC specified. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/CRC'
+        digest:
+          example: SHA-256
+          description: The digest property specifies the algorithm used by the data publisher to generate a hash for each partition in the layer. Field is optional, Specify a value to modify layer digest algorithm only if layer was created with no digest specified. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/Digest'
+        ttl:
+          description: Defines ttl within the stream layer. Field is optional, Specify a value to modify the ttl of the stream layer. This field is not removable, null value is not allowed. Can be updated only if not set already for stream layer.
+          $ref: '#/components/schemas/Ttl'
+        contentType:
+          description: Defines content type within the stream layer. Field is optional, Specify a value to modify the content type of the stream layer. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/ContentType'
+        contentEncoding:
+          description: Defines content encoding within the stream layer. Field is optional, Specify a value to modify the content encoding of the stream layer. This field is not removable, null value is not allowed.
+          $ref: '#/components/schemas/ContentEncoding'
+      description: Describes the modification of the layer configuration.
+    Extends:
+      type: object
+      description: Extension definition that allows a layer's content to be based on an existing layer. Entities in the extension layer override features with the same ID in the extended layer.
+      required:
+      - catalogHrn
+      - layerId
+      properties:
+        catalogHrn:
+          type: string
+          description: Catalog HRN of the layer being extended.
+        layerId:
+          type: string
+          description: Layer ID of the layer being extended.
+    CatalogsList:
       type: object
       properties:
-        href:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Catalog'
+        next:
           type: string
-          example: https://config.data.api.platform.here.com/config/v1/catalogs/hrn:here:data:::olp-traffic
-          description: The link to the catalog details
-        hrn:
+          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
+          description: The link to the next page of catalogs result list
+        previous:
           type: string
-          example: hrn:here:data:::olp-traffic
-          description: The HERE Resource Name (HRN) for the catalog
-        title:
+          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
+          description: The link to the previous page of catalogs result list
+      description: List of the catalog configurations.
+    CatalogsSummaryList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogSummary'
+        next:
           type: string
-          example: HERE Real Time Traffic
-          description: The name of the catalog as specified in the "name" property when the catalog was created
-        type:
+          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
+          description: The link to the next page of catalogs result list
+        previous:
           type: string
-          example: urn:olp-types:catalog
-          description: The type of the href. All hrefs are currently set to urn:olp-types:catalog.
-      description: Describes the main properties of the catalog.
-    DeprecatedPartitioningScheme:
+          example: https://config.data.api.platform.here.com/config/v1/catalogs/context/b2Zmc2V0PTImbGltaXQ9MTA
+          description: The link to the previous page of catalogs result list
+      description: List of the catalog summaries
+    Creator:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the user or application that initially created the catalog
+          example: Mejk6DMxAq7kKI5lt2T2
+    AreaScheme:
       type: string
-      deprecated: true
-      enum:
-      - generic
-      - heretile
-      example: heretile
-      description: The name of the partitioning scheme for the layer
+      description: This field is deprecated on the catalog level. Use **/catalogs/{catalogHrn}/dataSubsets** to set areaScheme in the dataSubset instead. HERE Resource Name (HRN) of the Area Scheme used in the data subset. After deprecation setting areaScheme on the catalog level takes no effect. It will simply be ignored.
+      example: hrn:here:areascheme::olp-here:default-countries
+      x-maturity: beta
+    CreateCatalog:
+      type: object
+      required:
+      - id
+      - name
+      - summary
+      - description
+      properties:
+        id:
+          type: string
+          example: olp-traffic
+          description: The ID to use when referring to this catalog programmatically. Catalog IDs must be unique across all catalogs in the Open Location Platform. Do not put private information in the catalog ID. The catalog ID forms a portion of the catalog''s HERE Resource Name (HRN), and HRNs are visible to other users. Only lowercase alphanumeric characters (a-z), digits (0-9) and dash (-) are allowed in a catalog ID and the first and the last character must be a-z or 0-9.
+          minLength: 3
+          maxLength: 63
+          pattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
+        name:
+          type: string
+          example: Traffic Data
+          description: The short name for the catalog
+          minLength: 0
+          maxLength: 200
+        summary:
+          type: string
+          example: This catalog provides traffic flow and incidents information.
+          description: A one-sentence summary of the catalog. You can see this summary when you browse a list of catalogs on the platform portal.
+          minLength: 0
+          maxLength: 1000
+        description:
+          type: string
+          example: The catalog provides aggregated information about traffic incidents, including the type and location of each traffic incident, status, start and end time, and other relevant data. This data is useful to dynamically optimize route calculations. It also provides access to real-time traffic flow data in including information on speed and congestion for specific regions. The catalog also contains additional data such as the geometry of the road segments in relation to the flow.
+          description: A detailed description of the catalog and what it contains. This information appears on the 'Overview' tab when you open a catalog in the platform portal.
+          minLength: 0
+          maxLength: 10000
+        tags:
+          type: array
+          example:
+          - Traffic
+          - Flow
+          - Speed
+          description: Some keywords that help to find the catalog when searching in the platform portal
+          items:
+            type: string
+        layers:
+          type: array
+          x-baseType: CreateBaseLayer
+          description: The layers in the catalog
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CreateVersionedLayer'
+            - $ref: '#/components/schemas/CreateVolatileLayer'
+            - $ref: '#/components/schemas/CreateStreamLayer'
+            - $ref: '#/components/schemas/CreateIndexLayer'
+            - $ref: '#/components/schemas/CreateObjectstoreLayer'
+            - $ref: '#/components/schemas/CreateInteractiveMapsLayer'
+        areaScheme:
+          $ref: '#/components/schemas/AreaScheme'
+        subsetRestrictions:
+          $ref: '#/components/schemas/SubsetRestrictions'
+        version:
+          type: integer
+          format: int64
+          example: 1
+          description: The version of the catalog configuration. Every change in this number indicates change in catalog configuration. Examples of changes in catalog configuration include changing catalog parameters and adding layers. Note that the catalog configuration version is not the same as the metadata/data version. Configuration and metadata versions are independent of each other and indicate different kinds of changes.
+        notifications:
+          $ref: '#/components/schemas/Notifications'
+        replication:
+          $ref: '#/components/schemas/Replication'
+        automaticVersionDeletion:
+          $ref: '#/components/schemas/AutomaticVersionDeletion'
+      description: Describes the configuration of the catalog including its layer definitions.
+    CatalogStatusResult:
+      properties:
+        disabled:
+          example: true
+          type: boolean
+          description: Disabled status for catalog. If set to true, then no data reads and writes can be performed against the catalog while disabled. To re-enable, set to false.
+        updated:
+          example: '2022-12-12T21:06:24.831916Z'
+          type: string
+          description: Timestamp, in ISO 8601 format, when the catalog status was last updated.
+        id:
+          type: string
+          description: The unique ID of the user or application that disabled/re-enabled the catalog.
+          example: Mejk09M4Aq71KI5l1t2T2
+      type: object
+    Subsets:
+      type: object
+      description: '**BETA** Describes the accessible subsets based on different areas. If subsetRestrictions is not enabled, the result will be empty.'
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          description: List of subsets accessible by the caller and based on different areas.
+          maxLength: 8000
+          items:
+            $ref: '#/components/schemas/Subset'
+      x-maturity: beta
+    DataSubsetLayersCreate:
+      allOf:
+      - $ref: '#/components/schemas/DataSubsetBaseCreate'
+      - type: object
+        required:
+        - layers
+        properties:
+          id:
+            type: string
+            maxLength: 100
+            pattern: ^[a-z0-9][a-z0-9\.\-_]*$
+            example: core-layer-group
+          dataSubsetType:
+            type: string
+            enum:
+            - layers
+            - ocm-layers
+            - nds-layers
+          layers:
+            type: array
+            items:
+              type: string
+            example:
+            - topology
+            - roadnetwork
     Tags:
       type: array
       example:
@@ -2906,45 +2966,31 @@ components:
       description: Some keywords that help to find the layer when searching in the platform portal
       items:
         type: string
-    LayerDescription:
-      type: string
-      example: This layer provides aggregated information about traffic incidents, including the type and location of each traffic incident, status, start and end time, and other relevant data. This data is useful to dynamically optimize route calculations.
-      description: A detailed description of the layer and what it contains. This information appears on the 'Overview' tab when you open a layer in the platform portal.
-      minLength: 0
-      maxLength: 10000
-    LayerHrn:
-      type: string
-      example: hrn:here:data:::olp-traffic:traffic-incidents
-      description: The HERE Resource Name (HRN) of the layer.
-    TtlHours:
-      type: integer
-      deprecated: true
-      format: int64
-      example: 24
-      description: The expiry time in hours for data in this layer. Data is automatically removed after the specified time limit has elapsed.
-    CatalogsSummaryListResult:
-      allOf:
-      - $ref: '#/components/schemas/CatalogsResultBase'
-      - type: object
-        properties:
-          results:
-            $ref: '#/components/schemas/CatalogsSummaryList'
-      description: Contains a list of catalog summaries the user has access to.
-    CreateStreamLayer:
+    StreamLayer:
       allOf:
       - type: object
         required:
         - id
+        - hrn
         - name
         - summary
         - description
+        - partitioningScheme
+        - partitioning
         - contentType
         - tags
         - billingTags
+        - ttlHours
+        - ttl
+        - volume
+        - streamProperties
+        - created
         - layerType
         properties:
           id:
             $ref: '#/components/schemas/LayerId'
+          hrn:
+            $ref: '#/components/schemas/LayerHrn'
           name:
             $ref: '#/components/schemas/LayerName'
           summary:
@@ -2975,62 +3021,23 @@ components:
             $ref: '#/components/schemas/DurableVolume'
           streamProperties:
             $ref: '#/components/schemas/StreamProperties'
+          created:
+            $ref: '#/components/schemas/LayerCreated'
           layerType:
             type: string
             example: stream
             enum:
             - stream
             description: The type of data availability that this layer provides
-      description: Describes properties of a catalog stream layer.
-    DataSubsetLayers:
-      allOf:
-      - $ref: '#/components/schemas/DataSubsetBase'
-      - type: object
-        required:
-        - layers
-        properties:
-          id:
-            type: string
-            maxLength: 100
-            pattern: ^[a-z0-9][a-z0-9\-_]*$
-            example: core-layer-group
-          dataSubsetType:
-            type: string
-            enum:
-            - layers
-            - ocm-layers
-            - nds-layers
-          layers:
-            type: array
-            items:
-              type: string
-            example:
-            - topology
-            - roadnetwork
-    Partitioning:
-      type: object
-      required:
-      - scheme
-      properties:
-        scheme:
-          $ref: '#/components/schemas/PartitioningScheme'
-        tileLevels:
-          type: array
-          description: A list of quadtree tile levels which contain data partitions. Only used if the partitioningScheme is heretile.
-          items:
-            type: integer
-            format: int64
-            example: 12
-      description: Describes the way in which data is partitioned within the layer.
-    VersionedLayerPropertiesInPost:
-      type: object
-      additionalProperties: true
-      properties:
-        extends:
-          $ref: '#/components/schemas/ExtendsWithVersion'
-        encryptionType:
-          $ref: '#/components/schemas/EncryptionType'
+      description: Describes the catalog stream layer properties.
   parameters:
+    billingTag:
+      name: billingTag
+      in: query
+      description: The `billingTag` parameter is an optional free-form tag that you can use to group billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
+      required: false
+      schema:
+        type: string
     linkable:
       name: linkable
       in: query
@@ -3039,13 +3046,6 @@ components:
       schema:
         type: boolean
         default: false
-    billingTag:
-      name: billingTag
-      in: query
-      description: The `billingTag` parameter is an optional free-form tag that you can use to group billing records together. If supplied, it must be between 4 - 16 characters, contain only alpha/numeric ASCII characters  [A-Za-z0-9]. Grouping billing records by billing tag will be available in future releases.
-      required: false
-      schema:
-        type: string
   securitySchemes:
     Bearer:
       type: http

@@ -472,57 +472,6 @@ paths:
       x-operation-id-original: Geofencing API geofenceAttributes
 components:
   schemas:
-    AssetPositions:
-      type: object
-      properties:
-        point:
-          type: array
-          description: List of asset points with corresponding attributes.
-          items:
-            $ref: '#/components/schemas/AssetPoint'
-    TileResponseV8:
-      type: object
-      properties:
-        rows:
-          type: array
-          description: List of Attribute/value map from a specific layer.
-          items:
-            $ref: '#/components/schemas/TileRow'
-        meta:
-          $ref: '#/components/schemas/MetaResponseV8'
-    TileRow:
-      type: object
-      properties:
-        columns:
-          type: array
-          description: Map of attributes and values.
-          example:
-            LINK_ID: '113421120'
-            LONG_HAUL: N
-            NAME: SR-33 / Commonwealth Ave N
-            NAMES: ''
-            TUNNEL: N
-            BRIDGE: N
-            LAT: 2831248,47,72,46,50,47,21,42,33,31
-            LON: -8183529,6,10,5,7,5,2,5,3,3
-            ZLEVEL: ',,,,,,,,,'
-            ELEVATION: null
-            TOPOLOGY_ID: '399791974'
-            START_OFFSET: '0'
-            END_OFFSET: '100000'
-          items:
-            type: string
-            description: Map of attributes and values.
-            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
-      description: List of Attribute/value map from a specific layer.
-    LayerUploadResponse:
-      type: object
-      properties:
-        storedTilesCount:
-          type: integer
-          description: Number of tiles that were created to store the uploaded layer content
-          format: int32
-          example: 20
     AssetPoint:
       type: object
       properties:
@@ -559,30 +508,6 @@ components:
           type: string
           description: "Optional. Identifier for the asset. If provided, the response will contain the assetId.\n * The maximum length of an asset id and the permitted characters can be looked up in the service via `/v8/maps/serviceconfiguration`."
       description: List of asset points with corresponding attributes.
-    MapAttributesV8Response:
-      type: object
-      properties:
-        geometries:
-          type: array
-          description: List of geometries for spatial search response.
-          items:
-            $ref: '#/components/schemas/Geometry'
-        meta:
-          type: array
-          description: List of Meta info for spatial search response.
-          items:
-            $ref: '#/components/schemas/SearchMetaResponse'
-        Tiles:
-          type: array
-          items:
-            $ref: '#/components/schemas/TileResponseV8'
-    LayerModifyResponse:
-      type: object
-      properties:
-        action:
-          type: string
-          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
-          example: append
     DeleteLayersResponse:
       type: object
       properties:
@@ -595,32 +520,65 @@ components:
             type: string
             description: List of deleted layers.
             example: '["SAMPLE_LAYER"]'
-    MetaResponseV8:
+    TileRow:
       type: object
       properties:
-        layerName:
+        columns:
+          type: array
+          description: Map of attributes and values.
+          example:
+            LINK_ID: '113421120'
+            LONG_HAUL: N
+            NAME: SR-33 / Commonwealth Ave N
+            NAMES: ''
+            TUNNEL: N
+            BRIDGE: N
+            LAT: 2831248,47,72,46,50,47,21,42,33,31
+            LON: -8183529,6,10,5,7,5,2,5,3,3
+            ZLEVEL: ',,,,,,,,,'
+            ELEVATION: null
+            TOPOLOGY_ID: '399791974'
+            START_OFFSET: '0'
+            END_OFFSET: '100000'
+          items:
+            type: string
+            description: Map of attributes and values.
+            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
+      description: List of Attribute/value map from a specific layer.
+    SearchMetaResponse:
+      type: object
+      properties:
+        searchParameter:
           type: string
-          description: Name of layer returned in this tile response.
-          example: ROAD_GEOM_FC4
-        tileId:
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
           type: integer
-          description: Tile ID for the tile returned in this response.
-          format: int32
-          example: 22055097
-        level:
-          type: integer
-          description: Level for layer returned in this tile response.
-          format: int32
-          example: 12
-        mapRegion:
-          type: string
-          description: Map region for layer returned in this tile response.
-          example: WEU
-        mapRelease:
-          type: string
-          description: Specific map release that this layer content belongs to.
-          example: '25122'
-      description: Meta info for a specific layer.
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
+      description: List of Meta info for spatial search response.
+    TileResponseV8:
+      type: object
+      properties:
+        rows:
+          type: array
+          description: List of Attribute/value map from a specific layer.
+          items:
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
+    AssetPositions:
+      type: object
+      properties:
+        point:
+          type: array
+          description: List of asset points with corresponding attributes.
+          items:
+            $ref: '#/components/schemas/AssetPoint'
     Geometry:
       type: object
       properties:
@@ -697,22 +655,64 @@ components:
           - TILED
           - FULL
       description: List of geometries for spatial search response.
-    SearchMetaResponse:
+    MetaResponseV8:
       type: object
       properties:
-        searchParameter:
+        layerName:
           type: string
-          writeOnly: true
-        layerId:
-          type: string
-          description: Layer name of geometries in a search response.
-          example: ADAS_ATTRIB_FC4
-        lastUpdateTimeStamp:
+          description: Name of layer returned in this tile response.
+          example: ROAD_GEOM_FC4
+        tileId:
           type: integer
-          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
-          format: int64
-          example: 1756219305792
-      description: List of Meta info for spatial search response.
+          description: Tile ID for the tile returned in this response.
+          format: int32
+          example: 22055097
+        level:
+          type: integer
+          description: Level for layer returned in this tile response.
+          format: int32
+          example: 12
+        mapRegion:
+          type: string
+          description: Map region for layer returned in this tile response.
+          example: WEU
+        mapRelease:
+          type: string
+          description: Specific map release that this layer content belongs to.
+          example: '25122'
+      description: Meta info for a specific layer.
+    LayerModifyResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
+    MapAttributesV8Response:
+      type: object
+      properties:
+        geometries:
+          type: array
+          description: List of geometries for spatial search response.
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          description: List of Meta info for spatial search response.
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
+        Tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TileResponseV8'
+    LayerUploadResponse:
+      type: object
+      properties:
+        storedTilesCount:
+          type: integer
+          description: Number of tiles that were created to store the uploaded layer content
+          format: int32
+          example: 20
   securitySchemes:
     apiKey:
       type: apiKey

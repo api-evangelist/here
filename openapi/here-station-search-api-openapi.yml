@@ -79,44 +79,27 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Public Transit API v8 getStations
 components:
-  parameters:
-    placesReturn:
-      name: return
-      description: "Defines which place attributes are included.\n\n * `transport` - List of transports.\n * `accessPoints` - List of access points.\n"
-      in: query
-      schema:
-        $ref: '#/components/schemas/PlacesReturn'
-      style: form
-      explode: false
-    xRequestId:
-      name: X-Request-ID
-      in: header
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    stationOptions:
-      name: stationOptions
-      in: query
-      description: Station filter
-      required: false
-      style: form
-      explode: true
-      schema:
-        $ref: '#/components/schemas/StationOptions'
-    accessibility:
-      name: accessibility
-      description: "Defines accessibility requirements for routes.\n\n * `wheelchair` - Select only wheelchair accessible vehicles and stations.\n"
-      in: query
-      schema:
-        type: array
-        uniqueItems: true
-        items:
-          type: string
-          enum:
-          - wheelchair
-      style: form
-      explode: false
   examples:
+    504errorResponseExample:
+      value:
+        title: 'failed with reason: gateway timeout'
+        status: 504
+        code: E600000
+        cause: Gateway Timeout
+        action: ''
+        correlationId: ''
+    401errorResponseExample:
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+    503errorResponseExample:
+      value:
+        title: 'failed with reason: service unavailable'
+        status: 503
+        code: E600001
+        cause: Service Unavailable
+        action: ''
+        correlationId: ''
     400errorResponseExample:
       value:
         title: 'failed with reason: missing field `destination`'
@@ -137,26 +120,6 @@ components:
         cause: Bad Gateway
         action: ''
         correlationId: ''
-    503errorResponseExample:
-      value:
-        title: 'failed with reason: service unavailable'
-        status: 503
-        code: E600001
-        cause: Service Unavailable
-        action: ''
-        correlationId: ''
-    504errorResponseExample:
-      value:
-        title: 'failed with reason: gateway timeout'
-        status: 504
-        code: E600000
-        cause: Gateway Timeout
-        action: ''
-        correlationId: ''
-    401errorResponseExample:
-      value:
-        error: Unauthorized
-        error_description: No credentials found
     500errorResponseExample:
       value:
         title: 'failed with reason: internal server error'
@@ -166,6 +129,373 @@ components:
         action: ''
         correlationId: ''
   schemas:
+    TransitMode:
+      title: Modes
+      description: "Extensible enum: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain` `bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail` `flight` `...`  \nTransit mode of transport in the route response\n"
+      example: intercityTrain
+      type: string
+      x-extensible-enum:
+      - highSpeedTrain
+      - intercityTrain
+      - interRegionalTrain
+      - regionalTrain
+      - cityTrain
+      - bus
+      - ferry
+      - subway
+      - lightRail
+      - privateBus
+      - inclined
+      - aerial
+      - busRapid
+      - monorail
+      - flight
+    PlacesReturn:
+      type: array
+      description: Enables transport information in the response.
+      items:
+        type: string
+        enum:
+        - transport
+        - accessPoints
+    SimpleErrorResponseSchema:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+    AccessPointPlace:
+      description: Access point to a venue/station
+      properties:
+        name:
+          description: Location name
+          type: string
+          example: S Potsdamer Platz Bhf/Voßstr.
+        type:
+          description: 'Place type. Each place type can have extra attributes.
+
+
+            **NOTE:** The list of possible place types could be extended in the future.
+
+            The client application is expected to handle such a case gracefully.
+
+            '
+          type: string
+        location:
+          description: 'The position of this location
+
+
+            This position was used in route calculation. It may be different to the original position provided in the request.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Location'
+        waypoint:
+          description: If present, this place corresponds to the waypoint in the request with the same index.
+          type: integer
+        wheelchairAccessible:
+          description: 'Information about accessibility for people with a disability and who use a wheelchair.
+
+
+            * `unknown` - Accessibility information is not available.
+
+            * `yes` - Access point is wheelchair accessible.
+
+            * `limited` - Accessibility is limited or assistance is required.
+
+            * `no` - No accessible path from the access point to platforms.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/WheelchairAccessibility'
+      required:
+      - type
+      - location
+      example:
+        type: place
+        location:
+          lat: 52.531677
+          lng: 13.381777
+    StationOptions:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/PlacesByIds'
+      - $ref: '#/components/schemas/PlacesByLocation'
+      - $ref: '#/components/schemas/PlacesByName'
+    TransitTransport:
+      description: Transit transport information.
+      properties:
+        mode:
+          $ref: '#/components/schemas/TransitMode'
+        name:
+          description: Transit line name
+          type: string
+          example: U2
+        headsign:
+          description: Transit line headsign.
+          type: string
+          example: Cottbus, Hauptbahnhof
+        category:
+          description: Human readable transport category (such as Bus, Gondola, Tram, Train, ...).
+          type: string
+          example: Railway Service
+        color:
+          description: Color of the transport polyline and background for the transport name.
+          allOf:
+          - $ref: '#/components/schemas/Color'
+        textColor:
+          description: Color of the transport name.
+          allOf:
+          - $ref: '#/components/schemas/Color'
+        shortName:
+          description: Short name of a transit line.
+          type: string
+          example: U2
+        longName:
+          description: Long name of a transit line.
+          type: string
+          example: Pankow - Ruhleben
+        wheelchairAccessible:
+          description: 'Information about accessibility for people with a disability and who use a wheelchair.
+
+
+            * `unknown` - Accessibility information is not available.
+
+            * `yes` - Vehicle can accommodate at least one rider in a wheelchair.
+
+            * `limited` - Accessibility is limited or assistance is required.
+
+            * `no` - No riders in wheelchairs can be accommodated.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/WheelchairAccessibility'
+        sourceFeedMapping:
+          description: 'List of source feeds that shows the original feed data. The item keys
+
+            can be repeated if the original data has multiple mappings for the same ID.
+
+
+            For this instance, only `routeId` and `tripId` are valid values for `type`. No other values will be returned in this scope.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceFeedMapping'
+      required:
+      - mode
+    StationInfo:
+      description: It contains transit service information for this station.
+      properties:
+        notices:
+          description: 'Contains a list of issues related to this station.
+
+
+            Follows a list of possible notice codes:
+
+
+            * `noDepartureInfo`: Departure information is unavailable or inaccurate for this station/stop.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+        place:
+          description: Information about a station or stop.
+          allOf:
+          - $ref: '#/components/schemas/StationSearchPlace'
+        transports:
+          description: A list of transit services.
+          type: array
+          items:
+            $ref: '#/components/schemas/TransitTransport'
+        accessPoints:
+          description: A list of access points
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPointPlace'
+      required:
+      - place
+    Notice:
+      type: object
+      description: A notice contains important notifications.
+      properties:
+        title:
+          type: string
+          description: Human-readable notice description.
+          example: No route found
+        code:
+          type: string
+          description: Notice code.
+          example: noRouteFound
+        severity:
+          $ref: '#/components/schemas/NoticeSeverity'
+      required:
+      - code
+    NoticeSeverity:
+      description: 'Describes the impact a notice has on the resource to which the notice is attached.
+
+        * critical - The notice must not be ignored, even if the type of notice is not known to the user. Any associated resource (e.g., route section) must not be used without further evaluation.
+
+        * info - The notice is for informative purposes, but does not affect usability of the route.
+
+        '
+      type: string
+      enum:
+      - critical
+      - info
+    SourceFeedMapping:
+      description: 'Mapping of the internal data returned in the respone to the data from the source feed.
+
+        A `type` will only be returned if the source feed data has a match.
+
+        Each `type` might be returned more than once in the response as the source feed may have multiple matches.
+
+
+        Currently possible values for `type` are:
+
+
+        * `agencyId`: ID of the agency that provides the data which is defined in the source feed.
+
+        * `routeId`: ID of the route that is provided in source feed.
+
+        * `tripId`: ID of the trip that is provided in source feed.
+
+        * `feedVersion`: Version of the feed that is defined in source feed.
+
+        '
+      type: object
+      properties:
+        type:
+          type: string
+          description: "Extensible enum: `agencyId` `routeId` `tripId` `feedVersion` `...`  \nType of source feed data.\n"
+          x-extensible-enum:
+          - agencyId
+          - routeId
+          - tripId
+          - feedVersion
+          example: tripId
+        sourceValue:
+          type: string
+          description: Source value for the data defined in the `type`.
+          example: 1234-567
+    InCircle:
+      description: 'Specifies the center point and the optional radius of your search.
+
+        Format `{lat},{lng}[;r={radius}]`, where `radius=500` meters by default.
+
+        '
+      type: string
+      pattern: '[-+]?\d*\.?\d+,[-+]?\d*\.?\d+(;r=\d+)?'
+      example: 24.5,16.8;r=500
+    PlacesByName:
+      title: Query stations by Name and Location
+      type: object
+      properties:
+        name:
+          description: 'The station name or part of the name to search for.
+
+            It is composed of one or more space separated words.
+
+            '
+          type: string
+        method:
+          description: 'Specifies if the match is `fuzzy` or `strict`.
+
+            The default value is fuzzy.
+
+
+            `fuzzy` - search for a station with the name similar to one of the names requested
+
+            `strict` - search for a station with the name exactly matching one of the names requested or containing it as a part
+
+
+            For example, if the station name in the request is "maurer", then if the method is `fuzzy` the response
+
+            contains "AMBOY AVE AT MAURER RD" and "LAUREL HILL BL/48 ST". If the method is `strict`
+
+            the response contains "AMBOY AVE AT MAURER RD" but not "LAUREL HILL BL/48 ST".
+
+            '
+          type: string
+          enum:
+          - fuzzy
+          - strict
+        maxPlaces:
+          type: integer
+          maximum: 25
+          description: The maximum number of stations/stops included in the response.
+          minimum: 1
+          default: 5
+        in:
+          $ref: '#/components/schemas/InCircle'
+        modesInPlace:
+          description: "Format: `mode1,mode2,...`\n\nFilter the list of stations returned in the response depending on the Transit modes available.\n\nStations where at least one of the specified modes exists will get returned.\nBy default, all supported transit modes are permitted.\n\nSupported modes: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain`\n`bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail`\n`flight`\n\nThis parameter also support an exclusion list: It's sufficient to specify each mode to exclude by prefixing it with `-`.\nMixing of inclusive and exclusive transit modes is not allowed.\n\nexamples:\n  * `subway,bus`. Returns only stations having subways and busses.\n  * `-subway,-bus`. Returns all stations except the one having just subways or busses.\n"
+          type: string
+      required:
+      - name
+      - in
+    StationsInfoResponse:
+      description: Station info response.
+      properties:
+        notices:
+          description: 'Contains a list of issues related to this response.
+
+
+            Follows a list of possible notice codes:
+
+
+            * `unknownStations`: The response is incomplete as one or more of the given station IDs were not found.
+
+            * `noStationsFound`: No stations information is available given current input parameters
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+        stations:
+          description: A list of stations.
+          type: array
+          items:
+            $ref: '#/components/schemas/StationInfo'
+      required:
+      - stations
+    PlacesByIds:
+      title: Query stations by IDs
+      type: object
+      properties:
+        ids:
+          description: 'Specifies a comma separated list of station IDs. A maximum of 50 station identifiers are allowed in a single query
+
+            '
+          type: string
+          maxLength: 1000
+      required:
+      - ids
+    WheelchairAccessibility:
+      description: 'Defines accessibility for people with a disability and who use a wheelchair.
+
+
+        * `unknown` - Information is not available.
+
+        * `yes` - Full unrestricted accessibility.
+
+        * `limited` - Accessibility is limited, not everywhere or require assistance.
+
+        * `no` - No accessibility.
+
+        '
+      type: string
+      enum:
+      - unknown
+      - 'yes'
+      - limited
+      - 'no'
+      default: unknown
+      example: unknown
     StationSearchPlace:
       description: A station
       properties:
@@ -232,174 +562,23 @@ components:
         location:
           lat: 52.531677
           lng: 13.381777
-    SourceFeedMapping:
-      description: 'Mapping of the internal data returned in the respone to the data from the source feed.
-
-        A `type` will only be returned if the source feed data has a match.
-
-        Each `type` might be returned more than once in the response as the source feed may have multiple matches.
-
-
-        Currently possible values for `type` are:
-
-
-        * `agencyId`: ID of the agency that provides the data which is defined in the source feed.
-
-        * `routeId`: ID of the route that is provided in source feed.
-
-        * `tripId`: ID of the trip that is provided in source feed.
-
-        * `feedVersion`: Version of the feed that is defined in source feed.
-
-        '
+    PlacesByLocation:
+      title: Query stations by Location
       type: object
       properties:
-        type:
-          type: string
-          description: "Extensible enum: `agencyId` `routeId` `tripId` `feedVersion` `...`  \nType of source feed data.\n"
-          x-extensible-enum:
-          - agencyId
-          - routeId
-          - tripId
-          - feedVersion
-          example: tripId
-        sourceValue:
-          type: string
-          description: Source value for the data defined in the `type`.
-          example: 1234-567
-    Notice:
-      type: object
-      description: A notice contains important notifications.
-      properties:
-        title:
-          type: string
-          description: Human-readable notice description.
-          example: No route found
-        code:
-          type: string
-          description: Notice code.
-          example: noRouteFound
-        severity:
-          $ref: '#/components/schemas/NoticeSeverity'
-      required:
-      - code
-    PlacesByIds:
-      title: Query stations by IDs
-      type: object
-      properties:
-        ids:
-          description: 'Specifies a comma separated list of station IDs. A maximum of 50 station identifiers are allowed in a single query
-
-            '
-          type: string
-          maxLength: 1000
-      required:
-      - ids
-    Color:
-      type: string
-      pattern: '#[0-9A-Fa-f]{6}'
-      example: '#FF0000'
-    StationInfo:
-      description: It contains transit service information for this station.
-      properties:
-        notices:
-          description: 'Contains a list of issues related to this station.
-
-
-            Follows a list of possible notice codes:
-
-
-            * `noDepartureInfo`: Departure information is unavailable or inaccurate for this station/stop.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Notice'
-        place:
-          description: Information about a station or stop.
-          allOf:
-          - $ref: '#/components/schemas/StationSearchPlace'
-        transports:
-          description: A list of transit services.
-          type: array
-          items:
-            $ref: '#/components/schemas/TransitTransport'
-        accessPoints:
-          description: A list of access points
-          type: array
-          items:
-            $ref: '#/components/schemas/AccessPointPlace'
-      required:
-      - place
-    InCircle:
-      description: 'Specifies the center point and the optional radius of your search.
-
-        Format `{lat},{lng}[;r={radius}]`, where `radius=500` meters by default.
-
-        '
-      type: string
-      pattern: '[-+]?\d*\.?\d+,[-+]?\d*\.?\d+(;r=\d+)?'
-      example: 24.5,16.8;r=500
-    PlacesReturn:
-      type: array
-      description: Enables transport information in the response.
-      items:
-        type: string
-        enum:
-        - transport
-        - accessPoints
-    AccessPointPlace:
-      description: Access point to a venue/station
-      properties:
-        name:
-          description: Location name
-          type: string
-          example: S Potsdamer Platz Bhf/Voßstr.
-        type:
-          description: 'Place type. Each place type can have extra attributes.
-
-
-            **NOTE:** The list of possible place types could be extended in the future.
-
-            The client application is expected to handle such a case gracefully.
-
-            '
-          type: string
-        location:
-          description: 'The position of this location
-
-
-            This position was used in route calculation. It may be different to the original position provided in the request.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/Location'
-        waypoint:
-          description: If present, this place corresponds to the waypoint in the request with the same index.
+        in:
+          $ref: '#/components/schemas/InCircle'
+        maxPlaces:
+          description: The maximum number of stations/stops included in the response.
           type: integer
-        wheelchairAccessible:
-          description: 'Information about accessibility for people with a disability and who use a wheelchair.
-
-
-            * `unknown` - Accessibility information is not available.
-
-            * `yes` - Access point is wheelchair accessible.
-
-            * `limited` - Accessibility is limited or assistance is required.
-
-            * `no` - No accessible path from the access point to platforms.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/WheelchairAccessibility'
+          minimum: 1
+          maximum: 50
+          default: 5
+        modesInPlace:
+          description: "Format: `mode1,mode2,...`\n\nFilter the list of stations returned in the response depending on the Transit modes available.\n\nStations where at least one of the specified modes exists will get returned.\nBy default, all supported transit modes are permitted.\n\nSupported modes: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain`\n`bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail`\n`flight`\n\nThis parameter also support an exclusion list: It's sufficient to specify each mode to exclude by prefixing it with `-`.\nMixing of inclusive and exclusive transit modes is not allowed.\n\nexamples:\n  * `subway,bus`. Returns only stations having subways and busses.\n  * `-subway,-bus`. Returns all stations except the one having just subways or busses.\n"
+          type: string
       required:
-      - type
-      - location
-      example:
-        type: place
-        location:
-          lat: 52.531677
-          lng: 13.381777
+      - in
     Location:
       description: Location on the Earth
       properties:
@@ -419,70 +598,10 @@ components:
       required:
       - lat
       - lng
-    TransitMode:
-      title: Modes
-      description: "Extensible enum: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain` `bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail` `flight` `...`  \nTransit mode of transport in the route response\n"
-      example: intercityTrain
+    Color:
       type: string
-      x-extensible-enum:
-      - highSpeedTrain
-      - intercityTrain
-      - interRegionalTrain
-      - regionalTrain
-      - cityTrain
-      - bus
-      - ferry
-      - subway
-      - lightRail
-      - privateBus
-      - inclined
-      - aerial
-      - busRapid
-      - monorail
-      - flight
-    StationOptions:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/PlacesByIds'
-      - $ref: '#/components/schemas/PlacesByLocation'
-      - $ref: '#/components/schemas/PlacesByName'
-    NoticeSeverity:
-      description: 'Describes the impact a notice has on the resource to which the notice is attached.
-
-        * critical - The notice must not be ignored, even if the type of notice is not known to the user. Any associated resource (e.g., route section) must not be used without further evaluation.
-
-        * info - The notice is for informative purposes, but does not affect usability of the route.
-
-        '
-      type: string
-      enum:
-      - critical
-      - info
-    StationsInfoResponse:
-      description: Station info response.
-      properties:
-        notices:
-          description: 'Contains a list of issues related to this response.
-
-
-            Follows a list of possible notice codes:
-
-
-            * `unknownStations`: The response is incomplete as one or more of the given station IDs were not found.
-
-            * `noStationsFound`: No stations information is available given current input parameters
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Notice'
-        stations:
-          description: A list of stations.
-          type: array
-          items:
-            $ref: '#/components/schemas/StationInfo'
-      required:
-      - stations
+      pattern: '#[0-9A-Fa-f]{6}'
+      example: '#FF0000'
     ErrorResponse:
       type: object
       description: Response in case of error
@@ -523,176 +642,46 @@ components:
       - cause
       - action
       - correlationId
-    SimpleErrorResponseSchema:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Human-readable error
-        error_description:
-          type: string
-          description: Human-readable error description
-    PlacesByName:
-      title: Query stations by Name and Location
-      type: object
-      properties:
-        name:
-          description: 'The station name or part of the name to search for.
-
-            It is composed of one or more space separated words.
-
-            '
-          type: string
-        method:
-          description: 'Specifies if the match is `fuzzy` or `strict`.
-
-            The default value is fuzzy.
-
-
-            `fuzzy` - search for a station with the name similar to one of the names requested
-
-            `strict` - search for a station with the name exactly matching one of the names requested or containing it as a part
-
-
-            For example, if the station name in the request is "maurer", then if the method is `fuzzy` the response
-
-            contains "AMBOY AVE AT MAURER RD" and "LAUREL HILL BL/48 ST". If the method is `strict`
-
-            the response contains "AMBOY AVE AT MAURER RD" but not "LAUREL HILL BL/48 ST".
-
-            '
-          type: string
-          enum:
-          - fuzzy
-          - strict
-        maxPlaces:
-          type: integer
-          maximum: 25
-          description: The maximum number of stations/stops included in the response.
-          minimum: 1
-          default: 5
-        in:
-          $ref: '#/components/schemas/InCircle'
-        modesInPlace:
-          description: "Format: `mode1,mode2,...`\n\nFilter the list of stations returned in the response depending on the Transit modes available.\n\nStations where at least one of the specified modes exists will get returned.\nBy default, all supported transit modes are permitted.\n\nSupported modes: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain`\n`bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail`\n`flight`\n\nThis parameter also support an exclusion list: It's sufficient to specify each mode to exclude by prefixing it with `-`.\nMixing of inclusive and exclusive transit modes is not allowed.\n\nexamples:\n  * `subway,bus`. Returns only stations having subways and busses.\n  * `-subway,-bus`. Returns all stations except the one having just subways or busses.\n"
-          type: string
-      required:
-      - name
-      - in
-    TransitTransport:
-      description: Transit transport information.
-      properties:
-        mode:
-          $ref: '#/components/schemas/TransitMode'
-        name:
-          description: Transit line name
-          type: string
-          example: U2
-        headsign:
-          description: Transit line headsign.
-          type: string
-          example: Cottbus, Hauptbahnhof
-        category:
-          description: Human readable transport category (such as Bus, Gondola, Tram, Train, ...).
-          type: string
-          example: Railway Service
-        color:
-          description: Color of the transport polyline and background for the transport name.
-          allOf:
-          - $ref: '#/components/schemas/Color'
-        textColor:
-          description: Color of the transport name.
-          allOf:
-          - $ref: '#/components/schemas/Color'
-        shortName:
-          description: Short name of a transit line.
-          type: string
-          example: U2
-        longName:
-          description: Long name of a transit line.
-          type: string
-          example: Pankow - Ruhleben
-        wheelchairAccessible:
-          description: 'Information about accessibility for people with a disability and who use a wheelchair.
-
-
-            * `unknown` - Accessibility information is not available.
-
-            * `yes` - Vehicle can accommodate at least one rider in a wheelchair.
-
-            * `limited` - Accessibility is limited or assistance is required.
-
-            * `no` - No riders in wheelchairs can be accommodated.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/WheelchairAccessibility'
-        sourceFeedMapping:
-          description: 'List of source feeds that shows the original feed data. The item keys
-
-            can be repeated if the original data has multiple mappings for the same ID.
-
-
-            For this instance, only `routeId` and `tripId` are valid values for `type`. No other values will be returned in this scope.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceFeedMapping'
-      required:
-      - mode
-    PlacesByLocation:
-      title: Query stations by Location
-      type: object
-      properties:
-        in:
-          $ref: '#/components/schemas/InCircle'
-        maxPlaces:
-          description: The maximum number of stations/stops included in the response.
-          type: integer
-          minimum: 1
-          maximum: 50
-          default: 5
-        modesInPlace:
-          description: "Format: `mode1,mode2,...`\n\nFilter the list of stations returned in the response depending on the Transit modes available.\n\nStations where at least one of the specified modes exists will get returned.\nBy default, all supported transit modes are permitted.\n\nSupported modes: `highSpeedTrain` `intercityTrain` `interRegionalTrain` `regionalTrain` `cityTrain`\n`bus` `ferry` `subway` `lightRail` `privateBus` `inclined` `aerial` `busRapid` `monorail`\n`flight`\n\nThis parameter also support an exclusion list: It's sufficient to specify each mode to exclude by prefixing it with `-`.\nMixing of inclusive and exclusive transit modes is not allowed.\n\nexamples:\n  * `subway,bus`. Returns only stations having subways and busses.\n  * `-subway,-bus`. Returns all stations except the one having just subways or busses.\n"
-          type: string
-      required:
-      - in
-    WheelchairAccessibility:
-      description: 'Defines accessibility for people with a disability and who use a wheelchair.
-
-
-        * `unknown` - Information is not available.
-
-        * `yes` - Full unrestricted accessibility.
-
-        * `limited` - Accessibility is limited, not everywhere or require assistance.
-
-        * `no` - No accessibility.
-
-        '
-      type: string
-      enum:
-      - unknown
-      - 'yes'
-      - limited
-      - 'no'
-      default: unknown
-      example: unknown
-  headers:
-    X-Correlation-Id:
-      description: Auto-generated id that univocally identifies the request.
+  parameters:
+    stationOptions:
+      name: stationOptions
+      in: query
+      description: Station filter
+      required: false
+      style: form
+      explode: true
       schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id:
+        $ref: '#/components/schemas/StationOptions'
+    xRequestId:
+      name: X-Request-ID
+      in: header
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.
       schema:
         type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    placesReturn:
+      name: return
+      description: "Defines which place attributes are included.\n\n * `transport` - List of transports.\n * `accessPoints` - List of access points.\n"
+      in: query
+      schema:
+        $ref: '#/components/schemas/PlacesReturn'
+      style: form
+      explode: false
+    accessibility:
+      name: accessibility
+      description: "Defines accessibility requirements for routes.\n\n * `wheelchair` - Select only wheelchair accessible vehicles and stations.\n"
+      in: query
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+          - wheelchair
+      style: form
+      explode: false
   responses:
-    502ErrorResponseWithRequestID:
-      description: API response in case of bad gateway.
+    500ErrorResponseWithRequestID:
+      description: API response in case of internal server error.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -704,7 +693,7 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           examples:
             errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
+              $ref: '#/components/examples/500errorResponseExample'
     400ErrorResponseWithRequestID:
       description: API response in case of bad request.
       headers:
@@ -719,6 +708,20 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/400errorResponseExample'
+    504ErrorResponseWithRequestID:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
     503ErrorResponseWithRequestID:
       description: API response in case of service unavailable.
       headers:
@@ -761,8 +764,8 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/401errorResponseExample'
-    504ErrorResponseWithRequestID:
-      description: API response in case of gateway timeout.
+    502ErrorResponseWithRequestID:
+      description: API response in case of bad gateway.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -774,21 +777,18 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           examples:
             errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample'
-    500ErrorResponseWithRequestID:
-      description: API response in case of internal server error.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/500errorResponseExample'
+              $ref: '#/components/examples/502errorResponseExample'
+  headers:
+    X-Correlation-Id:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
   securitySchemes:
     ApiKey:
       type: apiKey

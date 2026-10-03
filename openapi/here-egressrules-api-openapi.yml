@@ -245,59 +245,39 @@ paths:
                 $ref: '#/components/schemas/ErrorMessage'
 components:
   schemas:
-    ValidationErrorMessage:
-      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
-      properties:
-        code:
-          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
-          example: E1000
-          readOnly: true
-          type: string
-        errors:
-          description: Set of validation error messages.
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-          readOnly: true
-          type: array
-          uniqueItems: true
-        field:
-          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
-          example: /parent/list/1/value
-          externalDocs:
-            url: https://tools.ietf.org/html/rfc6901
-          readOnly: true
-          type: string
-        invalidValue:
-          description: The invalid value that was sent
-          example: sample string
-          readOnly: true
-          type: object
-        message:
-          description: This is the message for the error.
-          example: Validation Failed
-          readOnly: true
-          type: string
-        messageTemplate:
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          example: '{validation.error}'
-          readOnly: true
-          type: string
-        status:
-          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
-          example: 400
-          format: int32
-          readOnly: true
-          type: integer
-        templateOptions:
-          additionalProperties:
-            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-            readOnly: true
-            type: object
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-          type: object
-      readOnly: true
+    EgressRule:
       type: object
+      properties:
+        created:
+          type: string
+          description: 'System generated: Time when this EgressRule was created. This is in ISO-8601 calendar system.'
+          format: date-time
+          example: '2007-12-03T09:15:30Z'
+        id:
+          type: string
+          description: 'System generated: Unique id of this Egress Rule'
+          example: 286aad61-50f2-4745-a336-a087aaa0e746
+        description:
+          type: string
+          description: Optional Egress Rule description
+          example: Allow access to National Weather Services APIs
+        destination:
+          type: string
+          description: IP address or DNS name for this egress Rule. Wildcards are allowed in DNS names only in leftmost part and not right before a public suffix. For example, *.example.com is allowed, but *.*.com or *.com or *.co.uk are not. DNS name cannot be a public suffix.
+          example: '*.weather.gov'
+        destinationType:
+          type: string
+          description: Defines destination type for this EgressRule.
+          example: host
+          readOnly: true
+          enum:
+          - ipAddress
+          - host
+        realm:
+          type: string
+          description: 'System generated: The realm under which the rule will be applied.'
+          example: olp-here
+      description: Represents a rule that allows access from a pipeline namespace to host or IP address.
     AuditLogEntry:
       type: object
       properties:
@@ -367,39 +347,59 @@ components:
           items:
             $ref: '#/components/schemas/ValidationErrorMessage'
       description: HTTP Error message thrown by the service
-    EgressRule:
-      type: object
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
       properties:
-        created:
-          type: string
-          description: 'System generated: Time when this EgressRule was created. This is in ISO-8601 calendar system.'
-          format: date-time
-          example: '2007-12-03T09:15:30Z'
-        id:
-          type: string
-          description: 'System generated: Unique id of this Egress Rule'
-          example: 286aad61-50f2-4745-a336-a087aaa0e746
-        description:
-          type: string
-          description: Optional Egress Rule description
-          example: Allow access to National Weather Services APIs
-        destination:
-          type: string
-          description: IP address or DNS name for this egress Rule. Wildcards are allowed in DNS names only in leftmost part and not right before a public suffix. For example, *.example.com is allowed, but *.*.com or *.com or *.co.uk are not. DNS name cannot be a public suffix.
-          example: '*.weather.gov'
-        destinationType:
-          type: string
-          description: Defines destination type for this EgressRule.
-          example: host
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
           readOnly: true
-          enum:
-          - ipAddress
-          - host
-        realm:
           type: string
-          description: 'System generated: The realm under which the rule will be applied.'
-          example: olp-here
-      description: Represents a rule that allows access from a pipeline namespace to host or IP address.
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
   securitySchemes:
     Bearer:
       type: http
