@@ -136,8 +136,8 @@ paths:
       x-operation-id-original: Interactive Map API v1 getChangeset
 components:
   responses:
-    ErrorResponse404:
-      description: Not found.
+    ErrorResponse400:
+      description: Malformed or Bad Request.
       content:
         application/json:
           schema:
@@ -146,18 +146,12 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: The requested resource does not exist.
+            errorMessage: <Invalid request details>
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse401:
-      description: Unauthorized to perform the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     ChangesetResponse:
       description: One Changeset which contains FeatureCollections grouped by operation.
       content:
@@ -175,6 +169,28 @@ components:
         application/vnd.here.changeset-collection:
           schema:
             $ref: '#/components/schemas/ChangesetCollection'
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorResponse513:
+      description: Response payload too large.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -202,8 +218,8 @@ components:
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
             errorMessage: Insufficient rights + <Request specific access error details>
-    ErrorResponse400:
-      description: Malformed or Bad Request.
+    ErrorResponse404:
+      description: Not found.
       content:
         application/json:
           schema:
@@ -212,56 +228,13 @@ components:
             type: ErrorResponse
             streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
             error: Exception
-            errorMessage: <Invalid request details>
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse513:
-      description: Response payload too large.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: The response payload was too large. Please try to reduce the expected amount of data.
+            errorMessage: The requested resource does not exist.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
   parameters:
-    VersionPath:
-      name: version
-      in: path
-      description: The version of a Changeset.
-      required: true
-      schema:
-        type: string
-    LayerId:
-      name: layerId
-      in: path
-      description: The unique identifier of the layer.
-      required: true
-      schema:
-        type: string
-    PageToken:
-      name: pageToken
-      in: query
-      description: The page token where the iteration will continue.
-      schema:
-        type: string
-    Author:
-      name: author
-      in: query
-      description: Filter the results per author.
-      required: false
-      schema:
-        type: string
     EndTime:
       name: endTime
       in: query
@@ -273,6 +246,32 @@ components:
         type: integer
         format: int64
         minimum: 0
+    PageToken:
+      name: pageToken
+      in: query
+      description: The page token where the iteration will continue.
+      schema:
+        type: string
+    LayerId:
+      name: layerId
+      in: path
+      description: The unique identifier of the layer.
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: The maximum number of features in the response. Default is _30000_. Hard limit is _100000_.
+      schema:
+        type: integer
+    VersionPath:
+      name: version
+      in: path
+      description: The version of a Changeset.
+      required: true
+      schema:
+        type: string
     VersionLowerThan:
       name: version
       in: query
@@ -291,12 +290,13 @@ components:
         type: integer
         format: int64
         minimum: 0
-    Limit:
-      name: limit
+    Author:
+      name: author
       in: query
-      description: The maximum number of features in the response. Default is _30000_. Hard limit is _100000_.
+      description: Filter the results per author.
+      required: false
       schema:
-        type: integer
+        type: string
     VersionRef:
       name: versionRef
       in: query
@@ -305,17 +305,43 @@ components:
       schema:
         type: string
         default: HEAD
-  headers:
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    X-Correlation-ID:
-      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
   schemas:
+    FeatureCollection:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A FeatureCollection GeoJSON object.
+        required:
+        - features
+        discriminator:
+          propertyName: type
+          mapping:
+            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
+            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
+        properties:
+          features:
+            type: array
+            description: Features included in the collection.
+            items:
+              $ref: '#/components/schemas/Feature'
+        example:
+          type: FeatureCollection
+          features:
+          - type: Feature
+            id: BfiimUxHjj
+            geometry:
+              type: Point
+              coordinates:
+              - -2.960847
+              - 53.430828
+            properties:
+              name: Anfield
+              '@ns:com:here:xyz':
+                createdAt: 1517504700726
+                updatedAt: 1517504700726
+              amenity: Football Stadium
+              capacity: 54074
+              description: Home of the Liverpool Football Club.
     Error:
       type: object
       description: The response send when the request failed. This response may be send for certain HTTP error codes like 403 Forbidden or 502 Bad Gateway and should hold more details about the error reason.
@@ -344,6 +370,102 @@ components:
           type: string
           description: Auto-generated id that uniquely identifies the request
           example: 4199533b-6290-41db-8d79-edf4f4019a74
+    ChangesetCollection:
+      description: A ChangesetCollection JSON object.
+      properties:
+        type:
+          type: string
+        startVersion:
+          type: integer
+          description: The version of the newest included Changeset.
+        endVersion:
+          type: integer
+          description: The version of the oldest included Changeset.
+        versions:
+          type: object
+          description: The map of Changesets where the key is the version of each Changeset.
+          additionalProperties:
+            $ref: '#/components/schemas/Changeset'
+        nextPageToken:
+          type: string
+          description: The handle of the next batch.
+      example:
+        type: ChangesetCollection
+        startVersion: 1
+        endVersion: 2
+        versions:
+          '1':
+            type: Changeset
+            inserted:
+              type: FeatureCollection
+              features:
+              - type: Feature
+                id: Q1369587
+                geometry:
+                  type: Point
+                  coordinates:
+                  - -62.696667
+                  - 8.3125
+                properties:
+                  name: Polideportivo Cachamay
+                  '@ns:com:here:xyz':
+                    version: 1
+                  sport: association football
+                  capacity: 41600
+            updated:
+              type: FeatureCollection
+              features:
+              - type: Feature
+                id: Q947065
+                geometry:
+                  type: Point
+                  coordinates:
+                  - -110.948889
+                  - 32.228889
+                properties:
+                  name: Arizona Stadium
+                  '@ns:com:here:xyz':
+                    version: 1
+                  sport: American football
+                  capacity: 56037
+            deleted:
+              type: FeatureCollection
+              features: []
+        nextPageToken: 1000
+    GeoJSON:
+      type: object
+      description: The base type for all possible GeoJSON objects.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+        bbox:
+          type: array
+          description: Describes the coordinate range of the GeoJSON object.
+          items:
+            type: number
+      discriminator:
+        propertyName: type
+        mapping:
+          Feature: '#/components/schemas/Feature'
+          FeatureCollection: '#/components/schemas/FeatureCollection'
+          Geometry: '#/components/schemas/Geometry'
+      additionalProperties: true
+    Geometry:
+      allOf:
+      - $ref: '#/components/schemas/GeoJSON'
+      - type: object
+        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
+        discriminator:
+          propertyName: type
+          mapping:
+            MultiPoint: '#/components/schemas/MultiPoint'
+            MultiLineString: '#/components/schemas/MultiLineString'
+            LineString: '#/components/schemas/LineString'
+            MultiPolygon: '#/components/schemas/MultiPolygon'
+            Point: '#/components/schemas/Point'
+            Polygon: '#/components/schemas/Polygon'
     Changeset:
       type: object
       description: A Changeset includes three FeatureCollection objects grouped by the operations inserted, updated, deleted.
@@ -446,138 +568,16 @@ components:
             amenity: Football Stadium
             capacity: 54074
             description: Home of the Liverpool Football Club.
-    GeoJSON:
-      type: object
-      description: The base type for all possible GeoJSON objects.
-      required:
-      - type
-      properties:
-        type:
-          type: string
-        bbox:
-          type: array
-          description: Describes the coordinate range of the GeoJSON object.
-          items:
-            type: number
-      discriminator:
-        propertyName: type
-        mapping:
-          Feature: '#/components/schemas/Feature'
-          FeatureCollection: '#/components/schemas/FeatureCollection'
-          Geometry: '#/components/schemas/Geometry'
-      additionalProperties: true
-    Geometry:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A Geometry object represents points, curves, and surfaces in coordinate layer.
-        discriminator:
-          propertyName: type
-          mapping:
-            MultiPoint: '#/components/schemas/MultiPoint'
-            MultiLineString: '#/components/schemas/MultiLineString'
-            LineString: '#/components/schemas/LineString'
-            MultiPolygon: '#/components/schemas/MultiPolygon'
-            Point: '#/components/schemas/Point'
-            Polygon: '#/components/schemas/Polygon'
-    ChangesetCollection:
-      description: A ChangesetCollection JSON object.
-      properties:
-        type:
-          type: string
-        startVersion:
-          type: integer
-          description: The version of the newest included Changeset.
-        endVersion:
-          type: integer
-          description: The version of the oldest included Changeset.
-        versions:
-          type: object
-          description: The map of Changesets where the key is the version of each Changeset.
-          additionalProperties:
-            $ref: '#/components/schemas/Changeset'
-        nextPageToken:
-          type: string
-          description: The handle of the next batch.
-      example:
-        type: ChangesetCollection
-        startVersion: 1
-        endVersion: 2
-        versions:
-          '1':
-            type: Changeset
-            inserted:
-              type: FeatureCollection
-              features:
-              - type: Feature
-                id: Q1369587
-                geometry:
-                  type: Point
-                  coordinates:
-                  - -62.696667
-                  - 8.3125
-                properties:
-                  name: Polideportivo Cachamay
-                  '@ns:com:here:xyz':
-                    version: 1
-                  sport: association football
-                  capacity: 41600
-            updated:
-              type: FeatureCollection
-              features:
-              - type: Feature
-                id: Q947065
-                geometry:
-                  type: Point
-                  coordinates:
-                  - -110.948889
-                  - 32.228889
-                properties:
-                  name: Arizona Stadium
-                  '@ns:com:here:xyz':
-                    version: 1
-                  sport: American football
-                  capacity: 56037
-            deleted:
-              type: FeatureCollection
-              features: []
-        nextPageToken: 1000
-    FeatureCollection:
-      allOf:
-      - $ref: '#/components/schemas/GeoJSON'
-      - type: object
-        description: A FeatureCollection GeoJSON object.
-        required:
-        - features
-        discriminator:
-          propertyName: type
-          mapping:
-            FeatureCollectionIterable: '#/components/schemas/FeatureCollectionIterable'
-            FeatureCollectionModification: '#/components/schemas/FeatureCollectionModification'
-        properties:
-          features:
-            type: array
-            description: Features included in the collection.
-            items:
-              $ref: '#/components/schemas/Feature'
-        example:
-          type: FeatureCollection
-          features:
-          - type: Feature
-            id: BfiimUxHjj
-            geometry:
-              type: Point
-              coordinates:
-              - -2.960847
-              - 53.430828
-            properties:
-              name: Anfield
-              '@ns:com:here:xyz':
-                createdAt: 1517504700726
-                updatedAt: 1517504700726
-              amenity: Football Stadium
-              capacity: 54074
-              description: Home of the Liverpool Football Club.
+  headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
   securitySchemes:
     Bearer:
       type: http

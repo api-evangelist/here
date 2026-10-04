@@ -10267,8 +10267,6 @@ apis:
     https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
   baseURL: https://geocode.search.hereapi.com
   tags:
-  - PipelineVersions
-  tags_raw:
   - Pipeline Versions
   properties:
   - type: OpenAPI

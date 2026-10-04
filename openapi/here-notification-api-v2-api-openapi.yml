@@ -138,27 +138,6 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Notification API deleteSubscriptions
 components:
-  parameters:
-    billingTag:
-      name: billingTag
-      in: query
-      description: Billing Tag
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: User authorization token
-      required: false
-      schema:
-        type: string
-    notificationStreamLayerId:
-      name: notificationStreamLayerId
-      in: path
-      description: Stream Layer ID for which we are retrieving subscriptions for.
-      required: true
-      schema:
-        type: string
   schemas:
     DeleteRequest:
       type: object
@@ -184,6 +163,20 @@ components:
         notificationStreamLayerId:
           type: string
           example: notification-layer
+    SubscriptionArea:
+      type: object
+      required:
+      - subscriptionType
+      properties:
+        subscriptionType:
+          type: string
+          example: WKT
+      discriminator:
+        propertyName: subscriptionType
+        mapping:
+          all: '#/components/schemas/SubscriptionAreaAll'
+          wkt: '#/components/schemas/SubscriptionAreaInWKT'
+          partitions: '#/components/schemas/SubscriptionAreaInPartitions'
     Attribute:
       type: object
       properties:
@@ -200,20 +193,27 @@ components:
           - SHORT
           - LIST
           - FULL
-    SubscriptionArea:
-      type: object
-      required:
-      - subscriptionType
-      properties:
-        subscriptionType:
-          type: string
-          example: WKT
-      discriminator:
-        propertyName: subscriptionType
-        mapping:
-          all: '#/components/schemas/SubscriptionAreaAll'
-          wkt: '#/components/schemas/SubscriptionAreaInWKT'
-          partitions: '#/components/schemas/SubscriptionAreaInPartitions'
+  parameters:
+    notificationStreamLayerId:
+      name: notificationStreamLayerId
+      in: path
+      description: Stream Layer ID for which we are retrieving subscriptions for.
+      required: true
+      schema:
+        type: string
+    billingTag:
+      name: billingTag
+      in: query
+      description: Billing Tag
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: User authorization token
+      required: false
+      schema:
+        type: string
   securitySchemes:
     Bearer:
       type: http

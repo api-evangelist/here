@@ -193,25 +193,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
-    CrossRealmTrustRequest:
-      type: object
-      properties:
-        requiresLinkableResourceWithTargetProject:
-          type: boolean
-          example: true
-          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
-
-            when offering a LinkableResource.
-
-            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
-
-            in the target Realm such that it could be added to any Project in the target Realm.
-
-            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
-
-            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
-
-            '
     PageWithToken:
       type: object
       required:
@@ -322,6 +303,25 @@ components:
             field: size
             min: 3
             max: 64
+    CrossRealmTrustRequest:
+      type: object
+      properties:
+        requiresLinkableResourceWithTargetProject:
+          type: boolean
+          example: true
+          description: 'Indicate whether or not an actor in the source Realm must always specify a project in the target Realm
+
+            when offering a LinkableResource.
+
+            When this is set to true, the User or App in the source realm cannot offer the LinkableResource broadly
+
+            in the target Realm such that it could be added to any Project in the target Realm.
+
+            Defaults to false, which allows the User or App in the source Realm to create LinkableResources identifying
+
+            the target Realm, such that the ResourceLink can be added to any Project in the target Realm.
+
+            '
     ErrorResponse:
       type: object
       required:
@@ -365,102 +365,9 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
-  parameters:
-    targetProjectOrRealm:
-      in: path
-      name: targetProjectOrRealm
-      required: true
-      description: HRN identifying the target realm or project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-b:project/Project-B
-    sourceProject:
-      in: query
-      name: sourceProject
-      required: false
-      description: HRN identifying the source project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:project/Project-A
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    targetRealm:
-      in: query
-      name: targetRealm
-      required: false
-      description: HRN identifying the target realm
-      schema:
-        type: string
-      example: hrn:here:account::rlm-b:realm/rlm-b
-    sourceRealm:
-      in: query
-      name: sourceRealm
-      required: false
-      description: HRN identifying the source realm
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:realm/rlm-a
-    sourceProjectOrRealm:
-      in: path
-      name: sourceProjectOrRealm
-      required: true
-      description: HRN identifying the source realm or project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-a:project/Project-A
-    targetProject:
-      in: query
-      name: targetProject
-      required: false
-      description: HRN identifying the target project
-      schema:
-        type: string
-      example: hrn:here:account::rlm-b:project/Project-B
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
   responses:
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: The requested resource was not found, see error response for details
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -477,6 +384,99 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    targetProject:
+      in: query
+      name: targetProject
+      required: false
+      description: HRN identifying the target project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:project/Project-B
+    sourceRealm:
+      in: query
+      name: sourceRealm
+      required: false
+      description: HRN identifying the source realm
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:realm/rlm-a
+    targetRealm:
+      in: query
+      name: targetRealm
+      required: false
+      description: HRN identifying the target realm
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:realm/rlm-b
+    sourceProjectOrRealm:
+      in: path
+      name: sourceProjectOrRealm
+      required: true
+      description: HRN identifying the source realm or project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:project/Project-A
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    sourceProject:
+      in: query
+      name: sourceProject
+      required: false
+      description: HRN identifying the source project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-a:project/Project-A
+    targetProjectOrRealm:
+      in: path
+      name: targetProjectOrRealm
+      required: true
+      description: HRN identifying the target realm or project
+      schema:
+        type: string
+      example: hrn:here:account::rlm-b:project/Project-B
   headers:
     XCorrelationId:
       schema:

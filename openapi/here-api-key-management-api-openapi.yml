@@ -336,77 +336,44 @@ paths:
 
             '
 components:
-  parameters:
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
-    App:
-      in: path
-      required: true
-      name: app
-      schema:
-        type: string
-      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-
-        '
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    ApiKey:
-      in: path
-      required: true
-      name: apiKey
-      schema:
-        type: string
-      description: 'HRN with obfuscated apiKeyId. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
-
-        '
-      example: hrn:here:account::myrealm:apikey/ygfDVbZc7vJQTRGjC5-YXZbuwWwxFu4FxD5SsWbp-no
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
   schemas:
-    APIKeyExpiresAt:
-      type: integer
-      format: int64
-      description: 'Timestamp (milliseconds since the Unix epoch) of when the API key will expire.
-
-        If expiresAt is not provided on creation, it will default to ''-1'', i.e. API key does NOT expire
-
-        '
-      default: -1
-      example: 1545041748000
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: number of entries in the response.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: The number of federations matching the search criteria.
+    APIKeyUpdateRequest:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/APIKeyName'
+        expiresAt:
+          $ref: '#/components/schemas/APIKeyExpiresAt'
+    APIKeyGenerateRequest:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          $ref: '#/components/schemas/APIKeyName'
+        expiresAt:
+          $ref: '#/components/schemas/APIKeyExpiresAt'
+        enabled:
+          $ref: '#/components/schemas/APIKeyEnabled'
     APIKeyName:
       type: string
       description: 'Creator-defined name or short description for the API key.
@@ -475,36 +442,6 @@ components:
             enabled: true
             createdTime: 1545041748000
             expiresAt: 1545041748456
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: number of entries in the response.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: The number of federations matching the search criteria.
-    APIKeyGenerateRequest:
-      type: object
-      required:
-      - name
-      properties:
-        name:
-          $ref: '#/components/schemas/APIKeyName'
-        expiresAt:
-          $ref: '#/components/schemas/APIKeyExpiresAt'
-        enabled:
-          $ref: '#/components/schemas/APIKeyEnabled'
     APIKeyEnabled:
       type: boolean
       description: 'Whether API key is enabled or disabled.
@@ -512,13 +449,76 @@ components:
         '
       default: true
       example: true
-    APIKeyUpdateRequest:
-      type: object
-      properties:
-        name:
-          $ref: '#/components/schemas/APIKeyName'
-        expiresAt:
-          $ref: '#/components/schemas/APIKeyExpiresAt'
+    APIKeyExpiresAt:
+      type: integer
+      format: int64
+      description: 'Timestamp (milliseconds since the Unix epoch) of when the API key will expire.
+
+        If expiresAt is not provided on creation, it will default to ''-1'', i.e. API key does NOT expire
+
+        '
+      default: -1
+      example: 1545041748000
+  parameters:
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    App:
+      in: path
+      required: true
+      name: app
+      schema:
+        type: string
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+    ApiKey:
+      in: path
+      required: true
+      name: apiKey
+      schema:
+        type: string
+      description: 'HRN with obfuscated apiKeyId. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+
+        '
+      example: hrn:here:account::myrealm:apikey/ygfDVbZc7vJQTRGjC5-YXZbuwWwxFu4FxD5SsWbp-no
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
   headers:
     XRequestId:
       schema:

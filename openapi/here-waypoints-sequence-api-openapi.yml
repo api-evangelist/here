@@ -503,30 +503,6 @@ paths:
       x-operation-id-original: Waypoints Sequence API findSequencePOST
 components:
   schemas:
-    TimeBreakdown:
-      type: object
-      properties:
-        driving:
-          type: integer
-          description: Time spent in motion for completing the sequence in seconds
-          format: int32
-        service:
-          type: integer
-          description: Active time spent at the waypoints in seconds
-          format: int32
-        rest:
-          type: integer
-          description: Time needed for resting according to legal regulations (simplified model) in seconds
-          format: int32
-        waiting:
-          type: integer
-          description: Time spent waiting at the waypoints in seconds
-          format: int32
-        break:
-          type: integer
-          description: Break time spent at the waypoint in seconds
-          format: int32
-      description: Time needed for traveling through the sequence by categories
     Waypoint:
       type: object
       properties:
@@ -580,65 +556,33 @@ components:
           items:
             $ref: '#/components/schemas/ParameterOverride'
       description: This List contains 0 or more elements with an ordered list of waypoints. This value is set only, if no sequence is found due to constraints.
-    FailedConstraint:
+    WseResponse:
       type: object
       properties:
-        constraint:
-          type: string
-          description: The constraint reflects the input setting in the same format.
-        reason:
-          type: integer
-          description: ' The reason defines why the constraint was not met: 0:Undetermined, 1:not reachable in time, 2:service time did not fit, 3: conflicts with arrival time of final waypoint.'
-          format: int32
-      description: List containing pairs of unmet constraints and reasons
-    ParameterOverride:
-      type: object
-      properties:
-        parameter:
-          type: string
-          description: Name of the parameter that is overridden.
-        userProvided:
-          type: string
-          description: The value of the parameter as provided in the request.
-        overriddenBy:
-          type: string
-          description: 'The value that has been used instead of the provided one in the request. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
-      description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
-    Interconnection:
-      type: object
-      properties:
-        fromWaypoint:
-          type: string
-          description: Waypoint in the sequence that has been reached.
-        toWaypoint:
-          type: string
-          description: Waypoint of the sequence to be reached next.
-        distance:
-          type: number
-          description: Distance between the two waypoints.
-          format: double
-        time:
-          type: number
-          description: Time needed for traveling between the two waypoints.
-          format: double
-        break:
-          type: number
-          description: Break time spent at the destination in seconds
-          format: double
-        rest:
-          type: number
-          description: Rest time at or between the waypoints.
-          format: double
-        waiting:
-          type: number
-          description: Waiting time at the destination.
-          format: double
-        warnings:
+        results:
           type: array
-          description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
+          description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
           items:
-            $ref: '#/components/schemas/WseIssue'
-      description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+            $ref: '#/components/schemas/Result'
+        errors:
+          type: array
+          description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
+          items:
+            type: string
+            description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
+        processingTimeDesc:
+          type: string
+          description: Calculation time for the result, including the time unit. If the response does not contains an error, the processing time value is included.
+        responseCode:
+          type: string
+          description: This value is set to the HTTP response code. If the parameter jsonCallback is set in the request, the HTTP response code is always 200. In this case this field gives the actual response code.
+        warnings:
+          $ref: '#/components/schemas/Warnings'
+        requestId:
+          type: string
+          description: Identifier defined in the request and passed through the system. This field is null, if no such value was defined in the request.
+      xml:
+        name: Response
     OutOfSequenceWaypoint:
       type: object
       properties:
@@ -688,33 +632,43 @@ components:
         timeBreakdown:
           $ref: '#/components/schemas/TimeBreakdown'
       description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
-    WseResponse:
+    ParameterOverride:
       type: object
       properties:
-        results:
-          type: array
-          description: This List contains 1 or 0 elements with an ordered list of waypoints. This value is set, if a result is found.
-          items:
-            $ref: '#/components/schemas/Result'
-        errors:
-          type: array
-          description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
-          items:
-            type: string
-            description: This field provides descriptions of errors which occurred during the calculation. The value is always included in the answer, but is a empty array, if there is no error. errors is providing information if the HTTP response code indicates an error.
-        processingTimeDesc:
+        parameter:
           type: string
-          description: Calculation time for the result, including the time unit. If the response does not contains an error, the processing time value is included.
-        responseCode:
+          description: Name of the parameter that is overridden.
+        userProvided:
           type: string
-          description: This value is set to the HTTP response code. If the parameter jsonCallback is set in the request, the HTTP response code is always 200. In this case this field gives the actual response code.
-        warnings:
-          $ref: '#/components/schemas/Warnings'
-        requestId:
+          description: The value of the parameter as provided in the request.
+        overriddenBy:
           type: string
-          description: Identifier defined in the request and passed through the system. This field is null, if no such value was defined in the request.
-      xml:
-        name: Response
+          description: 'The value that has been used instead of the provided one in the request. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
+      description: 'List of parameters that are overridden. Mainly available for the ''pedestrian'' mode with traffic enabled requests.<br/> Example., if a request contains &mode=fastest;pedestrian;traffic:enabled; then it will be overridden and the response will have <br/> "parameterOverrides": [<br/>{<br/>"parameter": "mode",<br/>"userProvided": "fastest;pedestrian;traffic:enabled;",<br/>"overriddenBy": "fastest;pedestrian;traffic:disabled;"<br/>}<br/>]'
+    TimeBreakdown:
+      type: object
+      properties:
+        driving:
+          type: integer
+          description: Time spent in motion for completing the sequence in seconds
+          format: int32
+        service:
+          type: integer
+          description: Active time spent at the waypoints in seconds
+          format: int32
+        rest:
+          type: integer
+          description: Time needed for resting according to legal regulations (simplified model) in seconds
+          format: int32
+        waiting:
+          type: integer
+          description: Time spent waiting at the waypoints in seconds
+          format: int32
+        break:
+          type: integer
+          description: Break time spent at the waypoint in seconds
+          format: int32
+      description: Time needed for traveling through the sequence by categories
     WseIssue:
       type: object
       properties:
@@ -726,6 +680,52 @@ components:
           description: Warning/error code
           format: int32
       description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
+    Interconnection:
+      type: object
+      properties:
+        fromWaypoint:
+          type: string
+          description: Waypoint in the sequence that has been reached.
+        toWaypoint:
+          type: string
+          description: Waypoint of the sequence to be reached next.
+        distance:
+          type: number
+          description: Distance between the two waypoints.
+          format: double
+        time:
+          type: number
+          description: Time needed for traveling between the two waypoints.
+          format: double
+        break:
+          type: number
+          description: Break time spent at the destination in seconds
+          format: double
+        rest:
+          type: number
+          description: Rest time at or between the waypoints.
+          format: double
+        waiting:
+          type: number
+          description: Waiting time at the destination.
+          format: double
+        warnings:
+          type: array
+          description: 'Warnings for traveling between the two waypoints. Example: Route violates requested ''avoid'' options or legal/physical restrictions'
+          items:
+            $ref: '#/components/schemas/WseIssue'
+      description: Timings and distances to travel from one waypoint to the next waypoint of the sequence
+    FailedConstraint:
+      type: object
+      properties:
+        constraint:
+          type: string
+          description: The constraint reflects the input setting in the same format.
+        reason:
+          type: integer
+          description: ' The reason defines why the constraint was not met: 0:Undetermined, 1:not reachable in time, 2:service time did not fit, 3: conflicts with arrival time of final waypoint.'
+          format: int32
+      description: List containing pairs of unmet constraints and reasons
   securitySchemes:
     apiKey:
       type: apiKey

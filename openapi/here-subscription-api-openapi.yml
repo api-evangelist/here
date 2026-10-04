@@ -320,6 +320,49 @@ paths:
       x-operation-id-original: Config API v1 batchGetSubscriptionStatus
 components:
   schemas:
+    SubscriptionStatus:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - pending
+          - failed
+          - active
+          - deleted
+          description: 'Status:
+
+            * `pending` - Operation is in progress.
+
+            * `failed` - The operation failed.
+
+            * `active` - Subscription was successfully created and is active.
+
+            * `deleted` - Subscription was successfully deleted.
+
+            '
+        subscriptionHrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the newly created subscription.
+          example: hrn:here:data-subscription::olp-here:my-subscription-7d93563980d94f1b
+    SubscriptionStatusToken:
+      type: object
+      required:
+      - statusToken
+      properties:
+        statusToken:
+          type: string
+          description: Token to check subscription create or delete status.
+          example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: HERE
+          description: The ID of the customer organisation relating to this catalog
     Creator:
       type: object
       properties:
@@ -327,6 +370,30 @@ components:
           type: string
           description: The unique ID of the user or application that initially created the catalog
           example: Mejk6DMxAq7kKI5lt2T2
+    CreateSubscriptionRequestBody:
+      x-baseType: SubscriptionBase
+      oneOf:
+      - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
+    SubscriptionList:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          description: Current page size limit.
+          example: 100
+        nextPageToken:
+          type: string
+        previousPageToken:
+          type: string
+        items:
+          type: array
+          x-baseType: SubscriptionBase
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
     SubscriptionInteractiveMapLayer:
       allOf:
       - $ref: '#/components/schemas/SubscriptionBase'
@@ -355,72 +422,6 @@ components:
                   * `contentChange` - Content change interactive map subscription type.
 
                   '
-    BatchRequestStatus:
-      type: string
-      enum:
-      - PENDING
-      - SUCCESS
-      - FAILED
-    SubscriptionStatusToken:
-      type: object
-      required:
-      - statusToken
-      properties:
-        statusToken:
-          type: string
-          description: Token to check subscription create or delete status.
-          example: de1e3c8d-17ac-42b9-8f5d-7bbeba664fe6
-    SubscriptionList:
-      type: object
-      required:
-      - limit
-      - items
-      properties:
-        limit:
-          type: integer
-          description: Current page size limit.
-          example: 100
-        nextPageToken:
-          type: string
-        previousPageToken:
-          type: string
-        items:
-          type: array
-          x-baseType: SubscriptionBase
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
-    CreateSubscriptionRequestBody:
-      x-baseType: SubscriptionBase
-      oneOf:
-      - $ref: '#/components/schemas/SubscriptionInteractiveMapLayer'
-    SubscriptionStatus:
-      type: object
-      required:
-      - status
-      properties:
-        status:
-          type: string
-          enum:
-          - pending
-          - failed
-          - active
-          - deleted
-          description: 'Status:
-
-            * `pending` - Operation is in progress.
-
-            * `failed` - The operation failed.
-
-            * `active` - Subscription was successfully created and is active.
-
-            * `deleted` - Subscription was successfully deleted.
-
-            '
-        subscriptionHrn:
-          type: string
-          description: The HERE Resource Name (HRN) of the newly created subscription.
-          example: hrn:here:data-subscription::olp-here:my-subscription-7d93563980d94f1b
     BatchSubscriptionStatusResponse:
       type: object
       required:
@@ -439,6 +440,12 @@ components:
           description: Status of each subscription in the batch request.
           items:
             $ref: '#/components/schemas/SubscriptionStatus'
+    BatchRequestStatus:
+      type: string
+      enum:
+      - PENDING
+      - SUCCESS
+      - FAILED
     SubscriptionBase:
       type: object
       required:
@@ -551,32 +558,7 @@ components:
             message:
               type: string
               example: Some error message
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          example: HERE
-          description: The ID of the customer organisation relating to this catalog
   parameters:
-    X-Idempotency-Key:
-      in: header
-      name: x-idempotency-key
-      description: '`x-idempotency-key` is the unique value generated by the client to create a subscription request.
-
-        Any additional retry requests must have the same `x-idempotency-key` header value and the same body content as the first subscription request.
-
-        If the retry request body content is different, then the server will return a 409 status code.
-
-        It is recommended to use UUID v4 for `x-idempotency-key` value.
-
-        Minimum length: 10, maximum length: 255.
-
-        '
-      required: true
-      schema:
-        type: string
-      example: 8e03978e-40d5-43e8-bc93-6894a57f9324
     billingTag:
       name: billingTag
       in: query
@@ -599,6 +581,24 @@ components:
       schema:
         type: integer
         minimum: 1
+    X-Idempotency-Key:
+      in: header
+      name: x-idempotency-key
+      description: '`x-idempotency-key` is the unique value generated by the client to create a subscription request.
+
+        Any additional retry requests must have the same `x-idempotency-key` header value and the same body content as the first subscription request.
+
+        If the retry request body content is different, then the server will return a 409 status code.
+
+        It is recommended to use UUID v4 for `x-idempotency-key` value.
+
+        Minimum length: 10, maximum length: 255.
+
+        '
+      required: true
+      schema:
+        type: string
+      example: 8e03978e-40d5-43e8-bc93-6894a57f9324
   securitySchemes:
     Bearer:
       type: http

@@ -191,7 +191,77 @@ paths:
     - url: https://fuel.hereapi.com/v3
       description: Production environment URL
 components:
+  parameters:
+    X-Request-Id:
+      name: X-Request-Id
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+  headers:
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
   schemas:
+    FuelBrands:
+      type: object
+      description: Fuel station brand list
+      properties:
+        fuelBrands:
+          description: List of available fuel brands
+          type: array
+          items:
+            type: string
+    FuelType:
+      type: object
+      description: Fuel type
+      properties:
+        id:
+          description: Unique fuel type identifier
+          type: integer
+          format: int32
+          example: 1
+        name:
+          description: Fuel type name
+          type: string
+          example: Regular
+        parentIds:
+          description: "Container for ParentIds data type.\nE.g. if fuelType in search stations query is -3, returns all stations with fuel type that has parentId = -3. \nThis can be used to search stations with e.g. all types of Diesel - diesel, Bio-diesel, Red-diesel, etc.\n"
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: -3
+    AuthError:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
+    FuelTypes:
+      type: object
+      description: Fuel type list
+      properties:
+        fuelTypes:
+          description: List of available fuel types
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelType'
     ErrorResponse:
       type: object
       properties:
@@ -221,57 +291,6 @@ components:
       - cause
       - action
       - correlationId
-    FuelBrands:
-      type: object
-      description: Fuel station brand list
-      properties:
-        fuelBrands:
-          description: List of available fuel brands
-          type: array
-          items:
-            type: string
-    AuthError:
-      description: Error object reported in case of authentication or authorization errors.
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        error_description:
-          type: string
-          description: Detailed information about the error
-      example:
-        error: Unauthorized
-        error_description: ApiKey invalid. ApiKey not found.
-    FuelTypes:
-      type: object
-      description: Fuel type list
-      properties:
-        fuelTypes:
-          description: List of available fuel types
-          type: array
-          items:
-            $ref: '#/components/schemas/FuelType'
-    FuelType:
-      type: object
-      description: Fuel type
-      properties:
-        id:
-          description: Unique fuel type identifier
-          type: integer
-          format: int32
-          example: 1
-        name:
-          description: Fuel type name
-          type: string
-          example: Regular
-        parentIds:
-          description: "Container for ParentIds data type.\nE.g. if fuelType in search stations query is -3, returns all stations with fuel type that has parentId = -3. \nThis can be used to search stations with e.g. all types of Diesel - diesel, Bio-diesel, Red-diesel, etc.\n"
-          type: array
-          items:
-            type: integer
-            format: int32
-            example: -3
     FuelBrand:
       type: object
       description: Fuel brand detail
@@ -291,6 +310,113 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FuelBrand'
+  responses:
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+    Error429Response:
+      description: API response in case of too many requests
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 429
+            code: E611125
+            title: Too many requests
+            cause: Request rate limit reached
+            action: Retry later, lower the request rate
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    Error503Response:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 503
+            code: E611001
+            title: Service not available
+            cause: Service current not available
+            action: Retry later
+            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
   examples:
     FuelBrandsExample:
       value:
@@ -339,6 +465,14 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: c1281609-7a9a-45d0-8438-f4ac82c4e2c2
+    502errorResponseExample:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E612201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     504errorResponseExample:
       value:
         title: Gateway timeout
@@ -367,140 +501,6 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
-    502errorResponseExample:
-      value:
-        title: Bad Gateway
-        status: 502
-        code: E612201
-        cause: Bad Gateway
-        action: Failure of communication with external system.
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-  headers:
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
-  responses:
-    Error500Response:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample'
-    Error403Response:
-      description: API response in case of insufficient credentials for access to the requested resource.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
-    Error401Response:
-      description: API response in case of lacking valid authorization credentials.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Unauthorized
-            error_description: No credentials found
-    Error429Response:
-      description: API response in case of too many requests
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            status: 429
-            code: E611125
-            title: Too many requests
-            cause: Request rate limit reached
-            action: Retry later, lower the request rate
-            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
-    Error503Response:
-      description: API response in case of service unavailable
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            status: 503
-            code: E611001
-            title: Service not available
-            cause: Service current not available
-            action: Retry later
-            correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
-    Error504Response:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample'
-    Error502Response:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
-  parameters:
-    X-Request-Id:
-      name: X-Request-Id
-      in: header
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
   securitySchemes:
     Bearer:
       type: http

@@ -521,7 +521,52 @@ paths:
       - ApiKey: []
       - Bearer: []
 components:
+  headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
+      schema:
+        type: string
   schemas:
+    ErrorResponse:
+      type: object
+      description: Response in case of error.
+      properties:
+        title:
+          type: string
+          description: Human-readable error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Error code.
+          example: Exxxxxx
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that can be taken to correct the error.
+          example: Provide validated input
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+      required:
+      - action
+      - cause
+      - code
+      - correlationId
+      - status
+      - title
     AuthErrorResponse:
       description: Response on Authorization Error
       properties:
@@ -565,60 +610,15 @@ components:
       - config
       - id
       - type
-    ErrorResponse:
-      type: object
-      description: Response in case of error.
-      properties:
-        title:
-          type: string
-          description: Human-readable error description.
-          example: Input data failed validation
-        status:
-          type: integer
-          format: int32
-          description: HTTP status code.
-          example: 400
-        code:
-          type: string
-          description: Error code.
-          example: Exxxxxx
-        cause:
-          type: string
-          description: Human-readable explanation for the error.
-          example: The input data in question does not comply with validation rules
-        action:
-          type: string
-          description: Human-readable description of the action that can be taken to correct the error.
-          example: Provide validated input
-        correlationId:
-          type: string
-          description: Auto-generated id that uniquely identifies the request.
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-      required:
-      - action
-      - cause
-      - code
-      - correlationId
-      - status
-      - title
   examples:
-    ForbiddenErrorExample:
-      value:
-        error: Forbidden
-        error_description: These credentials do not authorize access
     UnauthorizedErrorExample:
       value:
         error: Unauthorized
         error_description: No credentials found
-  headers:
-    X-Correlation-ID:
-      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
-      schema:
-        type: string
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
+    ForbiddenErrorExample:
+      value:
+        error: Forbidden
+        error_description: These credentials do not authorize access
   securitySchemes:
     ApiKey:
       type: apiKey

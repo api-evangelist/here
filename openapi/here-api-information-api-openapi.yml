@@ -242,7 +242,183 @@ paths:
     - url: https://fuel-v2.cit.cc.api.here.com
       description: Staging environment URL
 components:
+  headers:
+    X-Request-ID:
+      description: 'User provided token used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. Sentry generates the X-Correlation-ID UUID and passes it to downstream services. It generates if it''s not present in the incoming request.
+
+        '
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+    X-Request-ID_2:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID_3:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    X-Correlation-ID_2:
+      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
+      schema:
+        type: string
+    RequestID:
+      description: Value of X-Request-ID header parameter supplied in the request.
+      schema:
+        type: string
+    ContentEncoding:
+      description: 'Indicates that the data in the body has been compressed. Supported codings are: "gzip", "deflate", "br".
+
+        '
+      schema:
+        type: string
+      example: gzip
+    CorrelationID:
+      description: 'Auto-generated ID, which uniquely identifies the request.
+
+        When contacting support with an inquiry regarding a specific request,
+
+        provide the value of this header which will help troubleshooting the issue.
+
+        **Note:** its value is currently in UUID format, but this may be changed
+
+        in future and relying upon this specific format is deprecated!
+
+        '
+      schema:
+        type: string
+    X-Correlation-Id_2:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id_2:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Request-ID_4:
+      description: 'User-provided token that you can use to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Correlation-ID_3:
+      description: 'The auto-generated ID that uniquely identifies the request and is accessible within the response.  When reaching out to support with an inquiry about a particular request, please include the value of this header. Doing so will assist in troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id_3:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-Id_3:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    ContentEncoding_2:
+      description: Indicates that the data in the body has been compressed.
+      schema:
+        type: string
+      example: gzip
+    X-Correlation-Id_4:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id_4:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-ID_4:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-ID_5:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-ID_5:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Correlation-Id_5:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id_5:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-Id_6:
+      description: Auto-generated id that univocally identifies the request.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
+    X-Request-Id_6:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service. This can be any string but UUID is preferred.
+
+        '
+      schema:
+        type: string
+      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Request-ID_6:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+      example: REQ-8230d7ad-3f1c-4191-a8dd-f3c42026da89
+    X-Correlation-ID_6:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header. This will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
   schemas:
+    ApiHealthStatus:
+      type: object
+      properties:
+        status:
+          description: Health status of the API.
+          type: string
     ApiVersion:
       type: object
       required:
@@ -250,12 +426,6 @@ components:
       properties:
         apiVersion:
           description: Version of the API.
-          type: string
-    ApiHealthStatus:
-      type: object
-      properties:
-        status:
-          description: Health status of the API.
           type: string
     Error:
       type: object
@@ -268,6 +438,16 @@ components:
           items:
             type: string
             example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
+    VersionResponse:
+      type: object
+      description: Returns the version of the service.
+      properties:
+        apiVersion:
+          type: string
+          example: X.Y.Z
+          description: The current version of the service.
+      required:
+      - apiVersion
     HealthResponse:
       type: object
       description: Returns the health of the service.
@@ -281,16 +461,6 @@ components:
 
             '
           type: string
-    VersionResponse:
-      type: object
-      description: Returns the version of the service.
-      properties:
-        apiVersion:
-          type: string
-          example: X.Y.Z
-          description: The current version of the service.
-      required:
-      - apiVersion
     AuthError:
       description: Error object reported in case of authentication or authorization errors.
       type: object
@@ -333,20 +503,6 @@ components:
       - cause
       - action
       - correlationId
-    VersionResponse_2:
-      description: Returns the versions of the service components.
-      type: object
-      properties:
-        apiVersion:
-          type: string
-          description: The current version of the API.
-          example: 3.8.0
-        serviceVersion:
-          type: string
-          description: The current version of the service.
-          example: 2.0.5000
-      required:
-      - apiVersion
     GenericErrorResponse:
       description: Generic error response
       type: object
@@ -363,6 +519,24 @@ components:
           example: 403
       required:
       - error
+    VersionResponse_2:
+      description: Returns the versions of the service components.
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: The current version of the API.
+          example: 3.8.0
+        serviceVersion:
+          type: string
+          description: The current version of the service.
+          example: 2.0.5000
+      required:
+      - apiVersion
+    OpenapiResponse:
+      description: API response for the openapi endpoint
+      type: object
+      additionalProperties: true
     HealthResponse_2:
       description: Returns the health of the service
       type: object
@@ -383,10 +557,10 @@ components:
         message:
           description: Human-readable error message
           type: string
-    OpenapiResponse:
-      description: API response for the openapi endpoint
-      type: object
-      additionalProperties: true
+    ApiIsAliveStatus:
+      type: string
+      description: Health status of API
+      example: 200 OK
     ErrorResponse_2:
       type: object
       properties:
@@ -416,10 +590,6 @@ components:
       - cause
       - action
       - correlationId
-    ApiIsAliveStatus:
-      type: string
-      description: Health status of API
-      example: 200 OK
     Version:
       type: object
       properties:
@@ -463,6 +633,16 @@ components:
           type: string
           example: '2020-09-03 17:02:24.387'
           description: Date of build as a string
+    VersionResponse_3:
+      type: object
+      description: Returns the version of the service
+      properties:
+        apiVersion:
+          type: string
+          example: X.Y.Z
+          description: The current version of the service
+      required:
+      - apiVersion
     HealthResponse_3:
       type: object
       description: Returns the health of the service
@@ -476,16 +656,6 @@ components:
 
             '
           type: string
-    VersionResponse_3:
-      type: object
-      description: Returns the version of the service
-      properties:
-        apiVersion:
-          type: string
-          example: X.Y.Z
-          description: The current version of the service
-      required:
-      - apiVersion
     AuthError_2:
       description: Error object reported in case of authentication or authorization errors.
       type: object
@@ -548,47 +718,6 @@ components:
       required:
       - apiVersion
       - serviceVersion
-    HealthResponse_4:
-      type: object
-      description: Returns the health of the service
-      properties:
-        status:
-          type: string
-          default: fail
-          description: 'Health status of the service:
-
-
-            * `ok` - the service is operating normally
-
-            * `fail` - the service is currently encountering a failure'
-          enum:
-          - ok
-          - fail
-    AuthErrorResponse:
-      description: Response on Authorization Error
-      properties:
-        error:
-          type: string
-          description: Human-readable error
-        error_description:
-          type: string
-          description: Human-readable error description
-      required:
-      - error
-      - error_description
-    DataVersion:
-      type: object
-      description: Version of a specific data set.
-      properties:
-        name:
-          type: string
-          description: Identifies a data set, for example, a HRN, or a service specific identifier.
-        version:
-          type: string
-          description: The current version of the data set.
-      required:
-      - name
-      - version
     ErrorResponse_4:
       type: object
       description: Response in case of error.
@@ -625,6 +754,63 @@ components:
       - correlationId
       - status
       - title
+    AuthErrorResponse:
+      description: Response on Authorization Error
+      properties:
+        error:
+          type: string
+          description: Human-readable error
+        error_description:
+          type: string
+          description: Human-readable error description
+      required:
+      - error
+      - error_description
+    DataVersion:
+      type: object
+      description: Version of a specific data set.
+      properties:
+        name:
+          type: string
+          description: Identifies a data set, for example, a HRN, or a service specific identifier.
+        version:
+          type: string
+          description: The current version of the data set.
+      required:
+      - name
+      - version
+    HealthResponse_4:
+      type: object
+      description: Returns the health of the service
+      properties:
+        status:
+          type: string
+          default: fail
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            * `fail` - the service is currently encountering a failure'
+          enum:
+          - ok
+          - fail
+    HealthResponseFail:
+      description: Returns the health of the service
+      type: object
+      properties:
+        status:
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            * `fail` - the service is currently encountering a failure
+
+            '
+          type: string
+          enum:
+          - fail
     Error_2:
       description: Object wrapper for the error response to a request.
       type: object
@@ -680,32 +866,6 @@ components:
             field: size
             min: 3
             max: 64
-    ApiVersion_2:
-      type: object
-      required:
-      - apiVersion
-      properties:
-        apiVersion:
-          description: Version of API
-          type: string
-          example: 2.0.3
-        serviceVersion:
-          description: Version of the Service
-          type: string
-          example: 2.0.20
-    AuthError_3:
-      description: Error object reported in case of authentication or authorization errors.
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        error_description:
-          type: string
-          description: Detailed information about the error
-      example:
-        error: Unauthorized
-        error_description: ApiKey invalid. ApiKey not found.
     ErrorDetail:
       description: Detail about an error
       type: object
@@ -734,6 +894,19 @@ components:
             field: size
             min: 3
             max: 64
+    AuthError_3:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
     HealthResponseOk:
       description: Returns the health of the service
       type: object
@@ -750,22 +923,19 @@ components:
           type: string
           enum:
           - ok
-    HealthResponseFail:
-      description: Returns the health of the service
+    ApiVersion_2:
       type: object
+      required:
+      - apiVersion
       properties:
-        status:
-          description: 'Health status of the service:
-
-
-            * `ok` - the service is operating normally
-
-            * `fail` - the service is currently encountering a failure
-
-            '
+        apiVersion:
+          description: Version of API
           type: string
-          enum:
-          - fail
+          example: 2.0.3
+        serviceVersion:
+          description: Version of the Service
+          type: string
+          example: 2.0.20
     VersionResponse_5:
       type: object
       description: Returns the versions of the service components.
@@ -801,37 +971,6 @@ components:
           type: string
           enum:
           - fail
-    DataVersion_2:
-      type: object
-      description: Version of a specific data set
-      properties:
-        name:
-          type: string
-          description: Identifies a data set, for example, a HRN, or a service specific identifier
-          example: optimized-map-for-routing
-        version:
-          type: string
-          description: The current version of this data set
-          example: 2022.346.5.48
-      required:
-      - name
-      - version
-    HealthResponseOKSchema:
-      type: object
-      description: Returns the health of the service
-      properties:
-        status:
-          description: 'Health status of the service:
-
-
-            * `ok` - the service is operating normally
-
-            * `fail` - the service is currently encountering a failure
-
-            '
-          type: string
-          enum:
-          - ok
     ErrorResponse_5:
       type: object
       description: Response in case of error
@@ -872,6 +1011,71 @@ components:
       - cause
       - action
       - correlationId
+    DataVersion_2:
+      type: object
+      description: Version of a specific data set
+      properties:
+        name:
+          type: string
+          description: Identifies a data set, for example, a HRN, or a service specific identifier
+          example: optimized-map-for-routing
+        version:
+          type: string
+          description: The current version of this data set
+          example: 2022.346.5.48
+      required:
+      - name
+      - version
+    HealthResponseOKSchema:
+      type: object
+      description: Returns the health of the service
+      properties:
+        status:
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            * `fail` - the service is currently encountering a failure
+
+            '
+          type: string
+          enum:
+          - ok
+    HealthResponseFail_2:
+      type: object
+      description: Returns the health status of the service.
+      properties:
+        status:
+          description: 'The available service health status types:
+
+
+            * `ok` - The service is operating normally.
+
+            * `fail` - The service is currently unavailable.
+
+            '
+          type: string
+          enum:
+          - fail
+    ForbiddenErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
+    UnauthorizedErrorSchema:
+      type: object
+      description: Custom error response schema returned as a result of authentication.
+      properties:
+        error:
+          type: string
+          pattern: ^Unauthorized$
+        error_description:
+          type: string
     VersionResponse_6:
       type: object
       description: Returns the versions of the service components.
@@ -891,62 +1095,6 @@ components:
           description: Returns the versions of data sets that the service uses.
       required:
       - apiVersion
-    NotFoundErrorResponseSchema:
-      type: object
-      description: Not Found | Indicates that the resource was not found.
-      properties:
-        title:
-          type: string
-          description: User-friendly error description.
-          example: Input data failed validation
-        status:
-          type: integer
-          description: HTTP status code.
-          example: 404
-        code:
-          type: string
-          description: Error code.
-          example: E622000
-        cause:
-          type: string
-          description: Human-readable explanation for the error.
-          example: The input data in question does not comply with validation rules
-        action:
-          type: string
-          description: Human-readable description of the action that you can take to correct the error.
-          example: Request a valid id
-        correlationId:
-          type: string
-          description: Auto-generated id that uniquely identifies the request.
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - correlationId
-    UnauthorizedErrorSchema:
-      type: object
-      description: Custom error response schema returned as a result of authentication.
-      properties:
-        error:
-          type: string
-          pattern: ^Unauthorized$
-        error_description:
-          type: string
-    ErrorResponseDetailsSchema:
-      type: object
-      description: Detailed information about the error.
-      properties:
-        message:
-          type: string
-          description: Error message
-          example: output parameter matches none of the supported values
     ErrorResponseSchema:
       type: object
       description: Response in case of error.
@@ -986,44 +1134,14 @@ components:
       - cause
       - action
       - correlationId
-    DataVersion_3:
+    ErrorResponseDetailsSchema:
       type: object
-      description: Version of a specific data set.
+      description: Detailed information about the error.
       properties:
-        name:
+        message:
           type: string
-          description: Identifies a data set, for example, a HRN, or a service-specific identifier.
-        version:
-          type: string
-          description: The current version of this data set.
-      required:
-      - name
-      - version
-    ForbiddenErrorSchema:
-      type: object
-      description: Custom error response schema returned as a result of authentication.
-      properties:
-        error:
-          type: string
-          pattern: ^Forbidden$
-        error_description:
-          type: string
-    HealthResponseFail_2:
-      type: object
-      description: Returns the health status of the service.
-      properties:
-        status:
-          description: 'The available service health status types:
-
-
-            * `ok` - The service is operating normally.
-
-            * `fail` - The service is currently unavailable.
-
-            '
-          type: string
-          enum:
-          - fail
+          description: Error message
+          example: output parameter matches none of the supported values
     HealthResponseOk_2:
       type: object
       description: Returns the health status of the service.
@@ -1040,6 +1158,19 @@ components:
           type: string
           enum:
           - ok
+    DataVersion_3:
+      type: object
+      description: Version of a specific data set.
+      properties:
+        name:
+          type: string
+          description: Identifies a data set, for example, a HRN, or a service-specific identifier.
+        version:
+          type: string
+          description: The current version of this data set.
+      required:
+      - name
+      - version
     InternalServerErrorResponseSchema:
       type: object
       description: Internal Error | Indicates a server malfunction and an unexpected error.
@@ -1056,6 +1187,45 @@ components:
           type: string
           description: Error code. Possible error codes include E622050,E622051,E622052,E622053, and E622054.
           example: E622050
+        cause:
+          type: string
+          description: Human-readable explanation for the error.
+          example: The input data in question does not comply with validation rules
+        action:
+          type: string
+          description: Human-readable description of the action that you can take to correct the error.
+          example: Request a valid id
+        correlationId:
+          type: string
+          description: Auto-generated id that uniquely identifies the request.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseDetailsSchema'
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - correlationId
+    NotFoundErrorResponseSchema:
+      type: object
+      description: Not Found | Indicates that the resource was not found.
+      properties:
+        title:
+          type: string
+          description: User-friendly error description.
+          example: Input data failed validation
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 404
+        code:
+          type: string
+          description: Error code.
+          example: E622000
         cause:
           type: string
           description: Human-readable explanation for the error.
@@ -1195,21 +1365,6 @@ components:
           description: Returns the versions of data sets used by the service.
       required:
       - apiVersion
-    DataVersion_4:
-      type: object
-      description: Version of a specific data set
-      properties:
-        name:
-          type: string
-          description: Identifies a data set, for example, a HRN, or a service specific identifier
-          example: optimized-map-for-routing
-        version:
-          type: string
-          description: The current version of this data set
-          example: 2022.346.5.48
-      required:
-      - name
-      - version
     ErrorResponse_6:
       type: object
       description: Response in case of error
@@ -1250,6 +1405,30 @@ components:
       - cause
       - action
       - correlationId
+    DataVersion_4:
+      type: object
+      description: Version of a specific data set
+      properties:
+        name:
+          type: string
+          description: Identifies a data set, for example, a HRN, or a service specific identifier
+          example: optimized-map-for-routing
+        version:
+          type: string
+          description: The current version of this data set
+          example: 2022.346.5.48
+      required:
+      - name
+      - version
+    ForbiddenErrorSchema_2:
+      type: object
+      description: Custom error response schema returned by authentication
+      properties:
+        error:
+          type: string
+          pattern: ^Forbidden$
+        error_description:
+          type: string
     UnauthorizedErrorSchema_2:
       type: object
       description: Custom error response schema returned by authentication
@@ -1259,13 +1438,24 @@ components:
           pattern: ^Unauthorized$
         error_description:
           type: string
-    ErrorResponseDetailsSchema_2:
-      description: Detailed information about the error
+    VersionResponse_8:
+      description: Returns the versions of the service components.
       properties:
-        message:
+        apiVersion:
           type: string
-          description: Error message
-          example: output parameter matches none of the supported values
+          description: The current version of the API.
+          pattern: ^[0-9]+\.[0-9]+(\.[0-9]+)?$
+        serviceVersion:
+          type: string
+          description: The current version of the service.
+          pattern: ^[0-9]+\.[0-9]+\.[0-9]+-[a-f0-9]{7}(-[a-z]*)?$
+        dataVersions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataVersion_5'
+          description: Returns the versions of data sets used by the service
+      required:
+      - apiVersion
     ErrorResponseSchema_2:
       description: Response in case of error
       properties:
@@ -1304,39 +1494,13 @@ components:
       - cause
       - action
       - correlationId
-    HealthResponseOk_3:
-      description: Returns the health of the service
+    ErrorResponseDetailsSchema_2:
+      description: Detailed information about the error
       properties:
-        status:
-          description: 'Health status of the service:
-
-
-            * `ok` - the service is operating normally
-
-            * `fail` - the service is currently encountering a failure
-
-            '
+        message:
           type: string
-          enum:
-          - ok
-    VersionResponse_8:
-      description: Returns the versions of the service components.
-      properties:
-        apiVersion:
-          type: string
-          description: The current version of the API.
-          pattern: ^[0-9]+\.[0-9]+(\.[0-9]+)?$
-        serviceVersion:
-          type: string
-          description: The current version of the service.
-          pattern: ^[0-9]+\.[0-9]+\.[0-9]+-[a-f0-9]{7}(-[a-z]*)?$
-        dataVersions:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataVersion_5'
-          description: Returns the versions of data sets used by the service
-      required:
-      - apiVersion
+          description: Error message
+          example: output parameter matches none of the supported values
     InternalServerErrorResponseSchema_2:
       description: Internal Error | Indicates a server malfunction and an unexpected error.
       properties:
@@ -1375,6 +1539,21 @@ components:
       - cause
       - action
       - correlationId
+    HealthResponseFail_3:
+      description: Returns the health of the service
+      properties:
+        status:
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            * `fail` - the service is currently encountering a failure
+
+            '
+          type: string
+          enum:
+          - fail
     NotFoundErrorResponseSchema_2:
       description: Not Found | Indicates that the requested resource was not found.
       properties:
@@ -1413,31 +1592,10 @@ components:
       - cause
       - action
       - correlationId
-    DataVersion_5:
-      description: Version of a specific data set
-      properties:
-        name:
-          type: string
-          description: Identifies a data set, e.g. a HRN, or a service specific identifier
-        version:
-          type: string
-          description: The current version of this data set
-      required:
-      - name
-      - version
     GenericError:
       description: generic error
       type: object
-    ForbiddenErrorSchema_2:
-      type: object
-      description: Custom error response schema returned by authentication
-      properties:
-        error:
-          type: string
-          pattern: ^Forbidden$
-        error_description:
-          type: string
-    HealthResponseFail_3:
+    HealthResponseOk_3:
       description: Returns the health of the service
       properties:
         status:
@@ -1451,7 +1609,19 @@ components:
             '
           type: string
           enum:
-          - fail
+          - ok
+    DataVersion_5:
+      description: Version of a specific data set
+      properties:
+        name:
+          type: string
+          description: Identifies a data set, e.g. a HRN, or a service specific identifier
+        version:
+          type: string
+          description: The current version of this data set
+      required:
+      - name
+      - version
     VersionResponse_9:
       description: Returns the versions of the service components.
       type: object
@@ -1469,6 +1639,50 @@ components:
           description: Returns the versions of data sets used by the service.
       required:
       - apiVersion
+    ErrorResponse_7:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      - correlationId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E124101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail_2'
     AuthErrorResponse_2:
       type: object
       required:
@@ -1520,50 +1734,6 @@ components:
             field: size
             min: 3
             max: 64
-    ErrorResponse_7:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      - correlationId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E124101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail_2'
     VersionResponse_10:
       type: object
       description: Returns the versions of the service components.
@@ -1583,21 +1753,6 @@ components:
           description: Returns the versions of data sets used by the service.
       required:
       - apiVersion
-    DataVersion_7:
-      type: object
-      description: Version of a specific data set
-      properties:
-        name:
-          type: string
-          description: Identifies a data set, for example, a HRN, or a service specific identifier
-          example: optimized-map-for-routing
-        version:
-          type: string
-          description: The current version of this data set
-          example: 2022.346.5.48
-      required:
-      - name
-      - version
     ErrorResponse_8:
       type: object
       description: Response in case of error
@@ -1638,22 +1793,21 @@ components:
       - cause
       - action
       - correlationId
-    HealthResponseOK:
-      description: Returns the health of the service
+    DataVersion_7:
       type: object
+      description: Version of a specific data set
       properties:
-        status:
-          description: 'Health status of the service:
-
-
-            * `ok` - the service is operating normally
-
-            * `fail` - the service is currently encountering a failure
-
-            '
+        name:
           type: string
-          enum:
-          - ok
+          description: Identifies a data set, for example, a HRN, or a service specific identifier
+          example: optimized-map-for-routing
+        version:
+          type: string
+          description: The current version of this data set
+          example: 2022.346.5.48
+      required:
+      - name
+      - version
     VersionResponse_11:
       description: Returns the versions of the service components.
       type: object
@@ -1668,25 +1822,6 @@ components:
           example: 7.2.0
       required:
       - apiVersion
-    OpenApiResponse:
-      description: API response for the openapi endpoint
-      type: object
-      additionalProperties: true
-    AuthError_5:
-      description: Error object reported in case of authentication or authorization errors.
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        error_description:
-          type: string
-          description: Detailed information about the error
-      required:
-      - error
-      example:
-        error: Unauthorized
-        error_description: ApiKey invalid. ApiKey not found.
     HealthResponseFail_4:
       description: Returns the health of the service
       type: object
@@ -1705,6 +1840,41 @@ components:
           - fail
       required:
       - status
+    OpenApiResponse:
+      description: API response for the openapi endpoint
+      type: object
+      additionalProperties: true
+    HealthResponseOK:
+      description: Returns the health of the service
+      type: object
+      properties:
+        status:
+          description: 'Health status of the service:
+
+
+            * `ok` - the service is operating normally
+
+            * `fail` - the service is currently encountering a failure
+
+            '
+          type: string
+          enum:
+          - ok
+    AuthError_5:
+      description: Error object reported in case of authentication or authorization errors.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Detailed information about the error
+      required:
+      - error
+      example:
+        error: Unauthorized
+        error_description: ApiKey invalid. ApiKey not found.
     ErrorResponse_9:
       description: Response in case of error
       type: object
@@ -1841,6 +2011,22 @@ components:
       - cause
       - action
       - correlationId
+    HealthResponseFail_5:
+      type: object
+      description: Returns the health of the service
+      properties:
+        status:
+          description: 'Health status of the service:
+
+            * `fail` - the service is currently encountering a failure
+
+            '
+          type: string
+          enum:
+          - fail
+    XRequestId:
+      description: A uuid provided by the user for tracing requests.
+      type: string
     VersionResponse_12:
       type: object
       description: Returns the versions of the service components.
@@ -1872,19 +2058,6 @@ components:
             - version
       required:
       - apiVersion
-    HealthResponseFail_5:
-      type: object
-      description: Returns the health of the service
-      properties:
-        status:
-          description: 'Health status of the service:
-
-            * `fail` - the service is currently encountering a failure
-
-            '
-          type: string
-          enum:
-          - fail
     HealthResponseOk_4:
       type: object
       description: Returns the health of the service
@@ -1899,9 +2072,6 @@ components:
           type: string
           enum:
           - ok
-    XRequestId:
-      description: A uuid provided by the user for tracing requests.
-      type: string
     ForbiddenResponse:
       description: Indicates the user is forbidden from performing the request.
       type: object
@@ -2049,191 +2219,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/XRequestId'
-  headers:
-    X-Request-ID:
-      description: 'User provided token used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. Sentry generates the X-Correlation-ID UUID and passes it to downstream services. It generates if it''s not present in the incoming request.
-
-        '
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
-    X-Correlation-ID:
-      description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID_2:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    X-Correlation-ID_2:
-      description: "Auto-generated ID, which uniquely identifies the request, available in the response.\n When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue."
-      schema:
-        type: string
-    X-Request-ID_3:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    CorrelationID:
-      description: 'Auto-generated ID, which uniquely identifies the request.
-
-        When contacting support with an inquiry regarding a specific request,
-
-        provide the value of this header which will help troubleshooting the issue.
-
-        **Note:** its value is currently in UUID format, but this may be changed
-
-        in future and relying upon this specific format is deprecated!
-
-        '
-      schema:
-        type: string
-    ContentEncoding:
-      description: 'Indicates that the data in the body has been compressed. Supported codings are: "gzip", "deflate", "br".
-
-        '
-      schema:
-        type: string
-      example: gzip
-    RequestID:
-      description: Value of X-Request-ID header parameter supplied in the request.
-      schema:
-        type: string
-    X-Correlation-Id_2:
-      description: Auto-generated id that univocally identifies the request.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id_2:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
-    X-Correlation-ID_3:
-      description: 'The auto-generated ID that uniquely identifies the request and is accessible within the response.  When reaching out to support with an inquiry about a particular request, please include the value of this header. Doing so will assist in troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID_4:
-      description: 'User-provided token that you can use to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id_3:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
-    X-Correlation-Id_3:
-      description: Auto-generated id that univocally identifies the request.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    ContentEncoding_2:
-      description: Indicates that the data in the body has been compressed.
-      schema:
-        type: string
-      example: gzip
-    X-Correlation-Id_4:
-      description: Auto-generated id that univocally identifies the request.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id_4:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
-    X-Correlation-ID_4:
-      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Correlation-ID_5:
-      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID_5:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    X-Correlation-Id_5:
-      description: Auto-generated id that univocally identifies the request.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id_5:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
-    X-Correlation-Id_6:
-      description: Auto-generated id that univocally identifies the request.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-Id_6:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service. This can be any string but UUID is preferred.
-
-        '
-      schema:
-        type: string
-      example: 8230d7ad-3f1c-4191-a8dd-f3c42026da89
-    X-Correlation-ID_6:
-      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header. This will help troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID_6:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-      example: REQ-8230d7ad-3f1c-4191-a8dd-f3c42026da89
   responses:
-    Error500Response:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample'
     Error503Response:
       description: API response in case of service unavailable
       headers:
@@ -2249,8 +2235,8 @@ components:
             Type: Service not available
             Message:
             - Service is not available
-    Error403Response:
-      description: API response in case of insufficient credentials for access to the requested resource.
+    Error500Response:
+      description: API response in case of internal server error
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id'
@@ -2259,10 +2245,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
     HealthResponseFail:
       description: API response in case of failure.
       headers:
@@ -2276,6 +2262,61 @@ components:
             $ref: '#/components/schemas/HealthResponse'
           example:
             status: fail
+    Error401Response:
+      description: API response in case of lacking valid authorization credentials.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Unauthorized
+            error_description: No credentials found
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    HealthResponseOk:
+      description: API response in case of success.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponse'
+          example:
+            status: OK
+    Error500Response_2:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_2'
     Error503Response_2:
       description: API response in case of service unavailable
       headers:
@@ -2294,6 +2335,20 @@ components:
             cause: Service current not available
             action: Retry later
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
     Error504Response:
       description: API response in case of gateway timeout.
       headers:
@@ -2308,47 +2363,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/504errorResponseExample'
-    Error500Response_2:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample_2'
-    HealthResponseOk:
-      description: API response in case of success.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HealthResponse'
-          example:
-            status: OK
-    Error502Response:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
     VersionResponseOk:
       description: API response in case of success
       headers:
@@ -2360,34 +2374,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/VersionResponse'
-    Error401Response:
-      description: API response in case of lacking valid authorization credentials.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Unauthorized
-            error_description: No credentials found
-    UnauthorizedErrorResponse:
-      description: API response in case of unauthorized access.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GenericErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/UnauthorizedErrorResponse'
     GenericErrorResponse:
       description: API response in case of errors not specified separately.
       headers:
@@ -2403,20 +2389,20 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/GenericErrorResponse'
-    Error500Response_3:
-      description: API response in case of internal server error
+    UnauthorizedErrorResponse:
+      description: API response in case of unauthorized access.
       headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID_2'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse_2'
+            $ref: '#/components/schemas/GenericErrorResponse'
           examples:
             errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample_3'
+              $ref: '#/components/examples/UnauthorizedErrorResponse'
     Error503Response_3:
       description: API response in case of service unavailable
       headers:
@@ -2435,6 +2421,47 @@ components:
             cause: Service current not available
             action: Retry later
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error500Response_3:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_2'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_3'
+    HealthResponseOk_2:
+      description: API response in case of success
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponse_3'
+          example:
+            status: OK
+    Error500Response_4:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_3'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_4'
     Error503Response_4:
       description: API response in case of service unavailable
       headers:
@@ -2453,33 +2480,20 @@ components:
             cause: Service current not available
             action: Retry later
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
-    Error500Response_4:
-      description: API response in case of internal server error
+    Error401:
+      description: Authentication failed.
       headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_3'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample_4'
-    HealthResponseOk_2:
-      description: API response in case of success
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-Id'
         X-Request-ID:
-          $ref: '#/components/headers/X-Request-Id'
+          $ref: '#/components/headers/RequestID'
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationID'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HealthResponse_3'
+            $ref: '#/components/schemas/AuthError_3'
           example:
-            status: OK
+            error: Unauthorized
+            error_description: Token Validation Failure - invalid time in token
     ErrorDefault:
       description: Other possible errors
       headers:
@@ -2508,31 +2522,34 @@ components:
                 cause: The service is currently unavailable
                 action: Please try again later
                 correlationId: 4199533b-6290-41db-8d79-e2bef401749a
-    Error401:
-      description: Authentication failed.
-      headers:
-        X-Request-ID:
-          $ref: '#/components/headers/RequestID'
-        X-Correlation-ID:
-          $ref: '#/components/headers/CorrelationID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError_3'
-          example:
-            error: Unauthorized
-            error_description: Token Validation Failure - invalid time in token
-    HealthResponseOkWithRequestID:
+    503ErrorResponseWithRequestID:
+      description: API response in case of service unavailable.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id_2'
         X-Request-Id:
           $ref: '#/components/headers/X-Request-Id_2'
-      description: API response in case of success.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HealthResponseOKSchema'
+            $ref: '#/components/schemas/ErrorResponse_5'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/503errorResponseExample'
+    VersionResponseOkWithRequestID:
+      description: API response in case of success.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_2'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_2'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VersionResponse_5'
+          examples:
+            versionResponseOkExample:
+              $ref: '#/components/examples/VersionResponseOkExample'
     OpenApiResponseOk:
       description: API specification in OpenAPI 3 format
       headers:
@@ -2545,6 +2562,59 @@ components:
           schema:
             type: string
         text/x-yaml:
+          schema:
+            type: string
+    HealthResponseOkWithRequestID:
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_2'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_2'
+      description: API response in case of success.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseOKSchema'
+    502ErrorResponseWithRequestID:
+      description: API response in case of bad gateway.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_2'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_2'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_5'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_3'
+    504ErrorResponseWithRequestID:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_2'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_2'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_5'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample_3'
+    HealthResponseFailWithRequestID:
+      description: API response in case of failure.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_2'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_2'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseFailSchema'
+        text/plain:
           schema:
             type: string
     500ErrorResponseWithRequestID:
@@ -2561,100 +2631,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/500errorResponseExample'
-    504ErrorResponseWithRequestID:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_2'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_5'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample_3'
-    503ErrorResponseWithRequestID:
-      description: API response in case of service unavailable.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_2'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_5'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/503errorResponseExample'
-    HealthResponseFailWithRequestID:
-      description: API response in case of failure.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_2'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HealthResponseFailSchema'
-        text/plain:
-          schema:
-            type: string
-    502ErrorResponseWithRequestID:
-      description: API response in case of bad gateway.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_2'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_5'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample_3'
-    VersionResponseOkWithRequestID:
-      description: API response in case of success.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_2'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_2'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/VersionResponse_5'
-          examples:
-            versionResponseOkExample:
-              $ref: '#/components/examples/VersionResponseOkExample'
-    NotFoundErrorResponse:
-      description: API response that indicates that the requested resource was not found.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID_3'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID_4'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/NotFoundErrorResponseSchema'
-    ForbiddenError:
-      description: API response that indicates that the access token does not authorize access.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID_3'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID_4'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ForbiddenErrorSchema'
     ErrorResponse:
       description: API response in case of an error.
       headers:
@@ -2667,8 +2643,8 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/ErrorResponseSchema'
-    UnauthorizedError:
-      description: API response that indicates that the access token is missing or invalid.
+    ForbiddenError:
+      description: API response that indicates that the access token does not authorize access.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID_3'
@@ -2678,7 +2654,7 @@ components:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/UnauthorizedErrorSchema'
+            - $ref: '#/components/schemas/ForbiddenErrorSchema'
     InternalServerErrorResponse:
       description: API response that indicates a server malfunction or an unexpected error.
       headers:
@@ -2691,6 +2667,30 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/InternalServerErrorResponseSchema'
+    UnauthorizedError:
+      description: API response that indicates that the access token is missing or invalid.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_3'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID_4'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedErrorSchema'
+    NotFoundErrorResponse:
+      description: API response that indicates that the requested resource was not found.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_3'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID_4'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundErrorResponseSchema'
     ErrorDefault_2:
       description: Other possible errors
       headers:
@@ -2709,17 +2709,34 @@ components:
             cause: This HTTP version is not supported
             action: Please use HTTP/1.1
             correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    HealthResponseOkWithRequestID_2:
+    503ErrorResponseWithRequestID_2:
+      description: API response in case of service unavailable.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id_4'
         X-Request-Id:
           $ref: '#/components/headers/X-Request-Id_4'
-      description: API response in case of success.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HealthResponseOKSchema'
+            $ref: '#/components/schemas/ErrorResponse_6'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/503errorResponseExample'
+    VersionResponseOkWithRequestID_2:
+      description: API response in case of success.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_4'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_4'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VersionResponse_7'
+          examples:
+            versionResponseOkExample:
+              $ref: '#/components/examples/VersionResponseOkExample'
     OpenApiResponseOk_2:
       description: API specification in OpenAPI 3 format
       headers:
@@ -2732,6 +2749,59 @@ components:
           schema:
             type: string
         text/x-yaml:
+          schema:
+            type: string
+    HealthResponseOkWithRequestID_2:
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_4'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_4'
+      description: API response in case of success.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseOKSchema'
+    502ErrorResponseWithRequestID_2:
+      description: API response in case of bad gateway.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_4'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_4'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_6'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_4'
+    504ErrorResponseWithRequestID_2:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_4'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_4'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_6'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample_4'
+    HealthResponseFailWithRequestID_2:
+      description: API response in case of failure.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_4'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_4'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseFailSchema'
+        text/plain:
           schema:
             type: string
     500ErrorResponseWithRequestID_2:
@@ -2748,76 +2818,16 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/500errorResponseExample'
-    504ErrorResponseWithRequestID_2:
-      description: API response in case of gateway timeout.
+    InternalServerErrorResponse_2:
+      description: API response indicates a server malfunction and an unexpected error.
       headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_4'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_4'
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID_4'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse_6'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample_4'
-    503ErrorResponseWithRequestID_2:
-      description: API response in case of service unavailable.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_4'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_4'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_6'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/503errorResponseExample'
-    HealthResponseFailWithRequestID_2:
-      description: API response in case of failure.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_4'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_4'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HealthResponseFailSchema'
-        text/plain:
-          schema:
-            type: string
-    502ErrorResponseWithRequestID_2:
-      description: API response in case of bad gateway.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_4'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_4'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_6'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample_4'
-    VersionResponseOkWithRequestID_2:
-      description: API response in case of success.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_4'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_4'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/VersionResponse_7'
-          examples:
-            versionResponseOkExample:
-              $ref: '#/components/examples/VersionResponseOkExample'
+            allOf:
+            - $ref: '#/components/schemas/InternalServerErrorResponseSchema_2'
     UnauthorizedError_2:
       description: Access token is missing or invalid.
       headers:
@@ -2838,16 +2848,13 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/NotFoundErrorResponseSchema_2'
-    ForbiddenError_2:
-      description: Access token does not authorize access.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID_4'
+    GatewayTimeoutErrorResponse:
+      description: API response indicates indicates that the server, while acting as a gateway or proxy, did not get a response in time from the upstream server that it needed in order to complete the request. Try later for the same resource and the request might succeed.
       content:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/ForbiddenErrorSchema_2'
+            - $ref: '#/components/schemas/GenericError'
     ErrorResponse_2:
       description: API response in case of errors.
       headers:
@@ -2858,22 +2865,8 @@ components:
           schema:
             allOf:
             - $ref: '#/components/schemas/ErrorResponseSchema_2'
-    ServiceUnavailableErrorResponse:
-      description: API response indicates indicates that the service is temporarily unavailable due to system overload or maintenance. Try later for the same resource and the request might succeed.
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/GenericError'
-    GatewayTimeoutErrorResponse:
-      description: API response indicates indicates that the server, while acting as a gateway or proxy, did not get a response in time from the upstream server that it needed in order to complete the request. Try later for the same resource and the request might succeed.
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/GenericError'
-    InternalServerErrorResponse_2:
-      description: API response indicates a server malfunction and an unexpected error.
+    ForbiddenError_2:
+      description: Access token does not authorize access.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID_4'
@@ -2881,7 +2874,14 @@ components:
         application/json:
           schema:
             allOf:
-            - $ref: '#/components/schemas/InternalServerErrorResponseSchema_2'
+            - $ref: '#/components/schemas/ForbiddenErrorSchema_2'
+    ServiceUnavailableErrorResponse:
+      description: API response indicates indicates that the service is temporarily unavailable due to system overload or maintenance. Try later for the same resource and the request might succeed.
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/GenericError'
     Unauthorized:
       description: Access is denied due to invalid credentials
       headers:
@@ -2904,17 +2904,34 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse_7'
-    HealthResponseOkWithRequestID_3:
+    503ErrorResponseWithRequestID_3:
+      description: API response in case of service unavailable.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id_5'
         X-Request-Id:
           $ref: '#/components/headers/X-Request-Id_5'
-      description: API response in case of success.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HealthResponseOKSchema'
+            $ref: '#/components/schemas/ErrorResponse_8'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/503errorResponseExample'
+    VersionResponseOkWithRequestID_3:
+      description: API response in case of success.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_5'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_5'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VersionResponse_10'
+          examples:
+            versionResponseOkExample:
+              $ref: '#/components/examples/VersionResponseOkExample'
     OpenApiResponseOk_3:
       description: API specification in OpenAPI 3 format
       headers:
@@ -2927,6 +2944,59 @@ components:
           schema:
             type: string
         text/x-yaml:
+          schema:
+            type: string
+    HealthResponseOkWithRequestID_3:
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_5'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_5'
+      description: API response in case of success.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseOKSchema'
+    502ErrorResponseWithRequestID_3:
+      description: API response in case of bad gateway.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_5'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_5'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_8'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_5'
+    504ErrorResponseWithRequestID_3:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_5'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_5'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse_8'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample_5'
+    HealthResponseFailWithRequestID_3:
+      description: API response in case of failure.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_5'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_5'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseFailSchema'
+        text/plain:
           schema:
             type: string
     500ErrorResponseWithRequestID_3:
@@ -2943,76 +3013,47 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/500errorResponseExample'
-    504ErrorResponseWithRequestID_3:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_5'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_5'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_8'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample_5'
-    503ErrorResponseWithRequestID_3:
-      description: API response in case of service unavailable.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_5'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_5'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse_8'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/503errorResponseExample'
-    HealthResponseFailWithRequestID_3:
-      description: API response in case of failure.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_5'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_5'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HealthResponseFailSchema'
-        text/plain:
-          schema:
-            type: string
-    502ErrorResponseWithRequestID_3:
+    ErrorResponseBadGateway:
       description: API response in case of bad gateway.
       headers:
         X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_5'
+          $ref: '#/components/headers/X-Correlation-Id_6'
         X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_5'
+          $ref: '#/components/headers/X-Request-Id_6'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse_8'
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse_9'
           examples:
             errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample_5'
-    VersionResponseOkWithRequestID_3:
-      description: API response in case of success.
+              $ref: '#/components/examples/ErrorResponseExampleBadGateway'
+    ErrorResponseGatewayTimeout:
+      description: API response in case of gateway timeout.
       headers:
         X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_5'
+          $ref: '#/components/headers/X-Correlation-Id_6'
         X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_5'
+          $ref: '#/components/headers/X-Request-Id_6'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/VersionResponse_10'
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse_9'
           examples:
-            versionResponseOkExample:
-              $ref: '#/components/examples/VersionResponseOkExample'
+            errorResponseExample:
+              $ref: '#/components/examples/ErrorResponseExampleGatewayTimeout'
+    HealthResponseFail_2:
+      description: API response in case of failure.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_6'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_6'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HealthResponseFail_4'
     UnauthorizedErrorResponse_2:
       description: API response in case of unauthorized access.
       headers:
@@ -3027,8 +3068,8 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/UnauthorizedErrorResponse_2'
-    HealthResponseFail_2:
-      description: API response in case of failure.
+    HealthResponseOk_3:
+      description: API response in case of success.
       headers:
         X-Correlation-Id:
           $ref: '#/components/headers/X-Correlation-Id_6'
@@ -3037,7 +3078,22 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HealthResponseFail_4'
+            $ref: '#/components/schemas/HealthResponseOK'
+    ErrorResponseServiceUnavailable:
+      description: API response in case of service unavailable.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_6'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_6'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse_9'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/ErrorResponseExampleServiceUnavailable'
     OpenApiResponseOk_4:
       description: OpenAPI specification of Traffic API v7.
       headers:
@@ -3060,77 +3116,6 @@ components:
           examples:
             openapi:
               $ref: '#/components/examples/OpenApiResponse_2'
-    RequestUriTooLong:
-      description: API response in case of too long uri.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_6'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_6'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse_9'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ErrorResponseExampleUriTooLong'
-    ErrorResponseServiceUnavailable:
-      description: API response in case of service unavailable.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_6'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_6'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse_9'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ErrorResponseExampleServiceUnavailable'
-    ErrorResponseGatewayTimeout:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_6'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_6'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse_9'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ErrorResponseExampleGatewayTimeout'
-    ErrorResponseBadGateway:
-      description: API response in case of bad gateway.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_6'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_6'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse_9'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ErrorResponseExampleBadGateway'
-    HealthResponseOk_3:
-      description: API response in case of success.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id_6'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id_6'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HealthResponseOK'
     ErrorResponseInternalServerError:
       description: API response in case of internal server error.
       headers:
@@ -3146,6 +3131,21 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/ErrorResponseExampleInternalServerError'
+    RequestUriTooLong:
+      description: API response in case of too long uri.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id_6'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id_6'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse_9'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/ErrorResponseExampleUriTooLong'
     VersionResponseOk_2:
       description: API response in case of success.
       headers:
@@ -3193,6 +3193,14 @@ components:
         Type: Internal Server Error
         Message:
         - Service is not available
+    502errorResponseExample:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E611201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     504errorResponseExample:
       value:
         title: Gateway timeout
@@ -3209,24 +3217,6 @@ components:
         action: Please retry after some time.
         code: E611101
         correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    502errorResponseExample:
-      value:
-        title: Bad Gateway
-        status: 502
-        code: E611201
-        cause: Bad Gateway
-        action: Failure of communication with external system.
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    UnauthorizedErrorResponse:
-      summary: Unauthorized error response example
-      value:
-        error: Unauthorized
-        error_description: No credentials found
-    GenericErrorResponse:
-      summary: Generic error response example
-      value:
-        error: Method not allowed for this action
-        error_description: Method not allowed for this action
     OpenapiResponse:
       summary: OpenAPI response example
       value:
@@ -3244,6 +3234,16 @@ components:
         servers: {}
         security: []
         paths: {}
+    UnauthorizedErrorResponse:
+      summary: Unauthorized error response example
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+    GenericErrorResponse:
+      summary: Generic error response example
+      value:
+        error: Method not allowed for this action
+        error_description: Method not allowed for this action
     InternalServerErrorExample_3:
       value:
         status: 500
@@ -3252,14 +3252,6 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: c1281609-7a9a-45d0-8438-f4ac82c4e2c2
-    504errorResponseExample_2:
-      value:
-        title: Gateway timeout
-        status: 504
-        code: E612101
-        cause: Gateway Timeout
-        action: Did not receive a timely response from an upstream server
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     OpenApiResponse:
       value:
         openapi: 3.0.2
@@ -3267,14 +3259,6 @@ components:
           title: Reference API v3
         servers: {}
         paths: {}
-    InternalServerErrorExample_4:
-      value:
-        status: 500
-        title: Internal Server Error
-        cause: There was some issue processing the request.
-        action: Please retry after some time.
-        code: E612010
-        correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
     502errorResponseExample_2:
       value:
         title: Bad Gateway
@@ -3283,10 +3267,34 @@ components:
         cause: Bad Gateway
         action: Failure of communication with external system.
         correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    504errorResponseExample_2:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E612101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    InternalServerErrorExample_4:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E612010
+        correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
     UnauthorizedErrorExample:
       value:
         error: Unauthorized
         error_description: No credentials found
+    502errorResponseExample_3:
+      value:
+        title: 'failed with reason: bad gateway'
+        status: 502
+        code: E600002
+        cause: Bad Gateway
+        action: ''
+        correlationId: ''
     504errorResponseExample_3:
       value:
         title: 'failed with reason: gateway timeout'
@@ -3295,12 +3303,12 @@ components:
         cause: Gateway Timeout
         action: ''
         correlationId: ''
-    503errorResponseExample:
+    500errorResponseExample:
       value:
-        title: 'failed with reason: service unavailable'
-        status: 503
-        code: E600001
-        cause: Service Unavailable
+        title: 'failed with reason: internal server error'
+        status: 500
+        code: E600103
+        cause: Internal Server Error
         action: ''
         correlationId: ''
     VersionResponseOkExample:
@@ -3316,28 +3324,12 @@ components:
           version: '65'
         - name: optimized-map-for-routing
           version: 2022.346.5.48
-    502errorResponseExample_3:
+    503errorResponseExample:
       value:
-        title: 'failed with reason: bad gateway'
-        status: 502
-        code: E600002
-        cause: Bad Gateway
-        action: ''
-        correlationId: ''
-    500errorResponseExample:
-      value:
-        title: 'failed with reason: internal server error'
-        status: 500
-        code: E600103
-        cause: Internal Server Error
-        action: ''
-        correlationId: ''
-    504errorResponseExample_4:
-      value:
-        title: 'failed with reason: gateway timeout'
-        status: 504
-        code: E600000
-        cause: Gateway Timeout
+        title: 'failed with reason: service unavailable'
+        status: 503
+        code: E600001
+        cause: Service Unavailable
         action: ''
         correlationId: ''
     502errorResponseExample_4:
@@ -3348,7 +3340,7 @@ components:
         cause: Bad Gateway
         action: ''
         correlationId: ''
-    504errorResponseExample_5:
+    504errorResponseExample_4:
       value:
         title: 'failed with reason: gateway timeout'
         status: 504
@@ -3364,22 +3356,14 @@ components:
         cause: Bad Gateway
         action: ''
         correlationId: ''
-    ErrorResponseExampleUriTooLong:
+    504errorResponseExample_5:
       value:
-        title: Malformed request
-        status: 414
-        code: E608045
-        cause: Request URI is too long. Actual length is 1001 while maximal allowed is 1000
-        action: request must adhere to API specification
-        correlationId: SAMPLE_CORRELATION_ID
-    ErrorResponseExampleInternalServerError:
-      value:
-        title: Internal server error
-        status: 500
-        code: E608666
-        cause: Internal Server Error
-        action: please contact system administrator
-        correlationId: 895f87ec-5373-4940-b9c0-670f5b8da682
+        title: 'failed with reason: gateway timeout'
+        status: 504
+        code: E600000
+        cause: Gateway Timeout
+        action: ''
+        correlationId: ''
     OpenApiResponse_2:
       value:
         openapi: 3.0.2
@@ -3387,6 +3371,14 @@ components:
           title: Reference API v2
         servers: {}
         paths: {}
+    ErrorResponseExampleBadGateway:
+      value:
+        title: 'failed with reason: bad gateway'
+        status: 502
+        code: E600002
+        cause: Bad Gateway
+        action: ''
+        correlationId: ''
     ErrorResponseExampleGatewayTimeout:
       value:
         title: 'failed with reason: gateway timeout'
@@ -3403,18 +3395,26 @@ components:
         cause: failed to fetch traffic information
         action: try again later or contact system administrator
         correlationId: 87a6fe3b-6290-41db-8d79-edf4f4019a74
+    ErrorResponseExampleUriTooLong:
+      value:
+        title: Malformed request
+        status: 414
+        code: E608045
+        cause: Request URI is too long. Actual length is 1001 while maximal allowed is 1000
+        action: request must adhere to API specification
+        correlationId: SAMPLE_CORRELATION_ID
     UnauthorizedErrorResponse_2:
       value:
         error: Unauthorized
         error_description: No credentials found
-    ErrorResponseExampleBadGateway:
+    ErrorResponseExampleInternalServerError:
       value:
-        title: 'failed with reason: bad gateway'
-        status: 502
-        code: E600002
-        cause: Bad Gateway
-        action: ''
-        correlationId: ''
+        title: Internal server error
+        status: 500
+        code: E608666
+        cause: Internal Server Error
+        action: please contact system administrator
+        correlationId: 895f87ec-5373-4940-b9c0-670f5b8da682
   securitySchemes:
     token:
       type: http

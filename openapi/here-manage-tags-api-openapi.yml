@@ -134,93 +134,6 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Interactive Map API v1 deleteTag
 components:
-  responses:
-    TagResponse:
-      description: A tag response.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tag'
-    ErrorResponse404:
-      description: Not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: The requested resource does not exist.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    TagsResponse:
-      description: A list of tags response.
-      content:
-        application/json:
-          schema:
-            items:
-              $ref: '#/components/schemas/Tag'
-            type: array
-    ErrorResponse403:
-      description: Forbidden request. Insufficient rights to perform the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: Insufficient rights + <Request specific access error details>
-    ErrorResponse400:
-      description: Malformed or Bad Request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: <Invalid request details>
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-    ErrorResponse401:
-      description: Unauthorized to perform the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ErrorResponse409:
-      description: An error response which indicates a conflict.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            type: ErrorResponse
-            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
-            error: Exception
-            errorMessage: The record exists.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-  requestBodies:
-    TagRequest:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tag'
   schemas:
     Error:
       type: object
@@ -290,15 +203,102 @@ components:
       schema:
         type: string
   headers:
+    X-Request-ID:
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
     X-Correlation-ID:
       description: Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
       schema:
         type: string
       example: 4199533b-6290-41db-8d79-edf4f4019a74
-    X-Request-ID:
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
+  responses:
+    TagResponse:
+      description: A tag response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+    ErrorResponse400:
+      description: Malformed or Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: <Invalid request details>
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    TagsResponse:
+      description: A list of tags response.
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/Tag'
+            type: array
+    ErrorResponse401:
+      description: Unauthorized to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorResponse409:
+      description: An error response which indicates a conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The record exists.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+    ErrorResponse403:
+      description: Forbidden request. Insufficient rights to perform the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: Insufficient rights + <Request specific access error details>
+    ErrorResponse404:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: ErrorResponse
+            streamId: 7480e28a-e273-11e8-9af8-7508bbe361d9
+            error: Exception
+            errorMessage: The requested resource does not exist.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+  requestBodies:
+    TagRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
   securitySchemes:
     Bearer:
       type: http

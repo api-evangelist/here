@@ -623,6 +623,106 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
+    SubscribeModeEnum:
+      type: string
+      enum:
+      - serial
+      - parallel
+      default: serial
+    BootstrapServer:
+      type: object
+      required:
+      - hostname
+      - port
+      properties:
+        hostname:
+          type: string
+          format: uri
+          example: kafka-0a-sit.streaming.data.api.platform.in.here.com
+        port:
+          type: integer
+          example: 9093
+    StreamOffset:
+      type: object
+      description: An offset in a specific partition of the stream layer.
+      required:
+      - partition
+      - offset
+      properties:
+        partition:
+          type: integer
+          format: int32
+          example: 7
+          description: The partition of the stream layer for which this offset applies. It is not the same as [Partitions object](https://heremaps.github.io/here-workspace-examples-java-scala/scala/com/here/platform/data/client/scaladsl/Partition.html).
+        offset:
+          type: integer
+          format: int64
+          example: 38562
+          description: The offset in the partition of the stream layer.
+    ConsumerSubscribeResponse:
+      type: object
+      properties:
+        nodeBaseURL:
+          type: string
+          description: 'A subscription/Kafka Consumer is created in a specific server instance. This base URL represents the specific server node on which this subscription/Kafka Consumer was created. This base URL should be used instead of the base URL returned by the `lookup` service when making requests to these endpoints: /partitions, /offsets, /seek and /subscribe (DELETE).'
+          example: https://web-2.streaming.data.api.platform.in.here.com/stream/v2/catalogs/webservice-catalog9fc50b27-4f4b-49e6-beb0-f974eb95863b
+        subscriptionId:
+          type: string
+          example: -1920183912.123e4567-e89b-12d3-a456-556642440000
+    Message:
+      type: object
+      required:
+      - metaData
+      - offset
+      properties:
+        metaData:
+          $ref: '#/components/schemas/Metadata'
+        offset:
+          $ref: '#/components/schemas/StreamOffset'
+    SubscriptionProperties:
+      type: object
+      properties:
+        kafkaConsumerProperties:
+          $ref: '#/components/schemas/KafkaConsumerProperties'
+      title: SubscriptionProperties
+    Metadata:
+      type: object
+      required:
+      - partition
+      properties:
+        partition:
+          type: string
+          example: '314010583'
+          description: A key that specifies which [Partition](https://www.here.com/docs/bundle/data-api-developer-guide/page/README.html) the content is related to. This is provided by the user while producing to the stream layer. The maximum length of the partition key is 500 characters.
+        checksum:
+          type: string
+          format: '[0-9a-fA-F]+'
+          example: ff7494d6f17da702862e550c907c0a91
+          description: The checksum of the content. The algorithm used to calculate the checksum is user specific. Algorithms that can be used are, for example, MD5 or SHA1. This is not a secure hash, it's used only to detect changes in content.
+        compressedDataSize:
+          type: integer
+          format: int64
+          example: 152417
+          description: 'The compressed size of the content in bytes. Applicable also when `Content-Encoding` is set to gzip when uploading and downloading data. Note: This will be present only if ‘_dataHandle_’ field is present.'
+        dataSize:
+          type: integer
+          format: int64
+          example: 250110
+          description: 'The nominal size in bytes of the content. When compression is enabled, this is the size of the uncompressed content. Note: This will be present only if the ‘dataHandle’ field is present.'
+        data:
+          type: string
+          format: byte
+          example: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAABGdBTUEAALGPC/xhBQAAABhQTFRFvb29AACEAP8AhIKEPb5x2m9E5413aFQirhRuvAMqCw+6kE2BVsa8miQaYSKyshxFvhqdzKx8UsPYk9gDEcY1ghZXcPbENtax8g5T+3zHYufF1Lf9HdIZBfNEiKAAAAAElFTkSuQmCC
+          description: 'The content published directly in the metadata and encoded in base64. The size of the content is limited. Either `data` or `dataHandle` must be present. Data Handle Example: 1b2ca68f-d4a0-4379-8120-cd025640510c. Note: This will be present only if the message size is less than or equal to 1 MB.'
+        dataHandle:
+          type: string
+          example: ''
+          description: 'The handle created when uploading the content. It is used to retrieve the content at a later stage. Either `data` or `dataHandle` must be present. Note: This will be present only if the message size is greater than 1 MB.'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1648139982000
+          description: The timestamp of the content, in milliseconds since the Unix epoch. This can be provided by the user while producing to the stream layer. Refer to [NewPartition Object](https://www.here.com/docs/category/data-sdk-for-java-and-scala-api-reference). If not provided by the user, this is the timestamp when the message was produced to the stream layer
     CommitOffsetsRequest:
       type: object
       properties:
@@ -637,6 +737,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StreamOffset'
+    ErrorResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        code:
+          type: string
+        cause:
+          type: string
+        action:
+          type: string
+        correlationId:
+          type: string
     StreamLayerEndpointResponse:
       type: object
       description: Information to use to connect to the stream layer.
@@ -680,54 +796,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BootstrapServer'
-    Metadata:
-      type: object
-      required:
-      - partition
-      properties:
-        partition:
-          type: string
-          example: '314010583'
-          description: A key that specifies which [Partition](https://www.here.com/docs/bundle/data-api-developer-guide/page/README.html) the content is related to. This is provided by the user while producing to the stream layer. The maximum length of the partition key is 500 characters.
-        checksum:
-          type: string
-          format: '[0-9a-fA-F]+'
-          example: ff7494d6f17da702862e550c907c0a91
-          description: The checksum of the content. The algorithm used to calculate the checksum is user specific. Algorithms that can be used are, for example, MD5 or SHA1. This is not a secure hash, it's used only to detect changes in content.
-        compressedDataSize:
-          type: integer
-          format: int64
-          example: 152417
-          description: 'The compressed size of the content in bytes. Applicable also when `Content-Encoding` is set to gzip when uploading and downloading data. Note: This will be present only if ‘_dataHandle_’ field is present.'
-        dataSize:
-          type: integer
-          format: int64
-          example: 250110
-          description: 'The nominal size in bytes of the content. When compression is enabled, this is the size of the uncompressed content. Note: This will be present only if the ‘dataHandle’ field is present.'
-        data:
-          type: string
-          format: byte
-          example: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAABGdBTUEAALGPC/xhBQAAABhQTFRFvb29AACEAP8AhIKEPb5x2m9E5413aFQirhRuvAMqCw+6kE2BVsa8miQaYSKyshxFvhqdzKx8UsPYk9gDEcY1ghZXcPbENtax8g5T+3zHYufF1Lf9HdIZBfNEiKAAAAAElFTkSuQmCC
-          description: 'The content published directly in the metadata and encoded in base64. The size of the content is limited. Either `data` or `dataHandle` must be present. Data Handle Example: 1b2ca68f-d4a0-4379-8120-cd025640510c. Note: This will be present only if the message size is less than or equal to 1 MB.'
-        dataHandle:
-          type: string
-          example: ''
-          description: 'The handle created when uploading the content. It is used to retrieve the content at a later stage. Either `data` or `dataHandle` must be present. Note: This will be present only if the message size is greater than 1 MB.'
-        timestamp:
-          type: integer
-          format: int64
-          example: 1648139982000
-          description: The timestamp of the content, in milliseconds since the Unix epoch. This can be provided by the user while producing to the stream layer. Refer to [NewPartition Object](https://www.here.com/docs/category/data-sdk-for-java-and-scala-api-reference). If not provided by the user, this is the timestamp when the message was produced to the stream layer
-    Message:
-      type: object
-      required:
-      - metaData
-      - offset
-      properties:
-        metaData:
-          $ref: '#/components/schemas/Metadata'
-        offset:
-          $ref: '#/components/schemas/StreamOffset'
     KafkaConsumerProperties:
       type: object
       description: This is the same as [Kafka Consumer properties](https://kafka.apache.org/11/documentation.html#newconsumerconfigs) with some default values changed.
@@ -786,131 +854,7 @@ components:
           default: 500
           example: 500
       title: KafkaConsumerProperties
-    SubscribeModeEnum:
-      type: string
-      enum:
-      - serial
-      - parallel
-      default: serial
-    BootstrapServer:
-      type: object
-      required:
-      - hostname
-      - port
-      properties:
-        hostname:
-          type: string
-          format: uri
-          example: kafka-0a-sit.streaming.data.api.platform.in.here.com
-        port:
-          type: integer
-          example: 9093
-    StreamOffset:
-      type: object
-      description: An offset in a specific partition of the stream layer.
-      required:
-      - partition
-      - offset
-      properties:
-        partition:
-          type: integer
-          format: int32
-          example: 7
-          description: The partition of the stream layer for which this offset applies. It is not the same as [Partitions object](https://heremaps.github.io/here-workspace-examples-java-scala/scala/com/here/platform/data/client/scaladsl/Partition.html).
-        offset:
-          type: integer
-          format: int64
-          example: 38562
-          description: The offset in the partition of the stream layer.
-    ConsumerSubscribeResponse:
-      type: object
-      properties:
-        nodeBaseURL:
-          type: string
-          description: 'A subscription/Kafka Consumer is created in a specific server instance. This base URL represents the specific server node on which this subscription/Kafka Consumer was created. This base URL should be used instead of the base URL returned by the `lookup` service when making requests to these endpoints: /partitions, /offsets, /seek and /subscribe (DELETE).'
-          example: https://web-2.streaming.data.api.platform.in.here.com/stream/v2/catalogs/webservice-catalog9fc50b27-4f4b-49e6-beb0-f974eb95863b
-        subscriptionId:
-          type: string
-          example: -1920183912.123e4567-e89b-12d3-a456-556642440000
-    SubscriptionProperties:
-      type: object
-      properties:
-        kafkaConsumerProperties:
-          $ref: '#/components/schemas/KafkaConsumerProperties'
-      title: SubscriptionProperties
-    ErrorResponse:
-      type: object
-      properties:
-        title:
-          type: string
-        status:
-          type: integer
-          format: int32
-        code:
-          type: string
-        cause:
-          type: string
-        action:
-          type: string
-        correlationId:
-          type: string
-  parameters:
-    xRequestId:
-      name: X-Request-ID
-      in: header
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    nonSubscribeAPIsSubscriptionId:
-      name: subscriptionId
-      in: query
-      description: The subscriptionId received in the response of the /subscribe request (required if mode=parallel).
-      example: serial = -1920183912, parallel = -1920183912.123e4567-e89b-12d3-a456-556642440000
-      schema:
-        type: string
-    subscribeModeForNonSubscribeAPIs:
-      name: mode
-      description: The subscription mode of this subscriptionId (as provided in /subscribe POST API).
-      in: query
-      schema:
-        $ref: '#/components/schemas/SubscribeModeEnum'
-    internalEndpointsBooleanForEndpointAPIs:
-      name: internal
-      description: Specifies whether internal bootstrap servers will be returned in the response.
-      in: query
-      schema:
-        type: boolean
-        enum:
-        - 'true'
-        - 'false'
-        default: 'false'
-    layerId:
-      name: layerId
-      in: path
-      description: The ID of the stream layers.
-      required: true
-      schema:
-        type: string
-    subscribeModeForSubscribeAPI:
-      name: mode
-      description: Specifies whether to use serial or parallel subscription mode. For more details see [Get Data from a Stream Layer](https://www.here.com/docs/bundle/data-api-developer-guide/page/rest/getting-data-stream.html).
-      in: query
-      schema:
-        $ref: '#/components/schemas/SubscribeModeEnum'
   responses:
-    Forbidden:
-      description: 403 Forbidden
-      content:
-        '*/*':
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: Forbidden
-              error_description:
-                type: string
-                example: These credentials do not authorize access. Please contact your customer representative or submit a request here https://developer.here.com/contact-us to upgrade your account. You can also get valid credentials by registering for a free trial license on https://developer.here.com.
     Unauthorized:
       description: 401 Unauthorized
       content:
@@ -924,6 +868,62 @@ components:
               error_description:
                 type: string
                 example: Token Validation Failure - invalid time in token
+    Forbidden:
+      description: 403 Forbidden
+      content:
+        '*/*':
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Forbidden
+              error_description:
+                type: string
+                example: These credentials do not authorize access. Please contact your customer representative or submit a request here https://developer.here.com/contact-us to upgrade your account. You can also get valid credentials by registering for a free trial license on https://developer.here.com.
+  parameters:
+    nonSubscribeAPIsSubscriptionId:
+      name: subscriptionId
+      in: query
+      description: The subscriptionId received in the response of the /subscribe request (required if mode=parallel).
+      example: serial = -1920183912, parallel = -1920183912.123e4567-e89b-12d3-a456-556642440000
+      schema:
+        type: string
+    subscribeModeForNonSubscribeAPIs:
+      name: mode
+      description: The subscription mode of this subscriptionId (as provided in /subscribe POST API).
+      in: query
+      schema:
+        $ref: '#/components/schemas/SubscribeModeEnum'
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    internalEndpointsBooleanForEndpointAPIs:
+      name: internal
+      description: Specifies whether internal bootstrap servers will be returned in the response.
+      in: query
+      schema:
+        type: boolean
+        enum:
+        - 'true'
+        - 'false'
+        default: 'false'
+    subscribeModeForSubscribeAPI:
+      name: mode
+      description: Specifies whether to use serial or parallel subscription mode. For more details see [Get Data from a Stream Layer](https://www.here.com/docs/bundle/data-api-developer-guide/page/rest/getting-data-stream.html).
+      in: query
+      schema:
+        $ref: '#/components/schemas/SubscribeModeEnum'
+    layerId:
+      name: layerId
+      in: path
+      description: The ID of the stream layers.
+      required: true
+      schema:
+        type: string
   headers:
     X-Correlation-ID:
       description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting the support with an inquiry regarding a specific request, provide the value of this header; This will help troubleshooting the issue.

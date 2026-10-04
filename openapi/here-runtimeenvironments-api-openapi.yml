@@ -74,16 +74,6 @@ components:
           type: string
           readOnly: true
           example: G1 GC is low-pause, region-based collector optimized for large heaps and throughput.
-    RuntimeEnvironments:
-      type: object
-      properties:
-        availableRuntimes:
-          type: array
-          description: A list of runtime environments currently available to the caller.
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/RuntimeEnvironment'
-      description: Model representing details about runtime environments.
     RuntimeEnvironment:
       type: object
       properties:
@@ -158,6 +148,16 @@ components:
           items:
             $ref: '#/components/schemas/GcProfileDefinition'
       description: Model representing details about a runtime environment.
+    RuntimeEnvironments:
+      type: object
+      properties:
+        availableRuntimes:
+          type: array
+          description: A list of runtime environments currently available to the caller.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/RuntimeEnvironment'
+      description: Model representing details about runtime environments.
     ErrorMessage:
       type: object
       properties:

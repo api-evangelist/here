@@ -830,33 +830,123 @@ paths:
       description: Production environment URL
 components:
   schemas:
-    TimePeriodType:
+    FuelStationsResult:
       type: object
       properties:
-        from:
-          type: string
-          format: time
-          example: 06:00:00
-          description: Start time, in hh:mm:ss format
-        to:
-          type: string
-          format: time
-          example: '21:30:00'
-          description: End time, in hh:mm:ss format
-    AnnualOpeningHoursDetailType:
+        hasMore:
+          type: boolean
+          example: false
+          description: More stations available (limit is 50 per one page if maxresults is not specified)
+        fuelStations:
+          type: object
+          properties:
+            fuelStation:
+              type: array
+              description: List of fuel stations found within search area
+              items:
+                $ref: '#/components/schemas/FuelStation'
+    KeyValueType:
       type: object
       properties:
-        date:
+        value:
           type: string
-          format: date
-          example: '2020-12-24'
-          description: Date of special opening hours
+          example: '+49306233662'
+          description: Contact value - phone or fax number, web site URL, email address, etc
+        label:
+          type: string
+          example: XYZ
+          description: Contact type identifier
+    OpeningHoursDetailsType:
+      type: object
+      properties:
+        daymask:
+          type: integer
+          format: int32
+          example: 127
+          description: A mask representing the days of the week as an 8-bit integer mask.
         period:
           $ref: '#/components/schemas/TimePeriodType'
-        closed:
+    FuelPriceType:
+      type: object
+      description: Information on the prices for fuels at the station.
+      properties:
+        price:
+          type: number
+          format: double
+          example: 1.169
+          description: Real-time price for the fuel.
+        errorMargin:
+          type: number
+          format: double
+          example: 0.038
+          description: The difference between estimated and real-time prices averaged over all reported fuel prices for the specified fuel type and for this particular station and rounded to the nearest hundredth. For example, +/- 0.05 EUR indicates an error rate of 5 cents in the estimated fuel prices. If the price is not an estimate, field errorMargin will be suppressed.
+        deltaPrice:
+          type: number
+          format: double
+          example: 0.049
+          description: The difference between the price and the price for the cheapest station/fuel type pair for the specified geometry.
+        indexScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          example: 78
+          description: Also known as a Fuel Price Index, this is a relative ranking for the fuel station for the specified area. When a fuel station has a low score, then its fuel price is lower than the prices at other stations with higher scores. Values are between 0 and 100.
+        available:
           type: boolean
           example: true
-          description: True if station is closed on particular date. Either the Closed or the Period elements are included in the response, not both.
+          description: The fuel type is available (true) for refuelling or is not available (false) at this moment
+        fuelType:
+          type: string
+          example: '1'
+          description: Fuel type.
+          xml:
+            attribute: true
+        unit:
+          type: string
+          enum:
+          - l
+          - gal
+          example: l
+          description: Unit of measurement for fuel.
+          xml:
+            attribute: true
+        currency:
+          type: string
+          example: EUR
+          description: Currency used in the price.
+          xml:
+            attribute: true
+        lastUpdateTimestamp:
+          type: string
+          example: '2020-09-07T05:16:36.000Z'
+          description: Information about when the fuel price information was last updated, in ISO 8601 format. If the time is UTC, a Z is added. An example of this kind of timestamp value is 2013-12-31T12:00:00.000Z. If the time is not UTC , then the offset is added as a Â±[hh][mm] value (for example, 2014-01-14T10:00:00.000+0100).
+          xml:
+            attribute: true
+    OperationalStateType:
+      type: object
+      description: "An \"operational state\" for a fuel station refers to its current \nstatus, which can be active and selling fuel or closed, \nand is determined by factors like the availability of fuel, \npower, and the ability to dispense it.\n"
+      properties:
+        h350Status:
+          $ref: '#/components/schemas/HydrogenStatus'
+          example: online
+        h700Status:
+          $ref: '#/components/schemas/HydrogenStatus'
+          example: limited
+        h350Inventory:
+          type: number
+          format: double
+          example: 4.25
+          description: Actual inventory of 350bar hydrogen in kg
+        h700Inventory:
+          type: number
+          format: double
+          example: 9.6
+          description: Actual inventory of 7000bar hydrogen in kg
+        eventMessage:
+          type: string
+          description: Ongoing even message.
+          example: The station is undergoing maintenance until further notice.
     FuelStationDetailType:
       type: object
       description: Other fuel station details - opening hours, accessibility, etc
@@ -897,100 +987,6 @@ components:
           description: "Category of FCEV the hydrogen can be dispensed to.\n  \nOnly present for fuel type=74 (Hydrogen)\n"
         operationalState:
           $ref: '#/components/schemas/OperationalStateType'
-    FuelStationsResult:
-      type: object
-      properties:
-        hasMore:
-          type: boolean
-          example: false
-          description: More stations available (limit is 50 per one page if maxresults is not specified)
-        fuelStations:
-          type: object
-          properties:
-            fuelStation:
-              type: array
-              description: List of fuel stations found within search area
-              items:
-                $ref: '#/components/schemas/FuelStation'
-    OpeningHoursDetailsType:
-      type: object
-      properties:
-        daymask:
-          type: integer
-          format: int32
-          example: 127
-          description: A mask representing the days of the week as an 8-bit integer mask.
-        period:
-          $ref: '#/components/schemas/TimePeriodType'
-    Error:
-      type: object
-      properties:
-        Type:
-          type: string
-          example: Invalid Request
-          description: Type of error
-        Message:
-          type: array
-          description: Detailed error description
-          items:
-            type: string
-            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
-    ContactType:
-      type: object
-      description: Fuel station contacts
-      properties:
-        phone:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-          example:
-          - value: '+49306811313'
-            label: PHONE
-        fax:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-          example:
-          - value: '+493068893007'
-            label: FAX
-        email:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-          example:
-          - value: shellcustomercare@shell.com
-            label: EMAIL
-        website:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-          example:
-          - value: https://find.shell.com/de/fuel/10024324-berlin-karl-marx-str
-            label: WEBADDRESS
-    OperationalStateType:
-      type: object
-      description: "An \"operational state\" for a fuel station refers to its current \nstatus, which can be active and selling fuel or closed, \nand is determined by factors like the availability of fuel, \npower, and the ability to dispense it.\n"
-      properties:
-        h350Status:
-          $ref: '#/components/schemas/HydrogenStatus'
-          example: online
-        h700Status:
-          $ref: '#/components/schemas/HydrogenStatus'
-          example: limited
-        h350Inventory:
-          type: number
-          format: double
-          example: 4.25
-          description: Actual inventory of 350bar hydrogen in kg
-        h700Inventory:
-          type: number
-          format: double
-          example: 9.6
-          description: Actual inventory of 7000bar hydrogen in kg
-        eventMessage:
-          type: string
-          description: Ongoing even message.
-          example: The station is undergoing maintenance until further notice.
     AddressType:
       type: object
       description: Fuel station address
@@ -1027,31 +1023,32 @@ components:
           type: string
           example: Sonnenallee 56 Berlin 12045 DEU
           description: The string with unparsed address
-    PositionType:
-      type: object
-      description: WGS84 format co-ordinates for the fuel station
-      properties:
-        latitude:
-          type: number
-          format: double
-          example: 52.48468
-          description: Latitude in WGS84 format of the fuel station.
-        longitude:
-          type: number
-          format: double
-          example: 13.42942
-          description: Longitude in WGS84 format of the fuel station.
-    OpeningHoursType:
+    Error:
       type: object
       properties:
-        regularOpeningHours:
+        Type:
+          type: string
+          example: Invalid Request
+          description: Type of error
+        Message:
           type: array
+          description: Detailed error description
           items:
-            $ref: '#/components/schemas/OpeningHoursDetailsType'
-        annualOpenings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnnualOpeningHoursDetailType'
+            type: string
+            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
+    TimePeriodType:
+      type: object
+      properties:
+        from:
+          type: string
+          format: time
+          example: 06:00:00
+          description: Start time, in hh:mm:ss format
+        to:
+          type: string
+          format: time
+          example: '21:30:00'
+          description: End time, in hh:mm:ss format
     FuelStation:
       type: object
       properties:
@@ -1115,6 +1112,52 @@ components:
             $ref: '#/components/schemas/FuelPriceType'
         stationDetails:
           $ref: '#/components/schemas/FuelStationDetailType'
+    AnnualOpeningHoursDetailType:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2020-12-24'
+          description: Date of special opening hours
+        period:
+          $ref: '#/components/schemas/TimePeriodType'
+        closed:
+          type: boolean
+          example: true
+          description: True if station is closed on particular date. Either the Closed or the Period elements are included in the response, not both.
+    ContactType:
+      type: object
+      description: Fuel station contacts
+      properties:
+        phone:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+          example:
+          - value: '+49306811313'
+            label: PHONE
+        fax:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+          example:
+          - value: '+493068893007'
+            label: FAX
+        email:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+          example:
+          - value: shellcustomercare@shell.com
+            label: EMAIL
+        website:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+          example:
+          - value: https://find.shell.com/de/fuel/10024324-berlin-karl-marx-str
+            label: WEBADDRESS
     HydrogenStatus:
       type: string
       description: Status of hydrogen dispensor
@@ -1139,63 +1182,6 @@ components:
       example:
         error: Unauthorized
         error_description: ApiKey invalid. ApiKey not found.
-    FuelPriceType:
-      type: object
-      description: Information on the prices for fuels at the station.
-      properties:
-        price:
-          type: number
-          format: double
-          example: 1.169
-          description: Real-time price for the fuel.
-        errorMargin:
-          type: number
-          format: double
-          example: 0.038
-          description: The difference between estimated and real-time prices averaged over all reported fuel prices for the specified fuel type and for this particular station and rounded to the nearest hundredth. For example, +/- 0.05 EUR indicates an error rate of 5 cents in the estimated fuel prices. If the price is not an estimate, field errorMargin will be suppressed.
-        deltaPrice:
-          type: number
-          format: double
-          example: 0.049
-          description: The difference between the price and the price for the cheapest station/fuel type pair for the specified geometry.
-        indexScore:
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
-          example: 78
-          description: Also known as a Fuel Price Index, this is a relative ranking for the fuel station for the specified area. When a fuel station has a low score, then its fuel price is lower than the prices at other stations with higher scores. Values are between 0 and 100.
-        available:
-          type: boolean
-          example: true
-          description: The fuel type is available (true) for refuelling or is not available (false) at this moment
-        fuelType:
-          type: string
-          example: '1'
-          description: Fuel type.
-          xml:
-            attribute: true
-        unit:
-          type: string
-          enum:
-          - l
-          - gal
-          example: l
-          description: Unit of measurement for fuel.
-          xml:
-            attribute: true
-        currency:
-          type: string
-          example: EUR
-          description: Currency used in the price.
-          xml:
-            attribute: true
-        lastUpdateTimestamp:
-          type: string
-          example: '2020-09-07T05:16:36.000Z'
-          description: Information about when the fuel price information was last updated, in ISO 8601 format. If the time is UTC, a Z is added. An example of this kind of timestamp value is 2013-12-31T12:00:00.000Z. If the time is not UTC , then the offset is added as a Â±[hh][mm] value (for example, 2014-01-14T10:00:00.000+0100).
-          xml:
-            attribute: true
     ErrorResponse:
       type: object
       properties:
@@ -1225,59 +1211,78 @@ components:
       - cause
       - action
       - correlationId
-    KeyValueType:
+    PositionType:
+      type: object
+      description: WGS84 format co-ordinates for the fuel station
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 52.48468
+          description: Latitude in WGS84 format of the fuel station.
+        longitude:
+          type: number
+          format: double
+          example: 13.42942
+          description: Longitude in WGS84 format of the fuel station.
+    OpeningHoursType:
       type: object
       properties:
-        value:
-          type: string
-          example: '+49306233662'
-          description: Contact value - phone or fax number, web site URL, email address, etc
+        regularOpeningHours:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpeningHoursDetailsType'
+        annualOpenings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualOpeningHoursDetailType'
+    Address:
+      type: object
+      properties:
         label:
           type: string
-          example: XYZ
-          description: Contact type identifier
-    AnnualOpeningHoursDetailType_2:
-      type: object
-      properties:
-        date:
+          description: Requested address.
+          example: SchulstraĂźe 4, 32547 Bad Oeynhausen, Germany
+        countryCode:
           type: string
-          format: date
-          example: '2020-12-24'
-          description: Date of special opening hours
-        periods:
-          type: array
-          items:
-            $ref: '#/components/schemas/TimePeriodType'
-        closed:
-          type: boolean
-          example: true
-          description: True if station is closed on particular date. Either the Closed or the Period elements are included in the response, not both.
-    CorridorSearchRequest:
-      type: object
-      description: Body payload for corridor search
-      example:
-        corridor:
-        - lat: 52.5310898
-          lng: 13.3849497
-        - lat: 52.5378799
-          lng: 13.3735304
-        - lat: 52.5476799
-          lng: 13.3569899
-        - lat: 52.5622292
-          lng: 13.3263397
-        width: 5000
-      properties:
-        corridor:
-          type: array
-          items:
-            $ref: '#/components/schemas/Location'
-        width:
-          type: integer
-          format: int32
-          example: 7000
-          default: 5000
-          minimum: 5000
-          maximum: 20000
+          description: A three-letter country code.
+          example: DEU
+        countryName:
+          type: string
+          description: The localised country name.
+          example: Deutschland
+        state:
+          type: string
+          description: A code/abbreviation for the state division of a country.
+          example: North Rhine-Westphalia
+        county:
+          type: string
+          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+          example: Mitte
+        city:
+          type: string
+          description: The name of the primary locality of the place.
+          example: Bad Oyenhausen
+        district:
+          type: string
+          description: A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood.
+          example: Bad Oyenhausen
+        subdistrict:
+          type: string
+          description: A subdivision of a district.
+          example: Minden-LĂĽbbecke
+        street:
+          type: string
+          description: Name of street.
+          example: Schulstrasse
+        postalCode:
+          type: string
+          description: An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code.
+          example: '32547'
+        houseNumber:
+          type: string
+          description: House number.
+          example: '4'
     FuelStationsResult_2:
       type: object
       properties:
@@ -1326,84 +1331,62 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TimePeriodType'
-    Address:
+    FuelPriceType_2:
       type: object
+      description: Information on the prices for fuels at the station.
       properties:
-        label:
+        price:
+          type: number
+          format: double
+          example: 1.169
+          description: Real-time price for the fuel.
+        errorMargin:
+          type: number
+          format: double
+          example: 0.038
+          description: The difference between estimated and real-time prices averaged over all reported fuel prices for the specified fuel type and for this particular station and rounded to the nearest hundredth. For example, +/- 0.05 EUR indicates an error rate of 5 cents in the estimated fuel prices. If the price is not an estimate, field errorMargin will be suppressed.
+        deltaPrice:
+          type: number
+          format: double
+          example: 0.049
+          description: The difference between the price and the price for the cheapest station/fuel type pair for the specified geometry.
+        indexScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          example: 78
+          description: Also known as a Fuel Price Index, this is a relative ranking for the fuel station for the specified area. When a fuel station has a low score, then its fuel price is lower than the prices at other stations with higher scores. Values are between 0 and 100.
+        fuelType:
           type: string
-          description: Requested address.
-          example: SchulstraĂźe 4, 32547 Bad Oeynhausen, Germany
-        countryCode:
+          example: '1'
+          description: Fuel type.
+        unit:
           type: string
-          description: A three-letter country code.
-          example: DEU
-        countryName:
+          example: l
+          description: Unit of measurement for fuel.
+        currency:
           type: string
-          description: The localised country name.
-          example: Deutschland
-        state:
+          example: EUR
+          description: Currency used in the price.
+        available:
+          type: boolean
+          example: true
+          description: The fuel type is available (true) for refuelling or is not available (false) at this moment
+        modified:
           type: string
-          description: A code/abbreviation for the state division of a country.
-          example: North Rhine-Westphalia
-        county:
-          type: string
-          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
-          example: Mitte
-        city:
-          type: string
-          description: The name of the primary locality of the place.
-          example: Bad Oyenhausen
-        district:
-          type: string
-          description: A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood.
-          example: Bad Oyenhausen
-        subdistrict:
-          type: string
-          description: A subdivision of a district.
-          example: Minden-LĂĽbbecke
-        street:
-          type: string
-          description: Name of street.
-          example: Schulstrasse
-        postalCode:
-          type: string
-          description: An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code.
-          example: '32547'
-        houseNumber:
-          type: string
-          description: House number.
-          example: '4'
-    ContactType_2:
+          format: date-time
+          example: '2020-09-07T05:16:36.000Z'
+          description: Information about when the fuel price information was last updated, in ISO 8601 format. The time is UTC.
+    FuelStationsCount:
       type: object
-      description: Fuel station contacts
+      description: Number of fuel stations response
       properties:
-        phones:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-        faxes:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-        websites:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueType'
-    OpeningHoursType_2:
-      type: object
-      properties:
-        regularSchedule:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpeningHoursDetailsType_2'
-        exceptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnnualOpeningHoursDetailType_2'
+        count:
+          description: Total number of fuel stations within requested area
+          type: integer
+          format: int32
+          example: 148
     FuelStation_2:
       type: object
       properties:
@@ -1459,6 +1442,42 @@ components:
             $ref: '#/components/schemas/FuelPriceType_2'
         stationDetails:
           $ref: '#/components/schemas/FuelStationDetailType'
+    AnnualOpeningHoursDetailType_2:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2020-12-24'
+          description: Date of special opening hours
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimePeriodType'
+        closed:
+          type: boolean
+          example: true
+          description: True if station is closed on particular date. Either the Closed or the Period elements are included in the response, not both.
+    ContactType_2:
+      type: object
+      description: Fuel station contacts
+      properties:
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+        faxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
+        websites:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueType'
     Location:
       type: object
       description: Location on the Earth
@@ -1483,63 +1502,64 @@ components:
       required:
       - lat
       - lng
-    FuelStationsCount:
+    CorridorSearchRequest:
       type: object
-      description: Number of fuel stations response
+      description: Body payload for corridor search
+      example:
+        corridor:
+        - lat: 52.5310898
+          lng: 13.3849497
+        - lat: 52.5378799
+          lng: 13.3735304
+        - lat: 52.5476799
+          lng: 13.3569899
+        - lat: 52.5622292
+          lng: 13.3263397
+        width: 5000
       properties:
-        count:
-          description: Total number of fuel stations within requested area
+        corridor:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        width:
           type: integer
           format: int32
-          example: 148
-    FuelPriceType_2:
+          example: 7000
+          default: 5000
+          minimum: 5000
+          maximum: 20000
+    OpeningHoursType_2:
       type: object
-      description: Information on the prices for fuels at the station.
       properties:
-        price:
-          type: number
-          format: double
-          example: 1.169
-          description: Real-time price for the fuel.
-        errorMargin:
-          type: number
-          format: double
-          example: 0.038
-          description: The difference between estimated and real-time prices averaged over all reported fuel prices for the specified fuel type and for this particular station and rounded to the nearest hundredth. For example, +/- 0.05 EUR indicates an error rate of 5 cents in the estimated fuel prices. If the price is not an estimate, field errorMargin will be suppressed.
-        deltaPrice:
-          type: number
-          format: double
-          example: 0.049
-          description: The difference between the price and the price for the cheapest station/fuel type pair for the specified geometry.
-        indexScore:
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
-          example: 78
-          description: Also known as a Fuel Price Index, this is a relative ranking for the fuel station for the specified area. When a fuel station has a low score, then its fuel price is lower than the prices at other stations with higher scores. Values are between 0 and 100.
-        fuelType:
-          type: string
-          example: '1'
-          description: Fuel type.
-        unit:
-          type: string
-          example: l
-          description: Unit of measurement for fuel.
-        currency:
-          type: string
-          example: EUR
-          description: Currency used in the price.
-        available:
-          type: boolean
-          example: true
-          description: The fuel type is available (true) for refuelling or is not available (false) at this moment
-        modified:
-          type: string
-          format: date-time
-          example: '2020-09-07T05:16:36.000Z'
-          description: Information about when the fuel price information was last updated, in ISO 8601 format. The time is UTC.
+        regularSchedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpeningHoursDetailsType_2'
+        exceptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualOpeningHoursDetailType_2'
+  headers:
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
   examples:
+    502errorResponseExample:
+      value:
+        title: Bad Gateway
+        status: 502
+        code: E612201
+        cause: Bad Gateway
+        action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     504errorResponseExample:
       value:
         title: Gateway timeout
@@ -1556,30 +1576,6 @@ components:
         action: Please retry after some time.
         code: E612010
         correlationId: c1281609-7a9a-45d0-8438-f4ac82c4e2c2
-    502errorResponseExample:
-      value:
-        title: Bad Gateway
-        status: 502
-        code: E612201
-        cause: Bad Gateway
-        action: Failure of communication with external system.
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    BadRequestStationsNoIdExample:
-      value:
-        status: 400
-        title: Invalid Request
-        cause: QueryParameter 'ids' is required.
-        action: Please provide required 'ids' query parameter.
-        code: E612003
-        correlationId: d2b7e3d1-d09e-4834-90a0-9759e5d98165
-    NotFoundStationByIdExample:
-      value:
-        status: 404
-        title: Not Found
-        cause: Fuel station with given id not found.
-        action: Please provide existing fuel staion ID.
-        code: E612002
-        correlationId: 03bb0003-0f2d-4761-a57d-8f6349967272
     FuelStationBulkDynamicExample:
       value:
         hasMore: false
@@ -1622,84 +1618,6 @@ components:
             currency: EUR
             available: true
             modified: '2020-10-30T09:21:06.000Z'
-    InternalServerErrorExample_2:
-      value:
-        status: 500
-        title: Internal Server Error
-        cause: There was some issue processing the request.
-        action: Please retry after some time.
-        code: E612010
-        correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
-    FuelStationExample:
-      value:
-        id: 276u33d9-a17acb43a137436ba33808cab15bc914
-        modified: '2020-04-23T14:32:20.371Z'
-        timeZone: Europe/Berlin
-        name: Shell
-        brand: Shell
-        brandIcon: https://download.vcdn.cc.data.here.com/p/d/autox/pr/icons/2015-09-11/shell.png
-        distance: 125
-        open24x7: true
-        address:
-          label: SchulstraĂźe 4, 32547 Bad Oeynhausen, Germany
-          countryCode: DEU
-          countryName: Deutschland
-          state: North Rhine-Westphalia
-          county: Mitte
-          city: Bad Oyenhausen
-          district: Bad Oyenhausen
-          subdistrict: Minden-LĂĽbbecke
-          street: Schulstrasse
-          postalCode: '32547'
-          houseNumber: '4'
-        contacts:
-          phones:
-          - value: '+49306811313'
-            label: PHONE
-          faxes:
-          - value: '+493068893007'
-            label: FAX
-          emails:
-          - value: shellcustomercare@shell.com
-            label: EMAIL
-          websites:
-          - value: https://find.shell.com/de/fuel/10024324-berlin-karl-marx-str
-            label: WEBADDRESS
-        position:
-          lat: 52.531677
-          lng: 13.381777
-        access:
-          lat: 52.531677
-          lng: 13.381777
-        prices:
-        - price: 1.169
-          errorMargin: 0.038
-          deltaPrice: 0.049
-          indexScore: 78
-          fuelType: '1'
-          unit: l
-          currency: EUR
-          modified: '2020-09-07T05:16:36.000Z'
-        stationDetails:
-          openingHours:
-            regularSchedule:
-            - days:
-              - mo
-              - tu
-              - we
-              - th
-              - fr
-              - sa
-              - su
-              periods:
-              - from: 06:00:00
-                to: '21:30:00'
-            exceptions:
-            - date: '2020-12-24'
-              periods:
-              - from: 06:00:00
-                to: '21:30:00'
-              closed: true
     FuelStationsSearchExample:
       value:
         total: 125
@@ -1789,14 +1707,76 @@ components:
                 - from: 06:00:00
                   to: '21:30:00'
                 closed: true
-    BadRequestStationsContentExample:
+    FuelStationExample:
       value:
-        status: 400
-        title: Invalid Request
-        cause: QueryParameter 'content' is wrong.
-        action: Please provide valid 'content' query parameter (all, dynamic).
-        code: E612004
-        correlationId: 6bb2e9b6-05a6-428e-a8f0-a3814887a9af
+        id: 276u33d9-a17acb43a137436ba33808cab15bc914
+        modified: '2020-04-23T14:32:20.371Z'
+        timeZone: Europe/Berlin
+        name: Shell
+        brand: Shell
+        brandIcon: https://download.vcdn.cc.data.here.com/p/d/autox/pr/icons/2015-09-11/shell.png
+        distance: 125
+        open24x7: true
+        address:
+          label: SchulstraĂźe 4, 32547 Bad Oeynhausen, Germany
+          countryCode: DEU
+          countryName: Deutschland
+          state: North Rhine-Westphalia
+          county: Mitte
+          city: Bad Oyenhausen
+          district: Bad Oyenhausen
+          subdistrict: Minden-LĂĽbbecke
+          street: Schulstrasse
+          postalCode: '32547'
+          houseNumber: '4'
+        contacts:
+          phones:
+          - value: '+49306811313'
+            label: PHONE
+          faxes:
+          - value: '+493068893007'
+            label: FAX
+          emails:
+          - value: shellcustomercare@shell.com
+            label: EMAIL
+          websites:
+          - value: https://find.shell.com/de/fuel/10024324-berlin-karl-marx-str
+            label: WEBADDRESS
+        position:
+          lat: 52.531677
+          lng: 13.381777
+        access:
+          lat: 52.531677
+          lng: 13.381777
+        prices:
+        - price: 1.169
+          errorMargin: 0.038
+          deltaPrice: 0.049
+          indexScore: 78
+          fuelType: '1'
+          unit: l
+          currency: EUR
+          modified: '2020-09-07T05:16:36.000Z'
+        stationDetails:
+          openingHours:
+            regularSchedule:
+            - days:
+              - mo
+              - tu
+              - we
+              - th
+              - fr
+              - sa
+              - su
+              periods:
+              - from: 06:00:00
+                to: '21:30:00'
+            exceptions:
+            - date: '2020-12-24'
+              periods:
+              - from: 06:00:00
+                to: '21:30:00'
+              closed: true
     BadRequestStationsExample:
       value:
         status: 400
@@ -1805,6 +1785,38 @@ components:
         action: Please provide required 'in' query parameter.
         code: E612001
         correlationId: 7f163ef9-28cb-4e55-8f78-800e4c1c4a0f
+    NotFoundStationByIdExample:
+      value:
+        status: 404
+        title: Not Found
+        cause: Fuel station with given id not found.
+        action: Please provide existing fuel staion ID.
+        code: E612002
+        correlationId: 03bb0003-0f2d-4761-a57d-8f6349967272
+    BadRequestStationsNoIdExample:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: QueryParameter 'ids' is required.
+        action: Please provide required 'ids' query parameter.
+        code: E612003
+        correlationId: d2b7e3d1-d09e-4834-90a0-9759e5d98165
+    BadRequestStationsContentExample:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: QueryParameter 'content' is wrong.
+        action: Please provide valid 'content' query parameter (all, dynamic).
+        code: E612004
+        correlationId: 6bb2e9b6-05a6-428e-a8f0-a3814887a9af
+    InternalServerErrorExample_2:
+      value:
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E612010
+        correlationId: b99171db-1ac7-4f5b-8888-caf8613ec5f8
   responses:
     Error401Response:
       description: API response in case of lacking valid authorization credentials.
@@ -1820,20 +1832,6 @@ components:
           example:
             error: Unauthorized
             error_description: No credentials found
-    Error403Response:
-      description: API response in case of insufficient credentials for access to the requested resource.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
     Error429Response:
       description: API response in case of too many requests
       headers:
@@ -1852,6 +1850,34 @@ components:
             cause: Request rate limit reached
             action: Retry later, lower the request rate
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
     Error503Response:
       description: API response in case of service unavailable
       headers:
@@ -1870,6 +1896,20 @@ components:
             cause: Service current not available
             action: Retry later
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
     Error504Response:
       description: API response in case of gateway timeout.
       headers:
@@ -1884,46 +1924,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/504errorResponseExample'
-    Error500Response:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample'
-    Error502Response:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
-  headers:
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
   parameters:
     X-Request-Id:
       name: X-Request-Id
@@ -1951,6 +1951,22 @@ components:
       schema:
         type: boolean
         default: false
+    offset:
+      name: offset
+      in: query
+      description: A value specifying the index of the first result. This parameter together with the maxresults parameter in the query and HasMore in the response can be used for pagination.
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 0
+    sort:
+      name: sort
+      in: query
+      description: "Criteria for sorting a list of search results. \nFormat: `{sortKey}:{sortDirection}`\n\nwhere sortKey can be one of:\n * distance\n * price\n \nand sortDirection:\n * asc\n * desc\n\nSorting by distance make sense only for circle search and sorting is by air distance.\n"
+      required: false
+      schema:
+        type: string
     in:
       name: in
       description: "Return fuel stations within a geographical area.\nArea within which to return fuel stations.\n\nA geographic area can be one of the following:\n\n * A circular area, provided as latitude, longitude, and radius (in meters)\n\n   Format: `circle:{latitude},{longitude};r={radius}`\n\n   Type: `circle:{decimal},{decimal};r={integer}`\n\n   Example: `circle:13.1,-43.1;r=10000`\n\n * A bounding box, provided as _west longitude_, _south latitude_, _east longitude_, _north latitude_\n\n   Format: `bbox:{west longitude},{south latitude},{east longitude},{north latitude}`\n\n   Example: `bbox:13.08836,52.33812,13.761,52.6755`\n\n * A corridor, provided as a polyline in\n   [Flexible Polyline](https://github.com/heremaps/flexible-polyline) encoding and a\n   radius (in meters). The radius is measured perpendicular to each segment of the\n   polyline on both sides, so a radius of 50 meters will cover an area 50 meters on either\n   side of the polyline and be 100 meters wide from one side to the other.\n\n   Format: `corridor:{polyline};r={radius}`\n\n   Example: `corridor:BF05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e:r=50`\n"
@@ -1969,15 +1985,6 @@ components:
         corridor:
           value: corridor:BF05xgKuy2xCx9B7vUl0OhnR54EqSzpEl-HxjD3pBiGnyGi2CvwFsgD3nD4vB6e:r=50
           summary: A corridor
-    limit:
-      name: limit
-      in: query
-      description: The maximum number of results a response can contain. This parameter together with the offset parameter in the query and HasMore in the response can be used for pagination.
-      required: false
-      schema:
-        type: integer
-        format: int32
-        default: 50
     iconSize:
       name: iconSize
       in: query
@@ -1997,26 +2004,6 @@ components:
         - 32
         - 40
         - 48
-    offset:
-      name: offset
-      in: query
-      description: A value specifying the index of the first result. This parameter together with the maxresults parameter in the query and HasMore in the response can be used for pagination.
-      required: false
-      schema:
-        type: integer
-        format: int32
-        default: 0
-    fuelType:
-      name: fuelTypes
-      in: query
-      description: "An integer identifying the fuel type or category included in the response.\nList of available fuel types can be retireved using `/fuelTypes` endpoint\n  |Fuel type ID|Name|\n  |---|---|\n  |-1|All Truck Diesel|\n  |-2|All Diesel\n  |-3|All Petrol\"\n  |-4|All LPG|\n  |-5|All CNG|\n  |-6|All Ethanol|\n  |-7|All Methanol|\n  |-8|All Additives|\n  |1|Diesel|\n  |2|Regular|\n  |3|Mid-grade|\n  |4|Premium|\n  |5|E-85|\n  |6|Bio-Diesel|\n  |7|Bio-Diesel 10|\n  |8|Bio-Diesel 15|\n  |9|Bio-Diesel 20|\n  |10|Diesel plus|\n  |11|Truck-Diesel|\n  |12|Red-Diesel|\n  |13|E-10|\n  |14|LPG-GLP|\n  |15|LRP|\n  |16|Methane|\n  |17|Midgrade-self|\n  |18|Diesel-self|\n  |19|AdBlue|\n  |20|V-Power-95|\n  |21|CNG|\n  |22|Ethanol|\n  |23|Ethanol w. additives|\n  |24|GPL self|\n  |25|Premium self|\n  |26|Leaded Four|\n  |27|Super Unleaded|\n  |28|Super Unleaded Ultimate|\n  |29|Diesel-plus self|\n  |30|Methanol self|\n  |31|Mid-grade E10|\n  |32|Super-Diesel|\n  |33|Unleaded E5|\n  |34|Unleaded E25|\n  |35|Unleaded|\n  |36|Unleaded 91|\n  |37|Unleaded 93|\n  |38|Unleaded 97|\n  |39|Unleaded 99|\n  |40|Unleaded 100|\n  |41|Unleaded 102|\n  |42|Methanol|\n  |43|Unleaded E10|\n  |44|Shell V-Power Racing|\n  |45|Shell V-Power 100|\n  |46|Shell V-Power Diesel|\n  |47|Aral Ultimate 102|\n  |48|Aral Ultimate Diesel|\n  |49|BP Ultimate Super|\n  |50|BP Ultimate Diesel|\n  |51|Blue One 95|\n  |52|Diesel Cleanline|\n  |53|Super E5|\n  |54|Super E10|\n  |55|Premium Diesel|\n  |56|Unleaded 95|\n  |57|Simple gasoline|\n  |58|Simple diesel|\n  |59|Super Unleaded 98|\n  |60|Unleaded 98|\n  |61|Premium gasoline|\n  |62|Synergy Supreme+ Diesel|\n  |63|Supreme Diesel|\n  |64|Unleaded 92|\n  |65|Unleaded 80|\n  |66|Super Unleaded 95|\n  |67|Super Unleaded 92|\n  |68|LNG|\n  |69|Super E5 Premium|\n  |70|Heating oil|\n  |71|AdBlue Car|\n  |72|AdBlue Truck|\n  |73|Hydrotreated vegetable oil|\n  |74|Hydrogen|\n  |75|E-85 cash (US ONLY)|\n  |76|Diesel cash (US ONLY)|\n  |77|Mid-grade cash (US ONLY)|\n  |78|Regular cash (US ONLY)|\n  |79|Regular clear - without ethanol (US ONLY)|\n  |80|Premium cash (US ONLY)|\n  |81|Two stroke petrol|\n  |82|Unleaded 87|\n  |83|Unleaded 89|\n  |84|GTL - Gas to liquid fuel|\n  |85|HVO 30 - Diesel with 30% of hydrotreated vegetable oil|\n  |86|Premium Diesel cash|\n  |87|Red-Diesel cash|\n  |88|Bio-Diesel 20 cash|\n  |89|Super E15|\n  |90|Heating oil cash|\n  |91|AdBlue cash|\n  |92|AdBlue Truck cash|\n  |93|Bio-Diesel cash|\n  |94|Bio-Diesel 10 cash|\n  |95|LPG-GLP cash|\n  |96|CNG cash|\n  |97|Truck Diesel cash|\n"
-      required: false
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
     brands:
       name: brands
       in: query
@@ -2035,13 +2022,26 @@ components:
         type: array
         items:
           type: string
-    sort:
-      name: sort
+    limit:
+      name: limit
       in: query
-      description: "Criteria for sorting a list of search results. \nFormat: `{sortKey}:{sortDirection}`\n\nwhere sortKey can be one of:\n * distance\n * price\n \nand sortDirection:\n * asc\n * desc\n\nSorting by distance make sense only for circle search and sorting is by air distance.\n"
+      description: The maximum number of results a response can contain. This parameter together with the offset parameter in the query and HasMore in the response can be used for pagination.
       required: false
       schema:
-        type: string
+        type: integer
+        format: int32
+        default: 50
+    fuelType:
+      name: fuelTypes
+      in: query
+      description: "An integer identifying the fuel type or category included in the response.\nList of available fuel types can be retireved using `/fuelTypes` endpoint\n  |Fuel type ID|Name|\n  |---|---|\n  |-1|All Truck Diesel|\n  |-2|All Diesel\n  |-3|All Petrol\"\n  |-4|All LPG|\n  |-5|All CNG|\n  |-6|All Ethanol|\n  |-7|All Methanol|\n  |-8|All Additives|\n  |1|Diesel|\n  |2|Regular|\n  |3|Mid-grade|\n  |4|Premium|\n  |5|E-85|\n  |6|Bio-Diesel|\n  |7|Bio-Diesel 10|\n  |8|Bio-Diesel 15|\n  |9|Bio-Diesel 20|\n  |10|Diesel plus|\n  |11|Truck-Diesel|\n  |12|Red-Diesel|\n  |13|E-10|\n  |14|LPG-GLP|\n  |15|LRP|\n  |16|Methane|\n  |17|Midgrade-self|\n  |18|Diesel-self|\n  |19|AdBlue|\n  |20|V-Power-95|\n  |21|CNG|\n  |22|Ethanol|\n  |23|Ethanol w. additives|\n  |24|GPL self|\n  |25|Premium self|\n  |26|Leaded Four|\n  |27|Super Unleaded|\n  |28|Super Unleaded Ultimate|\n  |29|Diesel-plus self|\n  |30|Methanol self|\n  |31|Mid-grade E10|\n  |32|Super-Diesel|\n  |33|Unleaded E5|\n  |34|Unleaded E25|\n  |35|Unleaded|\n  |36|Unleaded 91|\n  |37|Unleaded 93|\n  |38|Unleaded 97|\n  |39|Unleaded 99|\n  |40|Unleaded 100|\n  |41|Unleaded 102|\n  |42|Methanol|\n  |43|Unleaded E10|\n  |44|Shell V-Power Racing|\n  |45|Shell V-Power 100|\n  |46|Shell V-Power Diesel|\n  |47|Aral Ultimate 102|\n  |48|Aral Ultimate Diesel|\n  |49|BP Ultimate Super|\n  |50|BP Ultimate Diesel|\n  |51|Blue One 95|\n  |52|Diesel Cleanline|\n  |53|Super E5|\n  |54|Super E10|\n  |55|Premium Diesel|\n  |56|Unleaded 95|\n  |57|Simple gasoline|\n  |58|Simple diesel|\n  |59|Super Unleaded 98|\n  |60|Unleaded 98|\n  |61|Premium gasoline|\n  |62|Synergy Supreme+ Diesel|\n  |63|Supreme Diesel|\n  |64|Unleaded 92|\n  |65|Unleaded 80|\n  |66|Super Unleaded 95|\n  |67|Super Unleaded 92|\n  |68|LNG|\n  |69|Super E5 Premium|\n  |70|Heating oil|\n  |71|AdBlue Car|\n  |72|AdBlue Truck|\n  |73|Hydrotreated vegetable oil|\n  |74|Hydrogen|\n  |75|E-85 cash (US ONLY)|\n  |76|Diesel cash (US ONLY)|\n  |77|Mid-grade cash (US ONLY)|\n  |78|Regular cash (US ONLY)|\n  |79|Regular clear - without ethanol (US ONLY)|\n  |80|Premium cash (US ONLY)|\n  |81|Two stroke petrol|\n  |82|Unleaded 87|\n  |83|Unleaded 89|\n  |84|GTL - Gas to liquid fuel|\n  |85|HVO 30 - Diesel with 30% of hydrotreated vegetable oil|\n  |86|Premium Diesel cash|\n  |87|Red-Diesel cash|\n  |88|Bio-Diesel 20 cash|\n  |89|Super E15|\n  |90|Heating oil cash|\n  |91|AdBlue cash|\n  |92|AdBlue Truck cash|\n  |93|Bio-Diesel cash|\n  |94|Bio-Diesel 10 cash|\n  |95|LPG-GLP cash|\n  |96|CNG cash|\n  |97|Truck Diesel cash|\n"
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int32
   securitySchemes:
     Bearer:
       type: http

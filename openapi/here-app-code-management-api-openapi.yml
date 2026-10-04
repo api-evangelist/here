@@ -71,13 +71,13 @@ paths:
             '
 components:
   parameters:
-    App:
-      in: path
-      required: true
-      name: app
+    XRequestId:
+      in: header
+      name: X-Request-ID
       schema:
         type: string
-      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
 
         '
     XCorrelationId:
@@ -89,13 +89,13 @@ components:
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
 
         '
-    XRequestId:
-      in: header
-      name: X-Request-ID
+    App:
+      in: path
+      required: true
+      name: app
       schema:
         type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+      description: 'HRN identifying the application. Must be URL-encoded, if reserved characters ":/?#[]@!$&''()*+,;=" are used. see https://tools.ietf.org/html/rfc3986#section-2.2.
 
         '
   headers:

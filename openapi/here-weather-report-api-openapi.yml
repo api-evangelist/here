@@ -269,188 +269,96 @@ paths:
       description: Production environment URL
 components:
   schemas:
-    WeatherReport:
-      description: Weather report.
+    AlertZoneCountyType:
       type: object
       properties:
-        observations:
-          properties:
-            location:
-              type: array
-              items:
-                allOf:
-                - $ref: '#/components/schemas/LocationMetadata'
-                - type: object
-                properties:
-                  observation:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WeatherItem'
-          description: Actual weather conditions.
-        forecasts:
-          properties:
-            forecastLocation:
-              type: array
-              items:
-                allOf:
-                - $ref: '#/components/schemas/LocationMetadata'
-                - type: object
-                properties:
-                  forecast:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WeatherItem'
-          description: 'Weather seven days detailed forecasts,
+        value:
+          type: string
+          example: AZC013
+          description: 'Location code (zone code, county code, province code).
 
-            morning, afternoon, evening and night weather forecasts for the next seven days.
+            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
 
             '
-        dailyForecasts:
-          properties:
-            forecastLocation:
-              type: array
-              items:
-                allOf:
-                - $ref: '#/components/schemas/LocationMetadata'
-                - type: object
-                properties:
-                  forecast:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WeatherItem'
-          description: Daily weather forecasts for the next seven days.
-        hourlyForecasts:
-          properties:
-            forecastLocation:
-              type: array
-              items:
-                allOf:
-                - $ref: '#/components/schemas/LocationMetadata'
-                - type: object
-                properties:
-                  forecast:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WeatherItem'
-          description: Hourly weather forecasts for the next seven days.
-        alerts:
-          properties:
-            forecastLocation:
-              type: array
-              items:
-                allOf:
-                - $ref: '#/components/schemas/LocationMetadata'
-                - type: object
-                properties:
-                  alerts:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AlertItem'
-          description: Forecasted weather alerts for the next 24 hours.
-        nwsAlerts:
-          allOf:
-          - $ref: '#/components/schemas/NWSAlertsType'
-          description: All active watches and warnings for the US and Canada issued by National Weather Service.
-        feedCreation:
-          type: string
-          format: date-time
-          example: '2020-08-28T11:23:53.104Z'
-        metric:
-          type: boolean
-          example: true
-    CountyType:
-      type: object
-      properties:
-        county:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlertZoneCountyType'
-    LocationMetadata:
-      type: object
-      properties:
+          xml:
+            attribute: true
         country:
           type: string
+          example: US
+          description: 2-letters ISO country code.
+          xml:
+            attribute: true
+        countryName:
+          type: string
           example: United States
+          description: Full country name.
           xml:
             attribute: true
         state:
           type: string
-          example: Illinois
+          example: IL
+          description: 2-letters US-state abbreviation.
           xml:
             attribute: true
-        city:
+        stateName:
           type: string
-          example: Chicago
+          example: Illinois
+          description: Full US-state name.
+          xml:
+            attribute: true
+        name:
+          type: string
+          example: Maricopa
+          description: Location name.
           xml:
             attribute: true
         latitude:
           type: number
           format: double
           example: 41.85003
+          description: Latitude of location polygon centroid in degrees in WGS 84 format.
           xml:
             attribute: true
         longitude:
           type: number
           format: double
           example: -87.65005
+          description: Longitude of location polygon centroid in degrees in WGS 84 format.
           xml:
             attribute: true
-        distance:
-          type: number
-          format: double
-          example: 11.4
-          xml:
-            attribute: true
-        elevation:
-          type: number
-          format: double
-          example: 125
-          xml:
-            attribute: true
-        dayOfWeek:
-          type: integer
-          format: int32
-          example: 5
-          xml:
-            attribute: true
-        weekday:
-          type: string
-          example: Thursday
-          xml:
-            attribute: true
-        utcTime:
-          type: string
-          format: date-time
-          example: '2020-08-28 00:00:00-05:00'
-          xml:
-            attribute: true
-        timezone:
-          type: integer
-          format: int32
-          example: -6
-          xml:
-            attribute: true
-        localTime:
-          type: string
-          example: 117806091
-          xml:
-            attribute: true
-        localTimeFormat:
-          type: string
-          example: HHMMddyyyy
-          xml:
-            attribute: true
-    Error:
+    NWSAlertsType:
       type: object
       properties:
-        Type:
-          type: string
-          example: Invalid Request
-        Message:
+        warning:
           type: array
           items:
-            type: string
-            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
+            $ref: '#/components/schemas/NWSAlertItems'
+          description: 'Warning issued for location.
+
+
+            These alerts require immediate notification and are extremely time sensitive. Severe weather warnings are sorted by county ID and should generally only be sent to locations within that particular county. Customer may wish to include warnings from counties within a certain distance threshold such as 25 or 50 kilometers.
+
+            '
+        watch:
+          type: array
+          items:
+            $ref: '#/components/schemas/NWSAlertItems'
+          description: 'Watch issued for location.
+
+
+            Includes watches, advisories, special weather statements, and marine warnings.
+
+
+            These alerts cover an extended time frame from several minutes to several hours; immediate activation is not always necessary for these alerts although it is highly recommended. Severe Weather Watches are listed by zone and should be sent to all locations within a reasonable distance of the respective zone.
+
+            '
+    ProvinceType:
+      type: object
+      properties:
+        province:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertProvinceType'
     NWSAlertItems:
       type: object
       oneOf:
@@ -593,6 +501,191 @@ components:
             description: 'Alert expiration date and time at the location. The format is either YYYY-MM-DDThh:mm:ss.SSS + the timezone offset, unless the forecast is for a location in the UTC zone, in which the date and time is terminated by a Z.
 
               '
+    AlertItem:
+      allOf:
+      - $ref: '#/components/schemas/LocationMetadata'
+      - type: object
+        properties:
+          timeSegment:
+            type: object
+            properties:
+              segment:
+                type: string
+                example: M
+              day_of_Week:
+                type: string
+                example: 5
+          type:
+            type: integer
+            format: int32
+            example: 1
+          description:
+            type: string
+            example: Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours
+    ZoneType:
+      type: object
+      properties:
+        zone:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertZoneCountyType'
+    AlertProvinceType:
+      type: object
+      properties:
+        value:
+          type: string
+          example: AZC013
+          description: 'Location code (zone code, county code, province code).
+
+            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
+
+            '
+          xml:
+            attribute: true
+        country:
+          type: string
+          example: US
+          description: 2-letters ISO country code.
+          xml:
+            attribute: true
+        countryName:
+          type: string
+          example: United States
+          description: Full country name.
+          xml:
+            attribute: true
+        province:
+          type: string
+          example: true
+          description: 2-letters province code. Canada only.
+          xml:
+            attribute: true
+        provinceName:
+          type: string
+          example: Ontario
+          description: Full province name. Canada only.
+          xml:
+            attribute: true
+        name:
+          type: string
+          example: Maricopa
+          description: Location name.
+          xml:
+            attribute: true
+        latitude:
+          type: number
+          format: double
+          example: 41.85003
+          description: Latitude of location polygon centroid in degrees in WGS 84 format.
+          xml:
+            attribute: true
+        longitude:
+          type: number
+          format: double
+          example: -87.65005
+          description: Longitude of location polygon centroid in degrees in WGS 84 format.
+          xml:
+            attribute: true
+    WeatherReport:
+      description: Weather report.
+      type: object
+      properties:
+        observations:
+          properties:
+            location:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/LocationMetadata'
+                - type: object
+                properties:
+                  observation:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherItem'
+          description: Actual weather conditions.
+        forecasts:
+          properties:
+            forecastLocation:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/LocationMetadata'
+                - type: object
+                properties:
+                  forecast:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherItem'
+          description: 'Weather seven days detailed forecasts,
+
+            morning, afternoon, evening and night weather forecasts for the next seven days.
+
+            '
+        dailyForecasts:
+          properties:
+            forecastLocation:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/LocationMetadata'
+                - type: object
+                properties:
+                  forecast:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherItem'
+          description: Daily weather forecasts for the next seven days.
+        hourlyForecasts:
+          properties:
+            forecastLocation:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/LocationMetadata'
+                - type: object
+                properties:
+                  forecast:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherItem'
+          description: Hourly weather forecasts for the next seven days.
+        alerts:
+          properties:
+            forecastLocation:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/LocationMetadata'
+                - type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AlertItem'
+          description: Forecasted weather alerts for the next 24 hours.
+        nwsAlerts:
+          allOf:
+          - $ref: '#/components/schemas/NWSAlertsType'
+          description: All active watches and warnings for the US and Canada issued by National Weather Service.
+        feedCreation:
+          type: string
+          format: date-time
+          example: '2020-08-28T11:23:53.104Z'
+        metric:
+          type: boolean
+          example: true
+    Error:
+      type: object
+      properties:
+        Type:
+          type: string
+          example: Invalid Request
+        Message:
+          type: array
+          items:
+            type: string
+            example: Request parameter 'product' does not conform with expected data type. Please check the documentation.
     WeatherItem:
       allOf:
       - $ref: '#/components/schemas/LocationMetadata'
@@ -963,91 +1056,81 @@ components:
             description: 'Number of active weather alerts.
 
               '
-    AlertZoneCountyType:
+    LocationMetadata:
       type: object
       properties:
-        value:
-          type: string
-          example: AZC013
-          description: 'Location code (zone code, county code, province code).
-
-            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
-
-            '
-          xml:
-            attribute: true
         country:
           type: string
-          example: US
-          description: 2-letters ISO country code.
-          xml:
-            attribute: true
-        countryName:
-          type: string
           example: United States
-          description: Full country name.
           xml:
             attribute: true
         state:
           type: string
-          example: IL
-          description: 2-letters US-state abbreviation.
-          xml:
-            attribute: true
-        stateName:
-          type: string
           example: Illinois
-          description: Full US-state name.
           xml:
             attribute: true
-        name:
+        city:
           type: string
-          example: Maricopa
-          description: Location name.
+          example: Chicago
           xml:
             attribute: true
         latitude:
           type: number
           format: double
           example: 41.85003
-          description: Latitude of location polygon centroid in degrees in WGS 84 format.
           xml:
             attribute: true
         longitude:
           type: number
           format: double
           example: -87.65005
-          description: Longitude of location polygon centroid in degrees in WGS 84 format.
           xml:
             attribute: true
-    ProvinceType:
-      type: object
-      properties:
-        province:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlertProvinceType'
-    AlertItem:
-      allOf:
-      - $ref: '#/components/schemas/LocationMetadata'
-      - type: object
-        properties:
-          timeSegment:
-            type: object
-            properties:
-              segment:
-                type: string
-                example: M
-              day_of_Week:
-                type: string
-                example: 5
-          type:
-            type: integer
-            format: int32
-            example: 1
-          description:
-            type: string
-            example: Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours
+        distance:
+          type: number
+          format: double
+          example: 11.4
+          xml:
+            attribute: true
+        elevation:
+          type: number
+          format: double
+          example: 125
+          xml:
+            attribute: true
+        dayOfWeek:
+          type: integer
+          format: int32
+          example: 5
+          xml:
+            attribute: true
+        weekday:
+          type: string
+          example: Thursday
+          xml:
+            attribute: true
+        utcTime:
+          type: string
+          format: date-time
+          example: '2020-08-28 00:00:00-05:00'
+          xml:
+            attribute: true
+        timezone:
+          type: integer
+          format: int32
+          example: -6
+          xml:
+            attribute: true
+        localTime:
+          type: string
+          example: 117806091
+          xml:
+            attribute: true
+        localTimeFormat:
+          type: string
+          example: HHMMddyyyy
+          xml:
+            attribute: true
     WeatherProduct:
       type: string
       enum:
@@ -1057,6 +1140,13 @@ components:
       - forecast_hourly
       - alerts
       - nws_alerts
+    CountyType:
+      type: object
+      properties:
+        county:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertZoneCountyType'
     AuthError:
       description: Error object reported in case of authentication or authorization errors.
       type: object
@@ -1070,7 +1160,54 @@ components:
       example:
         Type: Unauthorized
         Message: ApiKey invalid. ApiKey not found.
-    AlertProvinceType:
+    Address:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Requested address.
+          example: Schulstrasse 4, 32547 Bad Oeynhausen, Germany
+        countryCode:
+          type: string
+          description: A three-letter country code.
+          example: DEU
+        countryName:
+          type: string
+          description: The localised country name.
+          example: Deutschland
+        state:
+          type: string
+          description: A code/abbreviation for the state division of a country.
+          example: North Rhine-Westphalia
+        county:
+          type: string
+          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+          example: Mitte
+        city:
+          type: string
+          description: The name of the primary locality of the place.
+          example: Bad Oyenhausen
+        district:
+          type: string
+          description: A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood.
+          example: Bad Oyenhausen
+        subdistrict:
+          type: string
+          description: A subdivision of a district.
+          example: Minden-Lubbecke
+        street:
+          type: string
+          description: Name of street.
+          example: Schulstrasse
+        postalCode:
+          type: string
+          description: An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code.
+          example: '32547'
+        houseNumber:
+          type: string
+          description: House number.
+          example: '4'
+    AlertZoneCountyType_2:
       type: object
       properties:
         value:
@@ -1081,137 +1218,28 @@ components:
             The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
 
             '
-          xml:
-            attribute: true
         country:
           type: string
           example: US
           description: 2-letters ISO country code.
-          xml:
-            attribute: true
         countryName:
           type: string
           example: United States
           description: Full country name.
-          xml:
-            attribute: true
-        province:
+        state:
           type: string
-          example: true
-          description: 2-letters province code. Canada only.
-          xml:
-            attribute: true
-        provinceName:
+          example: IL
+          description: 2-letters US-state abbreviation.
+        stateName:
           type: string
-          example: Ontario
-          description: Full province name. Canada only.
-          xml:
-            attribute: true
+          example: Illinois
+          description: Full US-state name.
         name:
           type: string
           example: Maricopa
           description: Location name.
-          xml:
-            attribute: true
-        latitude:
-          type: number
-          format: double
-          example: 41.85003
-          description: Latitude of location polygon centroid in degrees in WGS 84 format.
-          xml:
-            attribute: true
-        longitude:
-          type: number
-          format: double
-          example: -87.65005
-          description: Longitude of location polygon centroid in degrees in WGS 84 format.
-          xml:
-            attribute: true
-    NWSAlertsType:
-      type: object
-      properties:
-        warning:
-          type: array
-          items:
-            $ref: '#/components/schemas/NWSAlertItems'
-          description: 'Warning issued for location.
-
-
-            These alerts require immediate notification and are extremely time sensitive. Severe weather warnings are sorted by county ID and should generally only be sent to locations within that particular county. Customer may wish to include warnings from counties within a certain distance threshold such as 25 or 50 kilometers.
-
-            '
-        watch:
-          type: array
-          items:
-            $ref: '#/components/schemas/NWSAlertItems'
-          description: 'Watch issued for location.
-
-
-            Includes watches, advisories, special weather statements, and marine warnings.
-
-
-            These alerts cover an extended time frame from several minutes to several hours; immediate activation is not always necessary for these alerts although it is highly recommended. Severe Weather Watches are listed by zone and should be sent to all locations within a reasonable distance of the respective zone.
-
-            '
-    ZoneType:
-      type: object
-      properties:
-        zone:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlertZoneCountyType'
-    WeatherReport_2:
-      description: Weather report
-      type: object
-      properties:
-        places:
-          type: array
-          items:
-            type: object
-            properties:
-              observations:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ObservationWeatherItem'
-                description: Actual weather conditions.
-              extendedDailyForecasts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ForecastWeatherItem'
-                description: 'Weather seven days detailed forecasts.
-
-                  morning, afternoon, evening and night weather forecasts for the next seven days.
-
-                  '
-              dailyForecasts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ForecastWeatherItem'
-                description: Daily weather forecasts for the next seven days.
-              hourlyForecasts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ForecastWeatherItem'
-                description: Hourly weather forecasts for the next seven days.
-              astronomyForecasts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AstronomyForecastItem'
-                description: 'Astronomy forecasts.
-
-
-                  Information on when the sun and moon rise and set, and on the phase of the moon for the next seven days.
-
-                  '
-              alerts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AlertItem_2'
-                description: Forecasted weather alerts for the next 24 hours.
-              nwsAlerts:
-                allOf:
-                - $ref: '#/components/schemas/NWSAlertsType_2'
-                description: All active watches and warnings for the US and Canada issued by National Weather Service.
+        location:
+          $ref: '#/components/schemas/Location'
     AstronomyItem:
       type: object
       properties:
@@ -1286,6 +1314,53 @@ components:
             Note: If daylight saving time is in effect for a specified location, times will be adjusted for daylight savings time.
 
             '
+    NWSAlertsType_2:
+      type: object
+      properties:
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/NWSAlertItems_2'
+          description: 'Warnings issued for location.
+
+
+            These alerts require immediate notification and are extremely time sensitive. Severe weather warnings are sorted by county id and should generally only be sent to locations within that particular county. Customer may wish to include warnings from counties within a certain distance threshold, such as 25 or 50 kilometers.
+
+            '
+        watches:
+          type: array
+          items:
+            $ref: '#/components/schemas/NWSAlertItems_2'
+          description: 'Watches issued for location.
+
+
+            Includes watches, advisories, special weather statements, and marine warnings.
+
+
+            These alerts cover an extended time frame from several minutes to several hours; immediate activation is not always necessary for these alerts, although it is highly recommended. Severe Weather Watches are listed by zone and should be sent to all locations within a reasonable distance of the respective zone.
+
+            '
+    ObservationWeatherItem:
+      type: object
+      allOf:
+      - type: object
+      - properties:
+          place:
+            $ref: '#/components/schemas/PlaceMetadata'
+      - $ref: '#/components/schemas/WeatherItem_2'
+    PlaceMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        location:
+          $ref: '#/components/schemas/Location'
+        distance:
+          type: number
+          format: double
+          example: 11.4
     NWSAlertItems_2:
       type: object
       properties:
@@ -1436,6 +1511,191 @@ components:
           description: 'Alert expiration date and time at the location. The format is either YYYY-MM-DDThh:mm:ss.SSS + the timezone offset, unless the forecast is for a location in the UTC zone, in which case the date and time is terminated by a Z.
 
             '
+    AlertItem_2:
+      type: object
+      properties:
+        place:
+          $ref: '#/components/schemas/PlaceMetadata'
+        timeSegments:
+          type: array
+          items:
+            type: object
+            properties:
+              segment:
+                type: string
+                enum:
+                - morning
+                - afternoon
+                - evening
+                - night
+                description: Day segment.
+              weekday:
+                $ref: '#/components/schemas/WeekDayType'
+        type:
+          type: integer
+          format: int32
+          example: 1
+          description: 'Type of alert.
+
+
+            |ID| Description|
+
+            |---|---|
+
+            |1|Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours.|
+
+            |2|Severe Thunderstorms Anticipated - Severe thunderstorms anticipated during the next 24 hours (supersedes the strong thunderstorm alert).|
+
+            |3|Tornadoes Possible - Conditions are favorable for the formation of tornadoes (supersedes the severe thunderstorm alert).|
+
+            |4|Heavy Rain Anticipated - More than 1 inch of rain in the next 24 hours (and less than 2 inches).|
+
+            |5|Floods Anticipated - More than 2 inches of rain in the next 24 hours.|
+
+            |6|Flash Floods Anticipated - More than 1 inch of rain in any 6 hour time period (supersedes Flood Alert and Heavy Rain Alert).|
+
+            |7|High Winds Anticipated - Winds greater than 35 mph.|
+
+            |8|Heavy Snow Anticipated - More than 6 inches of snow in a 12-hour period (anytime during the next 24 hours).|
+
+            |9|Blizzard Conditions Anticipated - More than 6 inches of snow anticipated with winds greater than 35 mph.|
+
+            |10|Blowing Snow Anticipated - High winds anticipated with fresh snow on the ground (superseded by Blizzard Alert).|
+
+            |11|Freezing Rain Anticipated - Light freezing rain and/or sleet anticipated.|
+
+            |12|Ice Storm Anticipated - Heavy freezing rain anticipated along with hazardous driving conditions.|
+
+            |13|Snow Advisory - More than 1 inch of snow anticipated during the next 24 hours (and less than 6 inches).|
+
+            |14|Winter Weather Advisory - A mixture of winter-like conditions anticipated.
+
+            |15|Heat Advisory - Comfort indices exceeding 110F.|
+
+            |16|Excessive Heat Alert - comfort indices above 115F with dew points above 80F (supersedes heat advisory).|
+
+            |17|Wind Chill Alert - Issued when the wind chill is 20 below zero or lower with a minimum of a 10 mph wind|
+
+            |18|Frost Advisory - Freezing temperatures and light winds (only issued during the Spring and Fall for low latitude/ low elevation locations).|
+
+            |19|Freeze Advisory - A hard freeze anticipated (only issued during the Spring and Fall for low latitude/ low elevation locations).|
+
+            |20|Fog Anticipated - Visibility expected to drop below 1/4 mile|
+
+            |21|Dense Fog Anticipated - Visibility expected to drop below 1/8 mile (superSedes Fog Alert).|
+
+            |22|Smog Anticipated - Low visibilities and warm temperatures|
+
+            |30|Tropical Cyclone Conditions Anticipated - Winds greater than 40 mph with temperatures above 80F and heavy rain.|
+
+            |31|Hurricane Conditions Anticipated - Winds greater than 75 mph with temperatures above 80F and heavy rain.|
+
+            |32|Small Craft Advisory Anticipated - Winds greater than 25 mph anticipated.|
+
+            |33|Gale Warning Anticipated - Winds greater than 35 mph anticipated.|
+
+            |34|Winds greater than 35 mph anticipated - Winds greater than 50 mph anticipated.|
+
+            |35|Heavy Surf Advisory - Waves over 15 feet high.|
+
+            '
+        description:
+          type: string
+          example: Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours
+          description: Description of the alert.
+    ForecastWeatherItem:
+      type: object
+      properties:
+        place:
+          $ref: '#/components/schemas/PlaceMetadata'
+        forecasts:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeatherItem_2'
+    AlertProvinceType_2:
+      type: object
+      properties:
+        value:
+          type: string
+          example: AZC013
+          description: 'Location code (zone code, county code, province code).
+
+            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
+
+            '
+        country:
+          type: string
+          example: US
+          description: 2-letters ISO country code.
+        countryName:
+          type: string
+          example: United States
+          description: Full country name.
+        province:
+          type: string
+          example: true
+          description: 2-letters province code. Canada only.
+        provinceName:
+          type: string
+          example: Ontario
+          description: Full province name. Canada only.
+        name:
+          type: string
+          example: Maricopa
+        location:
+          $ref: '#/components/schemas/Location'
+    WeatherReport_2:
+      description: Weather report
+      type: object
+      properties:
+        places:
+          type: array
+          items:
+            type: object
+            properties:
+              observations:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObservationWeatherItem'
+                description: Actual weather conditions.
+              extendedDailyForecasts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ForecastWeatherItem'
+                description: 'Weather seven days detailed forecasts.
+
+                  morning, afternoon, evening and night weather forecasts for the next seven days.
+
+                  '
+              dailyForecasts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ForecastWeatherItem'
+                description: Daily weather forecasts for the next seven days.
+              hourlyForecasts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ForecastWeatherItem'
+                description: Hourly weather forecasts for the next seven days.
+              astronomyForecasts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AstronomyForecastItem'
+                description: 'Astronomy forecasts.
+
+
+                  Information on when the sun and moon rise and set, and on the phase of the moon for the next seven days.
+
+                  '
+              alerts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertItem_2'
+                description: Forecasted weather alerts for the next 24 hours.
+              nwsAlerts:
+                allOf:
+                - $ref: '#/components/schemas/NWSAlertsType_2'
+                description: All active watches and warnings for the US and Canada issued by National Weather Service.
     WeatherItem_2:
       type: object
       properties:
@@ -1776,219 +2036,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AstronomyItem'
-    Address:
-      type: object
-      properties:
-        label:
-          type: string
-          description: Requested address.
-          example: Schulstrasse 4, 32547 Bad Oeynhausen, Germany
-        countryCode:
-          type: string
-          description: A three-letter country code.
-          example: DEU
-        countryName:
-          type: string
-          description: The localised country name.
-          example: Deutschland
-        state:
-          type: string
-          description: A code/abbreviation for the state division of a country.
-          example: North Rhine-Westphalia
-        county:
-          type: string
-          description: A division of a state; typically, a secondary-level administrative division of a country or equivalent.
-          example: Mitte
-        city:
-          type: string
-          description: The name of the primary locality of the place.
-          example: Bad Oyenhausen
-        district:
-          type: string
-          description: A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood.
-          example: Bad Oyenhausen
-        subdistrict:
-          type: string
-          description: A subdivision of a district.
-          example: Minden-Lubbecke
-        street:
-          type: string
-          description: Name of street.
-          example: Schulstrasse
-        postalCode:
-          type: string
-          description: An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code.
-          example: '32547'
-        houseNumber:
-          type: string
-          description: House number.
-          example: '4'
-    ObservationWeatherItem:
-      type: object
-      allOf:
-      - type: object
-      - properties:
-          place:
-            $ref: '#/components/schemas/PlaceMetadata'
-      - $ref: '#/components/schemas/WeatherItem_2'
-    AlertZoneCountyType_2:
-      type: object
-      properties:
-        value:
-          type: string
-          example: AZC013
-          description: 'Location code (zone code, county code, province code).
-
-            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
-
-            '
-        country:
-          type: string
-          example: US
-          description: 2-letters ISO country code.
-        countryName:
-          type: string
-          example: United States
-          description: Full country name.
-        state:
-          type: string
-          example: IL
-          description: 2-letters US-state abbreviation.
-        stateName:
-          type: string
-          example: Illinois
-          description: Full US-state name.
-        name:
-          type: string
-          example: Maricopa
-          description: Location name.
-        location:
-          $ref: '#/components/schemas/Location'
-    WeekDayType:
-      type: string
-      example: th
-      description: 'Day of week
-
-        '
-      enum:
-      - mo
-      - tu
-      - we
-      - th
-      - fr
-      - sa
-      - su
-    DateOrTime:
-      oneOf:
-      - type: string
-        format: date-time
-      - type: string
-        format: date
-    PlaceMetadata:
-      type: object
-      properties:
-        id:
-          type: string
-        address:
-          $ref: '#/components/schemas/Address'
-        location:
-          $ref: '#/components/schemas/Location'
-        distance:
-          type: number
-          format: double
-          example: 11.4
-    AlertItem_2:
-      type: object
-      properties:
-        place:
-          $ref: '#/components/schemas/PlaceMetadata'
-        timeSegments:
-          type: array
-          items:
-            type: object
-            properties:
-              segment:
-                type: string
-                enum:
-                - morning
-                - afternoon
-                - evening
-                - night
-                description: Day segment.
-              weekday:
-                $ref: '#/components/schemas/WeekDayType'
-        type:
-          type: integer
-          format: int32
-          example: 1
-          description: 'Type of alert.
-
-
-            |ID| Description|
-
-            |---|---|
-
-            |1|Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours.|
-
-            |2|Severe Thunderstorms Anticipated - Severe thunderstorms anticipated during the next 24 hours (supersedes the strong thunderstorm alert).|
-
-            |3|Tornadoes Possible - Conditions are favorable for the formation of tornadoes (supersedes the severe thunderstorm alert).|
-
-            |4|Heavy Rain Anticipated - More than 1 inch of rain in the next 24 hours (and less than 2 inches).|
-
-            |5|Floods Anticipated - More than 2 inches of rain in the next 24 hours.|
-
-            |6|Flash Floods Anticipated - More than 1 inch of rain in any 6 hour time period (supersedes Flood Alert and Heavy Rain Alert).|
-
-            |7|High Winds Anticipated - Winds greater than 35 mph.|
-
-            |8|Heavy Snow Anticipated - More than 6 inches of snow in a 12-hour period (anytime during the next 24 hours).|
-
-            |9|Blizzard Conditions Anticipated - More than 6 inches of snow anticipated with winds greater than 35 mph.|
-
-            |10|Blowing Snow Anticipated - High winds anticipated with fresh snow on the ground (superseded by Blizzard Alert).|
-
-            |11|Freezing Rain Anticipated - Light freezing rain and/or sleet anticipated.|
-
-            |12|Ice Storm Anticipated - Heavy freezing rain anticipated along with hazardous driving conditions.|
-
-            |13|Snow Advisory - More than 1 inch of snow anticipated during the next 24 hours (and less than 6 inches).|
-
-            |14|Winter Weather Advisory - A mixture of winter-like conditions anticipated.
-
-            |15|Heat Advisory - Comfort indices exceeding 110F.|
-
-            |16|Excessive Heat Alert - comfort indices above 115F with dew points above 80F (supersedes heat advisory).|
-
-            |17|Wind Chill Alert - Issued when the wind chill is 20 below zero or lower with a minimum of a 10 mph wind|
-
-            |18|Frost Advisory - Freezing temperatures and light winds (only issued during the Spring and Fall for low latitude/ low elevation locations).|
-
-            |19|Freeze Advisory - A hard freeze anticipated (only issued during the Spring and Fall for low latitude/ low elevation locations).|
-
-            |20|Fog Anticipated - Visibility expected to drop below 1/4 mile|
-
-            |21|Dense Fog Anticipated - Visibility expected to drop below 1/8 mile (superSedes Fog Alert).|
-
-            |22|Smog Anticipated - Low visibilities and warm temperatures|
-
-            |30|Tropical Cyclone Conditions Anticipated - Winds greater than 40 mph with temperatures above 80F and heavy rain.|
-
-            |31|Hurricane Conditions Anticipated - Winds greater than 75 mph with temperatures above 80F and heavy rain.|
-
-            |32|Small Craft Advisory Anticipated - Winds greater than 25 mph anticipated.|
-
-            |33|Gale Warning Anticipated - Winds greater than 35 mph anticipated.|
-
-            |34|Winds greater than 35 mph anticipated - Winds greater than 50 mph anticipated.|
-
-            |35|Heavy Surf Advisory - Waves over 15 feet high.|
-
-            '
-        description:
-          type: string
-          example: Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours
-          description: Description of the alert.
     WeatherProduct_2:
       type: string
       enum:
@@ -1999,50 +2046,6 @@ components:
       - forecastAstronomy
       - alerts
       - nwsAlerts
-    LocationString:
-      type: string
-      example: 52.5251,13.3694
-    ForecastWeatherItem:
-      type: object
-      properties:
-        place:
-          $ref: '#/components/schemas/PlaceMetadata'
-        forecasts:
-          type: array
-          items:
-            $ref: '#/components/schemas/WeatherItem_2'
-    AlertProvinceType_2:
-      type: object
-      properties:
-        value:
-          type: string
-          example: AZC013
-          description: 'Location code (zone code, county code, province code).
-
-            The shape file information for zones, counties and provinces can be found here in National Weather Service GIS - AWIPS Shapefile Database (http://www.nws.noaa.gov/geodata/).
-
-            '
-        country:
-          type: string
-          example: US
-          description: 2-letters ISO country code.
-        countryName:
-          type: string
-          example: United States
-          description: Full country name.
-        province:
-          type: string
-          example: true
-          description: 2-letters province code. Canada only.
-        provinceName:
-          type: string
-          example: Ontario
-          description: Full province name. Canada only.
-        name:
-          type: string
-          example: Maricopa
-        location:
-          $ref: '#/components/schemas/Location'
     Location:
       type: object
       description: Location on the Earth.
@@ -2067,32 +2070,15 @@ components:
       required:
       - lat
       - lng
-    NWSAlertsType_2:
-      type: object
-      properties:
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/NWSAlertItems_2'
-          description: 'Warnings issued for location.
-
-
-            These alerts require immediate notification and are extremely time sensitive. Severe weather warnings are sorted by county id and should generally only be sent to locations within that particular county. Customer may wish to include warnings from counties within a certain distance threshold, such as 25 or 50 kilometers.
-
-            '
-        watches:
-          type: array
-          items:
-            $ref: '#/components/schemas/NWSAlertItems_2'
-          description: 'Watches issued for location.
-
-
-            Includes watches, advisories, special weather statements, and marine warnings.
-
-
-            These alerts cover an extended time frame from several minutes to several hours; immediate activation is not always necessary for these alerts, although it is highly recommended. Severe Weather Watches are listed by zone and should be sent to all locations within a reasonable distance of the respective zone.
-
-            '
+    LocationString:
+      type: string
+      example: 52.5251,13.3694
+    DateOrTime:
+      oneOf:
+      - type: string
+        format: date-time
+      - type: string
+        format: date
     ErrorResponse:
       type: object
       properties:
@@ -2122,7 +2108,38 @@ components:
       - cause
       - action
       - correlationId
+    WeekDayType:
+      type: string
+      example: th
+      description: 'Day of week
+
+        '
+      enum:
+      - mo
+      - tu
+      - we
+      - th
+      - fr
+      - sa
+      - su
+  headers:
+    X-Correlation-Id:
+      description: Auto-generated unique identifier to identify this request.
+      schema:
+        type: string
+      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
+    X-Request-Id:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
   examples:
+    502errorResponseExample:
+      value:
+        Type: Bad Gateway
+        Message:
+        - Failure of communication with external system.
     504errorResponseExample:
       value:
         Type: Gateway timeout
@@ -2133,133 +2150,6 @@ components:
         Type: Internal Server Error
         Message:
         - Service is not available
-    502errorResponseExample:
-      value:
-        Type: Bad Gateway
-        Message:
-        - Failure of communication with external system.
-    504errorResponseExample_2:
-      value:
-        title: Gateway timeout
-        status: 504
-        code: E611101
-        cause: Gateway Timeout
-        action: Did not receive a timely response from an upstream server
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
-    WeatherReportForecastExample:
-      value:
-        places:
-        - extendedDailyForecasts:
-          - place:
-              address:
-                countryName: United States
-                state: Massachusetts
-                city: Boston
-              location:
-                lat: 42.35843
-                lng: -71.05977
-              distance: 1.4
-            forecasts:
-            - daylight: night
-              daySegment: night
-              description: Clear. Cool.
-              skyInfo: 2
-              skyDesc: Clear
-              temperature: 10
-              temperatureDesc: Cool
-              comfort: '7.43'
-              humidity: '62'
-              dewPoint: 3
-              precipitationProbability: 1
-              precipitationDesc: ''
-              rainFall: 0
-              snowFall: 0
-              airInfo: 7
-              airDesc: ''
-              windSpeed: 19.44
-              windDirection: 56
-              windDesc: Northeast
-              windDescShort: NE
-              beaufortScale: 4
-              beaufortDesc: Moderate breeze
-              visibility: 11.69
-              iconName: nightClear
-              iconId: 13
-              iconLink: https://weather.hereapi.com/static/weather/icon/16.png
-              weekday: su
-              time: '2020-10-12T00:00:00.000-04:00'
-            - daylight: day
-              daySegment: morning
-              description: High level clouds. Cool.
-              skyInfo: 12
-              skyDesc: High level clouds
-              temperature: 10.1
-              temperatureDesc: Cool
-              comfort: '7.26'
-              humidity: '66'
-              dewPoint: 3.9
-              precipitationProbability: 3
-              precipitationDesc: ''
-              windSpeed: 22.68
-              windDirection: 62
-              windDesc: Northeast
-              windDescShort: NE
-              beaufortScale: 4
-              beaufortDesc: Moderate breeze
-              visibility: 12.31
-              iconName: highClouds
-              iconId: 5
-              iconLink: https://weather.hereapi.com/static/weather/icon/4.png
-              weekday: mo
-              time: '2020-10-12T06:00:00.000-04:00'
-    WeatherReportNWSAlerstExample:
-      value:
-        places:
-        - nwsAlerts:
-            warnings:
-            - zones:
-              - value: ANZ231
-                country: US
-                countryName: United States
-                state: IL
-                stateName: Illinois
-                name: Cape Cod Bay
-                location:
-                  lat: 41.88063
-                  lng: -70.32472
-            - type: 11
-              description: Small Craft Advisory
-              severity: 70
-              message: SMALL CRAFT ADVISORY NOW IN EFFECT FROM 2 PM THIS AFTERNOON TO 8 PM EDT TUESDAY...
-              name: Saint Johns Mission
-              validFromTimeLocal: '2020-10-12T07:32:00.000Z'
-              validUntilTimeLocal: '2020-10-14T00:00:00.000Z'
-            watches:
-            - provinces:
-              - value: AZC013
-                country: US
-                countryName: United States
-                province: 'ON'
-                provinceName: Ontario
-                name: Maricopa
-                location:
-                  lat: 52.531677
-                  lng: 13.381777
-            - type: 5
-              description: Flash Flood Warning
-              severity: 3
-              message: FLASH FLOOD WARNING REMAINS IN EFFECT UNTIL 1115 PM MST THIS EVENING FOR MARICOPA COUNTY
-              name: Saint Johns Mission
-              validFromTimeLocal: '2020-10-11T03:35:00.000-04:00'
-              validUntilTimeLocal: '2020-10-12T20:00:00.000-04:00'
-    BadRequestExample:
-      value:
-        status: 400
-        title: Invalid Request
-        cause: All weather product names in 'products' parameter must be valid.
-        action: Please provide valid poduct in the request.
-        code: E611119
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     WeatherReportForecastedAlerstExample:
       value:
         places:
@@ -2278,14 +2168,96 @@ components:
               weekday: th
             type: 1
             description: Strong Thunderstorms Anticipated - Strong thunderstorms anticipated during the next 24 hours
-    InternalServerErrorExample_2:
+    WeatherReportForecastHourlyExample:
       value:
-        status: 500
-        title: Internal Server Error
-        cause: There was some issue processing the request.
-        action: Please retry after some time.
-        code: E611101
-        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+        places:
+        - hourlyForecasts:
+          - place:
+              address:
+                countryName: United States
+                state: Massachusetts
+                city: Boston
+              location:
+                lat: 42.35843
+                lng: -71.05977
+              distance: 1.4
+            forecasts:
+            - daylight: night
+              description: Mostly cloudy. Cool.
+              skyInfo: 16
+              skyDesc: Mostly cloudy
+              temperature: 10.3
+              temperatureDesc: Cool
+              comfort: '7.84'
+              humidity: '63'
+              dewPoint: 3.4
+              precipitationProbability: 1
+              precipitationDesc: ''
+              rainFall: 0
+              snowFall: 1
+              airInfo: 5
+              airDesc: ''
+              windSpeed: 19.08
+              windDirection: 63
+              windDesc: Northeast
+              windDescShort: NE
+              visibility: 11.4
+              iconName: nightMostlyCloudy
+              iconId: 17
+              iconLink: https://weather.hereapi.com/static/weather/icon/24.png
+              weekday: mo
+              time: '2020-10-12T05:00:00.000-04:00'
+            - daylight: day
+              description: Partly sunny. Cool.
+              skyInfo: 14
+              skyDesc: Partly sunny
+              temperature: 10.1
+              temperatureDesc: Cool
+              comfort: '7.59'
+              humidity: '64'
+              dewPoint: 3.5
+              precipitationProbability: 2
+              precipitationDesc: ''
+              windSpeed: 19.08
+              windDirection: 62
+              windDesc: Northeast
+              windDescShort: NE
+              visibility: 12.36
+              iconName: mostlyCloudy
+              icon: 6
+              iconLink: https://weather.hereapi.com/static/weather/icon/17.png
+              weekday: mo
+              time: '2020-10-12T06:00:00.000-04:00'
+    WeatherReportForecastAstronomyExample:
+      value:
+        places:
+        - astronomyForecasts:
+          - place:
+              address:
+                countryCode: USA
+                countryName: United States
+                state: Massachusetts
+                city: Boston
+              location:
+                lat: 42.35843
+                lng: -71.05977
+            forecasts:
+            - sunRise: 06:44:00
+              sunSet: '18:37:00'
+              moonRise: 09:40:00
+              moonSet: '20:07:00'
+              moonPhase: 0.049
+              moonPhaseDescription: Waxing crescent
+              iconName: cw_waxing_crescent
+              time: '2022-09-28T00:00:00.000-05:00'
+            - sunRise: 06:45:00
+              sunSet: '18:36:00'
+              moonRise: '10:53:00'
+              moonSet: '20:38:00'
+              moonPhase: 0.107
+              moonPhaseDescription: Waxing crescent
+              iconName: cw_waxing_crescent
+              time: '2022-09-29T00:00:00.000-05:00'
     502errorResponseExample_2:
       value:
         title: Bad Gateway
@@ -2293,6 +2265,63 @@ components:
         code: E611201
         cause: Bad Gateway
         action: Failure of communication with external system.
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    WeatherReportObservationExample:
+      value:
+        places:
+        - observations:
+          - place:
+              address:
+                countryName: United States
+                state: Massachusetts
+                city: Boston
+              location:
+                lat: 42.35843
+                lng: -71.05977
+              distance: 1.4
+            daylight: night
+            description: Passing clouds. Mild.
+            skyInfo: 7
+            skyDesc: Passing clouds
+            temperature: 24.39
+            temperatureDesc: Mild
+            comfort: '24.31'
+            highTemperature: '31.4'
+            lowTemperature: '24.6'
+            humidity: '91'
+            dewPoint: 22.78
+            precipitation1H: 1
+            precipitation3H: 2
+            precipitation6H: 4
+            precipitation12H: 5
+            precipitation24H: 11
+            precipitationProbability: 22
+            precipitationDesc: Strong thunderstorms
+            rainFall: 11
+            snowFall: 0
+            airInfo: 7
+            airDesc: Refreshing Cool
+            windSpeed: 14.83
+            windDirection: 200
+            windDesc: Northwest
+            windDescShort: NW
+            barometerPressure: 1006.1
+            barometerTrend: Falling
+            visibility: 150
+            snowCover: 0
+            iconId: 23
+            iconName: severeTstorms
+            iconLink: https://weather.hereapi.com/static/weather/icon/6.png
+            ageMinutes: 33
+            activeAlerts: 13
+            time: '2020-10-12T01:54:00.000-04:00'
+    504errorResponseExample_2:
+      value:
+        title: Gateway timeout
+        status: 504
+        code: E611101
+        cause: Gateway Timeout
+        action: Did not receive a timely response from an upstream server
         correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
     WeatherReportForecastSimpleExample:
       value:
@@ -2367,40 +2396,58 @@ components:
               iconLink: https://weather.hereapi.com/static/weather/icon/27.png
               weekday: tu
               time: '2020-10-13T00:00:00.000-04:00'
-    WeatherReportForecastAstronomyExample:
+    WeatherReportNWSAlerstExample:
       value:
         places:
-        - astronomyForecasts:
-          - place:
-              address:
-                countryCode: USA
+        - nwsAlerts:
+            warnings:
+            - zones:
+              - value: ANZ231
+                country: US
                 countryName: United States
-                state: Massachusetts
-                city: Boston
-              location:
-                lat: 42.35843
-                lng: -71.05977
-            forecasts:
-            - sunRise: 06:44:00
-              sunSet: '18:37:00'
-              moonRise: 09:40:00
-              moonSet: '20:07:00'
-              moonPhase: 0.049
-              moonPhaseDescription: Waxing crescent
-              iconName: cw_waxing_crescent
-              time: '2022-09-28T00:00:00.000-05:00'
-            - sunRise: 06:45:00
-              sunSet: '18:36:00'
-              moonRise: '10:53:00'
-              moonSet: '20:38:00'
-              moonPhase: 0.107
-              moonPhaseDescription: Waxing crescent
-              iconName: cw_waxing_crescent
-              time: '2022-09-29T00:00:00.000-05:00'
-    WeatherReportForecastHourlyExample:
+                state: IL
+                stateName: Illinois
+                name: Cape Cod Bay
+                location:
+                  lat: 41.88063
+                  lng: -70.32472
+            - type: 11
+              description: Small Craft Advisory
+              severity: 70
+              message: SMALL CRAFT ADVISORY NOW IN EFFECT FROM 2 PM THIS AFTERNOON TO 8 PM EDT TUESDAY...
+              name: Saint Johns Mission
+              validFromTimeLocal: '2020-10-12T07:32:00.000Z'
+              validUntilTimeLocal: '2020-10-14T00:00:00.000Z'
+            watches:
+            - provinces:
+              - value: AZC013
+                country: US
+                countryName: United States
+                province: 'ON'
+                provinceName: Ontario
+                name: Maricopa
+                location:
+                  lat: 52.531677
+                  lng: 13.381777
+            - type: 5
+              description: Flash Flood Warning
+              severity: 3
+              message: FLASH FLOOD WARNING REMAINS IN EFFECT UNTIL 1115 PM MST THIS EVENING FOR MARICOPA COUNTY
+              name: Saint Johns Mission
+              validFromTimeLocal: '2020-10-11T03:35:00.000-04:00'
+              validUntilTimeLocal: '2020-10-12T20:00:00.000-04:00'
+    BadRequestExample:
+      value:
+        status: 400
+        title: Invalid Request
+        cause: All weather product names in 'products' parameter must be valid.
+        action: Please provide valid poduct in the request.
+        code: E611119
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
+    WeatherReportForecastExample:
       value:
         places:
-        - hourlyForecasts:
+        - extendedDailyForecasts:
           - place:
               address:
                 countryName: United States
@@ -2412,187 +2459,66 @@ components:
               distance: 1.4
             forecasts:
             - daylight: night
-              description: Mostly cloudy. Cool.
-              skyInfo: 16
-              skyDesc: Mostly cloudy
-              temperature: 10.3
+              daySegment: night
+              description: Clear. Cool.
+              skyInfo: 2
+              skyDesc: Clear
+              temperature: 10
               temperatureDesc: Cool
-              comfort: '7.84'
-              humidity: '63'
-              dewPoint: 3.4
+              comfort: '7.43'
+              humidity: '62'
+              dewPoint: 3
               precipitationProbability: 1
               precipitationDesc: ''
               rainFall: 0
-              snowFall: 1
-              airInfo: 5
+              snowFall: 0
+              airInfo: 7
               airDesc: ''
-              windSpeed: 19.08
-              windDirection: 63
+              windSpeed: 19.44
+              windDirection: 56
               windDesc: Northeast
               windDescShort: NE
-              visibility: 11.4
-              iconName: nightMostlyCloudy
-              iconId: 17
-              iconLink: https://weather.hereapi.com/static/weather/icon/24.png
-              weekday: mo
-              time: '2020-10-12T05:00:00.000-04:00'
+              beaufortScale: 4
+              beaufortDesc: Moderate breeze
+              visibility: 11.69
+              iconName: nightClear
+              iconId: 13
+              iconLink: https://weather.hereapi.com/static/weather/icon/16.png
+              weekday: su
+              time: '2020-10-12T00:00:00.000-04:00'
             - daylight: day
-              description: Partly sunny. Cool.
-              skyInfo: 14
-              skyDesc: Partly sunny
+              daySegment: morning
+              description: High level clouds. Cool.
+              skyInfo: 12
+              skyDesc: High level clouds
               temperature: 10.1
               temperatureDesc: Cool
-              comfort: '7.59'
-              humidity: '64'
-              dewPoint: 3.5
-              precipitationProbability: 2
+              comfort: '7.26'
+              humidity: '66'
+              dewPoint: 3.9
+              precipitationProbability: 3
               precipitationDesc: ''
-              windSpeed: 19.08
+              windSpeed: 22.68
               windDirection: 62
               windDesc: Northeast
               windDescShort: NE
-              visibility: 12.36
-              iconName: mostlyCloudy
-              icon: 6
-              iconLink: https://weather.hereapi.com/static/weather/icon/17.png
+              beaufortScale: 4
+              beaufortDesc: Moderate breeze
+              visibility: 12.31
+              iconName: highClouds
+              iconId: 5
+              iconLink: https://weather.hereapi.com/static/weather/icon/4.png
               weekday: mo
               time: '2020-10-12T06:00:00.000-04:00'
-    WeatherReportObservationExample:
+    InternalServerErrorExample_2:
       value:
-        places:
-        - observations:
-          - place:
-              address:
-                countryName: United States
-                state: Massachusetts
-                city: Boston
-              location:
-                lat: 42.35843
-                lng: -71.05977
-              distance: 1.4
-            daylight: night
-            description: Passing clouds. Mild.
-            skyInfo: 7
-            skyDesc: Passing clouds
-            temperature: 24.39
-            temperatureDesc: Mild
-            comfort: '24.31'
-            highTemperature: '31.4'
-            lowTemperature: '24.6'
-            humidity: '91'
-            dewPoint: 22.78
-            precipitation1H: 1
-            precipitation3H: 2
-            precipitation6H: 4
-            precipitation12H: 5
-            precipitation24H: 11
-            precipitationProbability: 22
-            precipitationDesc: Strong thunderstorms
-            rainFall: 11
-            snowFall: 0
-            airInfo: 7
-            airDesc: Refreshing Cool
-            windSpeed: 14.83
-            windDirection: 200
-            windDesc: Northwest
-            windDescShort: NW
-            barometerPressure: 1006.1
-            barometerTrend: Falling
-            visibility: 150
-            snowCover: 0
-            iconId: 23
-            iconName: severeTstorms
-            iconLink: https://weather.hereapi.com/static/weather/icon/6.png
-            ageMinutes: 33
-            activeAlerts: 13
-            time: '2020-10-12T01:54:00.000-04:00'
+        status: 500
+        title: Internal Server Error
+        cause: There was some issue processing the request.
+        action: Please retry after some time.
+        code: E611101
+        correlationId: dfe3b1a5-214f-49a9-b8a0-d78bd623bac0
   responses:
-    Error403Response:
-      description: API response in case of insufficient credentials for access to the requested resource.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthError'
-          example:
-            error: Forbidden
-            error_description: These credentials do not authorize access
-    Error429Response:
-      description: API response in case of too many requests
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            Type: Too many requests
-            Message:
-            - Request rate limit reached
-    Error503Response:
-      description: API response in case of service unavailable
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            Type: Service not available
-            Message:
-            - Service is not available
-    Error504Response:
-      description: API response in case of gateway timeout.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/504errorResponseExample'
-    Error500Response:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample'
-    Error502Response:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample'
     Error400ReportResponse:
       description: Invalid parameters were provided.
       content:
@@ -2621,6 +2547,106 @@ components:
           example:
             error: Unauthorized
             error_description: No credentials found
+    Error429Response:
+      description: API response in case of too many requests
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Too many requests
+            Message:
+            - Request rate limit reached
+    Error502Response:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample'
+    Error500Response:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+    Error503Response:
+      description: API response in case of service unavailable
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            Type: Service not available
+            Message:
+            - Service is not available
+    Error403Response:
+      description: API response in case of insufficient credentials for access to the requested resource.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error: Forbidden
+            error_description: These credentials do not authorize access
+    Error504Response:
+      description: API response in case of gateway timeout.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/504errorResponseExample'
+    Error400ReportResponse_2:
+      description: Invalid parameters were provided
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            badRequestExample:
+              $ref: '#/components/examples/BadRequestExample'
     Error429Response_2:
       description: API response in case of too many requests
       headers:
@@ -2639,6 +2665,34 @@ components:
             cause: Request rate limit reached
             action: Retry later, lower the request rate
             correlationId: efefe455-d2e3-4e23-86aa-4e9a8a1680d4
+    Error502Response_2:
+      description: API response in case of bad gateway
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/502errorResponseExample_2'
+    Error500Response_2:
+      description: API response in case of internal server error
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/X-Correlation-Id'
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalServerErrorExample_2'
     Error503Response_2:
       description: API response in case of service unavailable
       headers:
@@ -2671,60 +2725,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/504errorResponseExample_2'
-    Error500Response_2:
-      description: API response in case of internal server error
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalServerErrorExample_2'
-    Error502Response_2:
-      description: API response in case of bad gateway
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/502errorResponseExample_2'
-    Error400ReportResponse_2:
-      description: Invalid parameters were provided
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/X-Correlation-Id'
-        X-Request-Id:
-          $ref: '#/components/headers/X-Request-Id'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            badRequestExample:
-              $ref: '#/components/examples/BadRequestExample'
-  headers:
-    X-Correlation-Id:
-      description: Auto-generated unique identifier to identify this request.
-      schema:
-        type: string
-      example: 4d173a1e-6f1b-459b-b74f-23686354aaea
-    X-Request-Id:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
   parameters:
     X-Request-Id:
       name: X-Request-Id

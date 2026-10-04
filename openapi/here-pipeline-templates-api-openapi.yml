@@ -302,6 +302,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 components:
+  parameters:
+    RequestIdHeaderParam:
+      name: X-Request-ID
+      in: header
+      description: Identifier for a specific http request. If not present, one will be generated.
+      schema:
+        type: string
+    CorrelationIdHeaderParam:
+      name: X-Correlation-ID
+      in: header
+      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
+      schema:
+        type: string
+    TemplateIdPathParam:
+      name: templateId
+      in: path
+      description: System generated identifier for the PipelineTemplate.
+      required: true
+      schema:
+        type: string
   schemas:
     HrnResponse:
       type: object
@@ -366,6 +386,98 @@ components:
           description: GC selected for this PipelineVersion. Refer to the GcProfileDefinition component for details.
           example: g1gc
       description: Configuration for the cluster when submitting a pipeline version.
+    ValidationErrorMessage:
+      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
+      properties:
+        code:
+          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
+          example: E1000
+          readOnly: true
+          type: string
+        errors:
+          description: Set of validation error messages.
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+          readOnly: true
+          type: array
+          uniqueItems: true
+        field:
+          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
+          example: /parent/list/1/value
+          externalDocs:
+            url: https://tools.ietf.org/html/rfc6901
+          readOnly: true
+          type: string
+        invalidValue:
+          description: The invalid value that was sent
+          example: sample string
+          readOnly: true
+          type: object
+        message:
+          description: This is the message for the error.
+          example: Validation Failed
+          readOnly: true
+          type: string
+        messageTemplate:
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          example: '{validation.error}'
+          readOnly: true
+          type: string
+        status:
+          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
+          example: 400
+          format: int32
+          readOnly: true
+          type: integer
+        templateOptions:
+          additionalProperties:
+            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+            readOnly: true
+            type: object
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+          type: object
+      readOnly: true
+      type: object
+    ErrorMessage:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Duplicate of the HTTP status that is returned.
+          format: int32
+          readOnly: true
+          example: 400
+        code:
+          type: string
+          description: Error code that pertains to a specific error.
+          readOnly: true
+          example: E1000
+        message:
+          type: string
+          description: This is the message for the error.
+          readOnly: true
+          example: Validation Failed
+        messageTemplate:
+          type: string
+          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
+          readOnly: true
+          example: '{validation.error}'
+        templateOptions:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
+          readOnly: true
+        errors:
+          uniqueItems: true
+          type: array
+          description: Set of validation error messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ValidationErrorMessage'
+      description: HTTP Error message thrown by the service
     PipelineTemplate:
       required:
       - defaultClusterConfiguration
@@ -459,118 +571,6 @@ components:
           readOnly: true
           example: olp-here
       description: A PipelineTemplate is the top-level entity which holds the information to fully define and independently reuse a data processing Pipeline, including its implementation, the schema for its required input and output catalogs, and its default configuration.
-    ErrorMessage:
-      type: object
-      properties:
-        status:
-          type: integer
-          description: Duplicate of the HTTP status that is returned.
-          format: int32
-          readOnly: true
-          example: 400
-        code:
-          type: string
-          description: Error code that pertains to a specific error.
-          readOnly: true
-          example: E1000
-        message:
-          type: string
-          description: This is the message for the error.
-          readOnly: true
-          example: Validation Failed
-        messageTemplate:
-          type: string
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          readOnly: true
-          example: '{validation.error}'
-        templateOptions:
-          type: object
-          additionalProperties:
-            type: object
-            properties: {}
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-        errors:
-          uniqueItems: true
-          type: array
-          description: Set of validation error messages.
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-      description: HTTP Error message thrown by the service
-    ValidationErrorMessage:
-      description: Extends ErrorMessage to add a JSON pointer field and invalid value to the message
-      properties:
-        code:
-          description: Error code that pertains to a specific error.This field will only be populated in the event of known errors. Some errors like field validation may not be able to be done in a reproducible way so it may be omitted in these cases
-          example: E1000
-          readOnly: true
-          type: string
-        errors:
-          description: Set of validation error messages.
-          items:
-            $ref: '#/components/schemas/ValidationErrorMessage'
-          readOnly: true
-          type: array
-          uniqueItems: true
-        field:
-          description: Field of the object that is invalid. The field follows RFC 6901 JSON pointer.
-          example: /parent/list/1/value
-          externalDocs:
-            url: https://tools.ietf.org/html/rfc6901
-          readOnly: true
-          type: string
-        invalidValue:
-          description: The invalid value that was sent
-          example: sample string
-          readOnly: true
-          type: object
-        message:
-          description: This is the message for the error.
-          example: Validation Failed
-          readOnly: true
-          type: string
-        messageTemplate:
-          description: Message template key that is used to look up a template for localization support. The curly brackets are utilized for looking up the property to get the message. If there are no curly brackets, then the message does not have a template key.
-          example: '{validation.error}'
-          readOnly: true
-          type: string
-        status:
-          description: Duplicate of the HTTP status that is returned. Where possible utilize the HTTP status. This one is here for convenience.
-          example: 400
-          format: int32
-          readOnly: true
-          type: integer
-        templateOptions:
-          additionalProperties:
-            description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-            readOnly: true
-            type: object
-          description: Key -> value map of options to be used in a template. This can be passed in for localization to insert in values. A localized template that uses these may look like "The value must be larger than {exampleKey}" where {exampleKey} is replaced with a value for "exampleKey" from the returned map.
-          readOnly: true
-          type: object
-      readOnly: true
-      type: object
-  parameters:
-    TemplateIdPathParam:
-      name: templateId
-      in: path
-      description: System generated identifier for the PipelineTemplate.
-      required: true
-      schema:
-        type: string
-    CorrelationIdHeaderParam:
-      name: X-Correlation-ID
-      in: header
-      description: Common identifier for multiple http requests to indicate they are associated in some way. If not present, one will be generated.
-      schema:
-        type: string
-    RequestIdHeaderParam:
-      name: X-Request-ID
-      in: header
-      description: Identifier for a specific http request. If not present, one will be generated.
-      schema:
-        type: string
   securitySchemes:
     Bearer:
       type: http

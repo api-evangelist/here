@@ -1988,6 +1988,200 @@ paths:
       x-operation-id-original: Map Attributes API v8GetMapAttributesForAPathPost
 components:
   schemas:
+    IndexDocBean:
+      type: object
+      properties:
+        indexedLayerName:
+          type: string
+        indexedColumnNames:
+          type: string
+        indexType:
+          type: string
+        exampleNames:
+          type: string
+        exampleUrlParams:
+          type: string
+        mapName:
+          type: string
+      example:
+        indexedLayerName: ADMIN_PLACE_0
+        indexedColumnNames: ADMIN_PLACE_ID
+        indexType: INDEX
+        exampleNames: JSON
+        exampleUrlParams: maps/index?layer=ADMIN_PLACE_0&attributes=ADMIN_PLACE_ID&values=23060936%2C4711
+        mapName: WEU
+    ServiceConfigurationResponseV8:
+      type: object
+      properties:
+        Configuration:
+          $ref: '#/components/schemas/ServiceConfigurationContentV8'
+    SegmentRefAttributes:
+      type: object
+      properties:
+        segmentRef:
+          type: string
+          description: SegmentRef in the shortened notation:<br> $0:{layerId}?:partitionId:$1:segmentId#{dir}startOffset..endOffset <br>Content of placeholders $0, $1 provided by refReplacements. layerId is not defined and omitted partitionId is always calculated for level 12, and might differ from notations using different levels. Dir can be '+' or '-' indicates the direction of the segmentRef.
+          example: $0:23595470:$1:152298623#+0..0.73396
+        attributeDirection:
+          type: string
+          description: Direction of attribute represented by either '+' (from reference node) or '-' (to reference node).
+          example: +
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            description: Requested attributes for the `segmentRef` grouped by layers.
+            items:
+              type: object
+          example:
+            ROAD_GEOM_FCN:
+            - LONG_HAUL: N
+              NAME: Boulevard Garibaldi
+              TUNNEL: N
+              BRIDGE: N
+              LAT: 4884600,40,9
+              LON: 230859,-144,-33
+              ZLEVEL: ',,'
+              ELEVATION: ',,'
+      description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
+    LayerModifyResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
+          example: append
+    MapDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        coverage:
+          type: string
+        version:
+          type: integer
+          format: int64
+        releaseYearAndQuarter:
+          type: string
+        size:
+          type: integer
+          format: int64
+        isLatest:
+          type: boolean
+        layerNames:
+          type: array
+          items:
+            type: string
+        mapType:
+          type: string
+        storage:
+          type: string
+      example:
+        name: PCBWORLD
+        coverage: PCBWORLD
+        version: 1740384962856
+        releaseYearAndQuarter: 241H0
+        size: 5837578240
+        isLatest: true
+        layerNames:
+        - PSTLCB_MP
+        - PSTLCB_GEN
+        - PSTLCB_UNGEN
+        mapType: public
+        storage: readonly
+    MapAttributesAlongPathResponse:
+      type: object
+      properties:
+        refReplacements:
+          type: object
+          additionalProperties:
+            type: string
+            description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
+            example: '{"0":":1755533878934:","1":"here:cm:segment"}'
+          description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
+          example:
+            '0': ':1755533878934:'
+            '1': here:cm:segment
+        segments:
+          type: array
+          description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
+          items:
+            $ref: '#/components/schemas/SegmentRefAttributes'
+    MetaResponseV8:
+      type: object
+      properties:
+        layerName:
+          type: string
+          description: Name of layer returned in this tile response.
+          example: ROAD_GEOM_FC4
+        tileId:
+          type: integer
+          description: Tile ID for the tile returned in this response.
+          format: int32
+          example: 22055097
+        level:
+          type: integer
+          description: Level for layer returned in this tile response.
+          format: int32
+          example: 12
+        mapRegion:
+          type: string
+          description: Map region for layer returned in this tile response.
+          example: WEU
+        mapRelease:
+          type: string
+          description: Specific map release that this layer content belongs to.
+          example: '25122'
+      description: Meta info for a specific layer.
+    IndexResponseLayerV8:
+      type: object
+      properties:
+        layer:
+          type: string
+          example: ROAD_GEOM_FC3
+        level:
+          type: integer
+          description: Tiling level of the layer
+          format: int32
+          example: 11
+        tileIDs:
+          type: array
+          description: tile IDs
+          example:
+          - 6297686
+          - 6297687
+          items:
+            type: integer
+            description: tile IDs
+            format: int32
+      description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
+    MapDocResponse:
+      type: object
+      properties:
+        maps:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapDocBean'
+    AttributeDocBean:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        layers:
+          type: array
+          items:
+            type: string
+      example:
+        name: TRANSPORT_SPEED_LIMIT
+        description: 'Defines a speed limit applicable to trucks. Unit: km/h.'
+        layers:
+        - TRUCK_RESTR_FC1
+        - TRUCK_RESTR_FC2
+        - TRUCK_RESTR_FC3
+        - TRUCK_RESTR_FC4
+        - TRUCK_RESTR_FC5
     ServiceConfigurationContentV8:
       type: object
       properties:
@@ -2079,151 +2273,6 @@ components:
         maxUploadLevel: 14
         assetIdPattern: '[a-zA-Z0-9_\-\*\(\)]+'
         maxAssetIdSize: 36
-    IndexResponseV8:
-      type: object
-      properties:
-        Layers:
-          type: array
-          description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
-          items:
-            $ref: '#/components/schemas/IndexResponseLayerV8'
-    TileRow:
-      type: object
-      properties:
-        columns:
-          type: array
-          description: Map of attributes and values.
-          example:
-            LINK_ID: '113421120'
-            LONG_HAUL: N
-            NAME: SR-33 / Commonwealth Ave N
-            NAMES: ''
-            TUNNEL: N
-            BRIDGE: N
-            LAT: 2831248,47,72,46,50,47,21,42,33,31
-            LON: -8183529,6,10,5,7,5,2,5,3,3
-            ZLEVEL: ',,,,,,,,,'
-            ELEVATION: null
-            TOPOLOGY_ID: '399791974'
-            START_OFFSET: '0'
-            END_OFFSET: '100000'
-          items:
-            type: string
-            description: Map of attributes and values.
-            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
-      description: List of Attribute/value map from a specific layer.
-    MapDocBean:
-      type: object
-      properties:
-        name:
-          type: string
-        coverage:
-          type: string
-        version:
-          type: integer
-          format: int64
-        releaseYearAndQuarter:
-          type: string
-        size:
-          type: integer
-          format: int64
-        isLatest:
-          type: boolean
-        layerNames:
-          type: array
-          items:
-            type: string
-        mapType:
-          type: string
-        storage:
-          type: string
-      example:
-        name: PCBWORLD
-        coverage: PCBWORLD
-        version: 1740384962856
-        releaseYearAndQuarter: 241H0
-        size: 5837578240
-        isLatest: true
-        layerNames:
-        - PSTLCB_MP
-        - PSTLCB_GEN
-        - PSTLCB_UNGEN
-        mapType: public
-        storage: readonly
-    MapAttributesAlongPathResponse:
-      type: object
-      properties:
-        refReplacements:
-          type: object
-          additionalProperties:
-            type: string
-            description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
-            example: '{"0":":1755533878934:","1":"here:cm:segment"}'
-          description: Replacements for `$0`, `$1`, ... in the `segmentRef` designations.
-          example:
-            '0': ':1755533878934:'
-            '1': here:cm:segment
-        segments:
-          type: array
-          description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
-          items:
-            $ref: '#/components/schemas/SegmentRefAttributes'
-    AttributeDocBean:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        layers:
-          type: array
-          items:
-            type: string
-      example:
-        name: TRANSPORT_SPEED_LIMIT
-        description: 'Defines a speed limit applicable to trucks. Unit: km/h.'
-        layers:
-        - TRUCK_RESTR_FC1
-        - TRUCK_RESTR_FC2
-        - TRUCK_RESTR_FC3
-        - TRUCK_RESTR_FC4
-        - TRUCK_RESTR_FC5
-    GeometrySearchResponse:
-      type: object
-      properties:
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Geometry'
-        meta:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchMetaResponse'
-    SearchMetaResponse:
-      type: object
-      properties:
-        searchParameter:
-          type: string
-          writeOnly: true
-        layerId:
-          type: string
-          description: Layer name of geometries in a search response.
-          example: ADAS_ATTRIB_FC4
-        lastUpdateTimeStamp:
-          type: integer
-          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
-          format: int64
-          example: 1756219305792
-    TileResponseV8:
-      type: object
-      properties:
-        rows:
-          type: array
-          description: List of Attribute/value map from a specific layer.
-          items:
-            $ref: '#/components/schemas/TileRow'
-        meta:
-          $ref: '#/components/schemas/MetaResponseV8'
     LayerDetailDocBean:
       type: object
       properties:
@@ -2279,87 +2328,16 @@ components:
         isStaticContent: false
         indexes: []
         staticContent: false
-    LayerModifyResponse:
+    TileResponseV8:
       type: object
       properties:
-        action:
-          type: string
-          description: 'Action that is used in the layer modify request: can be `append`, `update` or `delete`'
-          example: append
-    MetaResponseV8:
-      type: object
-      properties:
-        layerName:
-          type: string
-          description: Name of layer returned in this tile response.
-          example: ROAD_GEOM_FC4
-        tileId:
-          type: integer
-          description: Tile ID for the tile returned in this response.
-          format: int32
-          example: 22055097
-        level:
-          type: integer
-          description: Level for layer returned in this tile response.
-          format: int32
-          example: 12
-        mapRegion:
-          type: string
-          description: Map region for layer returned in this tile response.
-          example: WEU
-        mapRelease:
-          type: string
-          description: Specific map release that this layer content belongs to.
-          example: '25122'
-      description: Meta info for a specific layer.
-    SegmentRefAttributes:
-      type: object
-      properties:
-        segmentRef:
-          type: string
-          description: SegmentRef in the shortened notation:<br> $0:{layerId}?:partitionId:$1:segmentId#{dir}startOffset..endOffset <br>Content of placeholders $0, $1 provided by refReplacements. layerId is not defined and omitted partitionId is always calculated for level 12, and might differ from notations using different levels. Dir can be '+' or '-' indicates the direction of the segmentRef.
-          example: $0:23595470:$1:152298623#+0..0.73396
-        attributeDirection:
-          type: string
-          description: Direction of attribute represented by either '+' (from reference node) or '-' (to reference node).
-          example: +
-        attributes:
-          type: object
-          additionalProperties:
-            type: array
-            description: Requested attributes for the `segmentRef` grouped by layers.
-            items:
-              type: object
-          example:
-            ROAD_GEOM_FCN:
-            - LONG_HAUL: N
-              NAME: Boulevard Garibaldi
-              TUNNEL: N
-              BRIDGE: N
-              LAT: 4884600,40,9
-              LON: 230859,-144,-33
-              ZLEVEL: ',,'
-              ELEVATION: ',,'
-      description: List of segments in input order. Each segmentRef comes with a fixed set of attributes, if any attribute changes within a segment a new SegmentRef object is created.
-    MapDocResponse:
-      type: object
-      properties:
-        maps:
+        rows:
           type: array
+          description: List of Attribute/value map from a specific layer.
           items:
-            $ref: '#/components/schemas/MapDocBean'
-    DeleteLayersResponse:
-      type: object
-      properties:
-        deletedLayers:
-          type: array
-          description: List of deleted layers.
-          example:
-          - SAMPLE_LAYER
-          items:
-            type: string
-            description: List of deleted layers.
-            example: '["SAMPLE_LAYER"]'
+            $ref: '#/components/schemas/TileRow'
+        meta:
+          $ref: '#/components/schemas/MetaResponseV8'
     LayerDocBean:
       type: object
       properties:
@@ -2414,11 +2392,6 @@ components:
         mapName: SAM
         lastUpdateTimestamp: 1754820593739
         featureMapping: PDE-Premium-Traffic-Signs
-    ServiceConfigurationResponseV8:
-      type: object
-      properties:
-        Configuration:
-          $ref: '#/components/schemas/ServiceConfigurationContentV8'
     Geometry:
       type: object
       properties:
@@ -2494,6 +2467,21 @@ components:
           - NONE
           - TILED
           - FULL
+    SearchMetaResponse:
+      type: object
+      properties:
+        searchParameter:
+          type: string
+          writeOnly: true
+        layerId:
+          type: string
+          description: Layer name of geometries in a search response.
+          example: ADAS_ATTRIB_FC4
+        lastUpdateTimeStamp:
+          type: integer
+          description: last modification milli second timestamp for this layer. Only valid for custom layers, -1 for HERE map layer
+          format: int64
+          example: 1756219305792
     MapAttributesV8Response:
       type: object
       properties:
@@ -2511,50 +2499,51 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TileResponseV8'
-    IndexResponseLayerV8:
+    TileRow:
       type: object
       properties:
-        layer:
-          type: string
-          example: ROAD_GEOM_FC3
-        level:
-          type: integer
-          description: Tiling level of the layer
-          format: int32
-          example: 11
-        tileIDs:
+        columns:
           type: array
-          description: tile IDs
+          description: Map of attributes and values.
           example:
-          - 6297686
-          - 6297687
+            LINK_ID: '113421120'
+            LONG_HAUL: N
+            NAME: SR-33 / Commonwealth Ave N
+            NAMES: ''
+            TUNNEL: N
+            BRIDGE: N
+            LAT: 2831248,47,72,46,50,47,21,42,33,31
+            LON: -8183529,6,10,5,7,5,2,5,3,3
+            ZLEVEL: ',,,,,,,,,'
+            ELEVATION: null
+            TOPOLOGY_ID: '399791974'
+            START_OFFSET: '0'
+            END_OFFSET: '100000'
           items:
-            type: integer
-            description: tile IDs
-            format: int32
-      description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
-    IndexDocBean:
+            type: string
+            description: Map of attributes and values.
+            example: '{"LINK_ID":"113421120","LONG_HAUL":"N","NAME":"SR-33 / Commonwealth Ave N","NAMES":"","TUNNEL":"N","BRIDGE":"N","LAT":"2831248,47,72,46,50,47,21,42,33,31","LON":"-8183529,6,10,5,7,5,2,5,3,3","ZLEVEL":",,,,,,,,,","ELEVATION":null,"TOPOLOGY_ID":"399791974","START_OFFSET":"0","END_OFFSET":"100000"}'
+      description: List of Attribute/value map from a specific layer.
+    DeleteLayersResponse:
       type: object
       properties:
-        indexedLayerName:
-          type: string
-        indexedColumnNames:
-          type: string
-        indexType:
-          type: string
-        exampleNames:
-          type: string
-        exampleUrlParams:
-          type: string
-        mapName:
-          type: string
-      example:
-        indexedLayerName: ADMIN_PLACE_0
-        indexedColumnNames: ADMIN_PLACE_ID
-        indexType: INDEX
-        exampleNames: JSON
-        exampleUrlParams: maps/index?layer=ADMIN_PLACE_0&attributes=ADMIN_PLACE_ID&values=23060936%2C4711
-        mapName: WEU
+        deletedLayers:
+          type: array
+          description: List of deleted layers.
+          example:
+          - SAMPLE_LAYER
+          items:
+            type: string
+            description: List of deleted layers.
+            example: '["SAMPLE_LAYER"]'
+    IndexResponseV8:
+      type: object
+      properties:
+        Layers:
+          type: array
+          description: List of layers containing this attribute value. Usually 1 layer, but can be multiple when request a ..._FCN layer.
+          items:
+            $ref: '#/components/schemas/IndexResponseLayerV8'
     LayerUploadResponse:
       type: object
       properties:
@@ -2563,6 +2552,17 @@ components:
           description: Number of tiles that were created to store the uploaded layer content
           format: int32
           example: 20
+    GeometrySearchResponse:
+      type: object
+      properties:
+        geometries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchMetaResponse'
   securitySchemes:
     apiKey:
       type: apiKey

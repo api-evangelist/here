@@ -306,40 +306,289 @@ paths:
         '404':
           description: Resource or App not found
 components:
-  responses:
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NoContent:
-      description: No Content
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-    Unauthorized:
-      description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    EntityGrantsList:
+      type: object
+      description: If includeCrossRealmGrants is true then EntityGrantsCrossRealm will be returned.
+      oneOf:
+      - $ref: '#/components/schemas/EntityGrants'
+      - $ref: '#/components/schemas/EntityGrantsCrossRealm'
+    ActivePermissionNoResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
+          type: string
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
+          type: string
+          description: One of "allow" or "deny"
+          enum:
+          - allow
+          - deny
+          example: allow
+        serviceId:
+          readOnly: true
+          type: string
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+    EntityGrantsCrossRealm:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          type: integer
+          description: count of page
+        data:
+          readOnly: true
+          type: array
+          description: List of entity ids and their associated permissions.
+          items:
+            $ref: '#/components/schemas/EntityGrantCrossRealm'
+    EntityGrantCrossRealm:
+      type: object
+      properties:
+        entityId:
+          $ref: '#/components/schemas/EntityId'
+        permissions:
+          readOnly: true
+          type: array
+          description: List of permissions
+          items:
+            $ref: '#/components/schemas/ActivePermission'
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    EntityId:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user, app, or group.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        hrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user, app, or group.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realmHrn:
+          readOnly: true
+          type: string
+          description: The realm HRN of this entity.
+          example: hrn:here:account::myrealm:realm/myrealm
+        type:
+          readOnly: true
+          type: string
+          description: The type of this entity. One of user, app, or group
+          example: user
+    GroupInfo:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: The id of the group..
+          example: GROUP-00000000-0000-0000-0000-000000000000
+        hrn:
+          readOnly: true
+          type: string
+          description: The hrn of the group..
+          example: hrn:here:authorization::myrealm:group/GROUP-00000000-0000-0000-0000-000000000000
+        name:
+          readOnly: true
+          type: string
+          description: A user assigned name for the group.
+          example: Group  name
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    EntityGrants:
+      type: object
+      properties:
+        total:
+          readOnly: true
+          type: integer
+          description: Total entities
+        pageToken:
+          readOnly: true
+          type: string
+          description: The pageToken used to retrieve the next page of entities
+        count:
+          readOnly: true
+          type: integer
+          description: count of page
+        data:
+          readOnly: true
+          type: array
+          description: List of users, apps, or groups and their associated permissions.
+          items:
+            $ref: '#/components/schemas/EntityGrant'
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    EntityGrant:
+      type: object
+      properties:
+        entityId:
+          $ref: '#/components/schemas/EntityId'
+        user:
+          $ref: '#/components/schemas/UserInfo'
+        app:
+          $ref: '#/components/schemas/AppInfo'
+        group:
+          $ref: '#/components/schemas/GroupInfo'
+        permissions:
+          readOnly: true
+          type: array
+          description: List of permissions
+          items:
+            $ref: '#/components/schemas/ActivePermission'
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
     AppInfo:
       type: object
       properties:
@@ -421,40 +670,6 @@ components:
           example:
           - OrgAdmin
           - GroupAdmin
-    EntityGrantCrossRealm:
-      type: object
-      properties:
-        entityId:
-          $ref: '#/components/schemas/EntityId'
-        permissions:
-          readOnly: true
-          type: array
-          description: List of permissions
-          items:
-            $ref: '#/components/schemas/ActivePermission'
-    EntityGrantsList:
-      type: object
-      description: If includeCrossRealmGrants is true then EntityGrantsCrossRealm will be returned.
-      oneOf:
-      - $ref: '#/components/schemas/EntityGrants'
-      - $ref: '#/components/schemas/EntityGrantsCrossRealm'
-    EntityGrant:
-      type: object
-      properties:
-        entityId:
-          $ref: '#/components/schemas/EntityId'
-        user:
-          $ref: '#/components/schemas/UserInfo'
-        app:
-          $ref: '#/components/schemas/AppInfo'
-        group:
-          $ref: '#/components/schemas/GroupInfo'
-        permissions:
-          readOnly: true
-          type: array
-          description: List of permissions
-          items:
-            $ref: '#/components/schemas/ActivePermission'
     UserInfo:
       type: object
       properties:
@@ -511,254 +726,39 @@ components:
           example:
           - OrgAdmin
           - GroupAdmin
-    EntityGrants:
-      type: object
-      properties:
-        total:
-          readOnly: true
-          type: integer
-          description: Total entities
-        pageToken:
-          readOnly: true
-          type: string
-          description: The pageToken used to retrieve the next page of entities
-        count:
-          readOnly: true
-          type: integer
-          description: count of page
-        data:
-          readOnly: true
-          type: array
-          description: List of users, apps, or groups and their associated permissions.
-          items:
-            $ref: '#/components/schemas/EntityGrant'
-    ActivePermission:
-      allOf:
-      - $ref: '#/components/schemas/ActivePermissionNoResource'
-      - type: object
-        properties:
-          resource:
-            readOnly: true
-            type: string
-            description: The resource identifier that this permission is controlling access to for the given action.
-            example: hrn:here:data:::service-catalog
-    ActivePermissionNoResource:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
-          readOnly: true
-          example: PERM-00000000-0000-0000-0000-000000000000
-        action:
-          type: string
-          description: The specific action identifier that this permission is controlling access to for the specific associated service.
-          readOnly: true
-          example: read
-        effect:
-          readOnly: true
-          type: string
-          description: One of "allow" or "deny"
-          enum:
-          - allow
-          - deny
-          example: allow
-        serviceId:
-          readOnly: true
-          type: string
-          description: Identifies the service that this permission is associated with.
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-    EntityGrantsCrossRealm:
-      type: object
-      properties:
-        total:
-          readOnly: true
-          type: integer
-          description: Total entities
-        pageToken:
-          readOnly: true
-          type: string
-          description: The pageToken used to retrieve the next page of entities
-        count:
-          readOnly: true
-          type: integer
-          description: count of page
-        data:
-          readOnly: true
-          type: array
-          description: List of entity ids and their associated permissions.
-          items:
-            $ref: '#/components/schemas/EntityGrantCrossRealm'
-    CompactRealmInfo:
-      type: object
-      required:
-      - realmId
-      - realm
-      - name
-      - inviteOnly
-      - enabled
-      properties:
-        realmId:
-          readOnly: true
-          type: string
-          description: The unique identifier of the realm.
-          example: myrealm
-        realm:
-          readOnly: true
-          type: string
-          description: HRN for the realm.
-          example: hrn:here:account::myrealm:realm/myrealm
-        name:
-          readOnly: true
-          type: string
-          description: HERE realm for OLP.
-        realmType:
-          type: string
-          description: Realm type of the realm.
-          example: olp
-          enum:
-          - olp
-          - auto
-          - consumer
-        inviteOnly:
-          type: boolean
-          description: Whether the realm can be joined with an invitation only.
-          example: false
-        enabled:
-          type: boolean
-          description: The realm status.
-          example: true
-        allowedLogins:
-          type: array
-          description: allowed authentication methods for this realm
-          items:
-            type: object
-            description: Authentication methods allowed for this realm
-            required:
-            - method
-            properties:
-              method:
-                type: string
-                description: the authentication method.
-                example: saml
-                enum:
-                - password
-                - saml
-                - mtls
-              url:
-                type: string
-                description: Https URL callback function required when method is saml
-                example: https://api.example.com/saml/
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    EntityId:
-      type: object
-      properties:
-        id:
-          readOnly: true
-          type: string
-          description: The unique identifier of the user, app, or group.
-          example: HERE-00000000-0000-0000-0000-000000000000
-        hrn:
-          readOnly: true
-          type: string
-          description: The HRN of the user, app, or group.
-          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-        realmHrn:
-          readOnly: true
-          type: string
-          description: The realm HRN of this entity.
-          example: hrn:here:account::myrealm:realm/myrealm
-        type:
-          readOnly: true
-          type: string
-          description: The type of this entity. One of user, app, or group
-          example: user
-    GroupInfo:
-      type: object
-      properties:
-        id:
-          readOnly: true
-          type: string
-          description: The id of the group..
-          example: GROUP-00000000-0000-0000-0000-000000000000
-        hrn:
-          readOnly: true
-          type: string
-          description: The hrn of the group..
-          example: hrn:here:authorization::myrealm:group/GROUP-00000000-0000-0000-0000-000000000000
-        name:
-          readOnly: true
-          type: string
-          description: A user assigned name for the group.
-          example: Group  name
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
+  responses:
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NoContent:
+      description: No Content
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   headers:
     XCorrelationId:
       schema:

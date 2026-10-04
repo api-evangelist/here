@@ -568,42 +568,6 @@ paths:
       x-operation-id-original: Blob API v1 uploadPart
 components:
   schemas:
-    BlobInitResponseUploadPartLink:
-      type: object
-      properties:
-        href:
-          type: string
-          description: The URL to use to upload part of multipart upload. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
-          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80.../parts
-        method:
-          type: string
-          description: The HTTP method which should be used to execute this operation.
-          example: POST
-      description: Describes a link for the upload part of multipart upload operation.
-    MultipartUploadStatus:
-      type: object
-      properties:
-        status:
-          type: string
-          description: The status of the multipart upload.
-          example: completed
-          enum:
-          - failed
-          - processing
-          - completed
-      description: Describes a status of the multipart upload.
-    BlobInitResponseStatusLink:
-      type: object
-      properties:
-        href:
-          type: string
-          description: The URL to use to retrieve the multipart upload status. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
-          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80...
-        method:
-          type: string
-          description: HTTP method which should be used to execute this operation.
-          example: GET
-      description: Describes a link for multipart upload status operation.
     BlobInitResponseCancelLink:
       type: object
       properties:
@@ -616,25 +580,30 @@ components:
           description: The HTTP method which should be used to execute this operation.
           example: DELETE
       description: Describes a link for multipart upload cancel operation.
-    MultipartCompleteRequest:
+    BlobInitResponseLinks:
       type: object
       properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MultipartCompletePart'
-    BlobInitResponseCompleteLink:
+        complete:
+          $ref: '#/components/schemas/BlobInitResponseCompleteLink'
+        delete:
+          $ref: '#/components/schemas/BlobInitResponseCancelLink'
+        status:
+          $ref: '#/components/schemas/BlobInitResponseStatusLink'
+        uploadPart:
+          $ref: '#/components/schemas/BlobInitResponseUploadPartLink'
+      description: Describes a set of link for checking the uploading parts, getting status, finalizing, etc. of the multipart upload.
+    MultipartUploadStatus:
       type: object
       properties:
-        href:
+        status:
           type: string
-          description: The URL to use to complete the multipart upload. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
-          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80...
-        method:
-          type: string
-          description: The HTTP method which should be used to execute this operation.
-          example: PUT
-      description: Describes a link for the multipart upload complete operation.
+          description: The status of the multipart upload.
+          example: completed
+          enum:
+          - failed
+          - processing
+          - completed
+      description: Describes a status of the multipart upload.
     MultipartCompletePart:
       required:
       - etag
@@ -672,18 +641,49 @@ components:
           type: string
           description: 'A standard MIME type describing the format of the blob data. For more information, see [RFC 2616, section 14.17: Content-Type](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17). The value of this field must be equal to the one specified in the ''contentType'' field in the catalog layer configuration.'
           example: application/json
-    BlobInitResponseLinks:
+    BlobInitResponseUploadPartLink:
       type: object
       properties:
-        complete:
-          $ref: '#/components/schemas/BlobInitResponseCompleteLink'
-        delete:
-          $ref: '#/components/schemas/BlobInitResponseCancelLink'
-        status:
-          $ref: '#/components/schemas/BlobInitResponseStatusLink'
-        uploadPart:
-          $ref: '#/components/schemas/BlobInitResponseUploadPartLink'
-      description: Describes a set of link for checking the uploading parts, getting status, finalizing, etc. of the multipart upload.
+        href:
+          type: string
+          description: The URL to use to upload part of multipart upload. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
+          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80.../parts
+        method:
+          type: string
+          description: The HTTP method which should be used to execute this operation.
+          example: POST
+      description: Describes a link for the upload part of multipart upload operation.
+    BlobInitResponseCompleteLink:
+      type: object
+      properties:
+        href:
+          type: string
+          description: The URL to use to complete the multipart upload. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
+          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80...
+        method:
+          type: string
+          description: The HTTP method which should be used to execute this operation.
+          example: PUT
+      description: Describes a link for the multipart upload complete operation.
+    BlobInitResponseStatusLink:
+      type: object
+      properties:
+        href:
+          type: string
+          description: The URL to use to retrieve the multipart upload status. This link must be used as provided. Do not construct the URL for this operation by parsing the multipart token and concatenating the strings together.
+          example: /blobstore/.../data/e02851bf4/multiparts/7767cf80...
+        method:
+          type: string
+          description: HTTP method which should be used to execute this operation.
+          example: GET
+      description: Describes a link for multipart upload status operation.
+    MultipartCompleteRequest:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultipartCompletePart'
   parameters:
     digestHeader:
       name: X-HERE-Digest

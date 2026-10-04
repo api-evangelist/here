@@ -1397,29 +1397,53 @@ paths:
       - apiKey: []
 components:
   schemas:
-    SubscriptionDeviceDetailsDto:
+    CreatedSubscriptionDto:
       required:
-      - deviceId
-      - deviceStatus
+      - id
+      - subscriptionKey
       type: object
       properties:
-        deviceId:
+        id:
           type: string
-          description: The device identifier.
-          example: DEVICE-bb9d8e02-70dd-427f-99f6-89a8a0d503a5
-        deviceStatus:
+          description: The unique identifier of the created subscription.
+          format: uuid
+          example: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
+        subscriptionKey:
           type: string
-          description: Device status
-          example: ACTIVE
-          enum:
-          - ACTIVE
-          - INACTIVE
-          - DELETED
-        lastActiveAt:
+          description: The subscription key.
+          example: c6f11a00-6f08-46c7-8636-4977fde39476
+    FeatureGroupDto:
+      required:
+      - createdAt
+      - description
+      - id
+      - modifiedAt
+      - name
+      type: object
+      properties:
+        id:
           type: string
-          description: The date and time when the device was last active.
+          description: The unique identifier of the feature group.
+          format: uuid
+          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
+        name:
+          type: string
+          description: The name of the new feature group.
+          example: New Feature Group
+        description:
+          type: string
+          description: A brief description of the feature group.
+          example: Feature Group Description
+        createdAt:
+          type: string
+          description: The date and time when the feature group was created.
           format: date-time
-          example: '2025-02-03T16:44:12Z'
+          example: '2023-07-24T18:41:50Z'
+        modifiedAt:
+          type: string
+          description: The date and time when the feature group was last modified.
+          format: date-time
+          example: '2023-07-24T18:41:50Z'
     SubscriptionDetailsDto:
       required:
       - expirationTime
@@ -1515,44 +1539,6 @@ components:
           type: string
           description: Zuora subscription ID
           example: A-S00001563
-    SubscriptionSummaryDto:
-      required:
-      - id
-      - keyType
-      - subscriptionKey
-      type: object
-      properties:
-        id:
-          type: string
-          description: The subscription unique ID.
-          format: uuid
-          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
-        subscriptionKey:
-          type: string
-          description: The subscription key.
-          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
-        keyType:
-          type: string
-          description: The type of a subscription.
-          example: SINGLE_DEVICE
-          enum:
-          - SINGLE_DEVICE
-          - MULTI_DEVICE
-    DeactivateSubscriptionDevicesRequestDto:
-      required:
-      - devices
-      type: object
-      properties:
-        devices:
-          type: array
-          items:
-            type: string
-    FeatureGroupRequestDto:
-      type: object
-      description: An optional list of feature groups specified by either name or ID.
-      example:
-      - name: New Feature Group
-      - id: 123e4567-e89b-12d3-a456-426614174000
     DeactivateSubscriptionRequestDto:
       type: object
       properties:
@@ -1563,66 +1549,6 @@ components:
           enum:
           - INACTIVE
           - DELETED
-    FeatureGroupDto:
-      required:
-      - createdAt
-      - description
-      - id
-      - modifiedAt
-      - name
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the feature group.
-          format: uuid
-          example: 494ac3c6-3b17-4586-9662-4c7fb189ac7e
-        name:
-          type: string
-          description: The name of the new feature group.
-          example: New Feature Group
-        description:
-          type: string
-          description: A brief description of the feature group.
-          example: Feature Group Description
-        createdAt:
-          type: string
-          description: The date and time when the feature group was created.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-        modifiedAt:
-          type: string
-          description: The date and time when the feature group was last modified.
-          format: date-time
-          example: '2023-07-24T18:41:50Z'
-    FeatureGroupByNameRequestDto:
-      required:
-      - name
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/FeatureGroupRequestDto'
-      - type: object
-        properties:
-          name:
-            type: string
-    SubscriptionDevicesDto:
-      required:
-      - devices
-      - subscriptionStatus
-      type: object
-      properties:
-        subscriptionStatus:
-          type: string
-          description: Subscription status.
-          example: ACTIVE
-          enum:
-          - ACTIVE
-          - INACTIVE
-          - DELETED
-        devices:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionDeviceDetailsDto'
     ErrorResponseDto:
       required:
       - correlationId
@@ -1659,6 +1585,70 @@ components:
           type: string
           description: Request identifier provided by the user via `x-request-id` header
           example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+    SubscriptionDevicesDto:
+      required:
+      - devices
+      - subscriptionStatus
+      type: object
+      properties:
+        subscriptionStatus:
+          type: string
+          description: Subscription status.
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionDeviceDetailsDto'
+    SubscriptionSummaryDto:
+      required:
+      - id
+      - keyType
+      - subscriptionKey
+      type: object
+      properties:
+        id:
+          type: string
+          description: The subscription unique ID.
+          format: uuid
+          example: 0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        subscriptionKey:
+          type: string
+          description: The subscription key.
+          example: SUBSCRIPTION-0e3ad78d-0de7-41e4-8391-2b2b4138560b
+        keyType:
+          type: string
+          description: The type of a subscription.
+          example: SINGLE_DEVICE
+          enum:
+          - SINGLE_DEVICE
+          - MULTI_DEVICE
+    SubscriptionDeviceDetailsDto:
+      required:
+      - deviceId
+      - deviceStatus
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: The device identifier.
+          example: DEVICE-bb9d8e02-70dd-427f-99f6-89a8a0d503a5
+        deviceStatus:
+          type: string
+          description: Device status
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - DELETED
+        lastActiveAt:
+          type: string
+          description: The date and time when the device was last active.
+          format: date-time
+          example: '2025-02-03T16:44:12Z'
     SubscriptionUpdatePublicRequestDto:
       type: object
       properties:
@@ -1666,6 +1656,12 @@ components:
           type: string
           description: Zuora subscription ID
           example: A-S00001563
+    FeatureGroupRequestDto:
+      type: object
+      description: An optional list of feature groups specified by either name or ID.
+      example:
+      - name: New Feature Group
+      - id: 123e4567-e89b-12d3-a456-426614174000
     FeatureGroupByIdRequestDto:
       required:
       - id
@@ -1677,21 +1673,15 @@ components:
           id:
             type: string
             format: uuid
-    CreatedSubscriptionDto:
+    DeactivateSubscriptionDevicesRequestDto:
       required:
-      - id
-      - subscriptionKey
+      - devices
       type: object
       properties:
-        id:
-          type: string
-          description: The unique identifier of the created subscription.
-          format: uuid
-          example: 18a533ed-b2c3-467b-a56a-06e5d2e5a858
-        subscriptionKey:
-          type: string
-          description: The subscription key.
-          example: c6f11a00-6f08-46c7-8636-4977fde39476
+        devices:
+          type: array
+          items:
+            type: string
     UnauthorizedErrorResponseDto:
       required:
       - error
@@ -1706,6 +1696,16 @@ components:
           type: string
           description: A description providing more details about the unauthorized error.
           example: No credentials found
+    FeatureGroupByNameRequestDto:
+      required:
+      - name
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/FeatureGroupRequestDto'
+      - type: object
+        properties:
+          name:
+            type: string
   securitySchemes:
     Bearer:
       type: http

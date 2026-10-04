@@ -55,102 +55,45 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: HERE EV Charge Points API v3 getCountryMeta
 components:
-  responses:
-    UnauthorizedErrorResponse:
-      description: API response in case of unauthorized access.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GenericErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/UnauthorizedErrorResponse'
-    BadRequestErrorResponse:
-      description: API response in case of bad request.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/BadRequestErrorResponse'
-    GenericErrorResponse:
-      description: API response in case of errors not specified separately.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/GenericErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/GenericErrorResponse'
+  examples:
     ServiceUnavailableErrorResponse:
-      description: API response in case of service unavailability.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ServiceUnavailableErrorResponse'
+      summary: Service unavailable error response example
+      value:
+        title: Database operation failed
+        status: 503
+        code: E629503
+        cause: Unexpected failure when querying database
+        action: Retry the request after some time, and contact support channels if the issue is not resolved
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+    BadRequestErrorResponse:
+      summary: Bad request error response example
+      value:
+        title: Bad Request
+        status: 400
+        code: E629400
+        cause: querystring/fields/2 must be equal to one of the allowed values
+        action: Ensure that the request is according to API schema
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
     InternalErrorResponse:
-      description: API response in case of internal errors.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/InternalErrorResponse'
-  schemas:
+      summary: Internal error response example
+      value:
+        title: Internal Error
+        status: 500
+        code: E629500
+        cause: Service had an internal error while handling the request
+        action: Retry the request after some time, and contact support channels if the issue is not resolved
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
     GenericErrorResponse:
-      description: Generic error response
-      type: object
-      properties:
-        error:
-          type: string
-          description: Human-readable error
-        error_description:
-          type: string
-          description: Human-readable error description
-        status:
-          type: integer
-          description: HTTP status code
-          example: 403
-      required:
-      - error
-    CountryCode:
-      description: 3 letter country code according to ISO 3166-1 alpha 3.
-      example: DEU
-      type: string
-      pattern: ^[A-Za-z]{3}$
+      summary: Generic error response example
+      value:
+        error: Method not allowed for this action
+        error_description: Method not allowed for this action
+    UnauthorizedErrorResponse:
+      summary: Unauthorized error response example
+      value:
+        error: Unauthorized
+        error_description: No credentials found
+  schemas:
     MetadataByCountry:
       type: object
       description: List of metadata entries per country.
@@ -228,39 +171,68 @@ components:
             legacyId: 31
         missingCountries:
         - ZZZ
-    MetadataDetails:
-      description: Metadata of operator or e-Mobility service provider.
+    ConnectorType:
+      description: "Extensible enum: `CHADEMO` `CHAOJI` `DOMESTIC_A` `DOMESTIC_B` `DOMESTIC_C` `DOMESTIC_D` `DOMESTIC_E` `DOMESTIC_F` `DOMESTIC_G` `DOMESTIC_H` `DOMESTIC_I` `DOMESTIC_J` `DOMESTIC_K` `DOMESTIC_L` `DOMESTIC_M` `DOMESTIC_N` `DOMESTIC_O` `GBT_AC` `GBT_DC` `IEC_60309_2_SINGLE_16` `IEC_60309_2_THREE_16` `IEC_60309_2_THREE_32` `IEC_60309_2_THREE_64` `IEC_62196_T1` `IEC_62196_T1_COMBO` `IEC_62196_T2` `IEC_62196_T2_COMBO` `IEC_62196_T3A` `IEC_62196_T3C` `NEMA_5_20` `NEMA_6_30` `NEMA_6_50` `NEMA_10_30` `NEMA_10_50` `NEMA_14_30` `NEMA_14_50` `PANTOGRAPH_BOTTOM_UP` `PANTOGRAPH_TOP_DOWN` `TESLA_R` `TESLA_S` `SAE_J3400` `MCS` `...`  \n\n* `CHADEMO`: The connector type is CHAdeMO, DC\n* `CHAOJI`: The ChaoJi connector. The new generation charging connector,\nharmonized between CHAdeMO and GB/T. DC.\n* `DOMESTIC_A`: Standard/Domestic household, type \"A\", NEMA 1-15, 2 pins\n* `DOMESTIC_B`: Standard/Domestic household, type \"B\", NEMA 5-15, 3 pins\n* `DOMESTIC_C`: Standard/Domestic household, type \"C\", CEE 7/17, 2 pins\n* `DOMESTIC_D`: Standard/Domestic household, type \"D\", 3 pin\n* `DOMESTIC_E`: Standard/Domestic household, type \"E\", CEE 7/5 3 pins\n* `DOMESTIC_F`: Standard/Domestic household, type \"F\", CEE 7/4, Schuko, 3\npins\n* `DOMESTIC_G`: Standard/Domestic household, type \"G\", BS 1363,\nCommonwealth, 3 pins\n* `DOMESTIC_H`: Standard/Domestic household, type \"H\", SI-32, 3 pins\n* `DOMESTIC_I`: Standard/Domestic household, type \"I\", AS 3112, 3 pins\n* `DOMESTIC_J`: Standard/Domestic household, type \"J\", SEV 1011, 3 pins\n* `DOMESTIC_K`: Standard/Domestic household, type \"K\", DS 60884-2-D1, 3\npins\n* `DOMESTIC_L`: Standard/Domestic household, type \"L\", CEI 23-16-VII, 3\npins\n* `DOMESTIC_M`: Standard/Domestic household, type \"M\", BS 546, 3 pins\n* `DOMESTIC_N`: Standard/Domestic household, type \"N\", NBR 14136, 3 pins\n* `DOMESTIC_O`: Standard/Domestic household, type \"O\", TIS 166-2549, 3\npins\n* `GBT_AC`: Guobiao GB/T 20234.2 AC socket/connector\n* `GBT_DC`: Guobiao GB/T 20234.3 DC connector\n* `IEC_60309_2_SINGLE_16`: IEC 60309-2 Industrial connector single phase\n16 amperes (usually blue)\n* `IEC_60309_2_THREE_16`: IEC 60309-2 Industrial connector three phase 16\namperes (usually red)\n* `IEC_60309_2_THREE_32`: IEC 60309-2 Industrial connector three phase 32\namperes (usually red)\n* `IEC_60309_2_THREE_64`: IEC 60309-2 Industrial connector three phase 64\namperes (usually red)\n* `IEC_62196_T1`: IEC 62196 Type 1 \"SAE J1772\"\n* `IEC_62196_T1_COMBO`: Combo Type 1 based, DC\n* `IEC_62196_T2`: IEC 62196 Type 2 \"Mennekes\"\n* `IEC_62196_T2_COMBO`: Combo Type 2 based, DC\n* `IEC_62196_T3A`: IEC 62196 Type 3A\n* `IEC_62196_T3C`: IEC 62196 Type 3C \"Scame\"\n* `NEMA_5_20`: NEMA 5-20, 3 pins\n* `NEMA_6_30`: NEMA 6-30, 3 pins\n* `NEMA_6_50`: NEMA 6-50, 3 pins\n* `NEMA_10_30`: NEMA 10-30, 3 pins\n* `NEMA_10_50`: NEMA 10-50, 3 pins\n* `NEMA_14_30`: NEMA 14-30, 4 pins\n* `NEMA_14_50`: NEMA 14-50, 4 pins\n* `PANTOGRAPH_BOTTOM_UP`: On-board Bottom-up-Pantograph typically for bus\ncharging\n* `PANTOGRAPH_TOP_DOWN`: Top-down-Pantograph typically for bus charging\n* `TESLA_R`: Tesla connector \"Roadster\"-type (round, 4 pin)\n* `TESLA_S`: Tesla connector \"Model-S\"-type (oval, 5 pin)\n* `SAE_J3400`: Tesla connector \"Model-S\"-type (oval, 5 pin), standardized\nas NACS SAE J3400\n* `MCS`: Megawatt Charging System (MCS) connector\n\nAs it is possible that new connector types are supported in the future,\nunknown connector types should be ignored.\n"
+      x-extensible-enum:
+      - CHADEMO
+      - CHAOJI
+      - DOMESTIC_A
+      - DOMESTIC_B
+      - DOMESTIC_C
+      - DOMESTIC_D
+      - DOMESTIC_E
+      - DOMESTIC_F
+      - DOMESTIC_G
+      - DOMESTIC_H
+      - DOMESTIC_I
+      - DOMESTIC_J
+      - DOMESTIC_K
+      - DOMESTIC_L
+      - DOMESTIC_M
+      - DOMESTIC_N
+      - DOMESTIC_O
+      - GBT_AC
+      - GBT_DC
+      - IEC_60309_2_SINGLE_16
+      - IEC_60309_2_THREE_16
+      - IEC_60309_2_THREE_32
+      - IEC_60309_2_THREE_64
+      - IEC_62196_T1
+      - IEC_62196_T1_COMBO
+      - IEC_62196_T2
+      - IEC_62196_T2_COMBO
+      - IEC_62196_T3A
+      - IEC_62196_T3C
+      - NEMA_5_20
+      - NEMA_6_30
+      - NEMA_6_50
+      - NEMA_10_30
+      - NEMA_10_50
+      - NEMA_14_30
+      - NEMA_14_50
+      - PANTOGRAPH_BOTTOM_UP
+      - PANTOGRAPH_TOP_DOWN
+      - TESLA_R
+      - TESLA_S
+      - SAE_J3400
+      - MCS
+      type: string
+    GenericErrorResponse:
+      description: Generic error response
       type: object
       properties:
-        name:
-          description: Name of the company.
+        error:
           type: string
-        partnerId:
-          description: A unique ID for the company. It can be used to assure correct mapping when the name changes.
+          description: Human-readable error
+        error_description:
           type: string
-        tariffs:
-          description: 'Metadata for all tariffs (subscriptions / charging cards) the company provides.
-
-            '
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                description: 'Name of the tariff, corresponding to the `name` field in the `Tariff`
-
-                  object.
-
-                  '
-                type: string
-            required:
-            - name
+          description: Human-readable error description
+        status:
+          type: integer
+          description: HTTP status code
+          example: 403
       required:
-      - name
-      - partnerId
-      example:
-        name: ChargePoint
-        partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+      - error
     ConnectorTypeMetadata:
       description: Metadata for connector types including OCPI connector type, common name, max power and legacyId.
       type: object
@@ -338,52 +310,118 @@ components:
       - cause
       - action
       - correlationId
-    ConnectorType:
-      description: "Extensible enum: `CHADEMO` `CHAOJI` `DOMESTIC_A` `DOMESTIC_B` `DOMESTIC_C` `DOMESTIC_D` `DOMESTIC_E` `DOMESTIC_F` `DOMESTIC_G` `DOMESTIC_H` `DOMESTIC_I` `DOMESTIC_J` `DOMESTIC_K` `DOMESTIC_L` `DOMESTIC_M` `DOMESTIC_N` `DOMESTIC_O` `GBT_AC` `GBT_DC` `IEC_60309_2_SINGLE_16` `IEC_60309_2_THREE_16` `IEC_60309_2_THREE_32` `IEC_60309_2_THREE_64` `IEC_62196_T1` `IEC_62196_T1_COMBO` `IEC_62196_T2` `IEC_62196_T2_COMBO` `IEC_62196_T3A` `IEC_62196_T3C` `NEMA_5_20` `NEMA_6_30` `NEMA_6_50` `NEMA_10_30` `NEMA_10_50` `NEMA_14_30` `NEMA_14_50` `PANTOGRAPH_BOTTOM_UP` `PANTOGRAPH_TOP_DOWN` `TESLA_R` `TESLA_S` `SAE_J3400` `MCS` `...`  \n\n* `CHADEMO`: The connector type is CHAdeMO, DC\n* `CHAOJI`: The ChaoJi connector. The new generation charging connector,\nharmonized between CHAdeMO and GB/T. DC.\n* `DOMESTIC_A`: Standard/Domestic household, type \"A\", NEMA 1-15, 2 pins\n* `DOMESTIC_B`: Standard/Domestic household, type \"B\", NEMA 5-15, 3 pins\n* `DOMESTIC_C`: Standard/Domestic household, type \"C\", CEE 7/17, 2 pins\n* `DOMESTIC_D`: Standard/Domestic household, type \"D\", 3 pin\n* `DOMESTIC_E`: Standard/Domestic household, type \"E\", CEE 7/5 3 pins\n* `DOMESTIC_F`: Standard/Domestic household, type \"F\", CEE 7/4, Schuko, 3\npins\n* `DOMESTIC_G`: Standard/Domestic household, type \"G\", BS 1363,\nCommonwealth, 3 pins\n* `DOMESTIC_H`: Standard/Domestic household, type \"H\", SI-32, 3 pins\n* `DOMESTIC_I`: Standard/Domestic household, type \"I\", AS 3112, 3 pins\n* `DOMESTIC_J`: Standard/Domestic household, type \"J\", SEV 1011, 3 pins\n* `DOMESTIC_K`: Standard/Domestic household, type \"K\", DS 60884-2-D1, 3\npins\n* `DOMESTIC_L`: Standard/Domestic household, type \"L\", CEI 23-16-VII, 3\npins\n* `DOMESTIC_M`: Standard/Domestic household, type \"M\", BS 546, 3 pins\n* `DOMESTIC_N`: Standard/Domestic household, type \"N\", NBR 14136, 3 pins\n* `DOMESTIC_O`: Standard/Domestic household, type \"O\", TIS 166-2549, 3\npins\n* `GBT_AC`: Guobiao GB/T 20234.2 AC socket/connector\n* `GBT_DC`: Guobiao GB/T 20234.3 DC connector\n* `IEC_60309_2_SINGLE_16`: IEC 60309-2 Industrial connector single phase\n16 amperes (usually blue)\n* `IEC_60309_2_THREE_16`: IEC 60309-2 Industrial connector three phase 16\namperes (usually red)\n* `IEC_60309_2_THREE_32`: IEC 60309-2 Industrial connector three phase 32\namperes (usually red)\n* `IEC_60309_2_THREE_64`: IEC 60309-2 Industrial connector three phase 64\namperes (usually red)\n* `IEC_62196_T1`: IEC 62196 Type 1 \"SAE J1772\"\n* `IEC_62196_T1_COMBO`: Combo Type 1 based, DC\n* `IEC_62196_T2`: IEC 62196 Type 2 \"Mennekes\"\n* `IEC_62196_T2_COMBO`: Combo Type 2 based, DC\n* `IEC_62196_T3A`: IEC 62196 Type 3A\n* `IEC_62196_T3C`: IEC 62196 Type 3C \"Scame\"\n* `NEMA_5_20`: NEMA 5-20, 3 pins\n* `NEMA_6_30`: NEMA 6-30, 3 pins\n* `NEMA_6_50`: NEMA 6-50, 3 pins\n* `NEMA_10_30`: NEMA 10-30, 3 pins\n* `NEMA_10_50`: NEMA 10-50, 3 pins\n* `NEMA_14_30`: NEMA 14-30, 4 pins\n* `NEMA_14_50`: NEMA 14-50, 4 pins\n* `PANTOGRAPH_BOTTOM_UP`: On-board Bottom-up-Pantograph typically for bus\ncharging\n* `PANTOGRAPH_TOP_DOWN`: Top-down-Pantograph typically for bus charging\n* `TESLA_R`: Tesla connector \"Roadster\"-type (round, 4 pin)\n* `TESLA_S`: Tesla connector \"Model-S\"-type (oval, 5 pin)\n* `SAE_J3400`: Tesla connector \"Model-S\"-type (oval, 5 pin), standardized\nas NACS SAE J3400\n* `MCS`: Megawatt Charging System (MCS) connector\n\nAs it is possible that new connector types are supported in the future,\nunknown connector types should be ignored.\n"
-      x-extensible-enum:
-      - CHADEMO
-      - CHAOJI
-      - DOMESTIC_A
-      - DOMESTIC_B
-      - DOMESTIC_C
-      - DOMESTIC_D
-      - DOMESTIC_E
-      - DOMESTIC_F
-      - DOMESTIC_G
-      - DOMESTIC_H
-      - DOMESTIC_I
-      - DOMESTIC_J
-      - DOMESTIC_K
-      - DOMESTIC_L
-      - DOMESTIC_M
-      - DOMESTIC_N
-      - DOMESTIC_O
-      - GBT_AC
-      - GBT_DC
-      - IEC_60309_2_SINGLE_16
-      - IEC_60309_2_THREE_16
-      - IEC_60309_2_THREE_32
-      - IEC_60309_2_THREE_64
-      - IEC_62196_T1
-      - IEC_62196_T1_COMBO
-      - IEC_62196_T2
-      - IEC_62196_T2_COMBO
-      - IEC_62196_T3A
-      - IEC_62196_T3C
-      - NEMA_5_20
-      - NEMA_6_30
-      - NEMA_6_50
-      - NEMA_10_30
-      - NEMA_10_50
-      - NEMA_14_30
-      - NEMA_14_50
-      - PANTOGRAPH_BOTTOM_UP
-      - PANTOGRAPH_TOP_DOWN
-      - TESLA_R
-      - TESLA_S
-      - SAE_J3400
-      - MCS
+    CountryCode:
+      description: 3 letter country code according to ISO 3166-1 alpha 3.
+      example: DEU
       type: string
+      pattern: ^[A-Za-z]{3}$
+    MetadataDetails:
+      description: Metadata of operator or e-Mobility service provider.
+      type: object
+      properties:
+        name:
+          description: Name of the company.
+          type: string
+        partnerId:
+          description: A unique ID for the company. It can be used to assure correct mapping when the name changes.
+          type: string
+        tariffs:
+          description: 'Metadata for all tariffs (subscriptions / charging cards) the company provides.
+
+            '
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: 'Name of the tariff, corresponding to the `name` field in the `Tariff`
+
+                  object.
+
+                  '
+                type: string
+            required:
+            - name
+      required:
+      - name
+      - partnerId
+      example:
+        name: ChargePoint
+        partnerId: 1f90fdf0-cca5-11ed-be23-42010aa40002
+  responses:
+    UnauthorizedErrorResponse:
+      description: API response in case of unauthorized access.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/UnauthorizedErrorResponse'
+    GenericErrorResponse:
+      description: API response in case of errors not specified separately.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/GenericErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/GenericErrorResponse'
+    InternalErrorResponse:
+      description: API response in case of internal errors.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/InternalErrorResponse'
+    ServiceUnavailableErrorResponse:
+      description: API response in case of service unavailability.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/ServiceUnavailableErrorResponse'
+    BadRequestErrorResponse:
+      description: API response in case of bad request.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/BadRequestErrorResponse'
   parameters:
     xRequestId:
       name: X-Request-ID
@@ -423,44 +461,6 @@ components:
         maxItems: 50
         items:
           $ref: '#/components/schemas/CountryCode'
-  examples:
-    ServiceUnavailableErrorResponse:
-      summary: Service unavailable error response example
-      value:
-        title: Database operation failed
-        status: 503
-        code: E629503
-        cause: Unexpected failure when querying database
-        action: Retry the request after some time, and contact support channels if the issue is not resolved
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    UnauthorizedErrorResponse:
-      summary: Unauthorized error response example
-      value:
-        error: Unauthorized
-        error_description: No credentials found
-    GenericErrorResponse:
-      summary: Generic error response example
-      value:
-        error: Method not allowed for this action
-        error_description: Method not allowed for this action
-    InternalErrorResponse:
-      summary: Internal error response example
-      value:
-        title: Internal Error
-        status: 500
-        code: E629500
-        cause: Service had an internal error while handling the request
-        action: Retry the request after some time, and contact support channels if the issue is not resolved
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-    BadRequestErrorResponse:
-      summary: Bad request error response example
-      value:
-        title: Bad Request
-        status: 400
-        code: E629400
-        cause: querystring/fields/2 must be equal to one of the allowed values
-        action: Ensure that the request is according to API schema
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
   headers:
     X-Request-ID:
       description: User-provided token that can be used to trace a request or a group of requests sent to the service.

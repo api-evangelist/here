@@ -567,6 +567,13 @@ paths:
       x-operation-id-original: Blob API v2 listKeys
 components:
   schemas:
+    MultipartCompletePayload:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultipartCompletePayloadPart'
     MultipartKeyUploadStatus:
       type: object
       required:
@@ -581,45 +588,6 @@ components:
           - processing
           - completed
       description: Describes a status of the multipart upload.
-    PartId:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          description: The identifier assigned by the system to identify the uploaded part.
-          example: 1a6ef....
-    MultipartCompletePayload:
-      type: object
-      properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MultipartCompletePayloadPart'
-    ServerError:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error.
-          example: Input data failed validation.
-        status:
-          type: integer
-          description: Unexpected Server error.
-          example: 400
-        code:
-          type: string
-          description: Error.
-          example: E215101
-        message:
-          type: string
-          description: Unexpected server error
-          example: Unexpected server error
-        correlationId:
-          type: string
-          description: Unique request ID
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
     MultipartInitResponse:
       type: object
       required:
@@ -630,21 +598,20 @@ components:
           description: The identifier of the multipart upload (token).
           example: 7767cf80...
       description: The identifier of the multipart upload (token).
-    MultipartCompletePayloadPart:
+    MultipartUploadByKeyMetadata:
       type: object
       required:
-      - id
-      - number
+      - contentType
       properties:
-        id:
+        contentType:
           type: string
-          description: The identifier assigned by the system to identify the uploaded part. The `id` is returned by the upload part operation after successfully uploading a part.
-          example: 1a6ef....
-        number:
-          type: integer
-          description: The number of the part of the multipart upload. This is the same number used in the `partNumber` parameter in the upload part operation. If an error occurs during upload, do not reuse the `partNumber` when retrying the upload.
-          format: int32
-          example: 1
+          example: application/json
+          description: Content type of the uploaded object.
+        contentEncoding:
+          type: string
+          example: gzip
+          description: Content encoding of the uploaded object.
+      description: Multipart upload metadata by key
     KeysListObjectItemResponse:
       type: object
       description: Object or common prefix stored in Object Store layer.
@@ -673,20 +640,6 @@ components:
           enum:
           - object
           - commonPrefix
-    MultipartUploadByKeyMetadata:
-      type: object
-      required:
-      - contentType
-      properties:
-        contentType:
-          type: string
-          example: application/json
-          description: Content type of the uploaded object.
-        contentEncoding:
-          type: string
-          example: gzip
-          description: Content encoding of the uploaded object.
-      description: Multipart upload metadata by key
     KeysListResponse:
       type: object
       required:
@@ -700,6 +653,29 @@ components:
           items:
             $ref: '#/components/schemas/KeysListObjectItemResponse'
       description: Paginated response of keys and common prefixes.
+    ServerError:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error.
+          example: Input data failed validation.
+        status:
+          type: integer
+          description: Unexpected Server error.
+          example: 400
+        code:
+          type: string
+          description: Error.
+          example: E215101
+        message:
+          type: string
+          description: Unexpected server error
+          example: Unexpected server error
+        correlationId:
+          type: string
+          description: Unique request ID
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
     ValidationError:
       type: object
       required:
@@ -726,64 +702,39 @@ components:
           type: string
           description: Unique request ID
           example: 4199533b-6290-41db-8d79-edf4f4019a74
-  headers:
-    Content-Type:
-      description: 'A standard MIME type describing the format of the blob data. For more information, see [RFC 2616, section 14.17: Content-Type](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17).'
-      example: application/json
-      schema:
-        type: string
-    X-Correlation-ID:
-      description: Unique ID to correlate client request with server response.
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
-    Content-Length:
-      description: 'Size of the entity-body, in bytes. For more information, see [RFC 7230, section 3.3.2: Content-Length](https://tools.ietf.org/html/rfc7230#section-3.3.2).'
-      schema:
-        type: integer
-        format: int64
-      example: 325
-    Last-Modified:
-      description: Last modified date and time. For more information, see [RFC 3339](https://tools.ietf.org/html/rfc3339) or omitted if the `type` field is `commonPrefix`.
-      schema:
-        type: string
-        format: date-time
-      example: '2019-12-10T12:20:54Z'
-    Content-Encoding:
-      description: 'Content-encoding of the object. This header is optional. For more information, see [RFC 2616, section 14.11: Content-Encoding](https://tools.ietf.org/html/rfc2616#section-14.11)'
-      example: gzip
-      schema:
-        type: string
+    MultipartCompletePayloadPart:
+      type: object
+      required:
+      - id
+      - number
+      properties:
+        id:
+          type: string
+          description: The identifier assigned by the system to identify the uploaded part. The `id` is returned by the upload part operation after successfully uploading a part.
+          example: 1a6ef....
+        number:
+          type: integer
+          description: The number of the part of the multipart upload. This is the same number used in the `partNumber` parameter in the upload part operation. If an error occurs during upload, do not reuse the `partNumber` when retrying the upload.
+          format: int32
+          example: 1
+    PartId:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The identifier assigned by the system to identify the uploaded part.
+          example: 1a6ef....
   responses:
-    Forbidden:
-      description: Forbidden - the specific account doesn't have correct privileges to perform the operation
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    UserError:
-      description: User Error - Invalid input is provided
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-    EntityTooLarge:
-      description: Request entity too large - request made from a client is too large to be processed by the server.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
-    RangeNotSatisfiable:
-      description: Request range is not valid - request made from a client has invalid range.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-      content: {}
     Unauthorized:
       description: Unauthorized - the request didn't provide correct authentication details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
+    EntityTooLarge:
+      description: Request entity too large - request made from a client is too large to be processed by the server.
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
@@ -797,20 +748,46 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ServerError'
+    Forbidden:
+      description: Forbidden - the specific account doesn't have correct privileges to perform the operation
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
     NotFound:
       description: Not Found - the specified resource was not found
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/X-Correlation-ID'
       content: {}
+    UserError:
+      description: User Error - Invalid input is provided
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    RangeNotSatisfiable:
+      description: Request range is not valid - request made from a client has invalid range.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+      content: {}
   parameters:
-    limit:
-      name: limit
+    deep:
+      name: deep
       in: query
-      description: Number of results to return per page.
+      description: Use deep (recursive) listing of objects instead of hierarchical listing. Deep listing will not produce any common prefixes.
       schema:
-        type: integer
-        format: int32
+        type: boolean
+    pageToken:
+      name: pageToken
+      in: query
+      description: If specified, will return the specific page based on the token.
+      schema:
+        type: string
     key:
       name: key
       in: path
@@ -821,19 +798,12 @@ components:
         pattern: '[a-zA-Z0-9.\[\]=(){}/_\-]{1,450}'
         minLength: 1
         maxLength: 450
-    multipartToken:
-      name: multipartToken
-      in: path
-      description: The identifier of the multipart upload (token). This token is returned when the multipart upload is initiated.
-      required: true
+    parent:
+      name: parent
+      in: query
+      description: Common prefix to a list.
       schema:
         type: string
-    deep:
-      name: deep
-      in: query
-      description: Use deep (recursive) listing of objects instead of hierarchical listing. Deep listing will not produce any common prefixes.
-      schema:
-        type: boolean
     digestHeader:
       name: X-HERE-Digest
       in: header
@@ -841,10 +811,18 @@ components:
       schema:
         type: string
       example: CRC-32C:f23c6e4e
-    parent:
-      name: parent
+    limit:
+      name: limit
       in: query
-      description: Common prefix to a list.
+      description: Number of results to return per page.
+      schema:
+        type: integer
+        format: int32
+    multipartToken:
+      name: multipartToken
+      in: path
+      description: The identifier of the multipart upload (token). This token is returned when the multipart upload is initiated.
+      required: true
       schema:
         type: string
     layerId:
@@ -854,12 +832,34 @@ components:
       required: true
       schema:
         type: string
-    pageToken:
-      name: pageToken
-      in: query
-      description: If specified, will return the specific page based on the token.
+  headers:
+    Content-Length:
+      description: 'Size of the entity-body, in bytes. For more information, see [RFC 7230, section 3.3.2: Content-Length](https://tools.ietf.org/html/rfc7230#section-3.3.2).'
+      schema:
+        type: integer
+        format: int64
+      example: 325
+    Content-Encoding:
+      description: 'Content-encoding of the object. This header is optional. For more information, see [RFC 2616, section 14.11: Content-Encoding](https://tools.ietf.org/html/rfc2616#section-14.11)'
+      example: gzip
       schema:
         type: string
+    Content-Type:
+      description: 'A standard MIME type describing the format of the blob data. For more information, see [RFC 2616, section 14.17: Content-Type](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17).'
+      example: application/json
+      schema:
+        type: string
+    Last-Modified:
+      description: Last modified date and time. For more information, see [RFC 3339](https://tools.ietf.org/html/rfc3339) or omitted if the `type` field is `commonPrefix`.
+      schema:
+        type: string
+        format: date-time
+      example: '2019-12-10T12:20:54Z'
+    X-Correlation-ID:
+      description: Unique ID to correlate client request with server response.
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
   securitySchemes:
     Bearer:
       type: http

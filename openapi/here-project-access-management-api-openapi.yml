@@ -1005,150 +1005,14 @@ paths:
         '404':
           description: Project not found or no filter attached
 components:
-  parameters:
-    permissionResourceType:
-      in: query
-      name: resourceType
-      required: false
-      description: 'Only include permissions effective against the requested resource type.
-
-        '
-      schema:
-        type: string
-    permissionResourceHrn:
-      in: query
-      name: resource
-      required: false
-      description: 'Only include permissions effective against the requested resource.
-
-        '
-      schema:
-        type: string
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    projectMember:
-      in: path
-      name: member
-      required: true
-      description: HRN identifying the project member. Either user, app or group
-      schema:
-        type: string
-      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-    linkablePermissionResourceType:
-      in: query
-      name: resourceType
-      required: true
-      description: 'Only include permissions effective against the requested resource type.
-
-        '
-      schema:
-        type: string
-    projectPolicy:
-      in: path
-      name: policy
-      required: true
-      description: 'HRN identifying the project policy. For HERE provided policies, the HRN format would be - hrn:here:authorization::HERE:platform:policy/read-only-access-to-all-catalogs
-
-        '
-      schema:
-        type: string
-      example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
-    limit10:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 10 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 10
-    project:
-      in: path
-      name: project
-      required: true
-      description: HRN identifying the project
-      schema:
-        type: string
-      example: hrn:here:authorization::myrealm:project/my-project-0000
-    onlyIncludeIdentities:
-      in: query
-      name: onlyIncludeIdentities
-      required: false
-      description: 'If true, returns an effective project members list containing only user and app identities, including those
-
-        that are members of the project indirectly via a group. It will also return users who are project admins of
-
-        the specified project, and Resource Managers for the realm. Response will NOT include total number of
-
-        identities. If false, returns users, apps, and groups that are direct members of the project, excluding any
-
-        users and apps that only have membership via a group.
-
-        Defaults to false.
-
-
-        Suppose there are a user U and a group G with app A in it.  Suppose user U and group G are the members of the project, then
-
-        * onlyIncludeIdentities=true will return U and A
-
-        * onlyIncludeIdentities=false or absent will return U and G
-
-        '
-      schema:
-        type: boolean
-    ProjectPolicyType:
-      in: query
-      name: projectPolicyType
-      required: false
-      description: The type of the Project Policy
-      schema:
-        type: string
-        enum:
-        - custom
-        - here-platform
-    permissionServiceId:
-      in: query
-      name: serviceId
-      required: false
-      description: Only include permissions associated with the requested service
-      schema:
-        type: string
-      example: SERVICE-00000000-0000-0000-0000-000000000000
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
   schemas:
-    PermissionPageWithToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ActivePermission'
+    AccessFilterIdentifier:
+      type: object
+      properties:
+        hrn:
+          type: string
+          description: The hrn of the filter
+          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
     PageWithToken:
       type: object
       required:
@@ -1168,130 +1032,6 @@ components:
           type: integer
           example: 1
           description: Total number of items matching the search criteria.
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      properties:
-        title:
-          description: Error title
-          type: string
-          example: Input data failed validation
-        errorId:
-          type: string
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-          description: Unique id for the error. This is searchable from HERE Account logs.
-        status:
-          description: HTTP Status Code
-          type: integer
-          example: 400
-        code:
-          description: Service specific error code
-          type: string
-          example: E202101
-        cause:
-          description: The cause of the error
-          type: string
-          example: The input data in question does not meet validation rules
-        action:
-          description: Actionable instructions for the API consumer
-          type: string
-          example: Correct input data and retry request
-        correlationId:
-          description: Trace ID associated with this request, for future use
-          type: string
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          type: array
-          description: Collection of error details
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-    AppInfo:
-      type: object
-      properties:
-        clientId:
-          readOnly: true
-          type: string
-          description: Identifier for the client/application.
-          example: 0123456789ABCDEFGHHIJKLM
-        clientHrn:
-          readOnly: true
-          type: string
-          description: HRN for the client/application.
-          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
-        realm:
-          readOnly: true
-          type: string
-          description: A realm to which app belongs to.
-          example: myrealm
-        name:
-          readOnly: true
-          type: string
-          description: Human readable name of the client.
-          example: Some Application
-        description:
-          readOnly: true
-          type: string
-          description: Prose description of the client.
-          example: Application for doing something.
-        ownerId:
-          readOnly: true
-          type: string
-          description: The id of the user that owns this client.
-          example: HERE-00000000-0000-0000-0000-000000000000
-        ownerHrn:
-          readOnly: true
-          type: string
-          description: The hrn of the user that owns this client.
-          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-        defaultScope:
-          readOnly: true
-          type: string
-          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
-          example: hrn:here:authorization::myrealm:project/my-project-0000
-        isRestrictedScope:
-          readOnly: true
-          type: boolean
-          description: If true, the app cannot request a token with a scope different from defaultScope.
-          example: true
-        appCreationEnabled:
-          readOnly: true
-          type: boolean
-          description: If true, the app can create apps.
-          example: true
-        alwaysProjectScope:
-          readOnly: true
-          type: boolean
-          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
-          example: true
-        status:
-          readOnly: true
-          type: string
-          enum:
-          - active
-          - expired
-          - blacklisted
-          - deactivated
-          - monitoring
-          - quota_exceeded
-          description: Status of the application
-          example: active
-        roles:
-          type: array
-          items:
-            type: string
-          maxItems: 100
-          description: 'The list of roles assigned to the app.
-
-            '
-          example:
-          - OrgAdmin
-          - GroupAdmin
     ProjectMemberGroupInfo:
       type: object
       properties:
@@ -1310,181 +1050,32 @@ components:
           type: string
           description: A user assigned name for the group.
           example: Group  name
-    ProjectPolicyRequestBody:
+    ActivePermissionNoResource:
       type: object
-      required:
-      - id
-      - name
-      - permissions
       properties:
         id:
           type: string
-          example: read-access-for-catalog-1
-          description: 'The Identifier for the Project Policy.
-
-            '
-          minLength: 4
-          maxLength: 16
-          pattern: ^[a-z0-9][a-z0-9\-]{2,14}[a-z0-9]$
-        name:
+          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
+          readOnly: true
+          example: PERM-00000000-0000-0000-0000-000000000000
+        action:
           type: string
-          example: Read access for catalog 1
-          description: 'The name for the Project Policy
-
-            '
-        description:
+          description: The specific action identifier that this permission is controlling access to for the specific associated service.
+          readOnly: true
+          example: read
+        effect:
+          readOnly: true
           type: string
-          example: This is a custom Project Policy that grants read access to catalog 1
-          description: 'The description for the Project Policy
-
-            '
-        permissions:
-          type: array
-          items:
-            type: object
-            required:
-            - allowedActions
-            properties:
-              resource:
-                type: string
-                example: hrn:here:data::myrealm:my-catalog
-                description: 'The hrn of the resource. One of resource or the resourceType must be defined
-
-                  '
-              resourceType:
-                $ref: '#/components/schemas/Type'
-              allowedActions:
-                type: array
-                items:
-                  type: string
-                  example: readResource
-                description: 'The list of actions allowed to be taken against either the resource or the resource type defined in the Project Policy in the context of the Project
-
-                  '
-    PageWithTokenNoTotal:
-      type: object
-      required:
-      - limit
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-    ProjectMemberListWithPageToken:
-      type: object
-      description: \'total\' will not be returned when onlyIncludeIdentities query parameter is set to 'true'
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProjectMember'
-            description: List of Project Members.
-    AccessFilterCommonProperties:
-      type: object
-      properties:
-        type:
-          type: string
+          description: One of "allow" or "deny"
           enum:
-          - here-platform
-          - custom
-          - virtual
-          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
-          example: here-platform
-        name:
-          type: string
-          description: The name of the filter
-          example: Strict Projects
-    AccessFilterIdentifier:
-      type: object
-      properties:
-        hrn:
-          type: string
-          description: The hrn of the filter
-          example: hrn:here:authorization::HERE:filter/FILTER-99b7c7d7-867a-4573-8730-4689be1718c9
-    UserInfo:
-      type: object
-      properties:
-        userId:
+          - allow
+          - deny
+          example: allow
+        serviceId:
           readOnly: true
           type: string
-          description: The unique identifier of the user.
-          example: HERE-00000000-0000-0000-0000-000000000000
-        userHrn:
-          readOnly: true
-          type: string
-          description: The HRN of the user.
-          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
-        realm:
-          readOnly: true
-          type: string
-          description: A realm which the user belongs to.
-          example: myrealm
-        firstname:
-          readOnly: true
-          type: string
-          description: The first name of the user. Only included if entityType is user
-          example: John
-        lastname:
-          readOnly: true
-          type: string
-          description: The lastname of the user.  Only included if entityType is user
-          example: Williams
-        email:
-          readOnly: true
-          type: string
-          description: Email address of the user.  Only included if entityType is user
-          example: john.williams@example.com
-        state:
-          readOnly: true
-          type: string
-          description: The status of this user.
-          example: enabled
-          enum:
-          - deleted
-          - disabled
-          - locked
-          - enabled
-        realmInfo:
-          $ref: '#/components/schemas/CompactRealmInfo'
-        roles:
-          type: array
-          items:
-            type: string
-          maxItems: 100
-          description: 'The list of roles assigned to the user.
-
-            '
-          example:
-          - OrgAdmin
-          - GroupAdmin
-    PermissionPageWithTokenNoTotal:
-      allOf:
-      - $ref: '#/components/schemas/PageWithTokenNoTotal'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ActivePermission'
-    ProjectPolicyListResponse:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithTokenNoTotal'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProjectPolicyResponse'
-            description: List of Project Policies
+          description: Identifies the service that this permission is associated with.
+          example: SERVICE-00000000-0000-0000-0000-000000000000
     ProjectMember:
       type: object
       properties:
@@ -1519,326 +1110,33 @@ components:
             lastname: Williams
             email: john.williams@example.com
             state: enabled
-    ActivePermission:
+    PageWithTokenNoTotal:
+      type: object
+      required:
+      - limit
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+    PermissionPageWithTokenNoTotal:
       allOf:
-      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
       - type: object
         properties:
-          resource:
-            readOnly: true
-            type: string
-            description: The resource identifier that this permission is controlling access to for the given action.
-            example: hrn:here:data:::service-catalog
-    ProjectPolicyResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: all-access-for-catalog-1
-          description: 'The Identifier for the Project Policy
-
-            '
-        hrn:
-          type: string
-          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-for-catalog-1
-          description: 'The HRN for the Project Policy
-
-            '
-        name:
-          type: string
-          example: All access for catalog 1
-          description: 'The name for the Project Policy
-
-            '
-        description:
-          type: string
-          example: All access for catalog 1
-          description: 'The description for the Project Policy
-
-            '
-        type:
-          type: string
-          enum:
-          - custom
-          - here-platform
-        permissions:
-          type: array
-          description: The permissions that apply for the policy. Limited to a maximum of 100
           items:
-            type: object
-            properties:
-              resource:
-                type: string
-                example: hrn:here:data::myrealm:my-catalog
-                description: 'The hrn of the resource
-
-                  '
-              resourceType:
-                $ref: '#/components/schemas/Type'
-              allowedActions:
-                type: array
-                items:
-                  type: string
-                  example: readResource
-                description: 'The list of allowed actions for this Project Policy Permission
-
-                  '
-        nonHrnPermissions:
-          type: array
-          description: The permissions for actions with no allowedResourceTypes that apply for the policy.
-          items:
-            type: object
-            properties:
-              resourceType:
-                $ref: '#/components/schemas/Type'
-              allowedActions:
-                type: array
-                items:
-                  type: string
-                  example: create
-                description: 'The list of allowed actions for this Project Policy Permission
-
-                  '
-    AttachedPolicies:
-      type: object
-      properties:
-        policies:
-          type: array
-          description: The list of project policy hrns to attach.
-          maxItems: 5
-          items:
-            $ref: '#/components/schemas/AttachedPolicy'
-    AttachedPolicy:
-      type: object
-      properties:
-        policy:
-          type: string
-          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
-          description: 'The hrn of the project policy
-
-            Note - For HERE provided policies, the HRN format would be - hrn:here:authorization::olp-here:here-platform:policy/read-only-access-to-all-catalogs
-
-            '
-    AccessFilter:
-      type: object
-      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
-      allOf:
-      - $ref: '#/components/schemas/AccessFilterIdentifier'
-      - $ref: '#/components/schemas/AccessFilterCommonProperties'
-      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
-      - $ref: '#/components/schemas/AccessFilterStatements'
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
     Type:
       type: string
       example: catalog
       description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
-    ActivePermissionNoResource:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the permission in the context of the client.  Begins with "PERM-".
-          readOnly: true
-          example: PERM-00000000-0000-0000-0000-000000000000
-        action:
-          type: string
-          description: The specific action identifier that this permission is controlling access to for the specific associated service.
-          readOnly: true
-          example: read
-        effect:
-          readOnly: true
-          type: string
-          description: One of "allow" or "deny"
-          enum:
-          - allow
-          - deny
-          example: allow
-        serviceId:
-          readOnly: true
-          type: string
-          description: Identifies the service that this permission is associated with.
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
-    CompactRealmInfo:
-      type: object
-      required:
-      - realmId
-      - realm
-      - name
-      - inviteOnly
-      - enabled
-      properties:
-        realmId:
-          readOnly: true
-          type: string
-          description: The unique identifier of the realm.
-          example: myrealm
-        realm:
-          readOnly: true
-          type: string
-          description: HRN for the realm.
-          example: hrn:here:account::myrealm:realm/myrealm
-        name:
-          readOnly: true
-          type: string
-          description: HERE realm for OLP.
-        realmType:
-          type: string
-          description: Realm type of the realm.
-          example: olp
-          enum:
-          - olp
-          - auto
-          - consumer
-        inviteOnly:
-          type: boolean
-          description: Whether the realm can be joined with an invitation only.
-          example: false
-        enabled:
-          type: boolean
-          description: The realm status.
-          example: true
-        allowedLogins:
-          type: array
-          description: allowed authentication methods for this realm
-          items:
-            type: object
-            description: Authentication methods allowed for this realm
-            required:
-            - method
-            properties:
-              method:
-                type: string
-                description: the authentication method.
-                example: saml
-                enum:
-                - password
-                - saml
-                - mtls
-              url:
-                type: string
-                description: Https URL callback function required when method is saml
-                example: https://api.example.com/saml/
-    AccessFilterStatements:
-      type: object
-      properties:
-        statements:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccessFilterStatement'
-          description: List of statements in this filter.
-    ProjectSettings:
-      type: object
-      properties:
-        scopeAccess:
-          type: string
-          enum:
-          - thisProjectOnly
-          - thisProjectOrNoProject
-          description: "The scope of access that is allowed when operating within this project's scope (i.e. using a project scoped token).\nAvailable options include:\n- thisProjectOnly - Requests scoped to this project can only access resources and API calls available within this project's scope\n                    Unscoped and Linkable permissions are not blocked and MAY be granted via a realm level access filter.\n                    (When this option is selected, NO AccessFilter is attached to the project)\n- thisProjectOrNoProject - Requests scoped to this project can access resources and API calls available within this project's\n                           scope in addition to resources and API calls associated with no project at all that the calling identity has access to.\n                           (When this option is selected, the project-eval-unscoped AccessFilter is attached to the project)\n"
-          default: thisProjectOnly
-          example: thisProjectOnly
-        defaultNewMemberProjectPolicies:
-          type: array
-          description: The default Project Policies to apply to new Members in the project.
-          minItems: 1
-          maxItems: 5
-          items:
-            type: string
-            description: a Project Policy HRN
-          example:
-          - hrn:here:authorization::myrealm:project/my-project-0000:policy/resource-creation-access-all-project-resources
-          - hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-all-project-resources
-    AccessFilterStatement:
-      type: object
-      properties:
-        description:
-          type: string
-          description: Prose description of what this filter statement does.
-          example: Block evaluation of all unscoped permissions for any project scoped request.
-        permissions:
-          type: string
-          enum:
-          - unscoped
-          - scoped
-          - linkable
-          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
-          example: unscoped
-        subresources:
-          type: array
-          items:
-            type: string
-            maxLength: 24
-          example:
-          - usa-il-chicago
-          - deu
-          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
-        service:
-          type: string
-          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
-
-            or the **serviceIdAlias** of the service.
-
-            '
-          example: SERVICE-00000000-0000-0000-0000-000000000000
-        actions:
-          type: array
-          description: The specific action identifiers of the access request that will match this statement
-          items:
-            type: string
-          example:
-          - read
-        actionAccessLevel:
-          type: string
-          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
-          enum:
-          - read
-          - write
-          - default
-          - internal
-          example: read
-        resource:
-          type: string
-          description: The resource identifier of the access request that will match this statement
-          example: hrn:here:data::my-realm:service-catalog
-        scope:
-          type: string
-          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
-          example: hrn:here:authorization::myrealm:project/my-project-0000
-        evaluate:
-          type: boolean
-          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
-          example: true
-        priority:
-          type: integer
-          description: An integer representing the statement priority
-          minimum: 0
-          maximum: 1000
-          example: 1
     AccessFilterVirtualProperties:
       type: object
       properties:
@@ -1957,9 +1255,720 @@ components:
           minimum: 0
           maximum: 1000
           example: 100
+    AttachedPolicy:
+      type: object
+      properties:
+        policy:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
+          description: 'The hrn of the project policy
+
+            Note - For HERE provided policies, the HRN format would be - hrn:here:authorization::olp-here:here-platform:policy/read-only-access-to-all-catalogs
+
+            '
+    AttachedPolicies:
+      type: object
+      properties:
+        policies:
+          type: array
+          description: The list of project policy hrns to attach.
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/AttachedPolicy'
+    PermissionPageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActivePermission'
+    ProjectMemberListWithPageToken:
+      type: object
+      description: \'total\' will not be returned when onlyIncludeIdentities query parameter is set to 'true'
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectMember'
+            description: List of Project Members.
+    ActivePermission:
+      allOf:
+      - $ref: '#/components/schemas/ActivePermissionNoResource'
+      - type: object
+        properties:
+          resource:
+            readOnly: true
+            type: string
+            description: The resource identifier that this permission is controlling access to for the given action.
+            example: hrn:here:data:::service-catalog
+    ProjectPolicyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: all-access-for-catalog-1
+          description: 'The Identifier for the Project Policy
+
+            '
+        hrn:
+          type: string
+          example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-for-catalog-1
+          description: 'The HRN for the Project Policy
+
+            '
+        name:
+          type: string
+          example: All access for catalog 1
+          description: 'The name for the Project Policy
+
+            '
+        description:
+          type: string
+          example: All access for catalog 1
+          description: 'The description for the Project Policy
+
+            '
+        type:
+          type: string
+          enum:
+          - custom
+          - here-platform
+        permissions:
+          type: array
+          description: The permissions that apply for the policy. Limited to a maximum of 100
+          items:
+            type: object
+            properties:
+              resource:
+                type: string
+                example: hrn:here:data::myrealm:my-catalog
+                description: 'The hrn of the resource
+
+                  '
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: readResource
+                description: 'The list of allowed actions for this Project Policy Permission
+
+                  '
+        nonHrnPermissions:
+          type: array
+          description: The permissions for actions with no allowedResourceTypes that apply for the policy.
+          items:
+            type: object
+            properties:
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: create
+                description: 'The list of allowed actions for this Project Policy Permission
+
+                  '
+    AccessFilterStatement:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Prose description of what this filter statement does.
+          example: Block evaluation of all unscoped permissions for any project scoped request.
+        permissions:
+          type: string
+          enum:
+          - unscoped
+          - scoped
+          - linkable
+          description: "The type of permissions that apply to this filter statement.\n* **unscoped** - Applies to all access control via the \"unscoped\" path.  This includes Plans, Policies,\n  Permissions, Groups, and Roles\n* **scoped** - Applies to all access control via the \"scoped\" path.  This includes resources associated\n  with projects and other __projectEnabled__ actions\n* **linkable** - Applies to all access control via the \"linkable\" path.  This includes resources made\n  available to be linked to a project via a directly created __linkable__ resource or a __resourcePlan__\n  attached to the realm\n"
+          example: unscoped
+        subresources:
+          type: array
+          items:
+            type: string
+            maxLength: 24
+          example:
+          - usa-il-chicago
+          - deu
+          description: "In the case of **scoped** or **linkable** filter statements, the list of subresources that MAY be included\nas part of an allow decision response.\n* If more than one matching filter statement contains a subresources property, the aggregate of all\n  subresources in all matching statements MAY be included as part of an allow decision response.  An allow\n  decision response that contains subresources will be filtered and WILL NOT contain any subresources not\n  part of this aggregate set.\n* If NONE of the matching filter statements contain a subresources property, NO subresources filtering\n  is applied.\n"
+        service:
+          type: string
+          description: 'The service of the access request that will match this statement.  This value may match the **serviceId**
+
+            or the **serviceIdAlias** of the service.
+
+            '
+          example: SERVICE-00000000-0000-0000-0000-000000000000
+        actions:
+          type: array
+          description: The specific action identifiers of the access request that will match this statement
+          items:
+            type: string
+          example:
+          - read
+        actionAccessLevel:
+          type: string
+          description: The access level of the action of the access request that will match this statement. Default represents actions that are granted by default on subscription of the service.
+          enum:
+          - read
+          - write
+          - default
+          - internal
+          example: read
+        resource:
+          type: string
+          description: The resource identifier of the access request that will match this statement
+          example: hrn:here:data::my-realm:service-catalog
+        scope:
+          type: string
+          description: The scope of the access request with possible values being a project HRN or a "*"(wildcard) representing any project scope. The lack of the scope property matches the statement to unscoped requests
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        evaluate:
+          type: boolean
+          description: Whether or not to evaluate the permissions identified by the permissions type of this statement
+          example: true
+        priority:
+          type: integer
+          description: An integer representing the statement priority
+          minimum: 0
+          maximum: 1000
+          example: 1
+    AccessFilterCommonProperties:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - here-platform
+          - custom
+          - virtual
+          description: "The type of the Access Filter.\n* **here-platform** - A system defined filter.  Cannot be deleted or modified.\n* **custom** - A user defined filter with user defined statements.\n* **virtual** - A user defined filter with automatically generated statements that are associated with plans\n  and resourcePlans attached to the realm with specific externalIds.\n"
+          example: here-platform
+        name:
+          type: string
+          description: The name of the filter
+          example: Strict Projects
+    ProjectPolicyListResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithTokenNoTotal'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectPolicyResponse'
+            description: List of Project Policies
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    AccessFilterStatements:
+      type: object
+      properties:
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFilterStatement'
+          description: List of statements in this filter.
+    ProjectSettings:
+      type: object
+      properties:
+        scopeAccess:
+          type: string
+          enum:
+          - thisProjectOnly
+          - thisProjectOrNoProject
+          description: "The scope of access that is allowed when operating within this project's scope (i.e. using a project scoped token).\nAvailable options include:\n- thisProjectOnly - Requests scoped to this project can only access resources and API calls available within this project's scope\n                    Unscoped and Linkable permissions are not blocked and MAY be granted via a realm level access filter.\n                    (When this option is selected, NO AccessFilter is attached to the project)\n- thisProjectOrNoProject - Requests scoped to this project can access resources and API calls available within this project's\n                           scope in addition to resources and API calls associated with no project at all that the calling identity has access to.\n                           (When this option is selected, the project-eval-unscoped AccessFilter is attached to the project)\n"
+          default: thisProjectOnly
+          example: thisProjectOnly
+        defaultNewMemberProjectPolicies:
+          type: array
+          description: The default Project Policies to apply to new Members in the project.
+          minItems: 1
+          maxItems: 5
+          items:
+            type: string
+            description: a Project Policy HRN
+          example:
+          - hrn:here:authorization::myrealm:project/my-project-0000:policy/resource-creation-access-all-project-resources
+          - hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-all-project-resources
+    CompactRealmInfo:
+      type: object
+      required:
+      - realmId
+      - realm
+      - name
+      - inviteOnly
+      - enabled
+      properties:
+        realmId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the realm.
+          example: myrealm
+        realm:
+          readOnly: true
+          type: string
+          description: HRN for the realm.
+          example: hrn:here:account::myrealm:realm/myrealm
+        name:
+          readOnly: true
+          type: string
+          description: HERE realm for OLP.
+        realmType:
+          type: string
+          description: Realm type of the realm.
+          example: olp
+          enum:
+          - olp
+          - auto
+          - consumer
+        inviteOnly:
+          type: boolean
+          description: Whether the realm can be joined with an invitation only.
+          example: false
+        enabled:
+          type: boolean
+          description: The realm status.
+          example: true
+        allowedLogins:
+          type: array
+          description: allowed authentication methods for this realm
+          items:
+            type: object
+            description: Authentication methods allowed for this realm
+            required:
+            - method
+            properties:
+              method:
+                type: string
+                description: the authentication method.
+                example: saml
+                enum:
+                - password
+                - saml
+                - mtls
+              url:
+                type: string
+                description: Https URL callback function required when method is saml
+                example: https://api.example.com/saml/
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      properties:
+        title:
+          description: Error title
+          type: string
+          example: Input data failed validation
+        errorId:
+          type: string
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+          description: Unique id for the error. This is searchable from HERE Account logs.
+        status:
+          description: HTTP Status Code
+          type: integer
+          example: 400
+        code:
+          description: Service specific error code
+          type: string
+          example: E202101
+        cause:
+          description: The cause of the error
+          type: string
+          example: The input data in question does not meet validation rules
+        action:
+          description: Actionable instructions for the API consumer
+          type: string
+          example: Correct input data and retry request
+        correlationId:
+          description: Trace ID associated with this request, for future use
+          type: string
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    AccessFilter:
+      type: object
+      description: "An Access Filter defines a permission boundary for an access request.  When any access request is made,\nif an Access Filter is applicable to the requesting identity, the request must \"pass\" the filter in order for\nit to continue with the rest of the access evaluation.\n\n</br>Any Access Filter attached to the requester, the requester's realm, or any of the requester's roles is\nconsidered applicable and consulted for an access request.\n\n</br>For all consulted Access Filters and each category of permissions:\n* Each statement in the Access Filters that match the permissions category and the access request's service,\n  action, resource, and scope is collected and sorted according to priority\n* The statement with the highest priority is matched\n* If there is a matched statement with **evaluate=true**, that category of permissions is evaluated in the\n  access request, otherwise they are skipped\n* If there are multiple matched statements with the same highest priority and they have different values for\n  **evaluate**, **evaluate=true** wins and that category of permissions are evaluated\n* If the access request results in **evaluate=true** and the response is **allow** with subresources, the\n  subresources in the response are filtered according to the matching statements' subresources properties.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccessFilterIdentifier'
+      - $ref: '#/components/schemas/AccessFilterCommonProperties'
+      - $ref: '#/components/schemas/AccessFilterVirtualProperties'
+      - $ref: '#/components/schemas/AccessFilterStatements'
+    ProjectPolicyRequestBody:
+      type: object
+      required:
+      - id
+      - name
+      - permissions
+      properties:
+        id:
+          type: string
+          example: read-access-for-catalog-1
+          description: 'The Identifier for the Project Policy.
+
+            '
+          minLength: 4
+          maxLength: 16
+          pattern: ^[a-z0-9][a-z0-9\-]{2,14}[a-z0-9]$
+        name:
+          type: string
+          example: Read access for catalog 1
+          description: 'The name for the Project Policy
+
+            '
+        description:
+          type: string
+          example: This is a custom Project Policy that grants read access to catalog 1
+          description: 'The description for the Project Policy
+
+            '
+        permissions:
+          type: array
+          items:
+            type: object
+            required:
+            - allowedActions
+            properties:
+              resource:
+                type: string
+                example: hrn:here:data::myrealm:my-catalog
+                description: 'The hrn of the resource. One of resource or the resourceType must be defined
+
+                  '
+              resourceType:
+                $ref: '#/components/schemas/Type'
+              allowedActions:
+                type: array
+                items:
+                  type: string
+                  example: readResource
+                description: 'The list of actions allowed to be taken against either the resource or the resource type defined in the Project Policy in the context of the Project
+
+                  '
+    AppInfo:
+      type: object
+      properties:
+        clientId:
+          readOnly: true
+          type: string
+          description: Identifier for the client/application.
+          example: 0123456789ABCDEFGHHIJKLM
+        clientHrn:
+          readOnly: true
+          type: string
+          description: HRN for the client/application.
+          example: hrn:here:account::myrealm:app/0123456789ABCDEFGHHIJKLM
+        realm:
+          readOnly: true
+          type: string
+          description: A realm to which app belongs to.
+          example: myrealm
+        name:
+          readOnly: true
+          type: string
+          description: Human readable name of the client.
+          example: Some Application
+        description:
+          readOnly: true
+          type: string
+          description: Prose description of the client.
+          example: Application for doing something.
+        ownerId:
+          readOnly: true
+          type: string
+          description: The id of the user that owns this client.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        ownerHrn:
+          readOnly: true
+          type: string
+          description: The hrn of the user that owns this client.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        defaultScope:
+          readOnly: true
+          type: string
+          description: The default value for the "scope" parameter when requesting a client_credentials OAuth2 token if no "scope" parameter is specified.
+          example: hrn:here:authorization::myrealm:project/my-project-0000
+        isRestrictedScope:
+          readOnly: true
+          type: boolean
+          description: If true, the app cannot request a token with a scope different from defaultScope.
+          example: true
+        appCreationEnabled:
+          readOnly: true
+          type: boolean
+          description: If true, the app can create apps.
+          example: true
+        alwaysProjectScope:
+          readOnly: true
+          type: boolean
+          description: Indicates whether or not the given application is locked to the default scope. The given application cannot be added to any additional projects or groups when this value is set to true.
+          example: true
+        status:
+          readOnly: true
+          type: string
+          enum:
+          - active
+          - expired
+          - blacklisted
+          - deactivated
+          - monitoring
+          - quota_exceeded
+          description: Status of the application
+          example: active
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the app.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the user.
+          example: HERE-00000000-0000-0000-0000-000000000000
+        userHrn:
+          readOnly: true
+          type: string
+          description: The HRN of the user.
+          example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+        realm:
+          readOnly: true
+          type: string
+          description: A realm which the user belongs to.
+          example: myrealm
+        firstname:
+          readOnly: true
+          type: string
+          description: The first name of the user. Only included if entityType is user
+          example: John
+        lastname:
+          readOnly: true
+          type: string
+          description: The lastname of the user.  Only included if entityType is user
+          example: Williams
+        email:
+          readOnly: true
+          type: string
+          description: Email address of the user.  Only included if entityType is user
+          example: john.williams@example.com
+        state:
+          readOnly: true
+          type: string
+          description: The status of this user.
+          example: enabled
+          enum:
+          - deleted
+          - disabled
+          - locked
+          - enabled
+        realmInfo:
+          $ref: '#/components/schemas/CompactRealmInfo'
+        roles:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          description: 'The list of roles assigned to the user.
+
+            '
+          example:
+          - OrgAdmin
+          - GroupAdmin
+  parameters:
+    permissionResourceHrn:
+      in: query
+      name: resource
+      required: false
+      description: 'Only include permissions effective against the requested resource.
+
+        '
+      schema:
+        type: string
+    permissionResourceType:
+      in: query
+      name: resourceType
+      required: false
+      description: 'Only include permissions effective against the requested resource type.
+
+        '
+      schema:
+        type: string
+    linkablePermissionResourceType:
+      in: query
+      name: resourceType
+      required: true
+      description: 'Only include permissions effective against the requested resource type.
+
+        '
+      schema:
+        type: string
+    ProjectPolicyType:
+      in: query
+      name: projectPolicyType
+      required: false
+      description: The type of the Project Policy
+      schema:
+        type: string
+        enum:
+        - custom
+        - here-platform
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    projectMember:
+      in: path
+      name: member
+      required: true
+      description: HRN identifying the project member. Either user, app or group
+      schema:
+        type: string
+      example: hrn:here:account::myrealm:user/HERE-00000000-0000-0000-0000-000000000000
+    projectPolicy:
+      in: path
+      name: policy
+      required: true
+      description: 'HRN identifying the project policy. For HERE provided policies, the HRN format would be - hrn:here:authorization::HERE:platform:policy/read-only-access-to-all-catalogs
+
+        '
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000:policy/all-access-catalog-1
+    project:
+      in: path
+      name: project
+      required: true
+      description: HRN identifying the project
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:project/my-project-0000
+    permissionServiceId:
+      in: query
+      name: serviceId
+      required: false
+      description: Only include permissions associated with the requested service
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    onlyIncludeIdentities:
+      in: query
+      name: onlyIncludeIdentities
+      required: false
+      description: 'If true, returns an effective project members list containing only user and app identities, including those
+
+        that are members of the project indirectly via a group. It will also return users who are project admins of
+
+        the specified project, and Resource Managers for the realm. Response will NOT include total number of
+
+        identities. If false, returns users, apps, and groups that are direct members of the project, excluding any
+
+        users and apps that only have membership via a group.
+
+        Defaults to false.
+
+
+        Suppose there are a user U and a group G with app A in it.  Suppose user U and group G are the members of the project, then
+
+        * onlyIncludeIdentities=true will return U and A
+
+        * onlyIncludeIdentities=false or absent will return U and G
+
+        '
+      schema:
+        type: boolean
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    limit10:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 10 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 10
   responses:
-    Forbidden:
-      description: You do not have permission to perform this action
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid input provided, see error response for details
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -1972,8 +1981,8 @@ components:
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
-    Unauthorized:
-      description: Access is denied due to invalid credentials
+    Forbidden:
+      description: You do not have permission to perform this action
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'
@@ -1983,15 +1992,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
     NotFound:
       description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    BadRequest:
-      description: Invalid input provided, see error response for details
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/XCorrelationId'

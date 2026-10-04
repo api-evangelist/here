@@ -508,18 +508,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
 components:
   schemas:
-    subresources:
-      type: array
-      maxItems: 10
-      items:
-        type: string
-        maxLength: 24
-      example:
-      - usa-il-chicago
-      - deu
-      description: 'The list of associated subresource identifiers.
-
-        '
     PageWithToken:
       type: object
       required:
@@ -539,57 +527,18 @@ components:
           type: integer
           example: 1
           description: Total number of items matching the search criteria.
-    ResourcePolicyResourcesResponse:
+    ResourcePolicyResourcesPayload:
       type: object
       properties:
-        statusId:
-          type: string
-          example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
-          description: 'The status id of the resource policy resources batch request
-
-            '
-        href:
-          type: string
-          example: https://account.api.here.com/authorization/v1.1/resourcePolicies/hrn:here:authorization::myrealm:resourcePolicy%2Fmy-policy-000/resources/status/STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
-          description: 'The status url of the resource policy resources batch request
-
-            '
-    allowedActions:
-      type: array
-      items:
-        type: string
-        example: readResource
-      description: 'The list of actions made available for referencing for the resourceType.
-
-        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
-
-        reserved resource prefix of the resource in the path.
-
-        '
-    ResourcePolicyRequest:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: string
-          example: my-vanity-id
-          description: 'The id of the resource policy. The ID must comply to the regex - (^[a-zA-Z0-9][a-zA-Z0-9\-:]{2,61}[a-zA-Z0-9]$)
-
-            '
-        name:
-          type: string
-          example: My resource policy
-          description: 'The name of the resource policy
-
-            '
-        description:
-          type: string
-          example: This is my resource policy
-          description: 'The description of the resource policy
-
-            '
+        items:
+          type: array
+          description: List of resource policy resources
+          items:
+            $ref: '#/components/schemas/ResourcePolicyResource'
+    Type:
+      type: string
+      example: catalog
+      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
     ResourcePolicyPatchRequest:
       type: object
       properties:
@@ -605,42 +554,21 @@ components:
           description: 'The description of the resource policy
 
             '
-    ResourcePolicyResource:
+    ResourcePolicyResourcesResponse:
       type: object
       properties:
-        resource:
+        statusId:
           type: string
-          example: hrn:here:data::myrealm:my-catalog
-          description: 'The hrn of the resource
+          example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+          description: 'The status id of the resource policy resources batch request
 
             '
-        allowedActions:
-          $ref: '#/components/schemas/allowedActions'
-        subresources:
-          $ref: '#/components/schemas/subresources'
-    ResourcePolicyResourcesPayload:
-      type: object
-      properties:
-        items:
-          type: array
-          description: List of resource policy resources
-          items:
-            $ref: '#/components/schemas/ResourcePolicyResource'
-    ResourcePolicyList:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourcePolicy'
-            description: List of resource policies in the realm
-    Type:
-      type: string
-      example: catalog
-      description: "The type of the resource.\neg - catalog, pipeline, pipeline-template, schema, artifact, flow, flow-pattern, service, resource-policy, \nconnector, routing-customization, search-customization, lastmile, tracking, adminportal\n"
+        href:
+          type: string
+          example: https://account.api.here.com/authorization/v1.1/resourcePolicies/hrn:here:authorization::myrealm:resourcePolicy%2Fmy-policy-000/resources/status/STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+          description: 'The status url of the resource policy resources batch request
+
+            '
     ResourcePolicy:
       type: object
       properties:
@@ -740,7 +668,20 @@ components:
             field: size
             min: 3
             max: 64
-    ResourcePolicyResourceList:
+    ResourcePolicyResource:
+      type: object
+      properties:
+        resource:
+          type: string
+          example: hrn:here:data::myrealm:my-catalog
+          description: 'The hrn of the resource
+
+            '
+        allowedActions:
+          $ref: '#/components/schemas/allowedActions'
+        subresources:
+          $ref: '#/components/schemas/subresources'
+    ResourcePolicyList:
       type: object
       allOf:
       - $ref: '#/components/schemas/PageWithToken'
@@ -748,9 +689,33 @@ components:
         properties:
           items:
             type: array
-            description: List of resource policy resources
             items:
-              $ref: '#/components/schemas/ResourcePolicyResource'
+              $ref: '#/components/schemas/ResourcePolicy'
+            description: List of resource policies in the realm
+    ResourcePolicyRequest:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          example: my-vanity-id
+          description: 'The id of the resource policy. The ID must comply to the regex - (^[a-zA-Z0-9][a-zA-Z0-9\-:]{2,61}[a-zA-Z0-9]$)
+
+            '
+        name:
+          type: string
+          example: My resource policy
+          description: 'The name of the resource policy
+
+            '
+        description:
+          type: string
+          example: This is my resource policy
+          description: 'The description of the resource policy
+
+            '
     ErrorResponse:
       type: object
       required:
@@ -794,16 +759,114 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
+    ResourcePolicyResourceList:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            description: List of resource policy resources
+            items:
+              $ref: '#/components/schemas/ResourcePolicyResource'
+    subresources:
+      type: array
+      maxItems: 10
+      items:
+        type: string
+        maxLength: 24
+      example:
+      - usa-il-chicago
+      - deu
+      description: 'The list of associated subresource identifiers.
+
+        '
+    allowedActions:
+      type: array
+      items:
+        type: string
+        example: readResource
+      description: 'The list of actions made available for referencing for the resourceType.
+
+        These actions must be one of the "projectLinkingEnabled" actions of the service inferred via the
+
+        reserved resource prefix of the resource in the path.
+
+        '
+  parameters:
+    Type:
+      in: query
+      name: type
+      required: false
+      description: The type of the resource.
+      schema:
+        $ref: '#/components/schemas/Type'
+    resource:
+      in: path
+      name: resource
+      schema:
+        type: string
+      required: true
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
+    pageToken:
+      name: pageToken
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      schema:
+        type: string
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    statusId:
+      in: path
+      name: statusId
+      required: true
+      description: 'The status id of the resource policy resources batch request
+
+        '
+      schema:
+        type: string
+      example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
+    resourcePolicy:
+      in: path
+      name: resourcePolicy
+      required: true
+      description: The HRN of the resource policy
+      schema:
+        type: string
+      example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-0000
+    limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
+
+        '
+    resourceQuery:
+      in: query
+      name: resource
+      schema:
+        type: string
+      required: false
+      description: 'The hrn that identifies the resource.
+
+        '
+      example: hrn:here:data::myrealm:my-catalog
   responses:
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: Access is denied due to invalid credentials
       headers:
@@ -822,78 +885,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-  parameters:
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
-
-        '
-    limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
-    Type:
-      in: query
-      name: type
-      required: false
-      description: The type of the resource.
-      schema:
-        $ref: '#/components/schemas/Type'
-    resourceQuery:
-      in: query
-      name: resource
-      schema:
-        type: string
-      required: false
-      description: 'The hrn that identifies the resource.
-
-        '
-      example: hrn:here:data::myrealm:my-catalog
-    statusId:
-      in: path
-      name: statusId
-      required: true
-      description: 'The status id of the resource policy resources batch request
-
-        '
-      schema:
-        type: string
-      example: STATUS-5161feb8-5bc4-4e1c-a023-f343d6e5c94f
-    resource:
-      in: path
-      name: resource
-      schema:
-        type: string
-      required: true
-      description: 'The hrn that identifies the resource.
-
-        '
-      example: hrn:here:data::myrealm:my-catalog
-    resourcePolicy:
-      in: path
-      name: resourcePolicy
-      required: true
-      description: The HRN of the resource policy
-      schema:
-        type: string
-      example: hrn:here:authorization::myrealm:resourcePolicy/my-policy-0000
-    pageToken:
-      name: pageToken
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      schema:
-        type: string
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   headers:
     XCorrelationId:
       schema:

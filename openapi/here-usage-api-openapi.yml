@@ -646,64 +646,26 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Cost Management Usage API v2 fetchCreatedReport
 components:
-  examples:
-    InvalidGroupBy:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706004
-        cause: Invalid group by field. Supported are appId, billingTag, and project
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid group by field.
-          message: Invalid group by field. Supported values are appId, billingTag, and project.
-    InvalidRealm:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-        status: 400
-        code: E706001
-        cause: Invalid Realm
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Realm {realm}
-          message: Realm  {realm} has invalid characters.
-    UnauthorizedErrorResponse:
-      value:
-        error: Unauthorized
-        error_description: No credentials found.
-    InvalidDateRange:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706003
-        cause: start or end Date validation failed
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Start or end date.
-          message: Invalid Start or end date.
-    InvalidLimit:
-      value:
-        title: Input data failed validation
-        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
-        status: 400
-        code: E706002
-        cause: Invalid Limit
-        action: Correct input data and retry request
-        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
-        details:
-          title: Invalid Limit.
-          message: Limit value should not be greater than 100.
-    ForbiddenErrorResponse:
-      value:
-        error: Forbidden
-        error_description: These credentials do not provide authorized access.
   parameters:
+    Realm:
+      name: realmId
+      in: path
+      description: Organization ID.
+      required: true
+      example: olp-here
+      schema:
+        type: string
+        minLength: 5
+        maxLength: 30
+    StartDate:
+      in: query
+      name: startDate
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: yyyy-MM-dd'T'HH:mm:ss
+      description: Start date for search.
     ProjectIdQueryParam:
       name: projectHrn
       in: query
@@ -713,12 +675,26 @@ components:
       schema:
         type: string
         maxLength: 256
-    xRequestId:
-      name: X-Request-ID
-      in: header
-      description: User-provided token used to trace a request or a group of requests sent to the service.
+    billingTagQueryParam:
+      name: billingTag
+      in: query
+      required: false
+      description: Use billing tags for combining expenses from your invoices.
+      example: testtag
       schema:
         type: string
+        maxLength: 500
+    GroupBy:
+      name: groupBy
+      in: query
+      required: false
+      example: appId, billingTag, project
+      description: 'The groupBy parameter is a comma seperated list of parameters which you combine to form groups. Supported values are project, billingTag, appId, featureId, and subscription ID. The default groupBy parameters are featureId and subscription ID.
+
+        When Add groupBy parameters in the query, so that they add to featureId and subscription ID.'
+      schema:
+        type: string
+        maxLength: 256
     ChannelIdQueryParam:
       name: channelId
       in: query
@@ -731,19 +707,19 @@ components:
         - hot
         - cold
         - ds
-    billingSubscriptionIdQueryParam:
-      name: billingSubscriptionId
+    Detail:
       in: query
+      name: detailLevel
       required: false
-      explode: false
-      description: A comma-separated list of billing subscription IDs, with a minimum of 1 item and a maximum of 20.
-      example: A-S0000231,A-S0000233,A-S0000254
       schema:
-        type: array
-        items:
-          type: string
-        minItems: 1
-        maxItems: 20
+        type: string
+        example: hour
+        enum:
+        - summarized
+        - hour
+        - day
+        - month
+      description: "You can use this query parameter to select one of the levels of detail to view in your usage records. Levels of detail include: summarized, hour, day, or month. \nThe summarized detail level is the default and shows you a summary of your usage."
     Sort:
       in: query
       name: sort
@@ -754,42 +730,15 @@ components:
         - desc
         default: desc
       description: Returns sage report status in ascending or descending order of the creation date of the report.
-    FeatureId:
-      name: featureId
-      in: query
-      required: false
-      example: hrn:here:service::olp-here:search-geocoding-1
-      description: Identify features by feature HERE Resource Names (HRNs). Feature HRNs are necessary to acquire your usage using API requests.
-      schema:
-        type: string
-        maxLength: 256
-    EndDate:
-      in: query
-      name: endDate
-      required: true
-      schema:
-        type: string
-        format: date-time
-        example: yyyy-MM-dd'T'HH:mm:ss
-      description: End date for search.
-    StartDate:
-      in: query
-      name: startDate
-      required: true
-      schema:
-        type: string
-        format: date-time
-        example: yyyy-MM-dd'T'HH:mm:ss
-      description: Start date for search.
-    Realm:
-      name: realmId
+    ReportId:
+      name: reportId
       in: path
-      description: Organization ID.
+      description: Report ID.
       required: true
-      example: olp-here
+      example: REPORT-1346
       schema:
         type: string
-        minLength: 5
+        minLength: 11
         maxLength: 30
     ChargeTypeQueryParam:
       name: chargeType
@@ -804,52 +753,12 @@ components:
         - all
         - billable
         - nonBillable
-    billingTagQueryParam:
-      name: billingTag
-      in: query
-      required: false
-      description: Use billing tags for combining expenses from your invoices.
-      example: testtag
-      schema:
-        type: string
-        maxLength: 500
-    AppIdQueryParam:
-      name: appId
-      in: query
-      required: false
-      description: Client app ID. This is the app ID created in the platform.
-      example: j1dasda012edasfgne
-      schema:
-        type: string
-        maxLength: 128
-        pattern: ^[a-zA-Z0-9-_]*$
-    xCorrelationId:
-      name: X-Correlation-ID
+    xRequestId:
+      name: X-Request-ID
       in: header
-      required: true
-      description: 'Auto-generated ID, which uniquely identifies the request and is in the response. When contacting the support team with an inquiry regarding a specific request, provide the value of this header to assist with troubleshooting.
-
-        '
+      description: User-provided token used to trace a request or a group of requests sent to the service.
       schema:
         type: string
-    categoryQueryParam:
-      name: category
-      in: query
-      required: false
-      description: The category is the name of the billable service you select, such as location services or pipelines.
-      example: Pipelines
-      schema:
-        type: string
-        maxLength: 128
-    Offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-      description: The offset page number determines the current page number in the search results view. The default value is zero.
     Limit:
       in: query
       name: limit
@@ -860,14 +769,21 @@ components:
         maximum: 100
         default: 100
       description: Returns the maximum number of records. The default and maximum is 100 records.
-    GroupBy:
-      name: groupBy
+    EndDate:
+      in: query
+      name: endDate
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: yyyy-MM-dd'T'HH:mm:ss
+      description: End date for search.
+    FeatureId:
+      name: featureId
       in: query
       required: false
-      example: appId, billingTag, project
-      description: 'The groupBy parameter is a comma seperated list of parameters which you combine to form groups. Supported values are project, billingTag, appId, featureId, and subscription ID. The default groupBy parameters are featureId and subscription ID.
-
-        When Add groupBy parameters in the query, so that they add to featureId and subscription ID.'
+      example: hrn:here:service::olp-here:search-geocoding-1
+      description: Identify features by feature HERE Resource Names (HRNs). Feature HRNs are necessary to acquire your usage using API requests.
       schema:
         type: string
         maxLength: 256
@@ -893,44 +809,57 @@ components:
           - billableValue
           - resource
         uniqueItems: true
-    Detail:
+    AppIdQueryParam:
+      name: appId
       in: query
-      name: detailLevel
+      required: false
+      description: Client app ID. This is the app ID created in the platform.
+      example: j1dasda012edasfgne
+      schema:
+        type: string
+        maxLength: 128
+        pattern: ^[a-zA-Z0-9-_]*$
+    billingSubscriptionIdQueryParam:
+      name: billingSubscriptionId
+      in: query
+      required: false
+      explode: false
+      description: A comma-separated list of billing subscription IDs, with a minimum of 1 item and a maximum of 20.
+      example: A-S0000231,A-S0000233,A-S0000254
+      schema:
+        type: array
+        items:
+          type: string
+        minItems: 1
+        maxItems: 20
+    Offset:
+      in: query
+      name: offset
       required: false
       schema:
-        type: string
-        example: hour
-        enum:
-        - summarized
-        - hour
-        - day
-        - month
-      description: "You can use this query parameter to select one of the levels of detail to view in your usage records. Levels of detail include: summarized, hour, day, or month. \nThe summarized detail level is the default and shows you a summary of your usage."
-    ReportId:
-      name: reportId
-      in: path
-      description: Report ID.
-      required: true
-      example: REPORT-1346
+        type: integer
+        minimum: 0
+        default: 0
+      description: The offset page number determines the current page number in the search results view. The default value is zero.
+    categoryQueryParam:
+      name: category
+      in: query
+      required: false
+      description: The category is the name of the billable service you select, such as location services or pipelines.
+      example: Pipelines
       schema:
         type: string
-        minLength: 11
-        maxLength: 30
+        maxLength: 128
+    xCorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: true
+      description: 'Auto-generated ID, which uniquely identifies the request and is in the response. When contacting the support team with an inquiry regarding a specific request, provide the value of this header to assist with troubleshooting.
+
+        '
+      schema:
+        type: string
   responses:
-    Forbidden:
-      description: You do not have permission to perform this action.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
-          examples:
-            errorResponseExample:
-              $ref: '#/components/examples/ForbiddenErrorResponse'
     Unauthorized:
       description: Access is denied due to invalid credentials.
       headers:
@@ -945,17 +874,6 @@ components:
           examples:
             errorResponseExample:
               $ref: '#/components/examples/UnauthorizedErrorResponse'
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-      description: The requested resource was not found, see the error response for details.
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
     BadRequest:
       content:
         application/json:
@@ -976,40 +894,32 @@ components:
           $ref: '#/components/headers/XCorrelationId'
         X-Request-ID:
           $ref: '#/components/headers/X-Request-ID'
-  headers:
-    X-Request-ID:
-      description: 'User provided token used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    Location:
-      required: false
-      schema:
-        type: string
-      description: The URL which polls the status for a request receiving a 202 response, such as ta/get/{clientId}?xCorrelationId=4199533b-6290-41db-8d79-edf4f4019a74.
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. Sentry generates the X-Correlation-ID UUID and passes it to downstream services. It generates if it''s not present in the incoming request.
-
-        '
+    Forbidden:
+      description: You do not have permission to perform this action.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+          examples:
+            errorResponseExample:
+              $ref: '#/components/examples/ForbiddenErrorResponse'
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: The requested resource was not found, see the error response for details.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
   schemas:
-    UsageReportRequest:
-      type: object
-      description: The input object which contains a list of subaccounts.
-      required:
-      - subAccounts
-      properties:
-        subAccounts:
-          type: object
-          items:
-            type: string
-          example:
-          - org112135
-          - org124566
-          - org134564
     UsageResponse:
       type: object
       properties:
@@ -1090,6 +1000,65 @@ components:
           type: number
           description: Billable Usage Units calculated by a cold channel. As an example, it's the number of transactions for a given API. A transaction is the billable Unit which is calculated based on UsageUnits
           example: '1'
+    UsageReportStatusResponseList:
+      type: object
+      description: The input object which has a list of subaccounts.
+      required:
+      - total
+      - limit
+      - count
+      - nextOffset
+      - lastOffset
+      properties:
+        total:
+          type: integer
+          description: The total number of items.
+          example: 100
+        limit:
+          type: integer
+          description: The maximum number of items specified in your request.
+          example: 10
+        count:
+          type: integer
+          description: The number of records returned in this query.
+          example: 10
+        nextOffset:
+          type: integer
+          description: Next offset
+        lastOffset:
+          type: integer
+          description: Last offset
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageReportStatusResponse'
+          example:
+          - org112135
+          - org124566
+          - org134564
+    PostUsageReportStatusResponse:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: string
+          description: Usage report to request the status ID.
+          example: REPORT-100
+        status:
+          type: string
+          description: Usage report request status
+          enum:
+          - pending
+          - inProgress
+          - completed
+          - failed
+          - archived
+          example: inProgress
+      example:
+        id: REPORT-1006
+        status: inProgress
     AuthErrorResponse:
       properties:
         error:
@@ -1098,6 +1067,115 @@ components:
         error_description:
           type: string
           description: Human-readable error description.
+    UsageReportRequest:
+      type: object
+      description: The input object which contains a list of subaccounts.
+      required:
+      - subAccounts
+      properties:
+        subAccounts:
+          type: object
+          items:
+            type: string
+          example:
+          - org112135
+          - org124566
+          - org134564
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error Code.
+          example: ASYNC_API_DISABLED_FOR_USER
+        title:
+          type: string
+          description: Error message.
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to a JSON path.
+          example: $.taFeatures.size
+        message:
+          type: string
+          description: Detailed error message.
+          example: Size must be between 1 and 3
+        messageTemplate:
+          type: string
+          description: Optional error template.
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 1
+            max: 3
+    UsagePaginationResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items.
+          example: 10
+        limit:
+          type: integer
+          description: Maximum number of items specified in a request.
+          example: 2
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageResponse'
+        nextOffset:
+          type: integer
+          description: Next offset.
+        lastOffset:
+          type: integer
+          description: Last offset.
+    ErrorResponse:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      - cause
+      - action
+      - errorId
+      - correlationId
+      properties:
+        title:
+          type: string
+          description: Error title.
+          example: Input data failed validation
+        errorId:
+          type: string
+          description: Unique ID for the error. This is searchable in the TA logs.
+          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 400
+        code:
+          type: string
+          description: Resource specific error code.
+          example: E706XX
+        cause:
+          type: string
+          description: The cause of the error.
+          example: The input data in question does not meet validation rules.
+        action:
+          type: string
+          description: Actionable instructions for the API requester.
+          example: Correct input data and retry the request.
+        correlationId:
+          type: string
+          description: Correlation ID.
+          example: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          type: array
+          description: Collection of error details.
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
     UsageReportStatusResponse:
       type: object
       required:
@@ -1231,160 +1309,82 @@ components:
             startDate: '2022-03-01'
             EndDate: '2022-07-01'
             emailId: example@here.com
-    UsagePaginationResponse:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: Total number of items.
-          example: 10
-        limit:
-          type: integer
-          description: Maximum number of items specified in a request.
-          example: 2
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UsageResponse'
-        nextOffset:
-          type: integer
-          description: Next offset.
-        lastOffset:
-          type: integer
-          description: Last offset.
-    PostUsageReportStatusResponse:
-      type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: string
-          description: Usage report to request the status ID.
-          example: REPORT-100
-        status:
-          type: string
-          description: Usage report request status
-          enum:
-          - pending
-          - inProgress
-          - completed
-          - failed
-          - archived
-          example: inProgress
-      example:
-        id: REPORT-1006
-        status: inProgress
-    UsageReportStatusResponseList:
-      type: object
-      description: The input object which has a list of subaccounts.
-      required:
-      - total
-      - limit
-      - count
-      - nextOffset
-      - lastOffset
-      properties:
-        total:
-          type: integer
-          description: The total number of items.
-          example: 100
-        limit:
-          type: integer
-          description: The maximum number of items specified in your request.
-          example: 10
-        count:
-          type: integer
-          description: The number of records returned in this query.
-          example: 10
-        nextOffset:
-          type: integer
-          description: Next offset
-        lastOffset:
-          type: integer
-          description: Last offset
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UsageReportStatusResponse'
-          example:
-          - org112135
-          - org124566
-          - org134564
-    ErrorDetail:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Error Code.
-          example: ASYNC_API_DISABLED_FOR_USER
-        title:
-          type: string
-          description: Error message.
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to a JSON path.
-          example: $.taFeatures.size
-        message:
-          type: string
-          description: Detailed error message.
-          example: Size must be between 1 and 3
-        messageTemplate:
-          type: string
-          description: Optional error template.
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 1
-            max: 3
-    ErrorResponse:
-      type: object
-      required:
-      - title
-      - status
-      - code
-      - cause
-      - action
-      - errorId
-      - correlationId
-      properties:
-        title:
-          type: string
-          description: Error title.
-          example: Input data failed validation
-        errorId:
-          type: string
-          description: Unique ID for the error. This is searchable in the TA logs.
-          example: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
-        status:
-          type: integer
-          description: HTTP status code.
-          example: 400
-        code:
-          type: string
-          description: Resource specific error code.
-          example: E706XX
-        cause:
-          type: string
-          description: The cause of the error.
-          example: The input data in question does not meet validation rules.
-        action:
-          type: string
-          description: Actionable instructions for the API requester.
-          example: Correct input data and retry the request.
-        correlationId:
-          type: string
-          description: Correlation ID.
-          example: 4199533b-6290-41db-8d79-edf4f4019a74
+  headers:
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. Sentry generates the X-Correlation-ID UUID and passes it to downstream services. It generates if it''s not present in the incoming request.
+
+        '
+    Location:
+      required: false
+      schema:
+        type: string
+      description: The URL which polls the status for a request receiving a 202 response, such as ta/get/{clientId}?xCorrelationId=4199533b-6290-41db-8d79-edf4f4019a74.
+    X-Request-ID:
+      description: 'User provided token used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+  examples:
+    InvalidDateRange:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706003
+        cause: start or end Date validation failed
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
         details:
-          type: array
-          description: Collection of error details.
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
+          title: Invalid Start or end date.
+          message: Invalid Start or end date.
+    ForbiddenErrorResponse:
+      value:
+        error: Forbidden
+        error_description: These credentials do not provide authorized access.
+    UnauthorizedErrorResponse:
+      value:
+        error: Unauthorized
+        error_description: No credentials found.
+    InvalidRealm:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-9d862c5a-4cfd-4780-8be4-2728b42849e1
+        status: 400
+        code: E706001
+        cause: Invalid Realm
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid Realm {realm}
+          message: Realm  {realm} has invalid characters.
+    InvalidGroupBy:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706004
+        cause: Invalid group by field. Supported are appId, billingTag, and project
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid group by field.
+          message: Invalid group by field. Supported values are appId, billingTag, and project.
+    InvalidLimit:
+      value:
+        title: Input data failed validation
+        errorId: ERROR-22862c5a-4cfd-4780-8be4-2728b42de3j
+        status: 400
+        code: E706002
+        cause: Invalid Limit
+        action: Correct input data and retry request
+        correlationId: 4199533b-6290-41db-8d79-edf4f4019a74
+        details:
+          title: Invalid Limit.
+          message: Limit value should not be greater than 100.
   securitySchemes:
     token:
       type: http

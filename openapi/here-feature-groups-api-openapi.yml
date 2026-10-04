@@ -185,6 +185,27 @@ paths:
       - apiKey: []
 components:
   schemas:
+    PageFeatureGroupDto:
+      required:
+      - content
+      - totalElements
+      - totalPages
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureGroupDto'
+        totalElements:
+          type: integer
+          description: Total number of elements
+          format: int64
+          example: 2
+        totalPages:
+          type: integer
+          description: Total number of pages
+          format: int32
+          example: 1
     FeatureDto:
       required:
       - createdAt
@@ -227,34 +248,6 @@ components:
           description: The date and time when the feature was last modified.
           format: date-time
           example: '2023-07-24T17:29:03Z'
-    FeatureGroupWithFeaturesDto:
-      required:
-      - featureGroup
-      type: object
-      properties:
-        featureGroup:
-          $ref: '#/components/schemas/FeatureGroupFeatureDto'
-    PageFeatureGroupDto:
-      required:
-      - content
-      - totalElements
-      - totalPages
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/FeatureGroupDto'
-        totalElements:
-          type: integer
-          description: Total number of elements
-          format: int64
-          example: 2
-        totalPages:
-          type: integer
-          description: Total number of pages
-          format: int32
-          example: 1
     FeatureGroupDto:
       required:
       - createdAt
@@ -287,42 +280,6 @@ components:
           description: The date and time when the feature group was last modified.
           format: date-time
           example: '2023-07-24T18:41:50Z'
-    ErrorResponseDto:
-      required:
-      - correlationId
-      - status
-      - title
-      type: object
-      properties:
-        status:
-          type: integer
-          description: The HTTP status code
-          format: int32
-          example: 400
-        title:
-          type: string
-          description: Human-readable error description
-          example: Validation Error
-        correlationId:
-          type: string
-          description: Auto-generated ID univocally identifying this request
-          example: c5b92188-5eea-452a-a2e1-08c9a53bb5b9
-        code:
-          type: string
-          description: Error code
-          example: E500100
-        cause:
-          type: string
-          description: Human-readable explanation for the error
-          example: 'name: must not be blank'
-        action:
-          type: string
-          description: Human-readable action for the user
-          example: 'null'
-        requestId:
-          type: string
-          description: Request identifier provided by the user via `x-request-id` header
-          example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
     FeatureGroupFeatureDto:
       required:
       - createdAt
@@ -361,6 +318,49 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FeatureDto'
+    ErrorResponseDto:
+      required:
+      - correlationId
+      - status
+      - title
+      type: object
+      properties:
+        status:
+          type: integer
+          description: The HTTP status code
+          format: int32
+          example: 400
+        title:
+          type: string
+          description: Human-readable error description
+          example: Validation Error
+        correlationId:
+          type: string
+          description: Auto-generated ID univocally identifying this request
+          example: c5b92188-5eea-452a-a2e1-08c9a53bb5b9
+        code:
+          type: string
+          description: Error code
+          example: E500100
+        cause:
+          type: string
+          description: Human-readable explanation for the error
+          example: 'name: must not be blank'
+        action:
+          type: string
+          description: Human-readable action for the user
+          example: 'null'
+        requestId:
+          type: string
+          description: Request identifier provided by the user via `x-request-id` header
+          example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
+    FeatureGroupWithFeaturesDto:
+      required:
+      - featureGroup
+      type: object
+      properties:
+        featureGroup:
+          $ref: '#/components/schemas/FeatureGroupFeatureDto'
     UnauthorizedErrorResponseDto:
       required:
       - error

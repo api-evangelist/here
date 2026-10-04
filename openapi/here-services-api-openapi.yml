@@ -119,6 +119,36 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    PageWithToken:
+      type: object
+      required:
+      - limit
+      - total
+      - items
+      properties:
+        limit:
+          type: integer
+          example: 1
+          description: Maximum number of items to return.
+        pageToken:
+          type: string
+          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+          description: The cursor for pagination. Present only if there is an additional page of data to view.
+        total:
+          type: integer
+          example: 1
+          description: Total number of items matching the search criteria.
+    ResourceTypesWithPageToken:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceTypeInfo'
+            description: List of resource types.
     ErrorResponse:
       type: object
       required:
@@ -209,17 +239,6 @@ components:
             type: string
             example: footype
             description: The resource type owned by the service. eg catalog, pipeline, pipeline-template
-    ServiceInformationWithPageToken:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ServiceInformation'
-            description: Service information list.
     ErrorDetail:
       type: object
       properties:
@@ -246,7 +265,7 @@ components:
             field: size
             min: 3
             max: 64
-    ResourceTypesWithPageToken:
+    ServiceInformationWithPageToken:
       type: object
       allOf:
       - $ref: '#/components/schemas/PageWithToken'
@@ -255,64 +274,9 @@ components:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/ResourceTypeInfo'
-            description: List of resource types.
-    PageWithToken:
-      type: object
-      required:
-      - limit
-      - total
-      - items
-      properties:
-        limit:
-          type: integer
-          example: 1
-          description: Maximum number of items to return.
-        pageToken:
-          type: string
-          example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-          description: The cursor for pagination. Present only if there is an additional page of data to view.
-        total:
-          type: integer
-          example: 1
-          description: Total number of items matching the search criteria.
-  responses:
-    Unauthorized:
-      description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/XCorrelationId'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+              $ref: '#/components/schemas/ServiceInformation'
+            description: Service information list.
   parameters:
-    serviceId:
-      in: path
-      name: serviceId
-      required: true
-      description: The ID of the service to look up the information
-      schema:
-        type: string
-      example: SERVICE-00000000-0000-0000-0000-000000000000
     XCorrelationId:
       in: header
       name: X-Correlation-ID
@@ -322,6 +286,14 @@ components:
       description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated.
 
         '
+    serviceId:
+      in: path
+      name: serviceId
+      required: true
+      description: The ID of the service to look up the information
+      schema:
+        type: string
+      example: SERVICE-00000000-0000-0000-0000-000000000000
     pageToken:
       name: pageToken
       in: query
@@ -346,6 +318,34 @@ components:
       description: The alias for the service id. eg. data, pipeline
       schema:
         type: string
+  responses:
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/XCorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   headers:
     XCorrelationId:
       schema:

@@ -83,6 +83,46 @@ paths:
       - apiKey: []
 components:
   schemas:
+    WaypointDto:
+      required:
+      - eta
+      - lat
+      - lon
+      type: object
+      properties:
+        eta:
+          type: string
+          description: The estimated time of arrival (ETA) at this waypoint.
+          format: date-time
+          example: '2024-02-05T22:56:48Z'
+        lat:
+          type: number
+          description: The latitude of the waypoint.
+          format: double
+          example: 52
+        lon:
+          type: number
+          description: The longitude of the waypoint.
+          format: double
+          example: -1
+      description: The list of waypoints including each waypoint's location and ETA.
+    CurrentLocationResponseDto:
+      required:
+      - lat
+      - lon
+      type: object
+      properties:
+        lat:
+          type: number
+          description: The latitude of the current location.
+          format: double
+          example: 51
+        lon:
+          type: number
+          description: The longitude of the current location.
+          format: double
+          example: -0.5
+      description: The current location of the user.
     UserTrackingReportDto:
       required:
       - currentLocation
@@ -119,23 +159,6 @@ components:
           description: The date and time when the user location was last updated. This reflects the most recent change to the user's location or waypoints.
           format: date-time
           example: '2024-03-21T14:42:35Z'
-    CurrentLocationResponseDto:
-      required:
-      - lat
-      - lon
-      type: object
-      properties:
-        lat:
-          type: number
-          description: The latitude of the current location.
-          format: double
-          example: 51
-        lon:
-          type: number
-          description: The longitude of the current location.
-          format: double
-          example: -0.5
-      description: The current location of the user.
     ErrorResponseDto:
       required:
       - correlationId
@@ -172,29 +195,6 @@ components:
           type: string
           description: Request identifier provided by the user via `x-request-id` header
           example: REQ-5a46fd9e-6244-4dba-bdef-5bc344338fac
-    WaypointDto:
-      required:
-      - eta
-      - lat
-      - lon
-      type: object
-      properties:
-        eta:
-          type: string
-          description: The estimated time of arrival (ETA) at this waypoint.
-          format: date-time
-          example: '2024-02-05T22:56:48Z'
-        lat:
-          type: number
-          description: The latitude of the waypoint.
-          format: double
-          example: 52
-        lon:
-          type: number
-          description: The longitude of the waypoint.
-          format: double
-          example: -1
-      description: The list of waypoints including each waypoint's location and ETA.
     UnauthorizedErrorResponseDto:
       required:
       - error

@@ -599,67 +599,123 @@ paths:
       security:
       - Bearer: []
 components:
-  schemas:
+  parameters:
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
+
+
+        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      in: header
+      name: X-Request-ID
+      schema:
+        type: string
+      required: false
+      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+
+        '
+    XCorrelationId:
+      in: header
+      name: X-Correlation-ID
+      schema:
+        type: string
+      required: false
+      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
+
+        '
+    RealmQuery:
+      in: query
+      required: false
+      name: realm
+      schema:
+        type: string
+      description: "HRN identifying the Realm.  If neither `identityProvider` nor `realm` is specified, defaults to the realm \nidentified in your access token context.\n"
+      example: hrn:here:account::org123456789:realm/org123456789
     Device:
-      type: object
-      required:
-      - id
-      - hrn
-      - realm
-      - project
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the Device within the Realm.
-          example: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
-        hrn:
-          type: string
-          description: HRN for the Device
-          example: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
-        realm:
-          type: string
-          description: The HRN for the Realm of the Device.
-          example: hrn:here:account::org123456789:realm/org123456789
-        project:
-          type: string
-          description: The HRN for the Project of the Device.
-          example: hrn:here:account::org123456789:project/my-project-0000
-        identityProvider:
-          type: string
-          description: "HRN of the IdentityProvider for the Device, if the Device was created from an identity in third-party \nIdentity Provider.\n"
-          example: hrn:here:account::org123456789:identityProviders/example-op
-        externalId:
-          type: string
-          description: "External identifier for the Device under a third-party Identity Provider.\nAn example External ID is a Pseudo-VIN representing a stable hashed VIN identifying \nthe Subject vehicle at the Identity Provider.\nIf OpenID Connect Token Exchange was used to create this Device identity, the\nExternalId matches the value of the \"sub\" claim in the OP's access tokens.\nExternal IDs are considered unique for a given a Identity Provider.\n\nTODO: should we expose this in our APIs, or does it raise Privacy concerns?\n"
-          example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
-        enabled:
-          type: boolean
-          description: true if the Device is enabled for use in the platform, false if disabled for use.
-          example: true
-    DeviceList:
-      type: object
-      required:
-      - count
-      - items
-      properties:
-        count:
-          type: integer
-          description: The number of Devices in this page of the List.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Device'
-          description: List of Devices.
-        pageToken:
-          type: string
-          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
-    UpdateDevice:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: true if the Device is enabled for use in the platform, false if disabled for use.
-          example: true
+      in: path
+      required: true
+      name: device
+      schema:
+        type: string
+      description: 'HRN of the Device.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Project:
+      in: path
+      required: true
+      name: project
+      schema:
+        type: string
+      description: 'HRN identifying the Project.
+
+        '
+      example: hrn:here:authorization::org123456789:project/proj-123456
+    RequiredExternalId:
+      in: query
+      required: true
+      name: externalId
+      schema:
+        type: string
+      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.\n"
+      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+    RequiredIdentityProvider:
+      in: query
+      required: true
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: Number of records to return. Default is 100 records. Maximum is 100 records.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 100
+    IdentityProviderQuery:
+      in: query
+      required: false
+      name: identityProvider
+      schema:
+        type: string
+      description: 'HRN identifying the IdentityProvider.  Ignored if `externalId` is not specified in the request.
+
+        '
+      example: hrn:here:account::org123456789:identityProvider/example-op
+    ExternalId:
+      in: query
+      required: false
+      name: externalId
+      schema:
+        type: string
+      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.  \nIgnored if `identityProvider` is not specified in the request.\n"
+      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+  headers:
+    XRequestId:
+      schema:
+        type: string
+      required: false
+      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
+    XCorrelationId:
+      schema:
+        type: string
+      required: false
+      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+  schemas:
     ErrorMessage:
       type: object
       required:
@@ -697,122 +753,66 @@ components:
         correlationId:
           type: string
           description: The Correlation ID for the request for tracking purposes.
-  parameters:
-    RequiredExternalId:
-      in: query
-      required: true
-      name: externalId
-      schema:
-        type: string
-      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.\n"
-      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
-    PageToken:
-      name: pageToken
-      in: query
-      required: false
-      description: 'If there are more records than ''limit'' (between 1 and 100), and there are multiple pages of records, ''pageToken'' allows for retrieval of individual pages. In order to retrieve subsequent pages, the client should provide the pageToken returned in the result from the previous API call as input to the following API call.
-
-
-        Example: If the result for a call to GET /items returns *{..., "pageToken": "abcdefg"}*, in order  to retrieve the next page of ''items'' the client should call GET /items?pageToken=abcdefg
-
-        '
-      schema:
-        type: string
-    ExternalId:
-      in: query
-      required: false
-      name: externalId
-      schema:
-        type: string
-      description: "External identifier for the Device under a third-party Identity Provider.  \nIf OpenID Connect Token Exchange was used to create this Device identity, the \nExternalId matches the value of the \"sub\" claim in the OP's access tokens.  \nExternal IDs are considered unique for a given an Identity Provider.  \nIgnored if `identityProvider` is not specified in the request.\n"
-      example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
-    Project:
-      in: path
-      required: true
-      name: project
-      schema:
-        type: string
-      description: 'HRN identifying the Project.
-
-        '
-      example: hrn:here:authorization::org123456789:project/proj-123456
-    IdentityProviderQuery:
-      in: query
-      required: false
-      name: identityProvider
-      schema:
-        type: string
-      description: 'HRN identifying the IdentityProvider.  Ignored if `externalId` is not specified in the request.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
-    Limit:
-      in: query
-      name: limit
-      required: false
-      description: Number of records to return. Default is 100 records. Maximum is 100 records.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100
-        default: 100
+    UpdateDevice:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: true if the Device is enabled for use in the platform, false if disabled for use.
+          example: true
+    DeviceList:
+      type: object
+      required:
+      - count
+      - items
+      properties:
+        count:
+          type: integer
+          description: The number of Devices in this page of the List.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+          description: List of Devices.
+        pageToken:
+          type: string
+          description: "A pointer to the next page of results, if any.  \nNot present if there are no more results after the current page.\n"
     Device:
-      in: path
-      required: true
-      name: device
-      schema:
-        type: string
-      description: 'HRN of the Device.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
-    XCorrelationId:
-      in: header
-      name: X-Correlation-ID
-      schema:
-        type: string
-      required: false
-      description: 'Correlates HTTP requests between a client and server. If not present in the incoming request, it will be generated. This header and value will be included in all loglines including access logs. It will also be propagated to downstream services and returned in the response.
-
-        '
-    RequiredIdentityProvider:
-      in: query
-      required: true
-      name: identityProvider
-      schema:
-        type: string
-      description: 'HRN identifying the IdentityProvider.
-
-        '
-      example: hrn:here:account::org123456789:identityProvider/example-op
-    RealmQuery:
-      in: query
-      required: false
-      name: realm
-      schema:
-        type: string
-      description: "HRN identifying the Realm.  If neither `identityProvider` nor `realm` is specified, defaults to the realm \nidentified in your access token context.\n"
-      example: hrn:here:account::org123456789:realm/org123456789
-    XRequestId:
-      in: header
-      name: X-Request-ID
-      schema:
-        type: string
-      required: false
-      description: 'The unique for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-
-        '
-  headers:
-    XRequestId:
-      schema:
-        type: string
-      required: false
-      description: The unique id for the request, used to track this request within the service. X-Request-ID value is NOT propagated to the downstream services.
-    XCorrelationId:
-      schema:
-        type: string
-      required: false
-      description: The X-Correlation-ID for the request, used to track this request in the platform. X-Correlation-ID value is propagated throughout the platform.
+      type: object
+      required:
+      - id
+      - hrn
+      - realm
+      - project
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Device within the Realm.
+          example: DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+        hrn:
+          type: string
+          description: HRN for the Device
+          example: hrn:here:account::org123456789:devices/DEVICE-16835a01-7546-4c1c-9894-5f837f854f83
+        realm:
+          type: string
+          description: The HRN for the Realm of the Device.
+          example: hrn:here:account::org123456789:realm/org123456789
+        project:
+          type: string
+          description: The HRN for the Project of the Device.
+          example: hrn:here:account::org123456789:project/my-project-0000
+        identityProvider:
+          type: string
+          description: "HRN of the IdentityProvider for the Device, if the Device was created from an identity in third-party \nIdentity Provider.\n"
+          example: hrn:here:account::org123456789:identityProviders/example-op
+        externalId:
+          type: string
+          description: "External identifier for the Device under a third-party Identity Provider.\nAn example External ID is a Pseudo-VIN representing a stable hashed VIN identifying \nthe Subject vehicle at the Identity Provider.\nIf OpenID Connect Token Exchange was used to create this Device identity, the\nExternalId matches the value of the \"sub\" claim in the OP's access tokens.\nExternal IDs are considered unique for a given a Identity Provider.\n\nTODO: should we expose this in our APIs, or does it raise Privacy concerns?\n"
+          example: vtWk4eNAlYLi2UHJGNONTAM5Q7WV4nxHTZGiyfgpFbQ=
+        enabled:
+          type: boolean
+          description: true if the Device is enabled for use in the platform, false if disabled for use.
+          example: true
   securitySchemes:
     UserOrClientBearerToken:
       type: http

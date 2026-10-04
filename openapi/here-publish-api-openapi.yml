@@ -223,6 +223,23 @@ paths:
       x-operation-id-original: Publish API v2 uploadPartitions
 components:
   schemas:
+    VersionDependency:
+      type: object
+      properties:
+        direct:
+          type: boolean
+          description: Indicates the type of data dependency. If this value is set to false, this dependency is an indirect dependency. This means that data from this catalog was not directly used by a data processing pipeline to update the current version of the catalog. Instead, the data was only used by upstream pipelines to generate the input data for a data processing pipeline.
+          example: true
+        hrn:
+          type: string
+          description: The HERE Resource Name (HRN) of the catalog that the publication depends on.
+          example: hrn:here:data::olp-here:my-catalog
+        version:
+          type: integer
+          description: The version of the catalog metadata that the publication depends on.
+          format: int64
+          example: 1
+      description: Metadata about any dependencies on other catalogs that the publication may have.
     Details:
       type: object
       properties:
@@ -261,23 +278,14 @@ components:
           readOnly: true
           example: 1523459129829
       description: Details of the publication.
-    VersionDependency:
+    PublishPartitions:
       type: object
       properties:
-        direct:
-          type: boolean
-          description: Indicates the type of data dependency. If this value is set to false, this dependency is an indirect dependency. This means that data from this catalog was not directly used by a data processing pipeline to update the current version of the catalog. Instead, the data was only used by upstream pipelines to generate the input data for a data processing pipeline.
-          example: true
-        hrn:
-          type: string
-          description: The HERE Resource Name (HRN) of the catalog that the publication depends on.
-          example: hrn:here:data::olp-here:my-catalog
-        version:
-          type: integer
-          description: The version of the catalog metadata that the publication depends on.
-          format: int64
-          example: 1
-      description: Metadata about any dependencies on other catalogs that the publication may have.
+        partitions:
+          type: array
+          description: Array of partitions.
+          items:
+            $ref: '#/components/schemas/PublishPartition'
     Publication:
       type: object
       properties:
@@ -340,14 +348,6 @@ components:
           description: User provided CRC of the partition data in bytes. Should be lowercase.
           example: c3f276d7
       description: Metadata describing the partition being published.
-    PublishPartitions:
-      type: object
-      properties:
-        partitions:
-          type: array
-          description: Array of partitions.
-          items:
-            $ref: '#/components/schemas/PublishPartition'
   securitySchemes:
     Bearer:
       type: http

@@ -320,6 +320,85 @@ paths:
       x-operation-id-original: Query API v1 quadTreeIndexVolatile
 components:
   schemas:
+    Partition:
+      required:
+      - partition
+      - version
+      type: object
+      properties:
+        checksum:
+          type: string
+          description: The checksum of the partition. It's only provided to API calls that explicitly request a checksum and only matches partitions that have a checksum defined. You can request partitions with a specific checksum by using the `additionalFields` query parameter. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters. In the case of the compressed data, the checksum is calculated for the uncompressed data.
+          example: 291f66029c232400e3403cd6e9cfd36e
+        compressedDataSize:
+          type: integer
+          description: Indicates the compressed size of the partition data in bytes when data compression is enabled. It's only provided to API calls that explicitly request the compressed data size and only matches partitions that have a compressed data size defined. You can request partitions with a specific compressed data size by using the `additionalFields` query parameter.
+          format: int64
+          example: 1024
+        dataHandle:
+          type: string
+          description: You use the data handle when retrieving the data that relates to this partition. The data handle identifies a specific blob so that you can request the blob's contents with the Blob API. When requesting data from the Blob API, you must specify the catalog ID, layer ID and the dataHandle.
+          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
+        dataSize:
+          type: integer
+          description: Indicates the uncompressed size of the partition data in bytes. It's only provided to API calls that explicitly request the data size and only matches partitions that have a data size defined. You can request partitions with a specific data size by using the `additionalFields` query parameter.
+          format: int64
+          example: 1024
+        crc:
+          type: string
+          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
+          example: c3f276d7
+        partition:
+          type: string
+          pattern: '[a-zA-Z0-9_\-\.]'
+          description: The partition key. This is a unique key for a partition within a layer. If the layer's partitioning scheme is set to `heretile`, the partition key is equivalent to the tile key. The partition key cannot be empty. The maximum length of the partition key is 500 characters.
+          example: '314010583'
+        version:
+          type: integer
+          description: For active versioned partitions, the version of the catalog when this partition was last changed. For volatile partitions this will always be -1.
+          format: int64
+          example: 2
+      description: Describes the partition object which is unique within a layer.
+    ParentQuad:
+      required:
+      - dataHandle
+      - partition
+      - version
+      type: object
+      properties:
+        additionalMetadata:
+          type: string
+          description: Optional value for the additional metadata specified by the publisher
+          example: <Additional metadata>
+        checksum:
+          type: string
+          description: The checksum field is optional. The response includes the checksum only if you specify `checksum` in the `additionalFields` query parameter, and if a checksum was specified in the partition metadata when it was published. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters.
+          example: 291f66029c232400e3403cd6e9cfd36e
+        compressedDataSize:
+          type: integer
+          description: Optional value for the size of the compressed partition data in bytes. The response only includes the compressed data size if you specify `compressedDataSize` in the `additionalFields` query parameter, and if compression is enabled, and if `compressedDataSize` was specified in the partition metadata when it was published.
+          format: int64
+        dataHandle:
+          type: string
+          description: The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field must not have an empty value. If the dataHandle is not present when comparing two versions, the partition was deleted. The maximum length of dataHandle is 1024 characters.
+          example: 675911FF6236B7C7604BF8B105F1BB58
+        dataSize:
+          type: integer
+          description: Optional value for the size of the partition data in bytes. The response only includes the data size if you specify `dataSize` in the `additionalFields` query parameter, and if `dataSize` was specified in the partition metadata when it was published.
+          format: int64
+        crc:
+          type: string
+          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
+          example: c3f276d7
+        partition:
+          type: string
+          pattern: \d+
+          description: The id of the tile
+          example: '73982'
+        version:
+          type: integer
+          description: Version of the catalog when this partition was first published
+          format: int64
     SubQuad:
       required:
       - dataHandle
@@ -362,16 +441,6 @@ components:
           description: Version of the catalog when this partition was first published.
           format: int64
           example: 1
-    Partitions:
-      required:
-      - partitions
-      type: object
-      properties:
-        partitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Partition'
-      description: Describes a list of partitions for a given layer and layer version.
     Index:
       required:
       - parentQuads
@@ -388,85 +457,16 @@ components:
           description: Result of the index resource call. For each tile that contains data in the requested quadKey, one element with the respective sub-quad data is contained in the array.
           items:
             $ref: '#/components/schemas/SubQuad'
-    ParentQuad:
+    Partitions:
       required:
-      - dataHandle
-      - partition
-      - version
+      - partitions
       type: object
       properties:
-        additionalMetadata:
-          type: string
-          description: Optional value for the additional metadata specified by the publisher
-          example: <Additional metadata>
-        checksum:
-          type: string
-          description: The checksum field is optional. The response includes the checksum only if you specify `checksum` in the `additionalFields` query parameter, and if a checksum was specified in the partition metadata when it was published. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters.
-          example: 291f66029c232400e3403cd6e9cfd36e
-        compressedDataSize:
-          type: integer
-          description: Optional value for the size of the compressed partition data in bytes. The response only includes the compressed data size if you specify `compressedDataSize` in the `additionalFields` query parameter, and if compression is enabled, and if `compressedDataSize` was specified in the partition metadata when it was published.
-          format: int64
-        dataHandle:
-          type: string
-          description: The dataHandle must not contain any characters that are not part of the reserved and unreserved set as defined in RFC3986. This field must not have an empty value. If the dataHandle is not present when comparing two versions, the partition was deleted. The maximum length of dataHandle is 1024 characters.
-          example: 675911FF6236B7C7604BF8B105F1BB58
-        dataSize:
-          type: integer
-          description: Optional value for the size of the partition data in bytes. The response only includes the data size if you specify `dataSize` in the `additionalFields` query parameter, and if `dataSize` was specified in the partition metadata when it was published.
-          format: int64
-        crc:
-          type: string
-          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
-          example: c3f276d7
-        partition:
-          type: string
-          pattern: \d+
-          description: The id of the tile
-          example: '73982'
-        version:
-          type: integer
-          description: Version of the catalog when this partition was first published
-          format: int64
-    Partition:
-      required:
-      - partition
-      - version
-      type: object
-      properties:
-        checksum:
-          type: string
-          description: The checksum of the partition. It's only provided to API calls that explicitly request a checksum and only matches partitions that have a checksum defined. You can request partitions with a specific checksum by using the `additionalFields` query parameter. The algorithm used to calculate the checksum is user-specific. Algorithms that you can use are, for example, MD5 or SHA1. The algorithm is defined in the layer configuration. And if it is not defined in the catalog configuration, consumers cannot make any assumptions on the algorithm that was used to calculate the checksum. You need to use the checksum of the data content if you want data comparison working for this catalog. The maximum length of the checksum field is 128 characters. In the case of the compressed data, the checksum is calculated for the uncompressed data.
-          example: 291f66029c232400e3403cd6e9cfd36e
-        compressedDataSize:
-          type: integer
-          description: Indicates the compressed size of the partition data in bytes when data compression is enabled. It's only provided to API calls that explicitly request the compressed data size and only matches partitions that have a compressed data size defined. You can request partitions with a specific compressed data size by using the `additionalFields` query parameter.
-          format: int64
-          example: 1024
-        dataHandle:
-          type: string
-          description: You use the data handle when retrieving the data that relates to this partition. The data handle identifies a specific blob so that you can request the blob's contents with the Blob API. When requesting data from the Blob API, you must specify the catalog ID, layer ID and the dataHandle.
-          example: 1b2ca68f-d4a0-4379-8120-cd025640510c
-        dataSize:
-          type: integer
-          description: Indicates the uncompressed size of the partition data in bytes. It's only provided to API calls that explicitly request the data size and only matches partitions that have a data size defined. You can request partitions with a specific data size by using the `additionalFields` query parameter.
-          format: int64
-          example: 1024
-        crc:
-          type: string
-          description: Optional value for the CRC of the partition data in bytes. The response only includes the data size if you specify `crc` in the `additionalFields` query parameter, and if `crc` was specified in the partition metadata when it was published.
-          example: c3f276d7
-        partition:
-          type: string
-          pattern: '[a-zA-Z0-9_\-\.]'
-          description: The partition key. This is a unique key for a partition within a layer. If the layer's partitioning scheme is set to `heretile`, the partition key is equivalent to the tile key. The partition key cannot be empty. The maximum length of the partition key is 500 characters.
-          example: '314010583'
-        version:
-          type: integer
-          description: For active versioned partitions, the version of the catalog when this partition was last changed. For volatile partitions this will always be -1.
-          format: int64
-          example: 2
-      description: Describes the partition object which is unique within a layer.
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partition'
+      description: Describes a list of partitions for a given layer and layer version.
   parameters:
     Context:
       name: context

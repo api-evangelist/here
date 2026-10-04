@@ -227,115 +227,6 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: Rate Limit Rules API v1 getRateLimitRuleIdentity
 components:
-  parameters:
-    xRequestId:
-      name: X-Request-ID
-      in: header
-      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
-      schema:
-        type: string
-    projectHrn:
-      name: projectHrn
-      in: query
-      description: Only include rules that apply to API calls from the specified project.
-      example: hrn:here:authorization::olp-here:project/my-project-0000
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: Number of results to be returned. Values between 1 and 100
-      schema:
-        type: integer
-    endpointIdRules:
-      name: endpointId
-      in: query
-      description: Only include rules that apply to API calls to the specified endpoint.
-      example: search-geocode
-      schema:
-        type: string
-    identityHrn:
-      name: identityHrn
-      in: path
-      description: 'Only include rules that apply to API calls from the specified identity. Values supported include a specific
-
-        *appHrn* or a specific *userHrn*.
-
-        '
-      required: true
-      example: hrn:here:account::olp-here:app/Gtujkja8498vmk90
-      schema:
-        type: string
-    url:
-      name: url
-      in: query
-      description: Only include rules that apply to API calls to the specified URL.
-      example: https://geocode.search.hereapi.com/v1/geocode?q=berlin
-      schema:
-        type: string
-    pageToken:
-      name: pageToken
-      schema:
-        type: string
-      in: query
-      description: The cursor for pagination. Present only if there is an additional page of data to view.
-      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
-    ruleHrn:
-      name: ruleHrn
-      in: path
-      description: HRN identifying the rate limit rule
-      required: true
-      example: hrn:here:iam::olp-here:ratelimit/freemium-policy-rate-limit-rule
-      schema:
-        type: string
-  responses:
-    Forbidden:
-      description: You do not have permission to perform this action
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
-    Unauthorized:
-      description: Access is denied due to invalid credentials
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AuthErrorResponse'
-    NotFound:
-      description: The requested resource was not found, see error response for details
-      headers:
-        X-Correlation-ID:
-          $ref: '#/components/headers/X-Correlation-ID'
-        X-Request-ID:
-          $ref: '#/components/headers/X-Request-ID'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-  headers:
-    X-Request-ID:
-      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
-
-        '
-      schema:
-        type: string
-    X-Correlation-ID:
-      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
-
-        '
-      schema:
-        type: string
-      example: 4199533b-6290-41db-8d79-edf4f4019a74
   schemas:
     PageWithToken:
       type: object
@@ -356,54 +247,29 @@ components:
           example: 5
           type: integer
           description: Maximum number of items as specified in request
-    RateLimitValue:
+    Rule:
       type: object
-      description: 'The rate limit value defined in context of the metric selected for the rule.
-
-        '
+      description: The rate limit data model separates the notion of applicability from grouping. Thus, a rate limiting rule can define the universe of requests to which it is applied, and can then separately define the way in which those requests will be grouped. For example, a rule could define a rate limit for all requests from clients in a certain realm, but group those requests by appId. A separate different rule could apply to the same realm, but group all the request from that realm together into a single bucket.
       required:
-      - period
-      - periodValue
-      - value
+      - id
+      - schemaVersion
+      - rule
       properties:
-        period:
+        id:
           type: string
-          description: The time value unit to be used for periodValue
-          example: minutes
-          enum:
-          - seconds
-          - minutes
-          - hours
-          - days
-        periodValue:
-          type: integer
-          description: The value of the time period based on unit defined in period
-          example: 15
-        value:
-          type: integer
-          description: The value of the rate limit to be applied to the metric in the time window determined by periodValue
-          example: 10000
-    RulePageWithToken:
-      allOf:
-      - $ref: '#/components/schemas/PageWithToken'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Rule'
-    AuthErrorResponse:
-      type: object
-      required:
-      - error
-      - error_description
-      properties:
-        error:
+          description: User defined id for the rule
+          example: freemium-policy-rate-limit-rule
+          pattern: ^[a-z0-9-_]{6,32}$
+        hrn:
           type: string
-          description: Error title
-        error_description:
+          readOnly: true
+          description: Hrn for the rate limiting rule
+          example: hrn:here:iam::olp-here:ratelimit/freemium-policy-rate-limit-rule
+        description:
           type: string
-          description: Error description
+          description: Summary of the rule definition
+        rule:
+          $ref: '#/components/schemas/RuleSchemaVersion1'
     RequestMatchingCriteria:
       type: object
       description: The criteria is used to match a rule applies to the incoming request.
@@ -444,55 +310,6 @@ components:
           type: string
           description: the action associated with the request
           example: geocode
-    Rule:
-      type: object
-      description: The rate limit data model separates the notion of applicability from grouping. Thus, a rate limiting rule can define the universe of requests to which it is applied, and can then separately define the way in which those requests will be grouped. For example, a rule could define a rate limit for all requests from clients in a certain realm, but group those requests by appId. A separate different rule could apply to the same realm, but group all the request from that realm together into a single bucket.
-      required:
-      - id
-      - schemaVersion
-      - rule
-      properties:
-        id:
-          type: string
-          description: User defined id for the rule
-          example: freemium-policy-rate-limit-rule
-          pattern: ^[a-z0-9-_]{6,32}$
-        hrn:
-          type: string
-          readOnly: true
-          description: Hrn for the rate limiting rule
-          example: hrn:here:iam::olp-here:ratelimit/freemium-policy-rate-limit-rule
-        description:
-          type: string
-          description: Summary of the rule definition
-        rule:
-          $ref: '#/components/schemas/RuleSchemaVersion1'
-    ErrorDetail:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Error message
-          example: Invalid size value
-        source:
-          type: string
-          description: Reference to JSON path
-          example: $.data.attributes[0].size
-        message:
-          type: string
-          description: Detailed error message
-          example: Size must be between 3 and 64
-        messageTemplate:
-          type: string
-          description: Optional error template
-          example: validation.constraint.between
-        messagePlaceholders:
-          type: object
-          additionalProperties: {}
-          example:
-            field: size
-            min: 3
-            max: 64
     RuleSchemaVersion1:
       type: object
       required:
@@ -539,6 +356,80 @@ components:
           enum:
           - byMatchingCriteria
           - byMatchingCriteriaAndGroupingMask
+    RateLimitValue:
+      type: object
+      description: 'The rate limit value defined in context of the metric selected for the rule.
+
+        '
+      required:
+      - period
+      - periodValue
+      - value
+      properties:
+        period:
+          type: string
+          description: The time value unit to be used for periodValue
+          example: minutes
+          enum:
+          - seconds
+          - minutes
+          - hours
+          - days
+        periodValue:
+          type: integer
+          description: The value of the time period based on unit defined in period
+          example: 15
+        value:
+          type: integer
+          description: The value of the rate limit to be applied to the metric in the time window determined by periodValue
+          example: 10000
+    AuthErrorResponse:
+      type: object
+      required:
+      - error
+      - error_description
+      properties:
+        error:
+          type: string
+          description: Error title
+        error_description:
+          type: string
+          description: Error description
+    ErrorDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Error message
+          example: Invalid size value
+        source:
+          type: string
+          description: Reference to JSON path
+          example: $.data.attributes[0].size
+        message:
+          type: string
+          description: Detailed error message
+          example: Size must be between 3 and 64
+        messageTemplate:
+          type: string
+          description: Optional error template
+          example: validation.constraint.between
+        messagePlaceholders:
+          type: object
+          additionalProperties: {}
+          example:
+            field: size
+            min: 3
+            max: 64
+    RulePageWithToken:
+      allOf:
+      - $ref: '#/components/schemas/PageWithToken'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Rule'
     ErrorResponse:
       type: object
       required:
@@ -583,6 +474,115 @@ components:
           description: Collection of error details
           items:
             $ref: '#/components/schemas/ErrorDetail'
+  parameters:
+    identityHrn:
+      name: identityHrn
+      in: path
+      description: 'Only include rules that apply to API calls from the specified identity. Values supported include a specific
+
+        *appHrn* or a specific *userHrn*.
+
+        '
+      required: true
+      example: hrn:here:account::olp-here:app/Gtujkja8498vmk90
+      schema:
+        type: string
+    url:
+      name: url
+      in: query
+      description: Only include rules that apply to API calls to the specified URL.
+      example: https://geocode.search.hereapi.com/v1/geocode?q=berlin
+      schema:
+        type: string
+    pageToken:
+      name: pageToken
+      schema:
+        type: string
+      in: query
+      description: The cursor for pagination. Present only if there is an additional page of data to view.
+      example: KuMvTQrdHVVKuMDDdcIvTQrdci1FWdcIHVVci1FW
+    endpointIdRules:
+      name: endpointId
+      in: query
+      description: Only include rules that apply to API calls to the specified endpoint.
+      example: search-geocode
+      schema:
+        type: string
+    xRequestId:
+      name: X-Request-ID
+      in: header
+      description: User-provided token that can be used to trace a request or a group of requests sent to the service.
+      schema:
+        type: string
+    projectHrn:
+      name: projectHrn
+      in: query
+      description: Only include rules that apply to API calls from the specified project.
+      example: hrn:here:authorization::olp-here:project/my-project-0000
+      schema:
+        type: string
+    ruleHrn:
+      name: ruleHrn
+      in: path
+      description: HRN identifying the rate limit rule
+      required: true
+      example: hrn:here:iam::olp-here:ratelimit/freemium-policy-rate-limit-rule
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: Number of results to be returned. Values between 1 and 100
+      schema:
+        type: integer
+  responses:
+    Unauthorized:
+      description: Access is denied due to invalid credentials
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+    Forbidden:
+      description: You do not have permission to perform this action
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthErrorResponse'
+    NotFound:
+      description: The requested resource was not found, see error response for details
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/X-Correlation-ID'
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    X-Request-ID:
+      description: 'User-provided token that can be used to trace a request or a group of requests sent to the service.
+
+        '
+      schema:
+        type: string
+    X-Correlation-ID:
+      description: 'Auto-generated ID, which uniquely identifies the request, available in the response. When contacting support with an inquiry regarding a specific request, provide the value of this header which will help troubleshooting the issue.
+
+        '
+      schema:
+        type: string
+      example: 4199533b-6290-41db-8d79-edf4f4019a74
   securitySchemes:
     token:
       type: http
