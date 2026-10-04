@@ -10267,6 +10267,8 @@ apis:
     https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/README.html
   baseURL: https://geocode.search.hereapi.com
   tags:
+  - PipelineVersions
+  tags_raw:
   - Pipeline Versions
   properties:
   - type: OpenAPI
@@ -10474,6 +10476,9 @@ accessModel:
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/here.png
 common:
+- type: CapabilityMap
+  url: capabilities/here-capability-edges.yml
+  name: HERE Business Capability Map
 - type: Overlay
   url: overlays/here-account-v1-overlay.yaml
 - type: Overlay
