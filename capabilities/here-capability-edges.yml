@@ -1,0 +1,228 @@
+slug: here
+provider: HERE
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 21
+edges:
+- tag: Grants
+  spec_file: here-grants-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: '"Grant access to a resource to an entity"; "Revoke access to a resource from an entity";
+    "List grants on users, apps, or groups"'
+  reason: Authorization API operations that grant and revoke resource permissions for users, apps and
+    groups are squarely identity and access management; no other reading of these operations fits.
+- tag: Roles
+  spec_file: here-roles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: GET /roles/{role}/permissions  getRolePermissions; POST /roles/{role}/entities/{entity}  addRoleEntity  Assign
+    a role to an entity; DELETE ... Revoke a role from an entity
+  reason: Authorization API surface for roles, permissions, access filters and role assignment/revocation
+    to entities — plainly role-based access control, i.e. Identity & Access Management.
+- tag: Groups
+  spec_file: here-groups-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: '"Get group permissions"; "Get Group Policy Permissions"; "Add a member to a group"; schemas
+    ActivePermission, AttachedUnscopedPolicy'
+  reason: Authorization API group lifecycle, membership, roles, policies and permissions — classic access-management
+    administration. Could also be read as tenant identity federation, but the surface is generic org-level
+    IAM.
+- tag: Manage Identity Providers for a Realm
+  spec_file: here-manage-identity-providers-for-a-realm-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: '"Add a new trusted OpenID Connect Identity Provider to a Realm"'
+  reason: Configuring trusted OIDC identity providers and issuers is federation configuration — squarely
+    Identity & Access Management.
+- tag: Manage Identity Providers for an App
+  spec_file: here-manage-identity-providers-for-an-app-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: '"Attach a trusted OpenID Connect Identity Provider to an App"'
+  reason: Attaching federated OIDC identity providers to applications is identity federation configuration,
+    i.e. IAM.
+- tag: Manage SAML identity providers
+  spec_file: here-manage-saml-identity-providers-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: '"Create a SAML identity provider" ... "Enable identity provider"'
+  reason: SAML IdP lifecycle and enablement is SSO federation management, a core IAM function.
+- tag: Manage mTLS Identity Providers
+  spec_file: here-manage-mtls-identity-providers-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: '"Create an mTLS Identity Provider" ... "List the mTLS Authenticators configured for an App"'
+  reason: Mutual-TLS identity providers, CAs and authenticators are credential/authentication infrastructure
+    — identity and access management.
+- tag: Realms
+  spec_file: here-realms-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: getRealmMembers  Get realm members; getEntityRoleAssignments  Get entity roles; createRealmMemberInvite  Create
+    and send a user invitation for a realm
+  reason: Authorization API managing realm membership, invitations, role assignments and group membership
+    — identity and access management. Could alternatively be read as tenant identity federation, but the
+    operations are generic IAM member/role administration.
+- tag: API Key Management
+  spec_file: here-api-key-management-api-openapi.yml
+  capability_id: BC-4270.40
+  capability_id_l1: BC-4270
+  capability_name: Developer Identity & Credential Management
+  confidence: 0.82
+  evidence: 'POST /apps/{app}/apiKeys  generateAPIKey  Generate API Key; schemas: APIKeyGenerateRequest,
+    APIKeyEnabled'
+  reason: Operations issue, enable, disable and revoke API keys for developer applications on HERE's platform
+    — developer credential issuance and stewardship. Alternative reading is generic IAM, but the surface
+    is app/developer-credential scoped.
+- tag: Application Access Key Management
+  spec_file: here-application-access-key-management-api-openapi.yml
+  capability_id: BC-4270.40
+  capability_id_l1: BC-4270
+  capability_name: Developer Identity & Credential Management
+  confidence: 0.8
+  evidence: 'POST /apps/{app}/accessKeys  createAccessKey  Create Access Key; schemas: AccessKey, CreateAccessKeyResponse'
+  reason: Creation, listing, enable/disable and deletion of application access keys — issuance and stewardship
+    of developer credentials for platform apps.
+- tag: Project Access Management
+  spec_file: here-project-access-management-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: '''Add the member to the requested Project'', ''Create the requested Project Policy'', ''Get
+    the list of all Project Members with the attached Policy''; schemas ActivePermission, AttachedPolicy,
+    AccessFilter'
+  reason: Membership, policy attachment and permission evaluation within the Authorization API is straightforward
+    identity and access management.
+- tag: Rate Limit Rules
+  spec_file: here-rate-limit-rules-api-openapi.yml
+  capability_id: BC-4270.50
+  capability_id_l1: BC-4270
+  capability_name: API Consumption Governance
+  confidence: 0.8
+  evidence: The Rate Limit Rules API provides information about rate limit rules that are actively being
+    enforced for your organization.
+  reason: Exposes per-identity rate limit rules enforced on API consumption, which is squarely API Consumption
+    Governance (quotas, rate limits) within the developer platform. Slight risk that this counts as pure
+    plumbing, hence 0.8.
+- tag: Resource Policies
+  spec_file: here-resource-policies-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: createResourcePolicy  Create a resource policy; addResourcesToResourcePolicy  Add resources
+    to a resource policy
+  reason: 'Part of the Authorization API: CRUD of resource access policies attaching permissions to resources
+    — access management policy administration. Ambiguity between IAM and security governance, hence 0.8.'
+- tag: Synchronous
+  spec_file: here-synchronous-api-openapi.yml
+  capability_id: BC-520.50
+  capability_id_l1: BC-520
+  capability_name: Logistics Operations Management
+  confidence: 0.8
+  evidence: '"Submit a Vehicle Routing Problem to solve it synchronously"; "dynamically optimize routes
+    for multiple vehicles visiting a set of locations, considering real-life constraints such as limited
+    vehicle capacity and delivery time windows"'
+  reason: Vehicle routing and tour optimisation with capacity and delivery time windows is transport/logistics
+    execution planning, realising Logistics Operations Management for whoever consumes it.
+- tag: Authorization Share
+  spec_file: here-authorization-share-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: POST /group/{groupId}/authorization/share/permissions  Share permissions to a group
+  reason: Granting and revoking permissions to users, apps and groups over resources — access rights administration,
+    squarely identity & access management.
+- tag: Manage Device Accounts
+  spec_file: here-manage-device-accounts-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: '"Authentication API v1.1" ... GET /devices listDevices "List Devices", PATCH /devices/{device}
+    "Update a Device by HRN"'
+  reason: Device accounts within an authentication API are machine identities; CRUD over device credentials/accounts
+    is identity & access management. Some ambiguity as it could be read as pure platform plumbing, hence
+    moderate confidence.
+- tag: Subscriptions
+  spec_file: here-subscriptions-api-openapi.yml
+  capability_id: BC-4240
+  capability_id_l1: BC-4240
+  capability_name: Subscription Lifecycle Management
+  confidence: 0.75
+  evidence: '"The HERE WeGo user service manages user entitlements and it provides role-based access control
+    (RBAC) to those entitlements"; operations "Create new subscription keys", "Add a feature group to
+    a subscription", "Get active subscriptions", "Deactivate subscription devices"'
+  reason: Operations create, update, extend (feature groups) and deactivate end-customer subscriptions
+    and their entitlements — the SaaS subscription lifecycle. Spans design/provisioning/modification/termination
+    sub-capabilities, so only the L1 is asserted.
+- tag: Access Filters
+  spec_file: here-access-filters-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.72
+  evidence: 'GET /filters/{filterHrn}/members  getAccessFilterMembers; schemas: AccessFilterStatements,
+    AccessFilterStatement'
+  reason: Authorization API managing access filter policy statements and their members — access control
+    policy administration, i.e. identity & access management. Somewhat generic, hence moderate confidence.
+- tag: SAML Identity Provider Templates
+  spec_file: here-saml-identity-provider-templates-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.72
+  evidence: GET /samlIdentityProvidersTemplates  listOfIdpTemplates  List of supported SAML Identity Provider
+    templates
+  reason: Part of the Authentication API exposing SAML identity-provider templates, i.e. identity federation
+    configuration. Confidence held down because the surface is a single read-only template listing rather
+    than full federation lifecycle.
+- tag: Shipments
+  spec_file: here-shipments-api-openapi.yml
+  capability_id: BC-520.50
+  capability_id_l1: BC-520
+  capability_name: Logistics Operations Management
+  confidence: 0.72
+  evidence: POST /shipments/v4  postShipmentsV4  Creates a shipment; GET /shipments/v4/{shipmentId}/{segmentId}  Gets
+    a segment details; GET /shipments/v4/{trackingId}/segments  Gets segments assigned to a device
+  reason: Shipment and shipment-segment lifecycle with devices assigned for tracking — in-transit shipment
+    visibility, which sits under Logistics Operations Management. Some ambiguity versus supply-chain visibility/risk,
+    so confidence is moderate.
+- tag: Authorization Information
+  spec_file: here-authorization-information-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: GET /user/me/authorization/permissions  HereAccountV1APIsGetMyPermissions  Get my permissions
+  reason: Introspection of user and application permissions, roles and policies — read side of identity
+    and access management. Read-only introspection makes it a thinner edge.
