@@ -1,0 +1,13 @@
+fetched: '2026-10-14'
+method: fetched
+source: https://www.here.com/docs/bundle/map-tile-api-developer-guide/page/README.html
+page: https://www.here.com/docs/bundle/map-tile-api-developer-guide/page/README.html
+file: here-ogc-1.md
+bytes: 6677
+sha256: fc07a4eff11dcee34b94eb58269cd3834e0a6a1825d4b4ac728534a2db3e2c47
+anchor: ogc
+shape: ogc
+shapes_declared: []
+classification: no-compatibility-statement
+quote: null
+note: text extracted from the provider's own page (tags stripped), saved for evidence
