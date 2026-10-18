@@ -3,6 +3,7 @@ provider: HERE
 generated_by: planning/capability-mapping/scripts/classify_capabilities.py
 model: claude-opus-5
 frame:
+- Infrastructure
 - Software & Technology
 min_confidence: 0.7
 capability_model:
@@ -11,8 +12,37 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 21
+edge_count: 25
 edges:
+- tag: Manage Identity Providers for a Realm
+  spec_file: here-manage-identity-providers-for-a-realm-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.92
+  evidence: POST /realms/{realm}/identityProviders addIdentityProvider Add a new trusted OpenID Connect
+    Identity Provider to a Realm
+  reason: Registration and lifecycle of trusted OIDC identity providers and issuer attachments per realm
+    is federation configuration — squarely Identity & Access Management.
+- tag: Manage Identity Providers for an App
+  spec_file: here-manage-identity-providers-for-an-app-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.92
+  evidence: POST /apps/{app}/identityProviders/{identityProvider} createAppIdentityProviderAttachment
+    Attach a trusted OpenID Connect Identity Provider to an App
+  reason: Attaching and detaching trusted OIDC identity providers to applications is identity federation
+    administration, i.e. Identity & Access Management.
+- tag: Manage SAML identity providers
+  spec_file: here-manage-saml-identity-providers-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.92
+  evidence: POST /realms/{realm}/samlIdentityProviders createIdpConfig Create a SAML identity provider
+  reason: Create/enable/disable/delete of SAML IdP configurations within an authentication service is
+    single-sign-on federation management, a core Identity & Access Management function.
 - tag: Grants
   spec_file: here-grants-api-openapi.yml
   capability_id: BC-620.20
@@ -23,6 +53,16 @@ edges:
     "List grants on users, apps, or groups"'
   reason: Authorization API operations that grant and revoke resource permissions for users, apps and
     groups are squarely identity and access management; no other reading of these operations fits.
+- tag: Manage mTLS Identity Providers
+  spec_file: here-manage-mtls-identity-providers-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: POST /realms/{realm}/mtlsIdentityProviders createMtlsIdentityProvider Create an mTLS Identity
+    Provider
+  reason: Management of mTLS identity providers, certificate authorities and authenticators for realms
+    and apps is credential-based authentication administration — Identity & Access Management.
 - tag: Roles
   spec_file: here-roles-api-openapi.yml
   capability_id: BC-620.20
@@ -44,41 +84,6 @@ edges:
   reason: Authorization API group lifecycle, membership, roles, policies and permissions — classic access-management
     administration. Could also be read as tenant identity federation, but the surface is generic org-level
     IAM.
-- tag: Manage Identity Providers for a Realm
-  spec_file: here-manage-identity-providers-for-a-realm-api-openapi.yml
-  capability_id: BC-620.20
-  capability_id_l1: BC-620
-  capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: '"Add a new trusted OpenID Connect Identity Provider to a Realm"'
-  reason: Configuring trusted OIDC identity providers and issuers is federation configuration — squarely
-    Identity & Access Management.
-- tag: Manage Identity Providers for an App
-  spec_file: here-manage-identity-providers-for-an-app-api-openapi.yml
-  capability_id: BC-620.20
-  capability_id_l1: BC-620
-  capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: '"Attach a trusted OpenID Connect Identity Provider to an App"'
-  reason: Attaching federated OIDC identity providers to applications is identity federation configuration,
-    i.e. IAM.
-- tag: Manage SAML identity providers
-  spec_file: here-manage-saml-identity-providers-api-openapi.yml
-  capability_id: BC-620.20
-  capability_id_l1: BC-620
-  capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: '"Create a SAML identity provider" ... "Enable identity provider"'
-  reason: SAML IdP lifecycle and enablement is SSO federation management, a core IAM function.
-- tag: Manage mTLS Identity Providers
-  spec_file: here-manage-mtls-identity-providers-api-openapi.yml
-  capability_id: BC-620.20
-  capability_id_l1: BC-620
-  capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: '"Create an mTLS Identity Provider" ... "List the mTLS Authenticators configured for an App"'
-  reason: Mutual-TLS identity providers, CAs and authenticators are credential/authentication infrastructure
-    — identity and access management.
 - tag: Realms
   spec_file: here-realms-api-openapi.yml
   capability_id: BC-620.20
@@ -101,6 +106,16 @@ edges:
   reason: Operations issue, enable, disable and revoke API keys for developer applications on HERE's platform
     — developer credential issuance and stewardship. Alternative reading is generic IAM, but the surface
     is app/developer-credential scoped.
+- tag: Resource Policies
+  spec_file: here-resource-policies-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.82
+  evidence: '"Authorization API v1.1" ... "Create a resource policy", "Add resources to a resource policy",
+    schema "allowedActions"'
+  reason: Operations manage authorization policies binding allowed actions to resources — access control
+    administration, i.e. Identity & Access Management, not a domain business capability.
 - tag: Application Access Key Management
   spec_file: here-application-access-key-management-api-openapi.yml
   capability_id: BC-4270.40
@@ -132,16 +147,6 @@ edges:
   reason: Exposes per-identity rate limit rules enforced on API consumption, which is squarely API Consumption
     Governance (quotas, rate limits) within the developer platform. Slight risk that this counts as pure
     plumbing, hence 0.8.
-- tag: Resource Policies
-  spec_file: here-resource-policies-api-openapi.yml
-  capability_id: BC-620.20
-  capability_id_l1: BC-620
-  capability_name: Identity & Access Management
-  confidence: 0.8
-  evidence: createResourcePolicy  Create a resource policy; addResourcesToResourcePolicy  Add resources
-    to a resource policy
-  reason: 'Part of the Authorization API: CRUD of resource access policies attaching permissions to resources
-    — access management policy administration. Ambiguity between IAM and security governance, hence 0.8.'
 - tag: Synchronous
   spec_file: here-synchronous-api-openapi.yml
   capability_id: BC-520.50
@@ -185,6 +190,18 @@ edges:
   reason: Operations create, update, extend (feature groups) and deactivate end-customer subscriptions
     and their entitlements — the SaaS subscription lifecycle. Spans design/provisioning/modification/termination
     sub-capabilities, so only the L1 is asserted.
+- tag: Asynchronous
+  spec_file: here-asynchronous-api-openapi.yml
+  capability_id: BC-520.50
+  capability_id_l1: BC-520
+  capability_name: Logistics Operations Management
+  confidence: 0.74
+  evidence: POST /problems/async  submitProblemAsync  Submit a Vehicle Routing Problem to solve it asynchronously;
+    "dynamically optimize routes for multiple vehicles visiting a set of locations, considering real-life
+    constraints such as limited vehicle capacity and delivery time windows"
+  reason: Despite the technical tag name, the operations submit and retrieve solutions to vehicle routing
+    problems with capacity and delivery time windows — fleet route optimisation, i.e. transport/logistics
+    operations. Confidence tempered because the tag itself only denotes the async execution mode.
 - tag: Access Filters
   spec_file: here-access-filters-api-openapi.yml
   capability_id: BC-620.20
@@ -195,6 +212,16 @@ edges:
     AccessFilterStatement'
   reason: Authorization API managing access filter policy statements and their members — access control
     policy administration, i.e. identity & access management. Somewhat generic, hence moderate confidence.
+- tag: List Apps for an Identity Provider
+  spec_file: here-list-apps-for-an-identity-provider-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.72
+  evidence: GET /realms/{realm}/identityProviders/{identityProvider}/apps listAppsForProvider List the
+    Apps which have attached the specified Identity Provider
+  reason: Authentication API surface listing applications federated to an identity provider; maps to identity
+    federation under IAM, though the single read-only operation makes the evidence thin.
 - tag: SAML Identity Provider Templates
   spec_file: here-saml-identity-provider-templates-api-openapi.yml
   capability_id: BC-620.20
@@ -226,3 +253,25 @@ edges:
   evidence: GET /user/me/authorization/permissions  HereAccountV1APIsGetMyPermissions  Get my permissions
   reason: Introspection of user and application permissions, roles and policies — read side of identity
     and access management. Read-only introspection makes it a thinner edge.
+- tag: Usage
+  spec_file: here-usage-api-openapi.yml
+  capability_id: BC-4250.10
+  capability_id_l1: BC-4250
+  capability_name: Usage Metering
+  confidence: 0.7
+  evidence: Provides API reference details for Usage API v2 which you can use to retrieve billable usage
+    information. Usage billing rates are dependent on your licensing terms.
+  reason: Operations aggregate and report billable platform usage per organisation/realm and generate
+    usage reports for partner subaccounts, which is usage metering feeding downstream rating and billing.
+    Some ambiguity with API consumption governance, hence moderate confidence.
+- tag: User Account Management
+  spec_file: here-user-account-management-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /users/{user}/activate  activateUserAccount  Activate User Account ... DELETE /users/{user}  deleteUserAccount  Delete
+    User Account
+  reason: Activation, deactivation and deletion of user accounts plus listing a user's accessible applications
+    is account lifecycle and access administration, i.e. identity and access management. Could alternatively
+    be read as developer identity, so confidence is moderate.
