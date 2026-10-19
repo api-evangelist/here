@@ -1,0 +1,169 @@
+edges:
+- partner_name: Maven Central
+  partner: maven-central
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: official SDK (Java/JVM)
+  evidence: https://central.sonatype.com/artifact/com.here.account/here-aaa-sdk
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: Maven Central (public registry JSON)
+    spec_file: null
+    language: Java/JVM
+    packages:
+    - name: com.here.account:here-aaa-sdk
+      version: 0.4.37
+      released: '2026-10-15'
+      released_field: lastUpdated
+      lapsed: false
+      page: https://central.sonatype.com/artifact/com.here.account/here-aaa-sdk
+      repo_leg: github-org:heremaps
+      publisher_leg: groupId:here.com
+      matched_by: domain+name-among-holders
+    - name: com.here.platform.artifact.gradle:gradle-resolver
+      version: 2.0.1
+      released: '2026-08-25'
+      released_field: lastUpdated
+      lapsed: false
+      page: https://central.sonatype.com/artifact/com.here.platform.artifact.gradle/gradle-resolver
+      repo_leg: github-org:heremaps
+      publisher_leg: groupId:here.com
+      matched_by: domain+name-among-holders
+    - name: com.here.platform.artifact:artifact-wagon
+      version: 2.0.39
+      released: '2026-08-03'
+      released_field: lastUpdated
+      lapsed: false
+      page: https://central.sonatype.com/artifact/com.here.platform.artifact/artifact-wagon
+      repo_leg: github-org:heremaps
+      publisher_leg: groupId:here.com
+      matched_by: domain+name-among-holders
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  detected_by: sweep-official-sdks.py
+  first_seen: '2026-10-18'
+- partner_name: npm registry
+  partner: npm
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: official SDK (JavaScript/TypeScript)
+  evidence: https://www.npmjs.com/package/@here/cli
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: npm registry (public registry JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@here/cli'
+      version: 1.9.0
+      released: '2022-04-05'
+      released_field: modified
+      lapsed: true
+      page: https://www.npmjs.com/package/@here/cli
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/flexpolyline'
+      version: 0.1.0
+      released: '2024-03-20'
+      released_field: modified
+      lapsed: true
+      page: https://www.npmjs.com/package/@here/flexpolyline
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/harp.gl'
+      version: 0.28.0
+      released: '2022-04-05'
+      released_field: modified
+      lapsed: true
+      page: https://www.npmjs.com/package/@here/harp.gl
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-authentication'
+      version: 3.0.0
+      released: '2026-08-20'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-authentication
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-core'
+      version: 3.0.0
+      released: '2026-08-20'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-core
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-dataservice-api'
+      version: 3.0.0
+      released: '2026-08-20'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-dataservice-api
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-dataservice-read'
+      version: 3.1.0
+      released: '2026-09-22'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-dataservice-read
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-dataservice-write'
+      version: 3.0.0
+      released: '2026-08-20'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-dataservice-write
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    - name: '@here/olp-sdk-fetch'
+      version: 3.0.0
+      released: '2026-08-20'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@here/olp-sdk-fetch
+      repo_leg: github-org:heremaps
+      publisher_leg: email:here.com
+      matched_by: domain+name-among-holders
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  detected_by: sweep-official-sdks.py
+  first_seen: '2026-10-18'
+generated: '2026-10-18'
+method: searched
+source:
+- https://api.nuget.org/v3
+- https://crates.io/api/v1
+- https://proxy.golang.org
+- https://pypi.org/pypi
+- https://registry.npmjs.org
+- https://repo1.maven.org/maven2
+- https://rubygems.org/api/v1
+checked:
+- https://api.nuget.org/v3
+- https://crates.io/api/v1
+- https://proxy.golang.org
+- https://pypi.org/pypi
+- https://registry.npmjs.org
+- https://repo1.maven.org/maven2
+- https://rubygems.org/api/v1
