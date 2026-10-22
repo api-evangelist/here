@@ -245,6 +245,54 @@ edges:
   - AWS Specializations
   - Deployed on AWS
   - Standard Data Agreement
+- partner_name: APIs.guru OpenAPI Directory
+  partner: apis-guru
+  partner_match: register
+  type: register
+  channel: standard-directory
+  relationship: standard-participant
+  direction: third-party
+  evidence: https://apis.guru/
+  category: API definition directory listing (OpenAPI)
+  contract_reference:
+    register: APIs.guru OpenAPI Directory
+    spec_file: null
+    standard: APIs.guru OpenAPI Directory
+    role: listed-in-directory
+    directory_provider: here.com
+    matched_domain: here.com
+    matched_by: domain+name-among-holders
+    apis_listed: 2
+    version_count: 2
+    first_added: '2019-02-26'
+    last_updated: '2023-03-06'
+    origin_publisher_hosted: true
+    origin_hosts:
+    - developer.here.com
+    categories:
+    - location
+    own_openapi_files: 121
+    listings:
+    - key: here.com:positioning
+      title: HERE Network Positioning API v2
+      preferred: 2.1.1
+      versions: 1
+      swagger_url: https://api.apis.guru/v2/specs/here.com/positioning/2.1.1/openapi.json
+      origin_url: https://developer.here.com/documentation/positioning-api/swagger/positioning-v2-external-spec.yaml
+      openapi_version: 3.0.0
+    - key: here.com:tracking
+      title: HERE Tracking
+      preferred: 2.1.191
+      versions: 1
+      swagger_url: https://api.apis.guru/v2/specs/here.com/tracking/2.1.191/openapi.json
+      origin_url: https://developer.here.com/documentation/tracking/swagger/swagger.json
+      openapi_version: 3.0.0
+    signal_note: 'participation only: a community directory listing (APIs.guru collects definitions; the provider
+      did not file them). Signals: version_count, apis_listed, origin_publisher_hosted.'
+    detected_by: sweep-openapi-directory-apis-guru.py
+    detected: '2026-10-22'
+  detected_by: sweep-openapi-directory-apis-guru.py
+  first_seen: '2026-10-22'
 generated: '2026-10-18'
 method: searched
 source:
@@ -271,3 +319,5 @@ checked:
 - https://github.com/ScoopInstaller/Extras
 - https://github.com/ScoopInstaller/Main
 - https://aws.amazon.com/marketplace/search/results?FULFILLMENT_OPTION_TYPE=DATA_EXCHANGE
+- https://api.apis.guru/v2/list.json
+- https://api.apis.guru/v2/providers.json
