@@ -12,6 +12,9 @@ artifacts:
   authentication/here-authentication.yml:
     method: derived
     evidence: declared in the artifact
+  capabilities/here-capability-edges.yml:
+    method: unknown
+    evidence: no authorship recorded
   changelog/here-changelog.yml:
     method: searched
     evidence: declared in the artifact
@@ -57,127 +60,13 @@ artifacts:
   grpc/here-hdgnss-positioning-server-response.proto:
     method: unknown
     evidence: no authorship recorded
-  kin/checks-2026-09-24T161608.yml:
+  integrations/_index.yml:
     method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T125852.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T133943.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T143147.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T154045.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-26T215308.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T094438.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T103455.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T123021.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T132314.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T140727.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-28T221322.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-29T213958.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-29T230545.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-30T203505.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-30T220315.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-31T223420.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T063623.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T210448.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T222808.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-02T211804.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-02T224043.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-03T161828.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-03T174231.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T062714.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T212454.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T224856.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T055819.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T072335.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T144739.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T195450.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T211839.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T011047.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T211804.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T224210.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-07T200636.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-07T213054.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-08T214843.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-08T232836.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-10T204815.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-10T222408.yml:
+    evidence: carries an API Evangelist house phrase
+  integrations/here-integration-edges.yml:
+    method: unknown
+    evidence: no authorship recorded
+  kin/checks-2026-10-11T110117.yml:
     method: generated
     evidence: Kin Score snapshot written by score.rb
   kin/score-2026-09-12T062655.yml:
@@ -259,6 +148,21 @@ artifacts:
     method: generated
     evidence: Kin Score snapshot written by score.rb
   kin/score-2026-09-24T161608.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-09-25T210408.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-09-25T232841.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-03T000835.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-03T024842.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-11T110117.yml:
     method: generated
     evidence: Kin Score snapshot written by score.rb
   lifecycle/here-lifecycle.yml:
@@ -449,10 +353,6 @@ artifacts:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
-  openapi/_original/here-geocoding-and-search-v7-openapi_2.json.archived.txt:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
   openapi/_original/here-geocoding-batch-v7-openapi.yml:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
@@ -466,10 +366,6 @@ artifacts:
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
   openapi/_original/here-geofencing-v1-openapi_2.json:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
-  openapi/_original/here-geofencing-v1-openapi_2.json.archived.txt:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
@@ -518,10 +414,6 @@ artifacts:
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
   openapi/_original/here-map-attributes-v1-openapi_2.json:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
-  openapi/_original/here-map-attributes-v1-openapi_2.json.archived.txt:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
@@ -605,10 +497,6 @@ artifacts:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
-  openapi/_original/here-route-matching-v8-openapi_2.json.archived.txt:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
   openapi/_original/here-routing-v8-openapi.yml:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
@@ -630,10 +518,6 @@ artifacts:
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
   openapi/_original/here-tracking-v2-openapi_2.json:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
-  openapi/_original/here-tracking-v2-openapi_2.json.archived.txt:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
@@ -669,19 +553,11 @@ artifacts:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
-  openapi/_original/here-waypoints-sequence-v1-openapi_2.json.archived.txt:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
   openapi/_original/here-wego-user-service-v1-openapi.json:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
   openapi/_original/here-wego-user-service-v1-openapi_2.json:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
-  openapi/_original/here-wego-user-service-v1-openapi_2.json.archived.txt:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
@@ -1048,149 +924,512 @@ artifacts:
   openapi/here-write-features-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  overlays/here-access-filters-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
   overlays/here-account-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-aliases-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-api-information-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-api-key-management-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-api-lookup-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-app-code-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-application-access-key-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-application-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-associations-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-asynchronous-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-authentication-v1-1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-authorization-information-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-authorization-server-metadata-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-authorization-share-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-authorization-v1-1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-autosuggest-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-batch-jobs-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-batch-notifications-beta-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-blob-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-browse-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-by-key-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-charging-location-lookup-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-charging-location-metadata-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-client-registration-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-config-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-cors-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-cost-management-usage-v2-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-cross-realm-trusts-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-data-blob-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-blob-v2-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-config-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-index-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-ingest-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-metadata-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-notification-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-publish-v2-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-query-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-stream-v2-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-data-volatile-blob-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-destination-weather-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-destination-weather-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-device-token-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-discover-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-egressrules-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-endpoints-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-ev-charge-points-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-events-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-feature-groups-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-fuel-prices-v2-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-fuel-prices-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-fuel-stations-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-fuel-types-and-brands-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-geocode-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-geocoding-and-search-v7-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-geocoding-batch-v7-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-geofences-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-geofencing-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-geofencing-v8-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-gnss-data-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-gnss-data-v2-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-grants-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-groups-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-icons-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-images-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-index-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-indoor-routing-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-ingestion-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-interactive-map-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-intermodal-routing-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-isoline-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-isoline-routing-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-labels-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-largedata-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-list-apps-for-an-identity-provider-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-list-profiles-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-location-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-locations-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-lookup-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-changesets-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-device-accounts-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-identity-providers-for-a-realm-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-identity-providers-for-an-app-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-mtls-identity-providers-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-saml-identity-providers-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-manage-tags-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-map-attributes-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-map-attributes-v8-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-map-image-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-matrix-calculation-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-matrix-routing-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-metadata-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-multi-revgeocode-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-network-positioning-v1-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-network-positioning-v2-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-next-departures-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-notification-api-v2-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-notifications-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-oauth-2-0-access-token-endpoint-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-oauth2-token-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-packages-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-pipeline-management-v2-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-pipeline-templates-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-pipeline-versions-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-pipelines-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-platform-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-platform-pricing-terms-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-platform-service-terms-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-profile-mode-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-project-access-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-project-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-project-resource-management-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-public-transit-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-publish-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-query-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-raster-tile-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-rate-limit-rules-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-rate-limit-rules-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-read-features-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-real-time-traffic-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-realms-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-registry-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-resource-info-and-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-resource-policies-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-resource-profiles-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-resources-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-revgeocode-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-roles-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-route-matching-v8-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-route-matching-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-routing-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-routing-v8-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-rules-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-runtimeenvironments-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-saml-identity-provider-templates-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-secret-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-sensors-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-services-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-shadows-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-shipments-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-signals-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-snapshots-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-station-search-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-stream-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-subscription-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-subscriptions-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-support-access-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-synchronous-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-system-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-tiles-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-tour-planning-v3-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-traces-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-tracking-v2-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-traffic-raster-tile-v3-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-traffic-v7-overlay.yaml:
-    method: searched
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   overlays/here-traffic-vector-tile-v2-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-trusted-domain-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-usage-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-user-account-management-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-user-tracking-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-users-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-volatile-blob-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-waypoints-sequence-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-waypoints-sequence-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-weather-alerts-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-weather-radar-api-phrasing-overlay.yaml:
+    method: generated
+    evidence: declared in the artifact
+  overlays/here-weather-report-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   overlays/here-wego-user-service-v1-overlay.yaml:
-    method: searched
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
+  overlays/here-write-features-api-phrasing-overlay.yaml:
+    method: generated
     evidence: declared in the artifact
   packages/here-packages.yml:
     method: searched
