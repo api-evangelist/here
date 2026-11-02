@@ -1,0 +1,37 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-10-28'
+method: searched
+source: https://www.here.com/get-started/pricing
+sources:
+- https://www.here.com/get-started/pricing
+provenance:
+  tool: engine/economics/harvest_pricing.py
+  run: 20261028T120612
+  grounding: every price_text was found verbatim in the fetched page text
+audience: developer-api
+pricing_basis: negotiated
+delivery:
+  delivery: managed
+  method: page
+  read: '2026-10-28'
+published: false
+note: No numeric price is published on the pricing page; Page text shows only 'Get started for free' and
+  'Contact Us' calls to action; no numeric prices present.
+plan_count: 1
+plans:
+- name: HERE Base Plan
+  price_text: Contact Us
+  period: none
+x-canonical:
+  generated: '2026-11-01'
+  vocabulary: engine/economics/plans-canonical.yml
+  models: []
+  units: []
+  plans:
+  - name: HERE Base Plan
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods:
+    - none
